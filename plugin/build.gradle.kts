@@ -23,8 +23,8 @@ dependencies {
     compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.3")
 
     implementation(project(":api"))
+    implementation(project(":v1_19_4"))
     implementation("net.thenextlvl.core:bukkit:1.0.0")
-    implementation("net.thenextlvl.core:core-api:3.1.10")
 
     annotationProcessor("org.projectlombok:lombok:1.18.26")
 }

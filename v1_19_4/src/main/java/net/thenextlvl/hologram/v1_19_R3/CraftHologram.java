@@ -1,9 +1,10 @@
-package net.thenextlvl.hologram;
+package net.thenextlvl.hologram.v1_19_R3;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import net.thenextlvl.hologram.line.HologramLine;
+import net.thenextlvl.hologram.api.Hologram;
+import net.thenextlvl.hologram.api.line.HologramLine;
 import org.bukkit.Location;
 
 import java.util.Collection;

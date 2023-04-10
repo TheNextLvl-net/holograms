@@ -1,9 +1,11 @@
-package net.thenextlvl.hologram;
+package net.thenextlvl.hologram.v1_19_R3;
 
-import net.thenextlvl.hologram.line.HologramLine;
-import net.thenextlvl.hologram.line.CraftBlockLine;
-import net.thenextlvl.hologram.line.CraftItemLine;
-import net.thenextlvl.hologram.line.CraftTextLine;
+import net.thenextlvl.hologram.api.Hologram;
+import net.thenextlvl.hologram.api.HologramFactory;
+import net.thenextlvl.hologram.api.line.HologramLine;
+import net.thenextlvl.hologram.v1_19_R3.line.CraftBlockLine;
+import net.thenextlvl.hologram.v1_19_R3.line.CraftItemLine;
+import net.thenextlvl.hologram.v1_19_R3.line.CraftTextLine;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;

@@ -1,8 +1,9 @@
-package net.thenextlvl.hologram.line;
+package net.thenextlvl.hologram.v1_19_R3.line;
 
 import lombok.RequiredArgsConstructor;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
+import net.thenextlvl.hologram.api.line.BlockLine;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftServer;

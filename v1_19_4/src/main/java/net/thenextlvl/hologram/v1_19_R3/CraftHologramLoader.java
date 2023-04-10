@@ -1,6 +1,8 @@
-package net.thenextlvl.hologram;
+package net.thenextlvl.hologram.v1_19_R3;
 
 import com.google.common.base.Preconditions;
+import net.thenextlvl.hologram.api.Hologram;
+import net.thenextlvl.hologram.api.HologramLoader;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -21,6 +23,7 @@ public class CraftHologramLoader implements HologramLoader {
     }
 
     private void send(Hologram hologram, Player player) {
+        // TODO: 10.04.23 send entity display to player
     }
 
     @Override
@@ -33,6 +36,7 @@ public class CraftHologramLoader implements HologramLoader {
     }
 
     private void remove(Hologram hologram, Player player) {
+        // TODO: 10.04.23 send entity remove packet to player
     }
 
     @Override

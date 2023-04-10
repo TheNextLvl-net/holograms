@@ -1,9 +1,9 @@
-package net.thenextlvl.hologram;
+package net.thenextlvl.hologram.api;
 
-import net.thenextlvl.hologram.line.BlockLine;
-import net.thenextlvl.hologram.line.HologramLine;
-import net.thenextlvl.hologram.line.ItemLine;
-import net.thenextlvl.hologram.line.TextLine;
+import net.thenextlvl.hologram.api.line.BlockLine;
+import net.thenextlvl.hologram.api.line.HologramLine;
+import net.thenextlvl.hologram.api.line.ItemLine;
+import net.thenextlvl.hologram.api.line.TextLine;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;

@@ -1,6 +1,6 @@
-package net.thenextlvl.hologram;
+package net.thenextlvl.hologram.api;
 
-import net.thenextlvl.hologram.line.HologramLine;
+import net.thenextlvl.hologram.api.line.HologramLine;
 import org.bukkit.Location;
 
 import java.util.Collection;

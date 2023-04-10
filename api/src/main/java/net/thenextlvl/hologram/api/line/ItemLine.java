@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.line;
+package net.thenextlvl.hologram.api.line;
 
 import org.bukkit.Location;
 import org.bukkit.entity.ItemDisplay;

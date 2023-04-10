@@ -1,6 +1,7 @@
-package net.thenextlvl.hologram;
+package net.thenextlvl.hologram.v1_19_R3;
 
 import lombok.Getter;
+import net.thenextlvl.hologram.api.HologramProvider;
 
 @Getter
 public class CraftHologramProvider implements HologramProvider {

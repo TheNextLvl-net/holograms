@@ -31,7 +31,7 @@ dependencies {
 
 bukkit {
     name = "Holograms"
-    main = "net.thenextlvl.holograms.Holograms"
+    main = "net.thenextlvl.hologram.HologramPlugin"
     apiVersion = "1.19"
     website = "https://thenextlvl.net"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD

@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram;
+package net.thenextlvl.hologram.api;
 
 import java.util.Collection;
 

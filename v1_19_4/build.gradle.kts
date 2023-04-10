@@ -16,8 +16,29 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.26")
 
-    implementation("net.thenextlvl.core:core-api:3.1.10")
+    implementation("net.thenextlvl.core:api:3.1.10")
+    implementation("net.thenextlvl.core:annotations:1.0.0")
     implementation(project(":api"))
 
     annotationProcessor("org.projectlombok:lombok:1.18.26")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+tasks {
+    assemble {
+        dependsOn(reobfJar)
+    }
+    compileJava {
+        options.encoding = Charsets.UTF_8.name()
+        options.release.set(17)
+    }
+    javadoc {
+        options.encoding = Charsets.UTF_8.name()
+    }
+    processResources {
+        filteringCharset = Charsets.UTF_8.name()
+    }
 }

@@ -1,8 +1,14 @@
 package net.thenextlvl.hologram.line;
 
+import org.bukkit.Location;
 import org.bukkit.entity.TextDisplay;
 
 public interface TextLine extends HologramLine {
     @Override
-    TextDisplay getDisplay();
+    TextDisplay display(Location location);
+
+    @Override
+    default LineType getType() {
+        return LineType.TEXT;
+    }
 }

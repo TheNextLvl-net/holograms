@@ -1,17 +1,10 @@
 package net.thenextlvl.hologram;
 
-import net.thenextlvl.hologram.line.HologramLine;
-import org.bukkit.Location;
-
-import java.util.Collection;
-
 public interface HologramProvider {
 
-    Collection<Hologram> getHolograms();
+    HologramRegistry getHologramRegistry();
 
-    void setHolograms(Collection<Hologram> holograms);
+    HologramFactory getHologramFactory();
 
-    Hologram createHologram(Location location, Collection<HologramLine> lines);
-
-    HologramLine createLine(HologramLine.Type type);
+    HologramLoader getHologramLoader();
 }

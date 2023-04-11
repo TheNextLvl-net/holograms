@@ -4,6 +4,7 @@ import net.thenextlvl.hologram.api.Hologram;
 import net.thenextlvl.hologram.api.HologramFactory;
 import net.thenextlvl.hologram.api.line.HologramLine;
 import net.thenextlvl.hologram.v1_19_R3.line.CraftBlockLine;
+import net.thenextlvl.hologram.v1_19_R3.line.CraftHologramLine;
 import net.thenextlvl.hologram.v1_19_R3.line.CraftItemLine;
 import net.thenextlvl.hologram.v1_19_R3.line.CraftTextLine;
 import org.bukkit.Location;
@@ -17,8 +18,9 @@ import java.util.function.Consumer;
 public class CraftHologramFactory implements HologramFactory {
 
     @Override
-    public Hologram createHologram(Location location, Collection<HologramLine> lines) {
-        return new CraftHologram(location, lines);
+    @SuppressWarnings("unchecked")
+    public Hologram createHologram(Location location, Collection<? extends HologramLine> lines) {
+        return new CraftHologram(location, (Collection<CraftHologramLine>) lines);
     }
 
     @Override

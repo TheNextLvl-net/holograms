@@ -9,12 +9,13 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftBlockDisplay;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftDisplay;
 import org.bukkit.entity.BlockDisplay;
 
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
-public class CraftBlockLine implements BlockLine {
+public class CraftBlockLine extends CraftHologramLine implements BlockLine {
     private final Consumer<BlockDisplay> consumer;
 
     public CraftServer getServer() {
@@ -23,9 +24,18 @@ public class CraftBlockLine implements BlockLine {
 
     @Override
     public CraftBlockDisplay display(Location location) {
+        return display(location, display -> {
+        });
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends CraftDisplay> CraftBlockDisplay display(Location location, Consumer<T> consumer) {
         var level = ((CraftWorld) location.getWorld()).getHandle();
         var display = new CraftBlockDisplay(getServer(), new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level));
-        consumer.accept(display);
+        this.consumer.accept(display);
+        consumer.accept((T) display);
+        display.getHandle().setPos(location.getX(), location.getY(), location.getZ());
         return display;
     }
 }

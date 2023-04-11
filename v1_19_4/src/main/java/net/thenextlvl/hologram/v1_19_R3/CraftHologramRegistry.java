@@ -11,20 +11,20 @@ import java.util.Collection;
 @Getter
 @Setter
 public class CraftHologramRegistry implements HologramRegistry {
-    private Collection<Hologram> holograms = new ArrayList<>();
+    private Collection<CraftHologram> holograms = new ArrayList<>();
 
     @Override
     public void register(Hologram hologram) {
-        holograms.add(hologram);
+        holograms.add((CraftHologram) hologram);
     }
 
     @Override
     public void unregister(Hologram hologram) {
-        holograms.remove(hologram);
+        holograms.remove((CraftHologram) hologram);
     }
 
     @Override
     public boolean isRegistered(Hologram hologram) {
-        return holograms.contains(hologram);
+        return holograms.contains((CraftHologram) hologram);
     }
 }

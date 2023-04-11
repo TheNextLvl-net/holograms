@@ -5,13 +5,15 @@ import org.bukkit.Location;
 
 import java.util.Collection;
 
-public interface Hologram {
+public interface Hologram extends Cloneable {
 
     Location getLocation();
 
     void setLocation(Location location);
 
-    Collection<HologramLine> getLines();
+    Collection<? extends HologramLine> getLines();
 
-    void setLines(Collection<HologramLine> lines);
+    void setLines(Collection<? extends HologramLine> lines);
+
+    Hologram clone();
 }

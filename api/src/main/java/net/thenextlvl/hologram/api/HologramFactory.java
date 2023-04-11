@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public interface HologramFactory {
 
-    Hologram createHologram(Location location, Collection<HologramLine> lines);
+    Hologram createHologram(Location location, Collection<? extends HologramLine> lines);
 
     BlockLine createBlockLine(Consumer<BlockDisplay> consumer);
 

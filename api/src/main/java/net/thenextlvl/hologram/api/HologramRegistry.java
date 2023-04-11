@@ -3,7 +3,7 @@ package net.thenextlvl.hologram.api;
 import java.util.Collection;
 
 public interface HologramRegistry {
-    Collection<Hologram> getHolograms();
+    Collection<? extends Hologram> getHolograms();
 
     void register(Hologram hologram);
 

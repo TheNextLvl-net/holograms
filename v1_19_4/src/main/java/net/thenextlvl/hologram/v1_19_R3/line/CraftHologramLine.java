@@ -5,6 +5,5 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftDisplay;
 
 public abstract class CraftHologramLine implements HologramLine {
-    @Override
     public abstract CraftDisplay display(Location location);
 }

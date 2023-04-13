@@ -1,8 +1,8 @@
 package net.thenextlvl.hologram.api.line;
 
-import org.bukkit.Location;
-import org.bukkit.entity.TextDisplay;
-
+/**
+ * An interface that represents a hologram line of the type {@link LineType#TEXT text}
+ */
 public interface TextLine extends HologramLine {
     @Override
     default LineType getType() {

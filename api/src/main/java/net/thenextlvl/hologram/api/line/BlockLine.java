@@ -1,8 +1,8 @@
 package net.thenextlvl.hologram.api.line;
 
-import org.bukkit.Location;
-import org.bukkit.entity.BlockDisplay;
-
+/**
+ * An interface that represents a hologram line of the type {@link LineType#BLOCK block}
+ */
 public interface BlockLine extends HologramLine {
     @Override
     default LineType getType() {

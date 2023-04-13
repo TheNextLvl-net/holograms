@@ -9,7 +9,6 @@ import java.util.Collection;
  * A loader class that handles loading, unloading and updating of holograms
  */
 public interface HologramLoader {
-
     /**
      * Loads the hologram for the specified player
      *

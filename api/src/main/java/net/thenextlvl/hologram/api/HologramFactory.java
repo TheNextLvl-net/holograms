@@ -17,7 +17,6 @@ import java.util.function.Function;
  * A factory that creates {@link Hologram holograms} and {@link HologramLine hologram lines}
  */
 public interface HologramFactory {
-
     /**
      * Create a new hologram object
      *

@@ -10,5 +10,5 @@ public abstract class CraftHologramLine implements HologramLine {
     @Override
     public abstract CraftDisplay display(Location location);
 
-    public abstract <T extends CraftDisplay> CraftDisplay display(Location location, Consumer<T> consumer);
+    public abstract CraftDisplay display(Location location, Consumer<CraftDisplay> consumer);
 }

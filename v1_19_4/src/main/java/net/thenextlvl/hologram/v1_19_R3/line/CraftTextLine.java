@@ -29,12 +29,11 @@ public class CraftTextLine extends CraftHologramLine implements TextLine {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends CraftDisplay> CraftTextDisplay display(Location location, Consumer<T> consumer) {
+    public CraftTextDisplay display(Location location, Consumer<CraftDisplay> consumer) {
         var level = ((CraftWorld) location.getWorld()).getHandle();
         var display = new CraftTextDisplay(getServer(), new Display.TextDisplay(EntityType.TEXT_DISPLAY, level));
         this.consumer.accept(display);
-        consumer.accept((T) display);
+        consumer.accept(display);
         display.getHandle().setPos(location.getX(), location.getY(), location.getZ());
         return display;
     }

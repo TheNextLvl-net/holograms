@@ -29,12 +29,11 @@ public class CraftItemLine extends CraftHologramLine implements ItemLine {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends CraftDisplay> CraftItemDisplay display(Location location, Consumer<T> consumer) {
+    public CraftItemDisplay display(Location location, Consumer<CraftDisplay> consumer) {
         var level = ((CraftWorld) location.getWorld()).getHandle();
         var display = new CraftItemDisplay(getServer(), new Display.ItemDisplay(EntityType.ITEM_DISPLAY, level));
         this.consumer.accept(display);
-        consumer.accept((T) display);
+        consumer.accept(display);
         display.getHandle().setPos(location.getX(), location.getY(), location.getZ());
         return display;
     }

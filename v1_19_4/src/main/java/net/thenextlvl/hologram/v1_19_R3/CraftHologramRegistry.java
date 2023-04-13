@@ -1,7 +1,7 @@
 package net.thenextlvl.hologram.v1_19_R3;
 
+import com.google.common.base.Preconditions;
 import lombok.Getter;
-import lombok.Setter;
 import net.thenextlvl.hologram.api.Hologram;
 import net.thenextlvl.hologram.api.HologramRegistry;
 
@@ -9,17 +9,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
-@Setter
 public class CraftHologramRegistry implements HologramRegistry {
-    private Collection<Hologram> holograms = new ArrayList<>();
+    private final Collection<Hologram> holograms = new ArrayList<>();
 
     @Override
-    public void register(Hologram hologram) {
+    public void register(Hologram hologram) throws IllegalArgumentException {
+        Preconditions.checkArgument(!isRegistered(hologram), "Hologram already registered");
         holograms.add(hologram);
     }
 
     @Override
-    public void unregister(Hologram hologram) {
+    public void unregister(Hologram hologram) throws IllegalArgumentException {
+        Preconditions.checkArgument(isRegistered(hologram), "Hologram not registered");
         holograms.remove(hologram);
     }
 

@@ -19,7 +19,7 @@ public class CraftHologramLoader implements HologramLoader {
     private final ClientsideHologramLoader loader = new ClientsideHologramLoader(new HologramCache());
 
     @Override
-    public void load(Hologram hologram, Player player) {
+    public void load(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException {
         Preconditions.checkArgument(!isLoaded(hologram, player), "Hologram is already loaded");
         Preconditions.checkArgument(canSee(player, hologram), "Hologram can't be seen by the player");
         Preconditions.checkNotNull(hologram.getLocation().getWorld(), "World can't be null");
@@ -27,14 +27,15 @@ public class CraftHologramLoader implements HologramLoader {
     }
 
     @Override
-    public void unload(Hologram hologram, Player player) {
+    public void unload(Hologram hologram, Player player) throws IllegalArgumentException {
         Preconditions.checkArgument(isLoaded(hologram, player), "Hologram is not loaded");
         loader.unload((CraftHologram) hologram, (CraftPlayer) player);
     }
 
     @Override
-    public void update(Hologram hologram, Player player) {
-        loader.update((CraftHologram) hologram, (CraftPlayer) player);
+    public void update(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException {
+        unload(hologram, player);
+        load(hologram, player);
     }
 
     @Override

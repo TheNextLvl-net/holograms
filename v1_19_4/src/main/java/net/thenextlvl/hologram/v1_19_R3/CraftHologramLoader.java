@@ -8,7 +8,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.thenextlvl.hologram.api.Hologram;
 import net.thenextlvl.hologram.api.HologramLoader;
 import net.thenextlvl.hologram.v1_19_R3.line.CraftHologramLine;
-import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftDisplay;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
@@ -54,11 +53,6 @@ public class CraftHologramLoader implements HologramLoader {
         return loader.cache().getHolograms(player).keySet();
     }
 
-    @Override
-    public Collection<CraftHologram> getHolograms(Player player, World world) {
-        return getHolograms(player).stream().filter(hologram -> hologram.getLocation().getWorld().equals(world)).toList();
-    }
-
     private record ClientsideHologramLoader(HologramCache cache) {
 
         private void load(CraftHologram hologram, CraftPlayer player) {
@@ -86,11 +80,6 @@ public class CraftHologramLoader implements HologramLoader {
             var ids = new IntArrayList(cache.getHologramLines(player, hologram).values());
             connection.send(new ClientboundRemoveEntitiesPacket(ids));
             cache.removeHologram(player, hologram);
-        }
-
-        private void update(CraftHologram hologram, CraftPlayer player) {
-            unload(hologram, player);
-            load(hologram, player);
         }
     }
 

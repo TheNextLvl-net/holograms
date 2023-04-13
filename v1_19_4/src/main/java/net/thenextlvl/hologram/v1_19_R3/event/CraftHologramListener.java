@@ -2,7 +2,6 @@ package net.thenextlvl.hologram.v1_19_R3.event;
 
 import lombok.RequiredArgsConstructor;
 import net.thenextlvl.hologram.v1_19_R3.CraftHologramProvider;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,7 +19,7 @@ public class CraftHologramListener implements Listener {
 
     @EventHandler
     public void onWorldChanged(PlayerChangedWorldEvent event) {
-        unloadHolograms(event.getPlayer(), event.getFrom());
+        unloadHolograms(event.getPlayer());
         loadHolograms(event.getPlayer());
     }
 
@@ -31,9 +30,9 @@ public class CraftHologramListener implements Listener {
                 .forEach(hologram -> loader.load(hologram, player));
     }
 
-    private void unloadHolograms(Player player, World world) {
+    private void unloadHolograms(Player player) {
         var loader = provider.getHologramLoader();
-        loader.getHolograms(player, world).forEach(hologram ->
+        loader.getHolograms(player).forEach(hologram ->
                 loader.unload(hologram, player));
     }
 }

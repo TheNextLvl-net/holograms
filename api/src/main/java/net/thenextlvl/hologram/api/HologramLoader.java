@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.api;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -18,6 +17,4 @@ public interface HologramLoader {
     boolean canSee(Player player, Hologram hologram);
 
     Collection<? extends Hologram> getHolograms(Player player);
-
-    Collection<? extends Hologram> getHolograms(Player player, World world);
 }

@@ -9,6 +9,7 @@ import net.thenextlvl.hologram.api.Hologram;
 import net.thenextlvl.hologram.api.HologramLoader;
 import net.thenextlvl.hologram.v1_19_R3.line.CraftHologramLine;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftDisplay;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -63,11 +64,11 @@ public class CraftHologramLoader implements HologramLoader {
         private void load(CraftHologram hologram, CraftPlayer player) {
             cache.addHologram(player, hologram);
             var location = hologram.getLocation().clone();
+            var world = (CraftWorld) location.getWorld();
             var connection = player.getHandle().connection;
             var displays = new ArrayList<CraftDisplay>();
             hologram.getLines().forEach(line -> {
-                var display = line.display(location, craftDisplay ->
-                        location.setY(location.getY() - craftDisplay.getDisplayHeight()));
+                var display = line.display(location);
                 cache.addHologramLine(player, hologram, line, display.getEntityId());
                 displays.add(display);
             });

@@ -13,28 +13,59 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class CraftHologramFactory implements HologramFactory {
 
     @Override
     @SuppressWarnings("unchecked")
     public Hologram createHologram(Location location, Collection<? extends HologramLine> lines) {
-        return new CraftHologram(location, (Collection<CraftHologramLine>) lines);
+        return new CraftHologram(location.clone(), (Collection<CraftHologramLine>) lines);
+    }
+
+    @Override
+    public Hologram createHologram(Location location, HologramLine... lines) {
+        return createHologram(location, List.of(lines));
+    }
+
+    @Override
+    public CraftBlockLine createBlockLine(Function<BlockDisplay, Number> function) {
+        return new CraftBlockLine(function);
     }
 
     @Override
     public CraftBlockLine createBlockLine(Consumer<BlockDisplay> consumer) {
-        return new CraftBlockLine(consumer);
+        return createBlockLine(display -> {
+            consumer.accept(display);
+            return 1;
+        });
+    }
+
+    @Override
+    public CraftItemLine createItemLine(Function<ItemDisplay, Number> function) {
+        return new CraftItemLine(function);
     }
 
     @Override
     public CraftItemLine createItemLine(Consumer<ItemDisplay> consumer) {
-        return new CraftItemLine(consumer);
+        return createItemLine(display -> {
+            consumer.accept(display);
+            return 0.6;
+        });
+    }
+
+    @Override
+    public CraftTextLine createTextLine(Function<TextDisplay, Number> function) {
+        return new CraftTextLine(function);
     }
 
     @Override
     public CraftTextLine createTextLine(Consumer<TextDisplay> consumer) {
-        return new CraftTextLine(consumer);
+        return createTextLine(display -> {
+            consumer.accept(display);
+            return 0.27;
+        });
     }
 }

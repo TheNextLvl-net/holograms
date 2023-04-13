@@ -9,31 +9,20 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftBlockDisplay;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftDisplay;
 import org.bukkit.entity.BlockDisplay;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 @RequiredArgsConstructor
 public class CraftBlockLine extends CraftHologramLine implements BlockLine {
-    private final Consumer<BlockDisplay> consumer;
-
-    public CraftServer getServer() {
-        return (CraftServer) Bukkit.getServer();
-    }
+    private final Function<BlockDisplay, Number> function;
 
     @Override
     public CraftBlockDisplay display(Location location) {
-        return display(location, display -> {
-        });
-    }
-
-    @Override
-    public CraftBlockDisplay display(Location location, Consumer<CraftDisplay> consumer) {
-        var level = ((CraftWorld) location.getWorld()).getHandle();
-        var display = new CraftBlockDisplay(getServer(), new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level));
-        this.consumer.accept(display);
-        consumer.accept(display);
+        var world = (CraftWorld) location.getWorld();
+        var entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, world.getHandle());
+        var display = new CraftBlockDisplay((CraftServer) Bukkit.getServer(), entity);
+        location.setY(location.getY() - function.apply(display).doubleValue());
         display.getHandle().setPos(location.getX(), location.getY(), location.getZ());
         return display;
     }

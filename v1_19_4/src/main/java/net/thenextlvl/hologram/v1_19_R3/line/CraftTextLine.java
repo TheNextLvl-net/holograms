@@ -8,33 +8,27 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftDisplay;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftTextDisplay;
 import org.bukkit.entity.TextDisplay;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 @RequiredArgsConstructor
 public class CraftTextLine extends CraftHologramLine implements TextLine {
-    private final Consumer<TextDisplay> consumer;
-
-    public CraftServer getServer() {
-        return (CraftServer) Bukkit.getServer();
-    }
+    private final Function<TextDisplay, Number> function;
 
     @Override
     public CraftTextDisplay display(Location location) {
-        return display(location, display -> {
-        });
-    }
-
-    @Override
-    public CraftTextDisplay display(Location location, Consumer<CraftDisplay> consumer) {
-        var level = ((CraftWorld) location.getWorld()).getHandle();
-        var display = new CraftTextDisplay(getServer(), new Display.TextDisplay(EntityType.TEXT_DISPLAY, level));
-        this.consumer.accept(display);
-        consumer.accept(display);
+        var world = (CraftWorld) location.getWorld();
+        var entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world.getHandle());
+        var display = new CraftTextDisplay((CraftServer) Bukkit.getServer(), entity);
+        applyDefaults(display);
+        location.setY(location.getY() - function.apply(display).doubleValue());
         display.getHandle().setPos(location.getX(), location.getY(), location.getZ());
         return display;
+    }
+
+    private void applyDefaults(CraftTextDisplay display) {
+        display.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
     }
 }

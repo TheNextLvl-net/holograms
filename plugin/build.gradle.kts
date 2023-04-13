@@ -2,7 +2,7 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
     id("java")
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
 }
 
@@ -23,7 +23,7 @@ dependencies {
     compileOnly("cloud.commandframework:cloud-minecraft-extras:1.8.3")
 
     implementation(project(":api"))
-    implementation(project(":v1_19_4"))
+    implementation(project(":v1_19_4", "reobf"))
     implementation("net.thenextlvl.core:bukkit:1.0.0")
 
     annotationProcessor("org.projectlombok:lombok:1.18.26")
@@ -40,4 +40,13 @@ bukkit {
             "cloud.commandframework:cloud-paper:1.8.3",
             "cloud.commandframework:cloud-minecraft-extras:1.8.3"
     )
+}
+
+tasks {
+    assemble {
+        dependsOn(shadowJar)
+    }
+    shadowJar {
+        minimize()
+    }
 }

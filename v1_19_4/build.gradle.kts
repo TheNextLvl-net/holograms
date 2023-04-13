@@ -24,22 +24,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.26")
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-}
-
 tasks {
-    assemble {
+    task("reobf") {
         dependsOn(reobfJar)
-    }
-    compileJava {
-        options.encoding = Charsets.UTF_8.name()
-        options.release.set(17)
-    }
-    javadoc {
-        options.encoding = Charsets.UTF_8.name()
-    }
-    processResources {
-        filteringCharset = Charsets.UTF_8.name()
     }
 }

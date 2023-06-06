@@ -45,6 +45,17 @@ public interface HologramLoader {
     void unload(Hologram hologram, Player player) throws IllegalArgumentException;
 
     /**
+     * Updates the hologram for all the viewers
+     *
+     * @param hologram the hologram to update
+     * @throws NullPointerException thrown if the
+     *                              {@link Location#getWorld() world} of the hologram is null
+     * @see HologramLoader#getViewers(Hologram)
+     * @see HologramLoader#update(Hologram, Player)
+     */
+    void update(Hologram hologram) throws NullPointerException;
+
+    /**
      * Updates the hologram for the specified player
      *
      * @param hologram the hologram to update

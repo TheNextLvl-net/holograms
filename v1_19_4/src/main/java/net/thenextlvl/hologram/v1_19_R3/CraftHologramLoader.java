@@ -38,6 +38,11 @@ public class CraftHologramLoader implements HologramLoader {
     }
 
     @Override
+    public void update(Hologram hologram) throws NullPointerException {
+        getViewers(hologram).forEach(player -> update(hologram, player));
+    }
+
+    @Override
     public void update(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException {
         unload(hologram, player);
         load(hologram, player);

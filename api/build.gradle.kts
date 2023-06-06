@@ -8,8 +8,8 @@ java {
     withJavadocJar()
 }
 
-group = "net.thenextlvl.holograms"
-version = "1.0.0"
+group = rootProject.group
+version = rootProject.version
 
 repositories {
     mavenCentral()

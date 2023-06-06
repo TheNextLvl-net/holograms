@@ -2,11 +2,12 @@ plugins {
     id("java")
 }
 
-group = "net.thenextlvl"
-version = "1.0.0"
+group = "net.thenextlvl.holograms"
+version = "1.0.1"
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks {

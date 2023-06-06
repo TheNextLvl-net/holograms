@@ -4,8 +4,8 @@ plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
 }
 
-group = "net.thenextlvl.holograms"
-version = "1.0.0"
+group = rootProject.group
+version = rootProject.version
 
 repositories {
     mavenCentral()

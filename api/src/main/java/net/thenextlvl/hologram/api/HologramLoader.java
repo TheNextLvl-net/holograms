@@ -25,6 +25,15 @@ public interface HologramLoader {
     void load(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException;
 
     /**
+     * Unloads the hologram for all the viewers
+     *
+     * @param hologram the hologram to unload
+     * @see HologramLoader#getViewers(Hologram)
+     * @see HologramLoader#unload(Hologram, Player)
+     */
+    void unload(Hologram hologram);
+
+    /**
      * Unloads the hologram for the specified player
      *
      * @param hologram the hologram to unload

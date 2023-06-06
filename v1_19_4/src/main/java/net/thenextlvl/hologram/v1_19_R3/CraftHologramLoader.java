@@ -27,6 +27,11 @@ public class CraftHologramLoader implements HologramLoader {
     }
 
     @Override
+    public void unload(Hologram hologram) {
+        getViewers(hologram).forEach(player -> load(hologram, player));
+    }
+
+    @Override
     public void unload(Hologram hologram, Player player) throws IllegalArgumentException {
         Preconditions.checkArgument(isLoaded(hologram, player), "Hologram is not loaded");
         loader.unload((CraftHologram) hologram, (CraftPlayer) player);

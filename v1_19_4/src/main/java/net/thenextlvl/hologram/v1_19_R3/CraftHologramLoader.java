@@ -45,6 +45,13 @@ public class CraftHologramLoader implements HologramLoader {
     }
 
     @Override
+    public Collection<Player> getViewers(Hologram hologram) {
+        return loader.cache().keySet().stream()
+                .filter(player -> isLoaded(hologram, player))
+                .toList();
+    }
+
+    @Override
     public boolean canSee(Player player, Hologram hologram) {
         return player.getWorld().equals(hologram.getLocation().getWorld());
     }

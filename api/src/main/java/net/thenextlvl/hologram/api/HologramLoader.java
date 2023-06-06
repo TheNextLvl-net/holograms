@@ -69,6 +69,15 @@ public interface HologramLoader {
     boolean canSee(Player player, Hologram hologram);
 
     /**
+     * All the players the hologram is loaded for
+     *
+     * @param hologram the hologram
+     * @return the players the hologram is loaded for
+     * @see HologramLoader#isLoaded(Hologram, Player)
+     */
+    Collection<Player> getViewers(Hologram hologram);
+
+    /**
      * All the holograms that are currently loaded for the player
      *
      * @param player the player

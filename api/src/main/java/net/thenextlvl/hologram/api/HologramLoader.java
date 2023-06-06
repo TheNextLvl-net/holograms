@@ -42,7 +42,7 @@ public interface HologramLoader {
      * @param player the player to update the hologram for
      *
      * @throws IllegalArgumentException thrown if the hologram is
-     * {@link HologramLoader#isLoaded(Hologram, Player) already loaded} or not
+     * {@link HologramLoader#isLoaded(Hologram, Player) not loaded} or not
      * {@link HologramLoader#canSee(Player, Hologram) visible} to the player
      *
      * @throws NullPointerException thrown if the

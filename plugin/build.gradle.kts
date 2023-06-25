@@ -32,3 +32,9 @@ bukkit {
     website = "https://thenextlvl.net"
     authors = listOf("NonSwag")
 }
+
+tasks {
+    assemble {
+        dependsOn(shadowJar)
+    }
+}

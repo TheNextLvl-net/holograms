@@ -1,16 +1,19 @@
-package net.thenextlvl.hologram.v1_19_R3.event;
+package net.thenextlvl.hologram.listener;
 
 import lombok.RequiredArgsConstructor;
-import net.thenextlvl.hologram.v1_19_R3.CraftHologramProvider;
+import net.thenextlvl.hologram.api.HologramProvider;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @RequiredArgsConstructor
-public class CraftHologramListener implements Listener {
-    private final CraftHologramProvider provider;
+@ParametersAreNonnullByDefault
+public class HologramListener implements Listener {
+    private final HologramProvider provider;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {

@@ -9,7 +9,7 @@ java {
 }
 
 group = rootProject.group
-version = rootProject.version
+version = "1.0.1"
 
 repositories {
     mavenCentral()

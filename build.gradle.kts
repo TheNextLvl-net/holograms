@@ -3,7 +3,6 @@ plugins {
 }
 
 group = "net.thenextlvl.holograms"
-version = "1.0.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

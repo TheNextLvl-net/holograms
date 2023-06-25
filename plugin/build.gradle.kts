@@ -14,7 +14,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(mapOf("path" to ":v1_19_4")))
     compileOnly("org.projectlombok:lombok:1.18.26")
     compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
 

@@ -8,7 +8,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.thenextlvl.hologram.api.Hologram;
 import net.thenextlvl.hologram.api.HologramLoader;
 import net.thenextlvl.hologram.v1_20_R1.line.CraftHologramLine;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftDisplay;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -44,8 +43,7 @@ public class CraftHologramLoader implements HologramLoader {
 
     @Override
     public void update(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException {
-        unload(hologram, player);
-        load(hologram, player);
+        loader.update((CraftHologram) hologram, (CraftPlayer) player);
     }
 
     @Override
@@ -76,7 +74,6 @@ public class CraftHologramLoader implements HologramLoader {
         private void load(CraftHologram hologram, CraftPlayer player) {
             cache.addHologram(player, hologram);
             var location = hologram.getLocation().clone();
-            var world = (CraftWorld) location.getWorld();
             var connection = player.getHandle().connection;
             var displays = new ArrayList<CraftDisplay>();
             hologram.getLines().forEach(line -> {
@@ -98,6 +95,16 @@ public class CraftHologramLoader implements HologramLoader {
             var ids = new IntArrayList(cache.getHologramLines(player, hologram).values());
             connection.send(new ClientboundRemoveEntitiesPacket(ids));
             cache.removeHologram(player, hologram);
+        }
+
+        private void update(CraftHologram hologram, CraftPlayer player) {
+            var connection = player.getHandle().connection;
+            var location = hologram.getLocation().clone();
+            cache().getHologramLines(player, hologram).forEach((line, id) -> {
+                var list = line.display(location).getHandle().getEntityData().packDirty();
+                var values = list != null ? list : new ArrayList<SynchedEntityData.DataValue<?>>();
+                connection.send(new ClientboundSetEntityDataPacket(id, values));
+            });
         }
     }
 

@@ -44,8 +44,7 @@ public class CraftHologramLoader implements HologramLoader {
 
     @Override
     public void update(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException {
-        unload(hologram, player);
-        load(hologram, player);
+        loader.update((CraftHologram) hologram, (CraftPlayer) player);
     }
 
     @Override
@@ -98,6 +97,16 @@ public class CraftHologramLoader implements HologramLoader {
             var ids = new IntArrayList(cache.getHologramLines(player, hologram).values());
             connection.send(new ClientboundRemoveEntitiesPacket(ids));
             cache.removeHologram(player, hologram);
+        }
+
+        private void update(CraftHologram hologram, CraftPlayer player) {
+            var connection = player.getHandle().connection;
+            var location = hologram.getLocation().clone();
+            cache().getHologramLines(player, hologram).forEach((line, id) -> {
+                var list = line.display(location).getHandle().getEntityData().packDirty();
+                var values = list != null ? list : new ArrayList<SynchedEntityData.DataValue<?>>();
+                connection.send(new ClientboundSetEntityDataPacket(id, values));
+            });
         }
     }
 

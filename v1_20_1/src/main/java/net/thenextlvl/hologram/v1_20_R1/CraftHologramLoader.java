@@ -9,6 +9,7 @@ import net.thenextlvl.hologram.api.Hologram;
 import net.thenextlvl.hologram.api.HologramLoader;
 import net.thenextlvl.hologram.v1_20_R1.line.CraftHologramLine;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftDisplay;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -78,7 +79,7 @@ public class CraftHologramLoader implements HologramLoader {
             var displays = new ArrayList<CraftDisplay>();
             hologram.getLines().forEach(line -> {
                 var display = line.display(location);
-                cache.addHologramLine(player, hologram, line, display.getEntityId());
+                cache.addHologramLine(player, hologram, line, display);
                 displays.add(display);
             });
             displays.stream().map(display -> {
@@ -92,7 +93,7 @@ public class CraftHologramLoader implements HologramLoader {
 
         private void unload(CraftHologram hologram, CraftPlayer player) {
             var connection = player.getHandle().connection;
-            var ids = new IntArrayList(cache.getHologramLines(player, hologram).values());
+            var ids = new IntArrayList(cache.getHologramIds(player, hologram));
             connection.send(new ClientboundRemoveEntitiesPacket(ids));
             cache.removeHologram(player, hologram);
         }
@@ -100,17 +101,17 @@ public class CraftHologramLoader implements HologramLoader {
         private void update(CraftHologram hologram, CraftPlayer player) {
             var connection = player.getHandle().connection;
             var location = hologram.getLocation().clone();
-            cache().getHologramLines(player, hologram).forEach((line, id) -> {
-                var list = line.display(location).getHandle().getEntityData().packDirty();
+            cache().getHologramLines(player, hologram).forEach((line, display) -> {
+                var list = display.getHandle().getEntityData().packDirty();
                 var values = list != null ? list : new ArrayList<SynchedEntityData.DataValue<?>>();
-                connection.send(new ClientboundSetEntityDataPacket(id, values));
+                connection.send(new ClientboundSetEntityDataPacket(display.getEntityId(), values));
             });
         }
     }
 
-    private static class HologramCache extends WeakHashMap<Player, Map<CraftHologram, Map<CraftHologramLine, Integer>>> {
+    private static class HologramCache extends WeakHashMap<Player, Map<CraftHologram, Map<CraftHologramLine, CraftDisplay>>> {
 
-        private Map<CraftHologram, Map<CraftHologramLine, Integer>> getHolograms(Player player) {
+        private Map<CraftHologram, Map<CraftHologramLine, CraftDisplay>> getHolograms(Player player) {
             return getOrDefault(player, new HashMap<>());
         }
 
@@ -124,19 +125,23 @@ public class CraftHologramLoader implements HologramLoader {
             getHolograms(player).remove(hologram);
         }
 
-        private Map<CraftHologramLine, Integer> getHologramLines(Player player, CraftHologram hologram) {
+        private Map<CraftHologramLine, CraftDisplay> getHologramLines(Player player, CraftHologram hologram) {
             return getHolograms(player).getOrDefault(hologram, new HashMap<>());
         }
 
-        private void setHologramLines(Player player, CraftHologram hologram, Map<CraftHologramLine, Integer> lines) {
+        private List<Integer> getHologramIds(Player player, CraftHologram hologram) {
+            return getHologramLines(player, hologram).values().stream().map(CraftEntity::getEntityId).toList();
+        }
+
+        private void setHologramLines(Player player, CraftHologram hologram, Map<CraftHologramLine, CraftDisplay> lines) {
             var holograms = getHolograms(player);
             holograms.put(hologram, lines);
             put(player, holograms);
         }
 
-        private void addHologramLine(Player player, CraftHologram hologram, CraftHologramLine line, int id) {
+        private void addHologramLine(Player player, CraftHologram hologram, CraftHologramLine line, CraftDisplay display) {
             var lines = getHologramLines(player, hologram);
-            lines.put(line, id);
+            lines.put(line, display);
             setHologramLines(player, hologram, lines);
         }
     }

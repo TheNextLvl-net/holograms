@@ -29,7 +29,7 @@ public class CraftHologramLoader implements HologramLoader {
 
     @Override
     public void unload(Hologram hologram) {
-        getViewers(hologram).forEach(player -> load(hologram, player));
+        getViewers(hologram).forEach(player -> unload(hologram, player));
     }
 
     @Override

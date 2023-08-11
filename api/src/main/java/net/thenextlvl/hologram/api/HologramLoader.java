@@ -68,6 +68,30 @@ public interface HologramLoader {
     void update(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException;
 
     /**
+     * Teleport the hologram to a new location
+     *
+     * @param hologram the hologram to teleport
+     * @param location the new location of the hologram
+     * @throws NullPointerException thrown if the
+     *                              {@link Location#getWorld() world} of the hologram is null
+     */
+    void teleport(Hologram hologram, Location location) throws NullPointerException;
+
+    /**
+     * Teleport the hologram for a specific player to a new location
+     *
+     * @param hologram the hologram to teleport
+     * @param location the new location of the hologram
+     * @param player   the player to teleport the hologram for
+     * @throws IllegalArgumentException thrown if the hologram is
+     *                                  {@link HologramLoader#isLoaded(Hologram, Player) not loaded} or not
+     *                                  {@link HologramLoader#canSee(Player, Hologram) visible} to the player
+     * @throws NullPointerException     thrown if the
+     *                                  {@link Location#getWorld() world} of the hologram is null
+     */
+    void teleport(Hologram hologram, Location location, Player player) throws IllegalArgumentException, NullPointerException;
+
+    /**
      * Checks if the hologram is loaded for the player
      *
      * @param hologram the hologram

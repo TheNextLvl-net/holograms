@@ -17,7 +17,8 @@ public interface Hologram extends Cloneable {
     Location getLocation();
 
     /**
-     * Set the location of the hologram
+     * Set the location of the hologram<br>
+     * <i>Only applied on load, not for teleportation or updating</i>
      *
      * @param location the location the hologram should appear
      */

@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.thenextlvl.hologram.api.Hologram;
 import net.thenextlvl.hologram.api.HologramLoader;
 import net.thenextlvl.hologram.v1_20_R1.line.CraftHologramLine;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftDisplay;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
@@ -46,6 +47,19 @@ public class CraftHologramLoader implements HologramLoader {
     @Override
     public void update(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException {
         loader.update((CraftHologram) hologram, (CraftPlayer) player);
+    }
+
+    @Override
+    public void teleport(Hologram hologram, Location location) throws NullPointerException {
+        getViewers(hologram).forEach(player -> teleport(hologram, location, player));
+    }
+
+    @Override
+    public void teleport(Hologram hologram, Location location, Player player) throws IllegalArgumentException, NullPointerException {
+        Preconditions.checkArgument(isLoaded(hologram, player), "Hologram is not loaded");
+        Preconditions.checkArgument(canSee(player, hologram), "Hologram can't be seen by the player");
+        Preconditions.checkNotNull(hologram.getLocation().getWorld(), "World can't be null");
+        loader.teleport((CraftHologram) hologram, location, (CraftPlayer) player);
     }
 
     @Override
@@ -106,6 +120,13 @@ public class CraftHologramLoader implements HologramLoader {
                 var list = display.getHandle().getEntityData().packDirty();
                 var values = list != null ? list : new ArrayList<SynchedEntityData.DataValue<?>>();
                 connection.send(new ClientboundSetEntityDataPacket(display.getEntityId(), values));
+            });
+        }
+
+        private void teleport(CraftHologram hologram, Location location, CraftPlayer player) {
+            var connection = player.getHandle().connection;
+            cache().getHologramLines(player, hologram).forEach((line, display) -> {
+                display.getHandle().moveTo(location.getX(), location.getY(), location.getZ());
                 connection.send(new ClientboundTeleportEntityPacket(display.getHandle()));
             });
         }

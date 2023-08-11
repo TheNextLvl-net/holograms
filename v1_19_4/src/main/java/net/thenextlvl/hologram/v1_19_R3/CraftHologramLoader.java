@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.thenextlvl.hologram.api.Hologram;
 import net.thenextlvl.hologram.api.HologramLoader;
@@ -105,6 +106,7 @@ public class CraftHologramLoader implements HologramLoader {
                 var list = display.getHandle().getEntityData().packDirty();
                 var values = list != null ? list : new ArrayList<SynchedEntityData.DataValue<?>>();
                 connection.send(new ClientboundSetEntityDataPacket(display.getEntityId(), values));
+                connection.send(new ClientboundTeleportEntityPacket(display.getHandle()));
             });
         }
     }

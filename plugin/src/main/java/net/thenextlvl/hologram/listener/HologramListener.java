@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.listener;
 
+import core.annotation.ParametersAreNotNullByDefault;
 import lombok.RequiredArgsConstructor;
 import net.thenextlvl.hologram.api.HologramProvider;
 import org.bukkit.entity.Player;
@@ -8,10 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @RequiredArgsConstructor
-@ParametersAreNonnullByDefault
+@ParametersAreNotNullByDefault
 public class HologramListener implements Listener {
     private final HologramProvider provider;
 

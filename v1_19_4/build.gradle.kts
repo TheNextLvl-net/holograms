@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("io.papermc.paperweight.userdev") version "1.5.5"
+    id("io.papermc.paperweight.userdev") version "1.5.7"
 }
 
 group = rootProject.group
@@ -14,12 +14,12 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.19.4-R0.1-SNAPSHOT")
 
-    compileOnly("org.projectlombok:lombok:1.18.26")
-    compileOnly("net.thenextlvl.core:annotations:1.0.0")
+    compileOnly("org.projectlombok:lombok:1.18.28")
+    compileOnly("net.thenextlvl.core:annotations:2.0.0")
 
     implementation(project(":api"))
 
-    annotationProcessor("org.projectlombok:lombok:1.18.26")
+    annotationProcessor("org.projectlombok:lombok:1.18.28")
 }
 
 tasks {

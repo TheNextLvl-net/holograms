@@ -14,7 +14,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.projectlombok:lombok:1.18.26")
+    compileOnly("org.projectlombok:lombok:1.18.28")
+    compileOnly("net.thenextlvl.core:annotations:2.0.0")
     compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
 
     implementation(project(":api"))
@@ -22,7 +23,7 @@ dependencies {
     implementation(project(":v1_20_1", "reobf"))
     implementation(project(":v1_20_2", "reobf"))
 
-    annotationProcessor("org.projectlombok:lombok:1.18.26")
+    annotationProcessor("org.projectlombok:lombok:1.18.28")
 }
 
 bukkit {

@@ -1,6 +1,6 @@
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+@MethodsReturnNotNullByDefault
+@ParametersAreNotNullByDefault
 package net.thenextlvl.hologram.v1_19_R3.line;
 
-import core.annotation.MethodsReturnNonnullByDefault;
-import core.annotation.ParametersAreNonnullByDefault;
+import core.annotation.MethodsReturnNotNullByDefault;
+import core.annotation.ParametersAreNotNullByDefault;

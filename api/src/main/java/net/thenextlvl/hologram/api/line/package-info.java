@@ -1,4 +1,4 @@
-@MethodsReturnNonnullByDefault
+@MethodsReturnNotNullByDefault
 package net.thenextlvl.hologram.api.line;
 
-import core.annotation.MethodsReturnNonnullByDefault;
+import core.annotation.MethodsReturnNotNullByDefault;

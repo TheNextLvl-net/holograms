@@ -26,6 +26,8 @@ dependencies {
     implementation(project(":v1_20_1", "reobf"))
     implementation(project(":v1_20_2", "reobf"))
 
+    implementation("org.bstats:bstats-bukkit:3.0.2")
+
     annotationProcessor("org.projectlombok:lombok:1.18.28")
 }
 
@@ -37,9 +39,11 @@ paper {
     authors = listOf("NonSwag")
 }
 
-tasks {
-    assemble {
-        dependsOn(shadowJar)
+tasks.shadowJar {
+    minimize()
+    relocate("org.bstats", "net.thenextlvl.hologram.bstats")
+}
+
 val versionString: String = project.version as String
 val isRelease: Boolean = !versionString.contains("-pre")
 

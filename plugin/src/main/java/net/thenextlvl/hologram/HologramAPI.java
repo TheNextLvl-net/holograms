@@ -1,12 +1,18 @@
 package net.thenextlvl.hologram;
 
+import core.annotation.FieldsAreNotNullByDefault;
+import core.annotation.MethodsReturnNotNullByDefault;
 import net.thenextlvl.hologram.api.HologramProvider;
 import net.thenextlvl.hologram.listener.HologramListener;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@FieldsAreNotNullByDefault
+@MethodsReturnNotNullByDefault
 public class HologramAPI extends JavaPlugin {
+    private final Metrics metrics = new Metrics(this, 20033);
 
     @Override
     public void onEnable() {
@@ -29,5 +35,6 @@ public class HologramAPI extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.getServicesManager().unregisterAll(this);
+        metrics.shutdown();
     }
 }

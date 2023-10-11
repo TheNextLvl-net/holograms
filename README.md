@@ -8,8 +8,8 @@ the HologramAPI, you can easily add user-specific and static holograms to enhanc
 - [Installation](#installation)
 - [Repository](#repository)
 - [Getting started](#getting-started)
-- [User-Specific Holograms](#user-specific-holograms)
 - [Static Holograms](#static-holograms)
+- [User-Specific Holograms](#user-specific-holograms)
 
 ## Installation
 

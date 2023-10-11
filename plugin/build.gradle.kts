@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
+    id("net.minecrell.plugin-yml.paper") version "0.6.0"
 }
 
 group = rootProject.group
@@ -26,7 +26,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.28")
 }
 
-bukkit {
+paper {
     name = "HologramAPI"
     main = "net.thenextlvl.hologram.HologramAPI"
     apiVersion = "1.19"

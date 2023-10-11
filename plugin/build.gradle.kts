@@ -5,7 +5,7 @@ plugins {
 }
 
 group = rootProject.group
-version = "1.0.4"
+version = "1.0.5"
 
 repositories {
     mavenCentral()
@@ -20,6 +20,7 @@ dependencies {
     implementation(project(":api"))
     implementation(project(":v1_19_4", "reobf"))
     implementation(project(":v1_20_1", "reobf"))
+    implementation(project(":v1_20_2", "reobf"))
 
     annotationProcessor("org.projectlombok:lombok:1.18.26")
 }

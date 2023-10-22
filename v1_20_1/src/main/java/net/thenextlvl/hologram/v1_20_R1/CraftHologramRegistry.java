@@ -2,7 +2,7 @@ package net.thenextlvl.hologram.v1_20_R1;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
-import net.thenextlvl.hologram.api.Hologram;
+import net.thenextlvl.hologram.api.hologram.Hologram;
 import net.thenextlvl.hologram.api.HologramRegistry;
 
 import java.util.ArrayList;

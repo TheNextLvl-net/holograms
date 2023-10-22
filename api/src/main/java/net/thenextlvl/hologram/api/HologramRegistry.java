@@ -1,5 +1,7 @@
 package net.thenextlvl.hologram.api;
 
+import net.thenextlvl.hologram.api.hologram.Hologram;
+
 import java.util.Collection;
 
 /**
@@ -11,7 +13,7 @@ public interface HologramRegistry {
      *
      * @return the registered holograms
      */
-    Collection<? extends Hologram> getHolograms();
+    Collection<Hologram> getHolograms();
 
     /**
      * Register a new hologram

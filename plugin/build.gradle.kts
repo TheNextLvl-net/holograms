@@ -8,7 +8,7 @@ plugins {
 }
 
 group = rootProject.group
-version = "1.0.5"
+version = "2.0.0"
 
 repositories {
     mavenCentral()
@@ -19,7 +19,7 @@ repositories {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.28")
     compileOnly("net.thenextlvl.core:annotations:2.0.0")
-    compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
 
     implementation(project(":api"))
     implementation(project(":v1_19_4", "reobf"))

@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.api;
 
+import net.thenextlvl.hologram.api.hologram.Hologram;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -29,7 +30,9 @@ public interface HologramLoader {
      * @see HologramLoader#getViewers(Hologram)
      * @see HologramLoader#unload(Hologram, Player)
      */
-    void unload(Hologram hologram);
+    default void unload(Hologram hologram) {
+        getViewers(hologram).forEach(player -> unload(hologram, player));
+    }
 
     /**
      * Unloads the hologram for the specified player
@@ -51,7 +54,9 @@ public interface HologramLoader {
      * @see HologramLoader#getViewers(Hologram)
      * @see HologramLoader#update(Hologram, Player)
      */
-    void update(Hologram hologram) throws NullPointerException;
+    default void update(Hologram hologram) throws NullPointerException {
+        getViewers(hologram).forEach(player -> update(hologram, player));
+    }
 
     /**
      * Updates the hologram for the specified player
@@ -72,10 +77,14 @@ public interface HologramLoader {
      *
      * @param hologram the hologram to teleport
      * @param location the new location of the hologram
-     * @throws NullPointerException thrown if the
-     *                              {@link Location#getWorld() world} of the hologram is null
+     * @throws IllegalArgumentException thrown if the current and new
+     *                                  {@link Location#getWorld() world} don't match
+     * @throws NullPointerException     thrown if the
+     *                                  {@link Location#getWorld() world} of the hologram is null
      */
-    void teleport(Hologram hologram, Location location) throws NullPointerException;
+    default void teleport(Hologram hologram, Location location) throws IllegalArgumentException, NullPointerException {
+        getViewers(hologram).forEach(player -> teleport(hologram, location, player));
+    }
 
     /**
      * Teleport the hologram for a specific player to a new location
@@ -84,8 +93,9 @@ public interface HologramLoader {
      * @param location the new location of the hologram
      * @param player   the player to teleport the hologram for
      * @throws IllegalArgumentException thrown if the hologram is
-     *                                  {@link HologramLoader#isLoaded(Hologram, Player) not loaded} or not
-     *                                  {@link HologramLoader#canSee(Player, Hologram) visible} to the player
+     *                                  {@link HologramLoader#isLoaded(Hologram, Player) not loaded}, not
+     *                                  {@link HologramLoader#canSee(Player, Hologram) visible} to the player or
+     *                                  the current and new {@link Location#getWorld() world} don't match
      * @throws NullPointerException     thrown if the
      *                                  {@link Location#getWorld() world} of the hologram is null
      */
@@ -99,7 +109,9 @@ public interface HologramLoader {
      * @return true if the hologram is loaded for the player
      * @see HologramLoader#getViewers(Hologram)
      */
-    boolean isLoaded(Hologram hologram, Player player);
+    default boolean isLoaded(Hologram hologram, Player player) {
+        return getHolograms(player).contains(hologram);
+    }
 
     /**
      * Checks if the player could possibly see the hologram
@@ -108,7 +120,9 @@ public interface HologramLoader {
      * @param hologram the hologram
      * @return true if the hologram can be seen by the player
      */
-    boolean canSee(Player player, Hologram hologram);
+    default boolean canSee(Player player, Hologram hologram) {
+        return player.getWorld().equals(hologram.getLocation().getWorld());
+    }
 
     /**
      * All the players the hologram is loaded for
@@ -125,5 +139,5 @@ public interface HologramLoader {
      * @param player the player
      * @return the holograms currently loaded for the player
      */
-    Collection<? extends Hologram> getHolograms(Player player);
+    Collection<Hologram> getHolograms(Player player);
 }

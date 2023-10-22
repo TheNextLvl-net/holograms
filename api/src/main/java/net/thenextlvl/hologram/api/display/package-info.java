@@ -1,0 +1,8 @@
+@FieldsAreNotNullByDefault
+@ParametersAreNotNullByDefault
+@MethodsReturnNotNullByDefault
+package net.thenextlvl.hologram.api.display;
+
+import core.annotation.FieldsAreNotNullByDefault;
+import core.annotation.MethodsReturnNotNullByDefault;
+import core.annotation.ParametersAreNotNullByDefault;

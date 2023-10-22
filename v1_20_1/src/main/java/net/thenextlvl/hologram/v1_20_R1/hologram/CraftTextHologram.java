@@ -1,7 +1,6 @@
 package net.thenextlvl.hologram.v1_20_R1.hologram;
 
 import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
@@ -13,15 +12,21 @@ import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftTextDisplay;
 
 @Getter
-@Setter
 public class CraftTextHologram extends CraftTextDisplay implements TextHologram {
+    @SuppressWarnings("NotNullFieldNotInitialized")
     private Location location;
 
     public CraftTextHologram(Location location, Component text) {
         super((CraftServer) Bukkit.getServer(), new Display.TextDisplay(EntityType.TEXT_DISPLAY,
                 ((CraftWorld) location.getWorld()).getHandle()));
+        setLocation(location);
         setBillboard(Billboard.CENTER);
         text(text);
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        getHandle().setPos(location.getX(), location.getY(), location.getZ());
         this.location = location;
     }
 }

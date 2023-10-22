@@ -1,9 +1,9 @@
 package net.thenextlvl.hologram.api.hologram;
 
-import net.thenextlvl.hologram.api.display.EntityItemDisplay;
+import org.bukkit.entity.ItemDisplay;
 
 /**
  * An interface that represents a hologram displaying an item
  */
-public interface ItemHologram extends Hologram, EntityItemDisplay {
+public interface ItemHologram extends Hologram, ItemDisplay {
 }

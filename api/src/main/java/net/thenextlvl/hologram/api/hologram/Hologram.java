@@ -1,12 +1,12 @@
 package net.thenextlvl.hologram.api.hologram;
 
-import net.thenextlvl.hologram.api.display.EntityDisplay;
 import org.bukkit.Location;
+import org.bukkit.entity.Display;
 
 /**
  * An interface that represents a hologram
  */
-public interface Hologram extends EntityDisplay {
+public interface Hologram extends Display {
     /**
      * Get the location of the hologram
      *

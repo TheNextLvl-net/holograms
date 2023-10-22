@@ -11,17 +11,17 @@ import org.bukkit.inventory.ItemStack;
 
 public class CraftHologramFactory implements HologramFactory {
     @Override
-    public CraftTextHologram createTextHologram(Location location, Component text) {
+    public CraftTextHologram createHologram(Location location, Component text) {
         return new CraftTextHologram(location, text);
     }
 
     @Override
-    public CraftBlockHologram createBlockHologram(Location location, BlockData block) {
+    public CraftBlockHologram createHologram(Location location, BlockData block) {
         return new CraftBlockHologram(location, block);
     }
 
     @Override
-    public CraftItemHologram createItemHologram(Location location, ItemStack itemStack) {
+    public CraftItemHologram createHologram(Location location, ItemStack itemStack) {
         return new CraftItemHologram(location, itemStack);
     }
 }

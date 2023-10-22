@@ -21,7 +21,7 @@ public interface HologramFactory {
      * @param text     the text of the hologram
      * @return the new text hologram
      */
-    TextHologram createTextHologram(Location location, Component text);
+    TextHologram createHologram(Location location, Component text);
 
     /**
      * Create a new block hologram object
@@ -30,7 +30,7 @@ public interface HologramFactory {
      * @param block    the block of the hologram
      * @return the new block hologram
      */
-    BlockHologram createBlockHologram(Location location, BlockData block);
+    BlockHologram createHologram(Location location, BlockData block);
 
     /**
      * Create a new item hologram object
@@ -39,5 +39,5 @@ public interface HologramFactory {
      * @param itemStack the item of the hologram
      * @return the new item hologram
      */
-    ItemHologram createItemHologram(Location location, ItemStack itemStack);
+    ItemHologram createHologram(Location location, ItemStack itemStack);
 }

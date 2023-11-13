@@ -15,7 +15,7 @@ dependencies {
     paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
 
     compileOnly("org.projectlombok:lombok:1.18.28")
-    compileOnly("net.thenextlvl.core:annotations:2.0.0")
+    compileOnly("net.thenextlvl.core:annotations:2.0.1")
 
     implementation(project(":api"))
 

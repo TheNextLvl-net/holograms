@@ -29,6 +29,8 @@ public class HologramAPI extends JavaPlugin {
             return new net.thenextlvl.hologram.v1_20_R1.CraftHologramProvider();
         if (version.contains("1.20.2"))
             return new net.thenextlvl.hologram.v1_20_R2.CraftHologramProvider();
+        if (version.contains("1.20.3") || version.contains("1.20.4"))
+            return new net.thenextlvl.hologram.v1_20_R3.CraftHologramProvider();
         throw new IllegalStateException("Your server version is not supported: " + version);
     }
 

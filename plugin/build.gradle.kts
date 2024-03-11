@@ -42,6 +42,7 @@ paper {
 
 tasks.shadowJar {
     minimize()
+    archiveBaseName.set("holograms")
     relocate("org.bstats", "net.thenextlvl.hologram.bstats")
 }
 

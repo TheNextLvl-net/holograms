@@ -2,13 +2,13 @@ import io.papermc.hangarpublishplugin.model.Platforms
 
 plugins {
     id("java")
-    id("io.papermc.hangar-publish-plugin") version "0.1.0"
+    id("io.papermc.hangar-publish-plugin") version "0.1.2"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
 }
 
 group = rootProject.group
-version = "2.0.0"
+version = "2.0.1"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.projectlombok:lombok:1.18.28")
+    compileOnly("org.projectlombok:lombok:1.18.30")
     compileOnly("net.thenextlvl.core:annotations:2.0.1")
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
@@ -29,7 +29,7 @@ dependencies {
 
     implementation("org.bstats:bstats-bukkit:3.0.2")
 
-    annotationProcessor("org.projectlombok:lombok:1.18.28")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 paper {

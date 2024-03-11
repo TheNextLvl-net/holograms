@@ -14,12 +14,12 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.19.4-R0.1-SNAPSHOT")
 
-    compileOnly("org.projectlombok:lombok:1.18.28")
+    compileOnly("org.projectlombok:lombok:1.18.30")
     compileOnly("net.thenextlvl.core:annotations:2.0.1")
 
     implementation(project(":api"))
 
-    annotationProcessor("org.projectlombok:lombok:1.18.28")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 tasks {

@@ -36,6 +36,7 @@ paper {
     name = "HologramAPI"
     main = "net.thenextlvl.hologram.HologramAPI"
     apiVersion = "1.19"
+    prefix = "Holograms"
     website = "https://thenextlvl.net"
     authors = listOf("NonSwag")
 }

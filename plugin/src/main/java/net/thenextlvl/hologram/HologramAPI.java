@@ -13,11 +13,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 @MethodsReturnNotNullByDefault
 public class HologramAPI extends JavaPlugin {
     private final Metrics metrics = new Metrics(this, 20033);
+    private final HologramProvider provider = getHologramProvider();
+
+    public HologramAPI() {
+        Bukkit.getServicesManager().register(HologramProvider.class, provider, this, ServicePriority.Normal);
+    }
 
     @Override
     public void onEnable() {
-        var provider = getHologramProvider();
-        Bukkit.getServicesManager().register(HologramProvider.class, provider, this, ServicePriority.Normal);
         Bukkit.getPluginManager().registerEvents(new HologramListener(provider), this);
     }
 

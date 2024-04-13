@@ -36,7 +36,6 @@ public class HologramAPI extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getServicesManager().unregisterAll(this);
         metrics.shutdown();
     }
 }

@@ -1,4 +1,5 @@
 import io.papermc.hangarpublishplugin.model.Platforms
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
     id("java")
@@ -37,6 +38,7 @@ paper {
     main = "net.thenextlvl.hologram.HologramAPI"
     apiVersion = "1.19"
     prefix = "Holograms"
+    load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net"
     authors = listOf("NonSwag")
 }

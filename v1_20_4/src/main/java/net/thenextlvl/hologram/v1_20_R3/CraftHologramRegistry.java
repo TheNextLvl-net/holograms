@@ -2,11 +2,14 @@ package net.thenextlvl.hologram.v1_20_R3;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.thenextlvl.hologram.api.hologram.Hologram;
 import net.thenextlvl.hologram.api.HologramRegistry;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 public class CraftHologramRegistry implements HologramRegistry {

@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.v1_20_R3;
+package net.thenextlvl.hologram.implementation;
 
 import com.google.common.base.Preconditions;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -8,8 +8,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.thenextlvl.hologram.api.HologramLoader;
 import net.thenextlvl.hologram.api.hologram.Hologram;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftDisplay;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftDisplay;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.*;

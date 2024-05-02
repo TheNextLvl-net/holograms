@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.v1_19_R3;
+package net.thenextlvl.hologram.implementation;
 
 import lombok.Getter;
 import net.thenextlvl.hologram.api.HologramProvider;

@@ -6,24 +6,27 @@ plugins {
 java {
     withSourcesJar()
     withJavadocJar()
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
-group = rootProject.group
-version = "2.0.0"
+group = "net.thenextlvl.holograms"
+version = "2.1.0"
 
 repositories {
     mavenCentral()
     maven("https://repo.thenextlvl.net/releases")
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {
-    compileOnly("org.projectlombok:lombok:1.18.30")
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
 
     compileOnly("net.thenextlvl.core:annotations:2.0.1")
 
-    annotationProcessor("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
 }
 
 publishing {

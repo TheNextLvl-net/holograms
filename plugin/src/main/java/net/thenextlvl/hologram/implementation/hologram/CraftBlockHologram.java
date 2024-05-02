@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.v1_20_R3.hologram;
+package net.thenextlvl.hologram.implementation.hologram;
 
 import lombok.Getter;
 import net.minecraft.world.entity.Display;
@@ -7,9 +7,9 @@ import net.thenextlvl.hologram.api.hologram.BlockHologram;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftBlockDisplay;
+import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftBlockDisplay;
 
 @Getter
 public class CraftBlockHologram extends CraftBlockDisplay implements BlockHologram {

@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.v1_20_R3.hologram;
+package net.thenextlvl.hologram.implementation.hologram;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -7,9 +7,9 @@ import net.minecraft.world.entity.EntityType;
 import net.thenextlvl.hologram.api.hologram.TextHologram;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftTextDisplay;
+import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftTextDisplay;
 
 @Getter
 public class CraftTextHologram extends CraftTextDisplay implements TextHologram {

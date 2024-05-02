@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.thenextlvl.hologram.api.HologramProvider;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -14,12 +15,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class HologramListener implements Listener {
     private final HologramProvider provider;
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         loadHolograms(event.getPlayer());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldChanged(PlayerChangedWorldEvent event) {
         unloadHolograms(event.getPlayer());
         loadHolograms(event.getPlayer());

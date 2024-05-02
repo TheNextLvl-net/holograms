@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.v1_20_R3.hologram;
+package net.thenextlvl.hologram.implementation.hologram;
 
 import lombok.Getter;
 import net.minecraft.world.entity.Display;
@@ -6,9 +6,9 @@ import net.minecraft.world.entity.EntityType;
 import net.thenextlvl.hologram.api.hologram.ItemHologram;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftItemDisplay;
+import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftItemDisplay;
 import org.bukkit.inventory.ItemStack;
 
 @Getter

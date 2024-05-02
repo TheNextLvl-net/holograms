@@ -11,6 +11,15 @@ the HologramAPI, you can easily add user-specific and static holograms to enhanc
 - [Static Holograms](#static-holograms)
 - [User-Specific Holograms](#user-specific-holograms)
 
+## Versions
+
+> [!IMPORTANT]
+> Holograms only supports the latest version of Paper (1.20.6)<br>
+> The latest version of Holograms requires Java 21
+
+[Latest version supporting 1.19-1.20.4 (Java 19)](https://github.com/TheNextLvl-net/holograms/releases/tag/v2.0.2)<br>
+[Latest version supporting 1.19-1.20.2 (Java 17)](https://github.com/TheNextLvl-net/holograms/releases/tag/v2.0.0)<br>
+
 ## Installation
 
 To use the HologramAPI, you need to install it as a plugin on your Minecraft server. Follow these steps:

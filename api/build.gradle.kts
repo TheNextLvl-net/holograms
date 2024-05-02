@@ -37,10 +37,8 @@ publishing {
         val channel = if ((version as String).contains("-pre")) "snapshots" else "releases"
         url = uri("https://repo.thenextlvl.net/$channel")
         credentials {
-            if (extra.has("RELEASES_USER"))
-                username = extra["RELEASES_USER"].toString()
-            if (extra.has("RELEASES_PASSWORD"))
-                password = extra["RELEASES_PASSWORD"].toString()
+            username = System.getenv("REPOSITORY_USER")
+            password = System.getenv("REPOSITORY_TOKEN")
         }
     }
 }

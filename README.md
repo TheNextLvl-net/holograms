@@ -5,7 +5,6 @@ the HologramAPI, you can easily add user-specific and static holograms to enhanc
 
 ## Table of Contents
 
-- [Installation](#installation)
 - [Repository](#repository)
 - [Getting started](#getting-started)
 - [Static Holograms](#static-holograms)
@@ -19,16 +18,6 @@ the HologramAPI, you can easily add user-specific and static holograms to enhanc
 
 [Latest version supporting 1.19-1.20.4 (Java 19)](https://github.com/TheNextLvl-net/holograms/releases/tag/v2.0.2)<br>
 [Latest version supporting 1.19-1.20.2 (Java 17)](https://github.com/TheNextLvl-net/holograms/releases/tag/v2.0.0)<br>
-
-## Installation
-
-To use the HologramAPI, you need to install it as a plugin on your Minecraft server. Follow these steps:
-
-1. Download the HologramAPI [JAR file](https://hangar.papermc.io/TheNextLvl/HologramAPI/versions).
-2. Place the JAR file into your server's `plugins` directory.
-3. Restart your Minecraft server.
-
-The HologramAPI plugin is now installed and ready to use.
 
 ## Repository
 

@@ -87,13 +87,11 @@ public class CraftHologramLoader implements HologramLoader {
         }
 
         private Set<Hologram> getHolograms(Player player) {
-            return getOrDefault(player, new HashSet<>());
+            return computeIfAbsent(player, ignored -> new HashSet<>());
         }
 
         private void addHologram(Player player, Hologram hologram) {
-            var holograms = getHolograms(player);
-            holograms.add(hologram);
-            put(player, holograms);
+            getHolograms(player).add(hologram);
         }
 
         private void removeHologram(Player player, Hologram hologram) {

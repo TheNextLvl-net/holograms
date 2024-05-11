@@ -11,13 +11,12 @@ java {
 }
 
 group = "net.thenextlvl.holograms"
-version = "2.1.0"
+version = "2.1.1"
 
 repositories {
     mavenCentral()
     maven("https://repo.thenextlvl.net/releases")
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {

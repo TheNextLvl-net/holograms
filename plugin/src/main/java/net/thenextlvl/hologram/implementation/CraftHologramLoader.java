@@ -72,7 +72,7 @@ public class CraftHologramLoader implements HologramLoader {
         }
 
         private void update(Hologram hologram, CraftPlayer player) {
-            var list = ((CraftDisplay) hologram).getHandle().getEntityData().packDirty();
+            var list = ((CraftDisplay) hologram).getHandle().getEntityData().packAll();
             var values = list != null ? list : new ArrayList<SynchedEntityData.DataValue<?>>();
             player.getHandle().connection.send(new ClientboundSetEntityDataPacket(hologram.getEntityId(), values));
         }

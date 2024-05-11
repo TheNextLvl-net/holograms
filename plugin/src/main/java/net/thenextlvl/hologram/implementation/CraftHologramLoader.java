@@ -39,7 +39,6 @@ public class CraftHologramLoader implements HologramLoader {
     @Override
     public void teleport(Hologram hologram, Location location, Player player) throws IllegalArgumentException, NullPointerException {
         Preconditions.checkArgument(isLoaded(hologram, player), "Hologram is not loaded");
-        Preconditions.checkArgument(canSee(player, hologram), "Hologram can't be seen by the player");
         Preconditions.checkNotNull(hologram.getLocation().getWorld(), "World can't be null");
         Preconditions.checkArgument(hologram.getLocation().getWorld().equals(location.getWorld()),
                 "Hologram world can't change");

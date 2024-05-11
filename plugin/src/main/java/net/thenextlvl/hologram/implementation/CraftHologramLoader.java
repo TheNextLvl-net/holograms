@@ -33,6 +33,8 @@ public class CraftHologramLoader implements HologramLoader {
 
     @Override
     public void update(Hologram hologram, Player player) throws IllegalArgumentException, NullPointerException {
+        Preconditions.checkArgument(isLoaded(hologram, player), "Hologram is not loaded");
+        Preconditions.checkNotNull(hologram.getLocation().getWorld(), "World can't be null");
         loader.update(hologram, (CraftPlayer) player);
     }
 

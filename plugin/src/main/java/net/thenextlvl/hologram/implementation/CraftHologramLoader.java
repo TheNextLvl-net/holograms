@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.implementation;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
@@ -56,7 +57,7 @@ public class CraftHologramLoader implements HologramLoader {
 
     @Override
     public Collection<Hologram> getHolograms(Player player) {
-        return loader.getHolograms(player);
+        return ImmutableList.copyOf(loader.getHolograms(player));
     }
 
     private static class ClientHologramLoader extends WeakHashMap<Player, Set<Hologram>> {

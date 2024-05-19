@@ -15,12 +15,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class HologramListener implements Listener {
     private final HologramProvider provider;
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
         loadHolograms(event.getPlayer());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onWorldChanged(PlayerChangedWorldEvent event) {
         unloadHolograms(event.getPlayer());
         loadHolograms(event.getPlayer());

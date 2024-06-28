@@ -76,15 +76,15 @@ public class CraftHologramLoader implements HologramLoader {
             return new ClientboundAddEntityPacket(
                     display.getEntityId(),
                     display.getUniqueId(),
-                    display.getLocation().getX(),
-                    display.getLocation().getY(),
-                    display.getLocation().getZ(),
-                    display.getLocation().getPitch(),
-                    display.getLocation().getYaw(),
+                    display.getX(),
+                    display.getY(),
+                    display.getZ(),
+                    display.getPitch(),
+                    display.getYaw(),
                     display.getHandle().getType(),
                     0,
                     new Vec3(0, 0, 0),
-                    display.getLocation().getYaw()
+                    display.getYaw()
             );
         }
 

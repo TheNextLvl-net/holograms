@@ -2,10 +2,13 @@ package net.thenextlvl.hologram.implementation;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.phys.Vec3;
 import net.thenextlvl.hologram.api.HologramLoader;
 import net.thenextlvl.hologram.api.hologram.Hologram;
 import org.bukkit.Location;
@@ -64,9 +67,25 @@ public class CraftHologramLoader implements HologramLoader {
 
         private void load(Hologram hologram, CraftPlayer player) {
             addHologram(player, hologram);
-            var display = ((CraftDisplay) hologram).getHandle();
-            player.getHandle().connection.send(display.getAddEntityPacket());
+            CraftDisplay display = (CraftDisplay) hologram;
+            player.getHandle().connection.send(createAddEntityPacket(display));
             update(hologram, player);
+        }
+
+        private Packet<?> createAddEntityPacket(CraftDisplay display) {
+            return new ClientboundAddEntityPacket(
+                    display.getEntityId(),
+                    display.getUniqueId(),
+                    display.getX(),
+                    display.getY(),
+                    display.getZ(),
+                    display.getPitch(),
+                    display.getYaw(),
+                    display.getHandle().getType(),
+                    0,
+                    new Vec3(0, 0, 0),
+                    display.getYaw()
+            );
         }
 
         private void unload(Hologram hologram, CraftPlayer player) {

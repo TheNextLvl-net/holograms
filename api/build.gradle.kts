@@ -11,7 +11,7 @@ java {
 }
 
 group = "net.thenextlvl.holograms"
-version = "2.1.2"
+version = "2.1.3"
 
 repositories {
     mavenCentral()
@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.32")
-    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
 
     compileOnly("net.thenextlvl.core:annotations:2.0.1")
 

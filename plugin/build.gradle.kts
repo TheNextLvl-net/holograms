@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
 
     compileOnly("org.projectlombok:lombok:1.18.32")
     compileOnly("net.thenextlvl.core:annotations:2.0.1")
@@ -39,7 +39,7 @@ dependencies {
 paper {
     name = "HologramAPI"
     main = "net.thenextlvl.hologram.HologramAPI"
-    apiVersion = "1.20"
+    apiVersion = "1.21"
     prefix = "Holograms"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net"

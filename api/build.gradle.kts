@@ -20,12 +20,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.34")
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
 
     compileOnly("net.thenextlvl.core:annotations:2.0.1")
 
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
 }
 
 publishing {

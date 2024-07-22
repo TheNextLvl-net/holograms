@@ -26,14 +26,14 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
 
-    compileOnly("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.34")
     compileOnly("net.thenextlvl.core:annotations:2.0.1")
 
     implementation(project(":api"))
 
     implementation("org.bstats:bstats-bukkit:3.0.2")
 
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
 }
 
 paper {

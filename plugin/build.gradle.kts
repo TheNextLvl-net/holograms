@@ -31,7 +31,7 @@ dependencies {
 
     implementation(project(":api"))
 
-    implementation("org.bstats:bstats-bukkit:3.0.3")
+    implementation("org.bstats:bstats-bukkit:3.1.0")
 
     annotationProcessor("org.projectlombok:lombok:1.18.34")
 }

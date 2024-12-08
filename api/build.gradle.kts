@@ -4,14 +4,17 @@ plugins {
 }
 
 java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.compileJava {
+    options.release.set(21)
 }
 
 group = "net.thenextlvl.holograms"
-version = "2.1.3"
+version = "2.1.4"
 
 repositories {
     mavenCentral()
@@ -22,8 +25,6 @@ repositories {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36")
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-
-    compileOnly("net.thenextlvl.core:annotations:2.0.1")
 
     annotationProcessor("org.projectlombok:lombok:1.18.36")
 }

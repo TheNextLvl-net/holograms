@@ -1,8 +1,0 @@
-@TypesAreNotNullByDefault
-@MethodsReturnNotNullByDefault
-@ParametersAreNotNullByDefault
-package net.thenextlvl.hologram.api;
-
-import core.annotation.MethodsReturnNotNullByDefault;
-import core.annotation.ParametersAreNotNullByDefault;
-import core.annotation.TypesAreNotNullByDefault;

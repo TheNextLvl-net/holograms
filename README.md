@@ -13,9 +13,10 @@ the HologramAPI, you can easily add user-specific and static holograms to enhanc
 ## Versions
 
 > [!IMPORTANT]
-> Holograms only supports the latest version of Paper (1.20.6)<br>
+> Holograms only supports the latest version of Paper (1.21.4)<br>
 > The latest version of Holograms requires Java 21
 
+[Latest version supporting 1.21-1.21.1 (Java 21)](https://github.com/TheNextLvl-net/holograms/releases/tag/v2.1.3)<br>
 [Latest version supporting 1.19-1.20.4 (Java 19)](https://github.com/TheNextLvl-net/holograms/releases/tag/v2.0.2)<br>
 [Latest version supporting 1.19-1.20.2 (Java 17)](https://github.com/TheNextLvl-net/holograms/releases/tag/v2.0.0)<br>
 

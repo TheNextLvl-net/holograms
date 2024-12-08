@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.phys.Vec3;
 import net.thenextlvl.hologram.api.HologramLoader;
 import net.thenextlvl.hologram.api.hologram.Hologram;
@@ -15,9 +16,15 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftDisplay;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.NullMarked;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.WeakHashMap;
 
+@NullMarked
 public class CraftHologramLoader implements HologramLoader {
     private final ClientHologramLoader loader = new ClientHologramLoader();
 
@@ -103,7 +110,12 @@ public class CraftHologramLoader implements HologramLoader {
             var connection = player.getHandle().connection;
             var display = ((CraftDisplay) hologram).getHandle();
             display.moveTo(location.getX(), location.getY(), location.getZ());
-            connection.send(new ClientboundTeleportEntityPacket(display));
+            connection.send(new ClientboundTeleportEntityPacket(
+                    display.getId(),
+                    PositionMoveRotation.of(display),
+                    Set.of(),
+                    display.onGround()
+            ));
         }
 
         private Set<Hologram> getHolograms(Player player) {

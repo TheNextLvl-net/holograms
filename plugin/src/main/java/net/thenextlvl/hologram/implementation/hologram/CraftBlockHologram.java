@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.implementation.hologram;
 
-import lombok.Getter;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.thenextlvl.hologram.api.hologram.BlockHologram;
@@ -10,10 +9,10 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftBlockDisplay;
+import org.jspecify.annotations.NullMarked;
 
-@Getter
+@NullMarked
 public class CraftBlockHologram extends CraftBlockDisplay implements BlockHologram {
-    @SuppressWarnings("NotNullFieldNotInitialized")
     private Location location;
 
     public CraftBlockHologram(Location location, BlockData block) {
@@ -22,6 +21,11 @@ public class CraftBlockHologram extends CraftBlockDisplay implements BlockHologr
         setLocation(location);
         setBillboard(Billboard.CENTER);
         setBlock(block);
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
     }
 
     @Override

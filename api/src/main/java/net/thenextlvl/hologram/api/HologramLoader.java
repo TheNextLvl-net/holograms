@@ -3,12 +3,14 @@ package net.thenextlvl.hologram.api;
 import net.thenextlvl.hologram.api.hologram.Hologram;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Collection;
 
 /**
  * A loader class that handles loading, unloading and updating of holograms
  */
+@NullMarked
 public interface HologramLoader {
     /**
      * Loads the hologram for the specified player

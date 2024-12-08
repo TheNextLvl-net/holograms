@@ -1,12 +1,14 @@
 package net.thenextlvl.hologram.api;
 
 import net.thenextlvl.hologram.api.hologram.Hologram;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Collection;
 
 /**
  * A registry that holds all registered holograms
  */
+@NullMarked
 public interface HologramRegistry {
     /**
      * Get all the registered holograms

@@ -1,16 +1,21 @@
 package net.thenextlvl.hologram.implementation;
 
 import com.google.common.base.Preconditions;
-import lombok.Getter;
 import net.thenextlvl.hologram.api.HologramRegistry;
 import net.thenextlvl.hologram.api.hologram.Hologram;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Getter
+@NullMarked
 public class CraftHologramRegistry implements HologramRegistry {
     private final Collection<Hologram> holograms = new ArrayList<>();
+
+    @Override
+    public Collection<Hologram> getHolograms() {
+        return holograms;
+    }
 
     @Override
     public void register(Hologram hologram) throws IllegalArgumentException {

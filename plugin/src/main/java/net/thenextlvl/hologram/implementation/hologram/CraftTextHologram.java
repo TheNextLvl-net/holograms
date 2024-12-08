@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.implementation.hologram;
 
-import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
@@ -10,10 +9,10 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftTextDisplay;
+import org.jspecify.annotations.NullMarked;
 
-@Getter
+@NullMarked
 public class CraftTextHologram extends CraftTextDisplay implements TextHologram {
-    @SuppressWarnings("NotNullFieldNotInitialized")
     private Location location;
 
     public CraftTextHologram(Location location, Component text) {
@@ -22,6 +21,11 @@ public class CraftTextHologram extends CraftTextDisplay implements TextHologram 
         setLocation(location);
         setBillboard(Billboard.CENTER);
         text(text);
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
     }
 
     @Override

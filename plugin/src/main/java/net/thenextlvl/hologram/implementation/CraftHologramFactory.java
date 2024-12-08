@@ -8,7 +8,9 @@ import net.thenextlvl.hologram.implementation.hologram.CraftTextHologram;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class CraftHologramFactory implements HologramFactory {
     @Override
     public CraftTextHologram createHologram(Location location, Component text) {

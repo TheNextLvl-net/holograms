@@ -1,8 +1,11 @@
 package net.thenextlvl.hologram.api;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * A class that provides all necessities for managing holograms
  */
+@NullMarked
 public interface HologramProvider {
     /**
      * Get the corresponding {@link HologramRegistry}

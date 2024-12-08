@@ -8,10 +8,12 @@ import net.thenextlvl.hologram.api.hologram.TextHologram;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * A factory that creates {@link Hologram holograms}
  */
+@NullMarked
 public interface HologramFactory {
 
     /**

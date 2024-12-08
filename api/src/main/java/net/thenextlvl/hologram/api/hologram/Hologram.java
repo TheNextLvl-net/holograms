@@ -2,10 +2,12 @@ package net.thenextlvl.hologram.api.hologram;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * An interface that represents a hologram
  */
+@NullMarked
 public interface Hologram extends Display {
     /**
      * Get the location of the hologram

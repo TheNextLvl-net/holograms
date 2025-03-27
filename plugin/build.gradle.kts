@@ -6,7 +6,7 @@ plugins {
     id("com.gradleup.shadow") version "8.3.5"
     id("io.papermc.paperweight.userdev") version "1.7.7"
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
-    id("io.papermc.hangar-publish-plugin") version "0.1.2"
+    id("io.papermc.hangar-publish-plugin") version "0.1.3"
 }
 
 group = project(":api").group

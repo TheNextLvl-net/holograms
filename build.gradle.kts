@@ -39,6 +39,10 @@ paper {
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net"
     authors = listOf("NonSwag")
+    permissions {
+        register("holograms.command")
+        register("holograms.command.create") { children = listOf("holograms.command") }
+    }
 }
 
 tasks.shadowJar {

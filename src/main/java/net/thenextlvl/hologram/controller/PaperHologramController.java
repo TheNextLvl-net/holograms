@@ -130,18 +130,39 @@ public class PaperHologramController implements HologramController {
     }
 
     @Override
-    public TextHologram createHologram(String name, Component text) {
+    public TextHologram createTextHologram(String name) throws IllegalStateException {
         return createHologram(PaperTextHologram::new, name);
     }
 
     @Override
-    public BlockHologram createHologram(String name, BlockData block) {
+    public BlockHologram createBlockHologram(String name) throws IllegalStateException {
         return createHologram(PaperBlockHologram::new, name);
     }
 
     @Override
-    public ItemHologram createHologram(String name, ItemStack itemStack) {
+    public ItemHologram createItemHologram(String name) throws IllegalStateException {
         return createHologram(PaperItemHologram::new, name);
+    }
+
+    @Override
+    public TextHologram createHologram(String name, Component text) {
+        var hologram = createTextHologram(name);
+        hologram.setText(text);
+        return hologram;
+    }
+
+    @Override
+    public BlockHologram createHologram(String name, BlockData block) {
+        var hologram = createBlockHologram(name);
+        hologram.setBlock(block);
+        return hologram;
+    }
+
+    @Override
+    public ItemHologram createHologram(String name, ItemStack itemStack) {
+        var hologram = createItemHologram(name);
+        hologram.setItemStack(itemStack);
+        return hologram;
     }
 
     @Override

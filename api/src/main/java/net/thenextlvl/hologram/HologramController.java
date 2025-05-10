@@ -137,6 +137,33 @@ public interface HologramController {
      * Create a new text hologram
      *
      * @param name the name of the hologram
+     * @return the new text hologram
+     * @throws IllegalStateException if a hologram with the same name already exists
+     */
+    TextHologram createTextHologram(String name) throws IllegalStateException;
+
+    /**
+     * Create a new block hologram
+     *
+     * @param name the name of the hologram
+     * @return the new text hologram
+     * @throws IllegalStateException if a hologram with the same name already exists
+     */
+    BlockHologram createBlockHologram(String name) throws IllegalStateException;
+
+    /**
+     * Create a new item hologram
+     *
+     * @param name the name of the hologram
+     * @return the new text hologram
+     * @throws IllegalStateException if a hologram with the same name already exists
+     */
+    ItemHologram createItemHologram(String name) throws IllegalStateException;
+
+    /**
+     * Create a new text hologram
+     *
+     * @param name the name of the hologram
      * @param text the text of the hologram
      * @return the new text hologram
      * @throws IllegalStateException if a hologram with the same name already exists

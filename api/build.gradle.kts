@@ -1,6 +1,5 @@
 plugins {
     id("java")
-    id("java-library")
     id("maven-publish")
 }
 
@@ -19,12 +18,10 @@ version = rootProject.version
 
 repositories {
     mavenCentral()
-    maven("https://repo.thenextlvl.net/releases")
     maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-    api("net.thenextlvl.core:nbt:2.3.2")
     compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
 }
 

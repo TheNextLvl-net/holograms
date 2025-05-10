@@ -27,7 +27,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
-
+    implementation("net.thenextlvl.core:nbt:2.3.2")
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation(project(":api"))
 }

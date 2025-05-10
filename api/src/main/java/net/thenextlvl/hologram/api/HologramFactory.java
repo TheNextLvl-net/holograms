@@ -15,7 +15,6 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public interface HologramFactory {
-
     /**
      * Create a new text hologram object
      *

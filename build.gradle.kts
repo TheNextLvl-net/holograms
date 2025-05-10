@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "net.thenextlvl.holograms"
-version = "2.1.4"
+version = "3.0.0"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)

@@ -16,14 +16,14 @@ public interface TextHologramDisplay extends HologramDisplay {
      *
      * @return the displayed text
      */
-    Component text();
+    Component getText();
 
     /**
      * Sets the displayed text.
      *
      * @param text the new text
      */
-    void text(@Nullable Component text);
+    void setText(@Nullable Component text);
 
     /**
      * Gets the maximum line width before wrapping.

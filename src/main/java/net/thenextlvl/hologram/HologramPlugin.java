@@ -11,7 +11,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class HologramPlugin extends JavaPlugin {
     private final HologramProvider provider = new CraftHologramProvider();
-    private final Metrics metrics = new Metrics(this, 20033);
+    private final Metrics metrics = new Metrics(this, 25817);
 
     public HologramPlugin() {
         getServer().getServicesManager().register(HologramProvider.class, provider, this, ServicePriority.Normal);

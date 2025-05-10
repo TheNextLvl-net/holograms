@@ -9,8 +9,8 @@ plugins {
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.16"
 }
 
-group = project(":api").group
-version = project(":api").version
+group = "net.thenextlvl.holograms"
+version = "2.1.4"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)

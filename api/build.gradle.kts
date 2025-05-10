@@ -13,8 +13,8 @@ tasks.compileJava {
     options.release.set(21)
 }
 
-group = "net.thenextlvl.holograms"
-version = "2.1.4"
+group = rootProject.group
+version = rootProject.version
 
 repositories {
     mavenCentral()

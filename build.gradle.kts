@@ -33,10 +33,9 @@ dependencies {
 }
 
 paper {
-    name = "HologramAPI"
-    main = "net.thenextlvl.hologram.HologramAPI"
+    name = "Holograms"
+    main = "net.thenextlvl.hologram.HologramPlugin"
     apiVersion = "1.21"
-    prefix = "Holograms"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net"
     authors = listOf("NonSwag")
@@ -57,7 +56,7 @@ val versions: List<String> = (property("gameVersions") as String)
 
 hangarPublish { // docs - https://docs.papermc.io/misc/hangar-publishing
     publications.register("plugin") {
-        id.set("HologramAPI")
+        id.set("Holograms")
         version.set(versionString)
         channel.set(if (isRelease) "Release" else "Snapshot")
         apiKey.set(System.getenv("HANGAR_API_TOKEN"))

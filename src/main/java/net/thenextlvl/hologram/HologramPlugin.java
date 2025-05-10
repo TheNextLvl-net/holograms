@@ -10,11 +10,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class HologramAPI extends JavaPlugin {
+public class HologramPlugin extends JavaPlugin {
     private final HologramProvider provider = new CraftHologramProvider();
     private final Metrics metrics = new Metrics(this, 20033);
 
-    public HologramAPI() {
+    public HologramPlugin() {
         Bukkit.getServicesManager().register(HologramProvider.class, provider, this, ServicePriority.Normal);
     }
 

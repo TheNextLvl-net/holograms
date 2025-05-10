@@ -3,10 +3,10 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
     id("java")
-    id("com.gradleup.shadow") version "8.3.5"
-    id("io.papermc.paperweight.userdev") version "1.7.7"
-    id("net.minecrell.plugin-yml.paper") version "0.6.0"
-    id("io.papermc.hangar-publish-plugin") version "0.1.2"
+    id("com.gradleup.shadow") version "9.0.0-beta13"
+    id("de.eldoria.plugin-yml.paper") version "0.7.1"
+    id("io.papermc.hangar-publish-plugin") version "0.1.3"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.16"
 }
 
 group = project(":api").group

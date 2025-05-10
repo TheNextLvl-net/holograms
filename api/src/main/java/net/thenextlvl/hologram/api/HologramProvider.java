@@ -20,11 +20,4 @@ public interface HologramProvider {
      * @return the {@link HologramFactory}
      */
     HologramFactory getHologramFactory();
-
-    /**
-     * Get the corresponding {@link HologramLoader}
-     *
-     * @return the {@link HologramLoader}
-     */
-    HologramLoader getHologramLoader();
 }

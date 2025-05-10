@@ -15,9 +15,9 @@ public interface HologramProvider {
     HologramRegistry getHologramRegistry();
 
     /**
-     * Get the corresponding {@link HologramFactory}
+     * Get the corresponding {@link HologramController}
      *
-     * @return the {@link HologramFactory}
+     * @return the {@link HologramController}
      */
-    HologramFactory getHologramFactory();
+    HologramController getHologramFactory();
 }

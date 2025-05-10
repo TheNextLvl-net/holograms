@@ -2,7 +2,6 @@ package net.thenextlvl.hologram.api;
 
 import net.kyori.adventure.text.Component;
 import net.thenextlvl.hologram.api.hologram.BlockHologram;
-import net.thenextlvl.hologram.api.hologram.Hologram;
 import net.thenextlvl.hologram.api.hologram.ItemHologram;
 import net.thenextlvl.hologram.api.hologram.TextHologram;
 import org.bukkit.Location;
@@ -10,11 +9,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
-/**
- * A factory that creates {@link Hologram holograms}
- */
 @NullMarked
-public interface HologramFactory {
+public interface HologramController {
     /**
      * Create a new text hologram object
      *

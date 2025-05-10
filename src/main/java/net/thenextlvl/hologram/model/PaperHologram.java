@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.implementation.hologram;
+package net.thenextlvl.hologram.model;
 
 import core.nbt.serialization.ParserException;
 import core.nbt.serialization.TagSerializable;
@@ -11,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Unmodifiable;
 import org.joml.AxisAngle4f;
@@ -103,6 +104,8 @@ public abstract class PaperHologram<E extends Display> implements Hologram<E>, T
     public boolean setViewPermission(@Nullable String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
+        getEntity().ifPresent(entity -> plugin.getServer().getOnlinePlayers()
+                .forEach(player -> updateVisibility(entity, player)));
         return true;
     }
 
@@ -207,8 +210,30 @@ public abstract class PaperHologram<E extends Display> implements Hologram<E>, T
         return true;
     }
 
-    private void preSpawn(E e) {
+    protected void preSpawn(E entity) {
+        entity.setMetadata("Hologram", new FixedMetadataValue(plugin, true));
+        entity.setPersistent(false);
+        entity.setVisibleByDefault(visibleByDefault);
+        entity.setTransformation(transformation);
+        entity.setDisplayWidth(displayWidth);
+        entity.setDisplayHeight(displayHeight);
+        entity.setShadowRadius(shadowRadius);
+        entity.setShadowStrength(shadowStrength);
+        entity.setViewRange(viewRange);
+        entity.setInterpolationDuration(interpolationDuration);
+        entity.setInterpolationDelay(interpolationDelay);
+        entity.setTeleportDuration(teleportDuration);
+        entity.setBillboard(billboard);
+        entity.setGlowColorOverride(glowColorOverride);
+        entity.setBrightness(brightness);
 
+        if (viewPermission != null || !visibleByDefault) plugin.getServer().getOnlinePlayers()
+                .forEach(player -> updateVisibility(entity, player));
+    }
+
+    public void updateVisibility(E entity, Player player) {
+        if (canSee(player)) player.showEntity(plugin, entity);
+        else player.hideEntity(plugin, entity);
     }
 
     @Override

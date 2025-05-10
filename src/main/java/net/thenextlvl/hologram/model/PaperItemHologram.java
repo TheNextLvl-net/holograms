@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.implementation.hologram;
+package net.thenextlvl.hologram.model;
 
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.ItemHologram;

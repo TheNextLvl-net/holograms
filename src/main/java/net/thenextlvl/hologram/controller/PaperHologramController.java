@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.implementation;
+package net.thenextlvl.hologram.controller;
 
 import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.Component;
@@ -8,9 +8,9 @@ import net.thenextlvl.hologram.HologramController;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.ItemHologram;
 import net.thenextlvl.hologram.TextHologram;
-import net.thenextlvl.hologram.implementation.hologram.PaperBlockHologram;
-import net.thenextlvl.hologram.implementation.hologram.PaperItemHologram;
-import net.thenextlvl.hologram.implementation.hologram.PaperTextHologram;
+import net.thenextlvl.hologram.model.PaperBlockHologram;
+import net.thenextlvl.hologram.model.PaperItemHologram;
+import net.thenextlvl.hologram.model.PaperTextHologram;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;

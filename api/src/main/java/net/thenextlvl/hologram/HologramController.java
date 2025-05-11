@@ -1,16 +1,16 @@
 package net.thenextlvl.hologram;
 
-import net.kyori.adventure.text.Component;
+import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.HologramLine;
+import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 
@@ -18,42 +18,45 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-
+/**
+ * Represents a controller responsible for managing, creating, and querying holograms and their associated lines.
+ */
 @NullMarked
 public interface HologramController {
     /**
-     * Get a hologram by its display
+     * Get a hologram line by its entity
      *
-     * @param display the display of the hologram
-     * @param <E>     the type of the display
-     * @return the hologram with the given display
+     * @param entity the entity of the hologram line
+     * @param <E>    the type of the entity
+     * @return the hologram line with the given entity
      */
-    <E extends Display> Optional<Hologram<E>> getHologram(E display);
+    <E extends Entity> Optional<HologramLine<E>> getHologramLine(E entity);
 
     /**
-     * Get a hologram by its display
+     * Get a block hologram line by its block display
      *
-     * @param display the display of the hologram
-     * @return the hologram with the given display
+     * @param display the block display of the hologram line
+     * @return the hologram line with the given display
      */
-    Optional<BlockHologram> getHologram(BlockDisplay display);
+    Optional<BlockHologramLine> getHologramLine(BlockDisplay display);
 
     /**
-     * Get a hologram by its display
+     * Get an item hologram line by its item display
      *
-     * @param display the display of the hologram
-     * @return the hologram with the given display
+     * @param display the item display of the hologram line
+     * @return the hologram line with the given display
      */
-    Optional<ItemHologram> getHologram(ItemDisplay display);
+    Optional<ItemHologramLine> getHologramLine(ItemDisplay display);
 
     /**
-     * Get a hologram by its display
+     * Get a text hologram line by its text display
      *
-     * @param display the display of the hologram
-     * @return the hologram with the given display
+     * @param display the text display of the hologram line
+     * @return the hologram line with the given display
      */
-    Optional<TextHologram> getHologram(TextDisplay display);
+    Optional<TextHologramLine> getHologramLine(TextDisplay display);
 
     /**
      * Get a hologram by its name
@@ -61,15 +64,15 @@ public interface HologramController {
      * @param name the name of the hologram
      * @return the hologram with the given name
      */
-    Optional<Hologram<?>> getHologram(String name);
+    Optional<Hologram> getHologram(String name);
 
     /**
-     * Get a hologram by its unique id
+     * Get a hologram line by its UUID
      *
-     * @param uuid the unique id of the hologram
-     * @return the hologram with the given unique id
+     * @param uuid the UUID of the hologram line
+     * @return the hologram line with the given UUID
      */
-    Optional<Hologram<?>> getHologram(UUID uuid);
+    Optional<HologramLine<?>> getHologramLine(UUID uuid);
 
     /**
      * Get all holograms
@@ -77,7 +80,7 @@ public interface HologramController {
      * @return all holograms
      */
     @Unmodifiable
-    Collection<? extends Hologram<?>> getHolograms();
+    Collection<? extends Hologram> getHolograms();
 
     /**
      * Get all holograms visible to the given player
@@ -86,7 +89,7 @@ public interface HologramController {
      * @return all holograms visible to the given player
      */
     @Unmodifiable
-    Collection<? extends Hologram<?>> getHolograms(Player player);
+    Collection<? extends Hologram> getHolograms(Player player);
 
     /**
      * Get all holograms in the given world
@@ -95,7 +98,7 @@ public interface HologramController {
      * @return all holograms in the given world
      */
     @Unmodifiable
-    Collection<? extends Hologram<?>> getHolograms(World world);
+    Collection<? extends Hologram> getHolograms(World world);
 
     /**
      * Get all holograms nearby the given location
@@ -107,7 +110,7 @@ public interface HologramController {
      * @throws IllegalArgumentException if the world of the location is {@code null}
      */
     @Unmodifiable
-    Collection<? extends Hologram<?>> getHologramNearby(Location location, double radius) throws IllegalArgumentException;
+    Collection<? extends Hologram> getHologramNearby(Location location, double radius) throws IllegalArgumentException;
 
     /**
      * Get the names of all holograms
@@ -126,100 +129,31 @@ public interface HologramController {
     boolean hologramExists(String name);
 
     /**
-     * Check if the given entity is a hologram
+     * Check if the given entity is part of a hologram
      *
      * @param entity the entity to check
-     * @return {@code true} if the entity is a hologram, {@code false} otherwise
+     * @return {@code true} if the entity is part of a hologram, {@code false} otherwise
      */
-    boolean isHologram(Entity entity);
+    boolean isHologramPart(Entity entity);
 
     /**
-     * Create a new text hologram
-     *
-     * @param name the name of the hologram
-     * @return the new text hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
-     */
-    TextHologram createTextHologram(String name) throws IllegalStateException;
-
-    /**
-     * Create a new block hologram
-     *
-     * @param name the name of the hologram
-     * @return the new text hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
-     */
-    BlockHologram createBlockHologram(String name) throws IllegalStateException;
-
-    /**
-     * Create a new item hologram
-     *
-     * @param name the name of the hologram
-     * @return the new text hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
-     */
-    ItemHologram createItemHologram(String name) throws IllegalStateException;
-
-    /**
-     * Create a new text hologram
-     *
-     * @param name the name of the hologram
-     * @param text the text of the hologram
-     * @return the new text hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
-     */
-    TextHologram createHologram(String name, Component text) throws IllegalStateException;
-
-    /**
-     * Create a new block hologram
-     *
-     * @param name  the name of the hologram
-     * @param block the block of the hologram
-     * @return the new block hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
-     */
-    BlockHologram createHologram(String name, BlockData block) throws IllegalStateException;
-
-    /**
-     * Create a new item hologram
-     *
-     * @param name      the name of the hologram
-     * @param itemStack the item of the hologram
-     * @return the new item hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
-     */
-    ItemHologram createHologram(String name, ItemStack itemStack) throws IllegalStateException;
-
-    /**
-     * Spawn a new text hologram
+     * Create a hologram with the given name and location
      *
      * @param name     the name of the hologram
      * @param location the location of the hologram
-     * @param text     the text of the hologram
-     * @return the new text hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
+     * @return the created hologram
+     * @throws IllegalStateException if a hologram with the given name already exists
      */
-    TextHologram spawnHologram(String name, Location location, Component text) throws IllegalStateException;
+    Hologram createHologram(String name, Location location) throws IllegalStateException;
 
     /**
-     * Spawn a new block hologram
+     * Spawn a hologram with the given name and location
      *
      * @param name     the name of the hologram
      * @param location the location of the hologram
-     * @param block    the block of the hologram
-     * @return the new block hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
+     * @param preSpawn a consumer to apply to the hologram before spawning
+     * @return the spawned hologram
+     * @throws IllegalStateException if a hologram with the given name already exists
      */
-    BlockHologram spawnHologram(String name, Location location, BlockData block) throws IllegalStateException;
-
-    /**
-     * Spawn a new item hologram
-     *
-     * @param name      the name of the hologram
-     * @param location  the location of the hologram
-     * @param itemStack the item of the hologram
-     * @return the new item hologram
-     * @throws IllegalStateException if a hologram with the same name already exists
-     */
-    ItemHologram spawnHologram(String name, Location location, ItemStack itemStack) throws IllegalStateException;
+    Hologram spawnHologram(String name, Location location, Consumer<Hologram> preSpawn) throws IllegalStateException;
 }

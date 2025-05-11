@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.display;
+package net.thenextlvl.hologram.line;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
@@ -6,11 +6,8 @@ import org.bukkit.entity.TextDisplay;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Represents a text display entity.
- */
 @NullMarked
-public interface TextHologramDisplay extends HologramDisplay {
+public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
     /**
      * Gets the displayed text.
      *

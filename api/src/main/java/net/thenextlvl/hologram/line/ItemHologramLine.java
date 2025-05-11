@@ -1,15 +1,12 @@
-package net.thenextlvl.hologram.display;
+package net.thenextlvl.hologram.line;
 
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Represents an item display entity.
- */
 @NullMarked
-public interface ItemHologramDisplay extends HologramDisplay {
+public interface ItemHologramLine extends DisplayHologramLine<ItemDisplay> {
     /**
      * Gets the displayed item stack.
      *

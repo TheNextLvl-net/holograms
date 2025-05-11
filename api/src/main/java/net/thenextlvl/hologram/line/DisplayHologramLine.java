@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.display;
+package net.thenextlvl.hologram.line;
 
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
@@ -7,11 +7,8 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Represents a display entity which is designed to only have a visual function.
- */
 @NullMarked
-public interface HologramDisplay {
+public interface DisplayHologramLine<E extends Display> extends HologramLine<E> {
     /**
      * Gets the transformation applied to this display.
      *

@@ -1,42 +1,58 @@
 package net.thenextlvl.hologram;
 
-import net.thenextlvl.hologram.display.HologramDisplay;
+import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.EntityHologramLine;
+import net.thenextlvl.hologram.line.HologramLine;
+import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * An interface that represents a hologram
  */
 @NullMarked
-public interface Hologram<E extends Display> extends HologramDisplay {
-    Optional<E> getEntity();
-    <T extends Display> Optional<T> getEntity(Class<T> type);
-
-    Class<E> getTypeClass();
-    EntityType getType();
+public interface Hologram extends Iterable<HologramLine<?>> {
+    HologramController getController();
 
     String getName();
 
-    @Nullable
     Location getLocation();
-
-    @Nullable
-    Location getSpawnLocation();
-    boolean setSpawnLocation(@Nullable Location location);
-
-    @Nullable
     World getWorld();
+
+    CompletableFuture<Boolean> teleportAsync(Location location);
+
+    @Unmodifiable
+    List<HologramLine<?>> getLines();
+
+    int getLineCount();
+    @Nullable HologramLine<?> getLine(int index) throws IndexOutOfBoundsException;
+    int getLineIndex(HologramLine<?> line);
+    boolean removeLine(HologramLine<?> line);
+    boolean removeLine(int index);
+    boolean removeLines(Collection<HologramLine<?>> lines);
+    void clearLines();
+    boolean hasLine(HologramLine<?> line);
+
+    <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException;
+    <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType, int index) throws IllegalArgumentException;
+    BlockHologramLine addBlockLine();
+    BlockHologramLine addBlockLine(int index);
+    ItemHologramLine addItemLine();
+    ItemHologramLine addItemLine(int index);
+    TextHologramLine addTextLine();
+    TextHologramLine addTextLine(int index);
 
     @Nullable
     String getViewPermission();
@@ -64,7 +80,6 @@ public interface Hologram<E extends Display> extends HologramDisplay {
     void delete();
 
     boolean spawn();
-    boolean spawn(Location location);
+    void despawn();
     boolean isSpawned();
-    boolean despawn();
 }

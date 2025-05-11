@@ -1,13 +1,11 @@
-package net.thenextlvl.hologram.display;
+package net.thenextlvl.hologram.line;
 
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.BlockDisplay;
 import org.jspecify.annotations.NullMarked;
 
-/**
- * Represents a block display entity.
- */
 @NullMarked
-public interface BlockHologramDisplay extends HologramDisplay {
+public interface BlockHologramLine extends DisplayHologramLine<BlockDisplay> {
     /**
      * Gets the displayed block.
      *

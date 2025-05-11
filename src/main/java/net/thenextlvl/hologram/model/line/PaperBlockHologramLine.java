@@ -1,7 +1,8 @@
-package net.thenextlvl.hologram.model;
+package net.thenextlvl.hologram.model.line;
 
-import net.thenextlvl.hologram.BlockHologram;
-import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.LineType;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
@@ -9,11 +10,11 @@ import org.bukkit.entity.EntityType;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class PaperBlockHologram extends PaperHologram<BlockDisplay> implements BlockHologram {
+public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDisplay> implements BlockHologramLine {
     private BlockData block = BlockType.AIR.createBlockData();
 
-    public PaperBlockHologram(HologramPlugin plugin, String name) {
-        super(plugin, name);
+    public PaperBlockHologramLine(Hologram hologram) {
+        super(hologram);
     }
 
     @Override
@@ -22,8 +23,13 @@ public class PaperBlockHologram extends PaperHologram<BlockDisplay> implements B
     }
 
     @Override
-    public EntityType getType() {
+    public EntityType getEntityType() {
         return EntityType.BLOCK_DISPLAY;
+    }
+
+    @Override
+    public LineType getType() {
+        return LineType.BLOCK;
     }
 
     @Override

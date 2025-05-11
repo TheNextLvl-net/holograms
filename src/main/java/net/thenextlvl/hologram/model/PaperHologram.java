@@ -1,71 +1,63 @@
 package net.thenextlvl.hologram.model;
 
+import com.google.common.base.Preconditions;
 import core.nbt.serialization.ParserException;
 import core.nbt.serialization.TagSerializable;
 import core.nbt.tag.Tag;
 import net.thenextlvl.hologram.Hologram;
-import net.thenextlvl.hologram.HologramPlugin;
-import org.bukkit.Color;
+import net.thenextlvl.hologram.controller.PaperHologramController;
+import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.EntityHologramLine;
+import net.thenextlvl.hologram.line.HologramLine;
+import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.TextHologramLine;
+import net.thenextlvl.hologram.model.line.PaperBlockHologramLine;
+import net.thenextlvl.hologram.model.line.PaperEntityHologramLine;
+import net.thenextlvl.hologram.model.line.PaperHologramLine;
+import net.thenextlvl.hologram.model.line.PaperItemHologramLine;
+import net.thenextlvl.hologram.model.line.PaperTextHologramLine;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Unmodifiable;
-import org.joml.AxisAngle4f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @NullMarked
-public abstract class PaperHologram<E extends Display> implements Hologram<E>, TagSerializable {
+public class PaperHologram implements Hologram, TagSerializable {
+    private final List<HologramLine<?>> lines = new LinkedList<>();
     private final Set<UUID> viewers = new HashSet<>();
 
-    private final HologramPlugin plugin;
+    private final PaperHologramController controller;
     private final String name;
 
-    private @Nullable E entity;
-    private @Nullable Location spawnLocation;
     private @Nullable String viewPermission;
+    private Location location;
     private boolean persistent;
     private boolean visibleByDefault;
 
-    private @Nullable Color glowColorOverride = null;
-    private Display.@Nullable Brightness brightness = null;
-    private Display.Billboard billboard = Display.Billboard.FIXED;
-    private Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
-    private float displayHeight = 0;
-    private float displayWidth = 0;
-    private float shadowRadius = 0;
-    private float shadowStrength = 1;
-    private float viewRange = 1;
-    private int interpolationDelay = 0;
-    private int interpolationDuration = 0;
-    private int teleportDuration = 0;
-
-    protected PaperHologram(HologramPlugin plugin, String name) {
-        this.plugin = plugin;
+    public PaperHologram(PaperHologramController controller, String name, Location location) {
+        Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
+        this.controller = controller;
+        this.location = location;
         this.name = name;
     }
 
     @Override
-    public Optional<E> getEntity() {
-        return Optional.ofNullable(entity);
-    }
-
-    @Override
-    public <T extends Display> Optional<T> getEntity(Class<T> type) {
-        return getEntity().filter(type::isInstance).map(type::cast);
+    public PaperHologramController getController() {
+        return controller;
     }
 
     @Override
@@ -74,25 +66,116 @@ public abstract class PaperHologram<E extends Display> implements Hologram<E>, T
     }
 
     @Override
-    public @Nullable Location getLocation() {
-        return getEntity().map(Entity::getLocation).orElse(null);
+    public Location getLocation() {
+        return location;
     }
 
     @Override
-    public @Nullable Location getSpawnLocation() {
-        return spawnLocation;
+    public World getWorld() {
+        return location.getWorld();
     }
 
     @Override
-    public boolean setSpawnLocation(@Nullable Location location) {
-        if (Objects.equals(this.spawnLocation, location)) return false;
-        this.spawnLocation = location;
-        return true;
+    public CompletableFuture<Boolean> teleportAsync(Location location) {
+        return CompletableFuture.completedFuture(false); // todo: implement
     }
 
     @Override
-    public @Nullable World getWorld() {
-        return getEntity().map(Entity::getWorld).orElse(null);
+    public @Unmodifiable List<HologramLine<?>> getLines() {
+        return List.copyOf(lines);
+    }
+
+    @Override
+    public int getLineCount() {
+        return lines.size();
+    }
+
+    @Override
+    public @Nullable HologramLine<?> getLine(int index) throws IndexOutOfBoundsException {
+        return lines.get(index);
+    }
+
+    @Override
+    public int getLineIndex(HologramLine<?> line) {
+        return lines.indexOf(line);
+    }
+
+    @Override
+    public boolean removeLine(HologramLine<?> line) {
+        var removed = lines.remove(line);
+        if (removed) line.getEntity().ifPresent(Entity::remove);
+        return removed;
+    }
+
+    @Override
+    public boolean removeLine(int index) {
+        var removed = lines.remove(index);
+        if (removed != null) removed.getEntity().ifPresent(Entity::remove);
+        return removed != null;
+    }
+
+    @Override
+    public boolean removeLines(Collection<HologramLine<?>> lines) {
+        return lines.stream().map(this::removeLine).reduce(false, Boolean::logicalOr);
+    }
+
+    @Override
+    public void clearLines() {
+        lines.forEach(line -> line.getEntity().ifPresent(Entity::remove));
+        lines.clear();
+    }
+
+    @Override
+    public boolean hasLine(HologramLine<?> line) {
+        return lines.contains(line);
+    }
+
+    @Override
+    public <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException {
+        return addEntityLine(entityType, lines.size());
+    }
+
+    @Override
+    public <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType, int index) throws IllegalArgumentException {
+        var hologramLine = new PaperEntityHologramLine<>(this, entityType);
+        lines.add(index, hologramLine);
+        return hologramLine;
+    }
+
+    @Override
+    public BlockHologramLine addBlockLine() {
+        return addBlockLine(lines.size());
+    }
+
+    @Override
+    public BlockHologramLine addBlockLine(int index) {
+        var hologramLine = new PaperBlockHologramLine(this);
+        lines.add(index, hologramLine);
+        return hologramLine;
+    }
+
+    @Override
+    public ItemHologramLine addItemLine() {
+        return addItemLine(lines.size());
+    }
+
+    @Override
+    public ItemHologramLine addItemLine(int index) {
+        var hologramLine = new PaperItemHologramLine(this);
+        lines.add(index, hologramLine);
+        return hologramLine;
+    }
+
+    @Override
+    public TextHologramLine addTextLine() {
+        return addTextLine(lines.size());
+    }
+
+    @Override
+    public TextHologramLine addTextLine(int index) {
+        var hologramLine = new PaperTextHologramLine(this);
+        lines.add(index, hologramLine);
+        return hologramLine;
     }
 
     @Override
@@ -104,8 +187,8 @@ public abstract class PaperHologram<E extends Display> implements Hologram<E>, T
     public boolean setViewPermission(@Nullable String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
-        getEntity().ifPresent(entity -> plugin.getServer().getOnlinePlayers()
-                .forEach(player -> updateVisibility(entity, player)));
+        getLines().forEach(line -> line.getEntity().ifPresent(entity -> controller.getServer().getOnlinePlayers()
+                .forEach(player -> updateVisibility(entity, player))));
         return true;
     }
 
@@ -194,24 +277,23 @@ public abstract class PaperHologram<E extends Display> implements Hologram<E>, T
         despawn(); // todo: implement
         // backupFile.delete();
         // file.delete();
-        plugin.hologramController().unregister(name);
+        controller.unregister(name);
     }
 
     @Override
     public boolean spawn() {
-        return spawnLocation != null && spawn(spawnLocation);
-    }
-
-    @Override
-    public boolean spawn(Location location) {
         if (isSpawned()) return false;
-        this.spawnLocation = location;
         this.entity = location.getWorld().spawn(location, getTypeClass(), this::preSpawn);
         return true;
     }
 
-    protected void preSpawn(E entity) {
-        entity.setMetadata("Hologram", new FixedMetadataValue(plugin, true));
+    @Override
+    public Iterator<HologramLine<?>> iterator() {
+        return lines.iterator();
+    }
+
+    protected void preSpawn(Entity entity) {
+        entity.setMetadata("Hologram", new FixedMetadataValue(controller.getPlugin(), true));
         entity.setPersistent(false);
         entity.setVisibleByDefault(visibleByDefault);
         entity.setTransformation(transformation);
@@ -227,179 +309,23 @@ public abstract class PaperHologram<E extends Display> implements Hologram<E>, T
         entity.setGlowColorOverride(glowColorOverride);
         entity.setBrightness(brightness);
 
-        if (viewPermission != null || !visibleByDefault) plugin.getServer().getOnlinePlayers()
+        if (viewPermission != null || !visibleByDefault) controller.getServer().getOnlinePlayers()
                 .forEach(player -> updateVisibility(entity, player));
     }
 
-    public void updateVisibility(E entity, Player player) {
-        if (canSee(player)) player.showEntity(plugin, entity);
-        else player.hideEntity(plugin, entity);
+    public void updateVisibility(Entity entity, Player player) {
+        if (canSee(player)) player.showEntity(controller.getPlugin(), entity);
+        else player.hideEntity(controller.getPlugin(), entity);
+    }
+
+    @Override
+    public void despawn() {
+        lines.forEach(line -> line.getEntity().ifPresent(Entity::remove));
     }
 
     @Override
     public boolean isSpawned() {
         return entity != null && entity.isValid();
-    }
-
-    @Override
-    public boolean despawn() {
-        if (entity == null) return false;
-        entity.remove();
-        entity = null;
-        return true;
-    }
-
-    @Override
-    public Transformation getTransformation() {
-        return new Transformation(
-                transformation.getTranslation(),
-                transformation.getLeftRotation(),
-                transformation.getScale(),
-                transformation.getRightRotation()
-        );
-    }
-
-    @Override
-    public void setTransformation(Transformation transformation) {
-        this.transformation = new Transformation(
-                transformation.getTranslation(),
-                transformation.getLeftRotation(),
-                transformation.getScale(),
-                transformation.getRightRotation()
-        );
-        getEntity().ifPresent(entity -> entity.setTransformation(transformation));
-    }
-
-    @Override
-    public void setTransformationMatrix(Matrix4f transformationMatrix) {
-        this.transformation = new Transformation(
-                transformationMatrix.getTranslation(new Vector3f()),
-                transformationMatrix.getRotation(new AxisAngle4f()),
-                transformationMatrix.getScale(new Vector3f()),
-                transformationMatrix.getRotation(new AxisAngle4f())
-        );
-        getEntity().ifPresent(entity -> entity.setTransformationMatrix(transformationMatrix));
-    }
-
-    @Override
-    public int getInterpolationDuration() {
-        return interpolationDuration;
-    }
-
-    @Override
-    public void setInterpolationDuration(int duration) {
-        this.interpolationDuration = duration;
-        getEntity().ifPresent(entity -> entity.setInterpolationDuration(duration));
-    }
-
-    @Override
-    public int getTeleportDuration() {
-        return teleportDuration;
-    }
-
-    @Override
-    public void setTeleportDuration(int duration) {
-        this.teleportDuration = duration;
-        getEntity().ifPresent(entity -> entity.setTeleportDuration(duration));
-    }
-
-    @Override
-    public float getViewRange() {
-        return viewRange;
-    }
-
-    @Override
-    public void setViewRange(float range) {
-        this.viewRange = range;
-        getEntity().ifPresent(entity -> entity.setViewRange(range));
-    }
-
-    @Override
-    public float getShadowRadius() {
-        return shadowRadius;
-    }
-
-    @Override
-    public void setShadowRadius(float radius) {
-        this.shadowRadius = radius;
-        getEntity().ifPresent(entity -> entity.setShadowRadius(radius));
-    }
-
-    @Override
-    public float getShadowStrength() {
-        return shadowStrength;
-    }
-
-    @Override
-    public void setShadowStrength(float strength) {
-        this.shadowStrength = strength;
-        getEntity().ifPresent(entity -> entity.setShadowStrength(strength));
-    }
-
-    @Override
-    public float getDisplayWidth() {
-        return displayWidth;
-    }
-
-    @Override
-    public void setDisplayWidth(float width) {
-        this.displayWidth = width;
-        getEntity().ifPresent(entity -> entity.setDisplayWidth(width));
-    }
-
-    @Override
-    public float getDisplayHeight() {
-        return displayHeight;
-    }
-
-    @Override
-    public void setDisplayHeight(float height) {
-        this.displayHeight = height;
-        getEntity().ifPresent(entity -> entity.setDisplayHeight(height));
-    }
-
-    @Override
-    public int getInterpolationDelay() {
-        return interpolationDelay;
-    }
-
-    @Override
-    public void setInterpolationDelay(int ticks) {
-        this.interpolationDelay = ticks;
-        getEntity().ifPresent(entity -> entity.setInterpolationDelay(ticks));
-    }
-
-    @Override
-    public Display.Billboard getBillboard() {
-        return billboard;
-    }
-
-    @Override
-    public void setBillboard(Display.Billboard billboard) {
-        this.billboard = billboard;
-        getEntity().ifPresent(entity -> entity.setBillboard(billboard));
-    }
-
-    @Override
-    public @Nullable Color getGlowColorOverride() {
-        return glowColorOverride;
-    }
-
-    @Override
-    public void setGlowColorOverride(@Nullable Color color) {
-        this.glowColorOverride = color;
-        getEntity().ifPresent(entity -> entity.setGlowColorOverride(color));
-    }
-
-    @Override
-    public Display.@Nullable Brightness getBrightness() {
-        return brightness;
-    }
-
-    @Override
-    public void setBrightness(Display.@Nullable Brightness brightness) {
-        this.brightness = brightness;
-        getEntity().ifPresent(entity -> entity.setBrightness(brightness));
     }
 
     @Override

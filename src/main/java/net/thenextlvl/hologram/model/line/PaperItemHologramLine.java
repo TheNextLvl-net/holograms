@@ -1,7 +1,8 @@
-package net.thenextlvl.hologram.model;
+package net.thenextlvl.hologram.model.line;
 
-import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.ItemHologram;
+import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.LineType;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
@@ -10,12 +11,12 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class PaperItemHologram extends PaperHologram<ItemDisplay> implements ItemHologram {
+public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay> implements ItemHologramLine {
     private ItemDisplay.ItemDisplayTransform displayTransform = ItemDisplay.ItemDisplayTransform.NONE;
     private @Nullable ItemStack item = null;
 
-    public PaperItemHologram(HologramPlugin plugin, String name) {
-        super(plugin, name);
+    public PaperItemHologramLine(Hologram hologram) {
+        super(hologram);
     }
 
     @Override
@@ -24,8 +25,13 @@ public class PaperItemHologram extends PaperHologram<ItemDisplay> implements Ite
     }
 
     @Override
-    public EntityType getType() {
+    public EntityType getEntityType() {
         return EntityType.ITEM_DISPLAY;
+    }
+
+    @Override
+    public LineType getType() {
+        return LineType.ITEM;
     }
 
     @Override

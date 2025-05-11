@@ -1,8 +1,9 @@
-package net.thenextlvl.hologram.model;
+package net.thenextlvl.hologram.model.line;
 
 import net.kyori.adventure.text.Component;
-import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.TextHologram;
+import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.line.LineType;
+import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.Color;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TextDisplay;
@@ -10,7 +11,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class PaperTextHologram extends PaperHologram<TextDisplay> implements TextHologram {
+public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay> implements TextHologramLine {
     private @Nullable Color backgroundColor;
     private Component text = Component.empty();
     private TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
@@ -20,8 +21,8 @@ public class PaperTextHologram extends PaperHologram<TextDisplay> implements Tex
     private byte opacity = 0;
     private int lineWidth = 0;
 
-    public PaperTextHologram(HologramPlugin plugin, String name) {
-        super(plugin, name);
+    public PaperTextHologramLine(Hologram hologram) {
+        super(hologram);
     }
 
     @Override
@@ -30,8 +31,13 @@ public class PaperTextHologram extends PaperHologram<TextDisplay> implements Tex
     }
 
     @Override
-    public EntityType getType() {
+    public EntityType getEntityType() {
         return EntityType.TEXT_DISPLAY;
+    }
+
+    @Override
+    public LineType getType() {
+        return LineType.TEXT;
     }
 
     @Override

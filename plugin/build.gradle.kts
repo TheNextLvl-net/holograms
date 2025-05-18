@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
 
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation(project(":api"))
@@ -35,7 +35,7 @@ dependencies {
 paper {
     name = "HologramAPI"
     main = "net.thenextlvl.hologram.HologramAPI"
-    apiVersion = "1.21"
+    apiVersion = "1.21.5"
     prefix = "Holograms"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net"

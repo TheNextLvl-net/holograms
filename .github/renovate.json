@@ -8,7 +8,7 @@
   "dependencyDashboard": false,
   "regexManagers": [
     {
-      "description": "Update Paper dev bundle via paperweight.paperDevBundle(...)",
+      "description": "Update Paper dev bundle",
       "fileMatch": [
         "(^|/)build\\.gradle\\.kts$"
       ],

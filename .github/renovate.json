@@ -31,8 +31,7 @@
       ],
       "matchDepNames": [
         "io.papermc.paper:dev-bundle"
-      ],
-      "allowSnapshots": true
+      ]
     }
   ]
 }

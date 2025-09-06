@@ -18,9 +18,6 @@
       ],
       "datasourceTemplate": "maven",
       "depNameTemplate": "io.papermc.paper:dev-bundle",
-      "registryUrls": [
-        "https://repo.papermc.io/repository/maven-public/"
-      ],
       "versioningTemplate": "maven"
     }
   ],
@@ -31,6 +28,9 @@
       ],
       "matchDepNames": [
         "io.papermc.paper:dev-bundle"
+      ],
+      "registryUrls": [
+        "https://repo.papermc.io/repository/maven-public/"
       ]
     }
   ]

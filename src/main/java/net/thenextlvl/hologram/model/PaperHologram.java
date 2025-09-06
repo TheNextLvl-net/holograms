@@ -1,9 +1,6 @@
 package net.thenextlvl.hologram.model;
 
 import com.google.common.base.Preconditions;
-import core.nbt.serialization.ParserException;
-import core.nbt.serialization.TagSerializable;
-import core.nbt.tag.Tag;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.controller.PaperHologramController;
 import net.thenextlvl.hologram.line.BlockHologramLine;
@@ -16,6 +13,9 @@ import net.thenextlvl.hologram.model.line.PaperEntityHologramLine;
 import net.thenextlvl.hologram.model.line.PaperHologramLine;
 import net.thenextlvl.hologram.model.line.PaperItemHologramLine;
 import net.thenextlvl.hologram.model.line.PaperTextHologramLine;
+import net.thenextlvl.nbt.serialization.ParserException;
+import net.thenextlvl.nbt.serialization.TagSerializable;
+import net.thenextlvl.nbt.tag.Tag;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;

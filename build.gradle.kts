@@ -23,11 +23,12 @@ tasks.compileJava {
 repositories {
     mavenCentral()
     maven("https://repo.thenextlvl.net/releases")
+    maven("https://repo.thenextlvl.net/snapshots")
 }
 
 dependencies {
     paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
-    implementation("net.thenextlvl.core:nbt:2.4.0")
+    implementation("net.thenextlvl:nbt:3.0.0-pre1")
     implementation("org.bstats:bstats-bukkit:3.1.1-SNAPSHOT")
     implementation(project(":api"))
 }

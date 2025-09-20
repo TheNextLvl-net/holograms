@@ -27,6 +27,8 @@ dependencies {
 
 publishing {
     publications.create<MavenPublication>("maven") {
+        artifactId = "holograms"
+        groupId = "net.thenextlvl"
         from(components["java"])
     }
     repositories.maven {

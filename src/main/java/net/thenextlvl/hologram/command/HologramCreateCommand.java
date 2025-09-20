@@ -9,19 +9,24 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.command.brigadier.SimpleCommand;
 
-class HologramCreateCommand {
+final class HologramCreateCommand extends SimpleCommand {
+    private HologramCreateCommand(HologramPlugin plugin) {
+        super(plugin, "create", "holograms.command.create");
+    }
+
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        return Commands.literal("create")
-                .requires(source -> source.getSender().hasPermission("holograms.command.create"))
-                .then(nameArgument().executes(context -> create(context, plugin)));
+        var command = new HologramCreateCommand(plugin);
+        return command.create().then(nameArgument().executes(command));
     }
 
     private static RequiredArgumentBuilder<CommandSourceStack, String> nameArgument() {
         return Commands.argument("name", StringArgumentType.string());
     }
 
-    private static int create(CommandContext<CommandSourceStack> context, HologramPlugin plugin) {
+    @Override
+    public int run(CommandContext<CommandSourceStack> context) {
         var name = context.getArgument("name", String.class);
         var location = context.getSource().getLocation();
         var hologram = plugin.hologramController().createHologram(name, location);

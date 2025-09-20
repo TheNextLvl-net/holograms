@@ -135,8 +135,8 @@ public class PaperHologramController implements HologramController {
         return hologram;
     }
 
-    public void unregister(String name) {
-        holograms.remove(name);
+    public boolean unregister(String name) {
+        return holograms.remove(name) != null;
     }
 
     public Server getServer() {

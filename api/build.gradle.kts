@@ -25,6 +25,11 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
 }
 
+tasks.withType<Javadoc>().configureEach {
+    val options = options as StandardJavadocDocletOptions
+    options.tags("apiNote:a:API Note:", "implSpec:a:Implementation Requirements:")
+}
+
 publishing {
     publications.create<MavenPublication>("maven") {
         artifactId = "holograms"

@@ -1,11 +1,14 @@
 package net.thenextlvl.hologram.model.line;
 
+import net.kyori.adventure.util.TriState;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.model.PaperHologram;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -29,18 +32,36 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     @Override
     public void setScale(double scale) {
         this.scale = scale;
-        getEntity(Attributable.class).ifPresent(attributable -> {
-            var attribute = attributable.getAttribute(Attribute.SCALE);
-            if (attribute != null) attribute.setBaseValue(scale);
-        });
+        getEntity(Attributable.class).ifPresent(this::updateScale);
     }
 
     @Override
     protected void preSpawn(E entity) {
-        getEntity(Attributable.class).ifPresent(attributable -> {
-            var attribute = attributable.getAttribute(Attribute.SCALE);
-            if (attribute != null) attribute.setBaseValue(scale);
-        });
+        entity.setSilent(true);
+        entity.setInvulnerable(true);
+        entity.setGravity(false);
+        entity.setNoPhysics(true);
+
+        if (entity instanceof Mob mob) {
+            mob.setDespawnInPeacefulOverride(TriState.FALSE);
+            mob.setAware(false);
+        }
+
+        if (entity instanceof LivingEntity livingEntity) {
+            livingEntity.setAI(false);
+            livingEntity.setCollidable(false);
+            livingEntity.setCanPickupItems(false);
+        }
+
+        if (entity instanceof Attributable attributable) {
+            updateScale(attributable);
+        }
+
         super.preSpawn(entity);
+    }
+
+    private void updateScale(Attributable attributable) {
+        var attribute = attributable.getAttribute(Attribute.SCALE);
+        if (attribute != null) attribute.setBaseValue(scale);
     }
 }

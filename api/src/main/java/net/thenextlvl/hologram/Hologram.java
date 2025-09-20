@@ -77,7 +77,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     boolean isPersistent();
     boolean persist();
 
-    void delete();
+    boolean delete();
 
     boolean spawn();
     void despawn();

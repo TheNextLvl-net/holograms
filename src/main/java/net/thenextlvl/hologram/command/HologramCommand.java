@@ -1,8 +1,11 @@
 package net.thenextlvl.hologram.command;
 
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.command.argument.HologramArgumentType;
 import net.thenextlvl.hologram.command.brigadier.BrigadierCommand;
 import org.jspecify.annotations.NullMarked;
 
@@ -16,6 +19,11 @@ public final class HologramCommand extends BrigadierCommand {
         var command = new HologramCommand(plugin);
         return command.create()
                 .then(HologramCreateCommand.create(plugin))
+                .then(HologramDeleteCommand.create(plugin))
                 .build();
+    }
+    
+    public static RequiredArgumentBuilder<CommandSourceStack, ?> hologramArgument(HologramPlugin plugin) {
+        return Commands.argument("hologram", new HologramArgumentType(plugin));
     }
 }

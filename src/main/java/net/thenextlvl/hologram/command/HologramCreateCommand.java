@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.command;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -30,8 +29,10 @@ final class HologramCreateCommand extends SimpleCommand {
         var name = context.getArgument("name", String.class);
         var location = context.getSource().getLocation();
         var hologram = plugin.hologramController().createHologram(name, location);
-        hologram.addTextLine().setText(Component.text(""));
+        hologram.addTextLine().setText(Component.text(name).appendNewline()
+                .append(Component.text("Use '/hologram line add " + name + " <name> <text>' to add a new line")).appendNewline()
+                .append(Component.text("Use '/hologram delete " + name + "' to remove the hologram")));
         hologram.spawn();
-        return Command.SINGLE_SUCCESS;
+        return SINGLE_SUCCESS;
     }
 }

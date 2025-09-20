@@ -1,30 +1,19 @@
 package net.thenextlvl.hologram.model.line;
 
-import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.LineType;
+import net.thenextlvl.hologram.model.PaperHologram;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.EntityType;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDisplay> implements BlockHologramLine {
     private BlockData block = BlockType.AIR.createBlockData();
 
-    public PaperBlockHologramLine(Hologram hologram) {
-        super(hologram);
-    }
-
-    @Override
-    public Class<BlockDisplay> getTypeClass() {
-        return BlockDisplay.class;
-    }
-
-    @Override
-    public EntityType getEntityType() {
-        return EntityType.BLOCK_DISPLAY;
+    public PaperBlockHologramLine(PaperHologram hologram) {
+        super(hologram, BlockDisplay.class);
     }
 
     @Override

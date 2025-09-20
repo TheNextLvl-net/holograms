@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.model;
 
 import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.controller.PaperHologramController;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
@@ -10,7 +11,6 @@ import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.model.line.PaperBlockHologramLine;
 import net.thenextlvl.hologram.model.line.PaperEntityHologramLine;
-import net.thenextlvl.hologram.model.line.PaperHologramLine;
 import net.thenextlvl.hologram.model.line.PaperItemHologramLine;
 import net.thenextlvl.hologram.model.line.PaperTextHologramLine;
 import net.thenextlvl.nbt.serialization.ParserException;
@@ -20,7 +20,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -34,12 +33,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 @NullMarked
 public class PaperHologram implements Hologram, TagSerializable {
     private final List<HologramLine<?>> lines = new LinkedList<>();
     private final Set<UUID> viewers = new HashSet<>();
 
+    private final HologramPlugin plugin;
     private final PaperHologramController controller;
     private final String name;
 
@@ -51,8 +52,15 @@ public class PaperHologram implements Hologram, TagSerializable {
     public PaperHologram(PaperHologramController controller, String name, Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
         this.controller = controller;
+        this.plugin = controller.getPlugin();
         this.location = location;
         this.name = name;
+    }
+
+    public Stream<? extends Entity> getEntities() {
+        return lines.stream()
+                .map(hologramLine -> hologramLine.getEntity().orElse(null))
+                .filter(Objects::nonNull);
     }
 
     @Override
@@ -108,10 +116,10 @@ public class PaperHologram implements Hologram, TagSerializable {
     }
 
     @Override
-    public boolean removeLine(int index) {
+    public boolean removeLine(int index) throws IndexOutOfBoundsException {
         var removed = lines.remove(index);
-        if (removed != null) removed.getEntity().ifPresent(Entity::remove);
-        return removed != null;
+        removed.getEntity().ifPresent(Entity::remove);
+        return true;
     }
 
     @Override
@@ -121,7 +129,7 @@ public class PaperHologram implements Hologram, TagSerializable {
 
     @Override
     public void clearLines() {
-        lines.forEach(line -> line.getEntity().ifPresent(Entity::remove));
+        getEntities().forEach(Entity::remove);
         lines.clear();
     }
 
@@ -187,8 +195,8 @@ public class PaperHologram implements Hologram, TagSerializable {
     public boolean setViewPermission(@Nullable String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
-        getLines().forEach(line -> line.getEntity().ifPresent(entity -> controller.getServer().getOnlinePlayers()
-                .forEach(player -> updateVisibility(entity, player))));
+        getEntities().forEach(entity -> controller.getServer().getOnlinePlayers()
+                .forEach(player -> updateVisibility(entity, player)));
         return true;
     }
 
@@ -200,9 +208,9 @@ public class PaperHologram implements Hologram, TagSerializable {
     @Override
     public boolean addViewer(UUID player) {
         if (!viewers.add(player)) return false;
-        if (entity == null || isVisibleByDefault()) return true;
+        if (lines.isEmpty() || isVisibleByDefault()) return true;
         var online = plugin.getServer().getPlayer(player);
-        if (online != null) online.showEntity(plugin, entity);
+        if (online != null) getEntities().forEach(entity -> online.showEntity(plugin, entity));
         return true;
     }
 
@@ -214,9 +222,9 @@ public class PaperHologram implements Hologram, TagSerializable {
     @Override
     public boolean removeViewer(UUID player) {
         if (!viewers.remove(player)) return false;
-        if (entity == null || isVisibleByDefault()) return true;
+        if (lines.isEmpty() || isVisibleByDefault()) return true;
         var online = plugin.getServer().getPlayer(player);
-        if (online != null) online.hideEntity(plugin, entity);
+        if (online != null) getEntities().forEach(entity -> online.hideEntity(plugin, entity));
         return true;
     }
 
@@ -232,15 +240,15 @@ public class PaperHologram implements Hologram, TagSerializable {
 
     @Override
     public boolean canSee(Player player) {
-        if (entity == null || !isSpawned()) return false;
-        if (!player.getWorld().equals(entity.getWorld())) return false;
+        if (lines.isEmpty() || !isSpawned()) return false;
+        if (!player.getWorld().equals(location.getWorld())) return false;
         if (viewPermission != null && !player.hasPermission(viewPermission)) return false;
         return isVisibleByDefault() || isViewer(player.getUniqueId());
     }
 
     @Override
     public boolean isTrackedBy(Player player) {
-        return getEntity().map(entity -> entity.getTrackedBy().contains(player)).orElse(false);
+        return getEntities().anyMatch(entity -> entity.getTrackedBy().contains(player));
     }
 
     @Override
@@ -283,34 +291,13 @@ public class PaperHologram implements Hologram, TagSerializable {
     @Override
     public boolean spawn() {
         if (isSpawned()) return false;
-        this.entity = location.getWorld().spawn(location, getTypeClass(), this::preSpawn);
+        lines.forEach(HologramLine::spawn);
         return true;
     }
 
     @Override
     public Iterator<HologramLine<?>> iterator() {
         return lines.iterator();
-    }
-
-    protected void preSpawn(Entity entity) {
-        entity.setMetadata("Hologram", new FixedMetadataValue(controller.getPlugin(), true));
-        entity.setPersistent(false);
-        entity.setVisibleByDefault(visibleByDefault);
-        entity.setTransformation(transformation);
-        entity.setDisplayWidth(displayWidth);
-        entity.setDisplayHeight(displayHeight);
-        entity.setShadowRadius(shadowRadius);
-        entity.setShadowStrength(shadowStrength);
-        entity.setViewRange(viewRange);
-        entity.setInterpolationDuration(interpolationDuration);
-        entity.setInterpolationDelay(interpolationDelay);
-        entity.setTeleportDuration(teleportDuration);
-        entity.setBillboard(billboard);
-        entity.setGlowColorOverride(glowColorOverride);
-        entity.setBrightness(brightness);
-
-        if (viewPermission != null || !visibleByDefault) controller.getServer().getOnlinePlayers()
-                .forEach(player -> updateVisibility(entity, player));
     }
 
     public void updateVisibility(Entity entity, Player player) {
@@ -325,7 +312,7 @@ public class PaperHologram implements Hologram, TagSerializable {
 
     @Override
     public boolean isSpawned() {
-        return entity != null && entity.isValid();
+        return getEntities().anyMatch(Entity::isValid);
     }
 
     @Override

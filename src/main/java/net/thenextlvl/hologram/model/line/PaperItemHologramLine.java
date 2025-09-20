@@ -1,9 +1,8 @@
 package net.thenextlvl.hologram.model.line;
 
-import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.LineType;
-import org.bukkit.entity.EntityType;
+import net.thenextlvl.hologram.model.PaperHologram;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
@@ -15,23 +14,23 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay>
     private ItemDisplay.ItemDisplayTransform displayTransform = ItemDisplay.ItemDisplayTransform.NONE;
     private @Nullable ItemStack item = null;
 
-    public PaperItemHologramLine(Hologram hologram) {
-        super(hologram);
-    }
-
-    @Override
-    public Class<ItemDisplay> getTypeClass() {
-        return ItemDisplay.class;
-    }
-
-    @Override
-    public EntityType getEntityType() {
-        return EntityType.ITEM_DISPLAY;
+    public PaperItemHologramLine(PaperHologram hologram) {
+        super(hologram, ItemDisplay.class);
     }
 
     @Override
     public LineType getType() {
         return LineType.ITEM;
+    }
+
+    @Override
+    public void despawn() {
+        
+    }
+
+    @Override
+    public void spawn() {
+
     }
 
     @Override

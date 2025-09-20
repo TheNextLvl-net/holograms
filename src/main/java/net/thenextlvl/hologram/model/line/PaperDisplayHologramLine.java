@@ -1,7 +1,7 @@
 package net.thenextlvl.hologram.model.line;
 
-import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.DisplayHologramLine;
+import net.thenextlvl.hologram.model.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.util.Transformation;
@@ -26,8 +26,8 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     private int interpolationDuration = 0;
     private int teleportDuration = 0;
 
-    public PaperDisplayHologramLine(Hologram hologram) {
-        super(hologram);
+    public PaperDisplayHologramLine(PaperHologram hologram, Class<E> entityClass) {
+        super(hologram, entityClass);
     }
 
     @Override
@@ -181,5 +181,23 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     public void setBrightness(Display.@Nullable Brightness brightness) {
         this.brightness = brightness;
         getEntity().ifPresent(entity -> entity.setBrightness(brightness));
+    }
+
+    @Override
+    protected void preSpawn(E entity) {
+        entity.setTransformation(transformation);
+        entity.setDisplayWidth(displayWidth);
+        entity.setDisplayHeight(displayHeight);
+        entity.setShadowRadius(shadowRadius);
+        entity.setShadowStrength(shadowStrength);
+        entity.setViewRange(viewRange);
+        entity.setInterpolationDuration(interpolationDuration);
+        entity.setInterpolationDelay(interpolationDelay);
+        entity.setTeleportDuration(teleportDuration);
+        entity.setBillboard(billboard);
+        entity.setGlowColorOverride(glowColorOverride);
+        entity.setBrightness(brightness);
+
+        super.preSpawn(entity);
     }
 }

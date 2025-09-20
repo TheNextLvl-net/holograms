@@ -40,7 +40,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     @Nullable HologramLine<?> getLine(int index) throws IndexOutOfBoundsException;
     int getLineIndex(HologramLine<?> line);
     boolean removeLine(HologramLine<?> line);
-    boolean removeLine(int index);
+    boolean removeLine(int index) throws IndexOutOfBoundsException;
     boolean removeLines(Collection<HologramLine<?>> lines);
     void clearLines();
     boolean hasLine(HologramLine<?> line);

@@ -1,11 +1,10 @@
 package net.thenextlvl.hologram.model.line;
 
 import net.kyori.adventure.text.Component;
-import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.TextHologramLine;
+import net.thenextlvl.hologram.model.PaperHologram;
 import org.bukkit.Color;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TextDisplay;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -21,18 +20,8 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     private byte opacity = 0;
     private int lineWidth = 0;
 
-    public PaperTextHologramLine(Hologram hologram) {
-        super(hologram);
-    }
-
-    @Override
-    public Class<TextDisplay> getTypeClass() {
-        return TextDisplay.class;
-    }
-
-    @Override
-    public EntityType getEntityType() {
-        return EntityType.TEXT_DISPLAY;
+    public PaperTextHologramLine(PaperHologram hologram) {
+        super(hologram, TextDisplay.class);
     }
 
     @Override

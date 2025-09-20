@@ -34,6 +34,13 @@ publishing {
     publications.create<MavenPublication>("maven") {
         artifactId = "holograms"
         groupId = "net.thenextlvl"
+        pom.url.set("https://thenextlvl.net/docs/holograms")
+        pom.scm {
+            val repository = "TheNextLvl-net/holograms"
+            url.set("https://github.com/$repository")
+            connection.set("scm:git:git://github.com/$repository.git")
+            developerConnection.set("scm:git:ssh://github.com/$repository.git")
+        }
         from(components["java"])
     }
     repositories.maven {

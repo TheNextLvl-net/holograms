@@ -289,7 +289,7 @@ public class PaperHologram implements Hologram, TagSerializable {
         // todo: implement file deletion
         //  backupFile.delete();
         //  file.delete();
-        return controller.unregister(name);
+        return controller.unregister(this);
     }
 
     @Override

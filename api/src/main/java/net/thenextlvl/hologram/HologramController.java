@@ -16,9 +16,9 @@ import org.jspecify.annotations.NullMarked;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * Represents a controller responsible for managing, creating, and querying holograms and their associated lines.
@@ -117,8 +117,7 @@ public interface HologramController {
      *
      * @return the names of all holograms
      */
-    @Unmodifiable
-    Set<String> getHologramNames();
+    Stream<String> getHologramNames();
 
     /**
      * Check if a hologram with the given name exists

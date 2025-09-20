@@ -21,18 +21,18 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 @NullMarked
 public class PaperHologramController implements HologramController {
     private final HologramPlugin plugin;
-    private final Map<String, Hologram> holograms = new HashMap<>();
+    private final Set<Hologram> holograms = new HashSet<>();
 
     public PaperHologramController(HologramPlugin plugin) {
         this.plugin = plugin;
@@ -41,7 +41,7 @@ public class PaperHologramController implements HologramController {
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Entity> Optional<HologramLine<E>> getHologramLine(E entity) {
-        return holograms.values().stream()
+        return holograms.stream()
                 .filter(hologram -> hologram.getLines().stream().anyMatch(line ->
                         line.getEntity().filter(entity::equals).isPresent()))
                 .map(character -> (HologramLine<E>) character)
@@ -65,30 +65,32 @@ public class PaperHologramController implements HologramController {
 
     @Override
     public Optional<Hologram> getHologram(String name) {
-        return Optional.ofNullable(holograms.get(name));
+        return holograms.stream()
+                .filter(hologram -> hologram.getName().equals(name))
+                .findAny();
     }
 
     @Override
     public Optional<HologramLine<?>> getHologramLine(UUID uuid) {
-        return holograms.values().stream().flatMap(hologram -> hologram.getLines().stream().filter(line ->
+        return holograms.stream().flatMap(hologram -> hologram.getLines().stream().filter(line ->
                 line.getEntity().map(Entity::getUniqueId).filter(uuid::equals).isPresent())).findAny();
     }
 
     @Override
     public @Unmodifiable Collection<? extends Hologram> getHolograms() {
-        return List.copyOf(holograms.values());
+        return List.copyOf(holograms);
     }
 
     @Override
     public @Unmodifiable Collection<? extends Hologram> getHolograms(Player player) {
-        return holograms.values().stream()
+        return holograms.stream()
                 .filter(hologram -> hologram.canSee(player))
                 .toList();
     }
 
     @Override
     public @Unmodifiable Collection<? extends Hologram> getHolograms(World world) {
-        return holograms.values().stream()
+        return holograms.stream()
                 .filter(hologram -> world.equals(hologram.getWorld()))
                 .toList();
     }
@@ -104,18 +106,18 @@ public class PaperHologramController implements HologramController {
     }
 
     @Override
-    public @Unmodifiable Set<String> getHologramNames() {
-        return Set.copyOf(holograms.keySet());
+    public @Unmodifiable Stream<String> getHologramNames() {
+        return holograms.stream().map(Hologram::getName);
     }
 
     @Override
     public boolean hologramExists(String name) {
-        return holograms.containsKey(name);
+        return holograms.stream().anyMatch(hologram -> hologram.getName().equals(name));
     }
 
     @Override
     public boolean isHologramPart(Entity entity) {
-        return holograms.values().stream().anyMatch(hologram -> hologram.getLines().stream().anyMatch(line ->
+        return holograms.stream().anyMatch(hologram -> hologram.getLines().stream().anyMatch(line ->
                 line.getEntity().filter(entity::equals).isPresent()));
     }
 
@@ -123,7 +125,7 @@ public class PaperHologramController implements HologramController {
     public Hologram createHologram(String name, Location location) throws IllegalStateException {
         Preconditions.checkState(!hologramExists(name), "Hologram named %s already exists", name);
         var hologram = new PaperHologram(this, name, location);
-        holograms.put(name, hologram);
+        holograms.add(hologram);
         return hologram;
     }
 
@@ -135,8 +137,8 @@ public class PaperHologramController implements HologramController {
         return hologram;
     }
 
-    public boolean unregister(String name) {
-        return holograms.remove(name) != null;
+    public boolean unregister(Hologram hologram) {
+        return holograms.remove(hologram);
     }
 
     public Server getServer() {

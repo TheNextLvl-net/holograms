@@ -24,16 +24,6 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay>
     }
 
     @Override
-    public void despawn() {
-        
-    }
-
-    @Override
-    public void spawn() {
-
-    }
-
-    @Override
     public ItemStack getItemStack() {
         return item != null ? item.clone() : ItemType.AIR.createItemStack();
     }

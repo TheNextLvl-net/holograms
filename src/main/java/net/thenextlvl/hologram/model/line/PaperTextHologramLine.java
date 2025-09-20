@@ -6,19 +6,20 @@ import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.model.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.TextDisplay;
+import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay> implements TextHologramLine {
     private @Nullable Color backgroundColor;
-    private Component text = Component.empty();
+    private @Nullable Component text = null;
     private TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
     private boolean defaultBackground = false;
     private boolean seeThrough = false;
     private boolean shadowed = false;
-    private byte opacity = 0;
-    private int lineWidth = 0;
+    private float opacity = 0;
+    private int lineWidth = 200;
 
     public PaperTextHologramLine(PaperHologram hologram) {
         super(hologram, TextDisplay.class);
@@ -30,13 +31,13 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public Component getText() {
+    public @Nullable Component getText() {
         return text;
     }
 
     @Override
     public void setText(@Nullable Component text) {
-        this.text = text == null ? Component.empty() : text;
+        this.text = text;
         getEntity().ifPresent(entity -> entity.text(text));
     }
 
@@ -63,14 +64,14 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public byte getTextOpacity() {
+    public float getTextOpacity() {
         return opacity;
     }
 
     @Override
-    public void setTextOpacity(byte opacity) {
+    public void setTextOpacity(@Range(from = 0, to = 100) float opacity) {
         this.opacity = opacity;
-        getEntity().ifPresent(entity -> entity.setTextOpacity(opacity));
+        getEntity().ifPresent(this::updateOpacity);
     }
 
     @Override
@@ -124,10 +125,14 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
         entity.setSeeThrough(seeThrough);
         entity.setShadowed(shadowed);
         entity.setDefaultBackground(defaultBackground);
-        entity.setTextOpacity(opacity);
-        if (backgroundColor != null) entity.setBackgroundColor(backgroundColor);
-        if (lineWidth > 0) entity.setLineWidth(lineWidth);
-        
+        entity.setBackgroundColor(backgroundColor);
+        entity.setLineWidth(lineWidth);
+        updateOpacity(entity);
+
         super.preSpawn(entity);
+    }
+
+    private void updateOpacity(TextDisplay entity) {
+        entity.setTextOpacity((byte) Math.round(25f + ((100f - opacity) * 2.3f)));
     }
 }

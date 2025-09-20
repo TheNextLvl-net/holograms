@@ -11,6 +11,7 @@ import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.model.line.PaperBlockHologramLine;
 import net.thenextlvl.hologram.model.line.PaperEntityHologramLine;
+import net.thenextlvl.hologram.model.line.PaperHologramLine;
 import net.thenextlvl.hologram.model.line.PaperItemHologramLine;
 import net.thenextlvl.hologram.model.line.PaperTextHologramLine;
 import net.thenextlvl.nbt.serialization.ParserException;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
 
 @NullMarked
 public class PaperHologram implements Hologram, TagSerializable {
-    private final List<HologramLine<?>> lines = new LinkedList<>();
+    private final List<PaperHologramLine<?>> lines = new LinkedList<>();
     private final Set<UUID> viewers = new HashSet<>();
 
     private final HologramPlugin plugin;
@@ -47,7 +48,9 @@ public class PaperHologram implements Hologram, TagSerializable {
     private @Nullable String viewPermission;
     private Location location;
     private boolean persistent;
-    private boolean visibleByDefault;
+    private boolean visibleByDefault = true;
+
+    private boolean spawned = false;
 
     public PaperHologram(PaperHologramController controller, String name, Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
@@ -195,8 +198,8 @@ public class PaperHologram implements Hologram, TagSerializable {
     public boolean setViewPermission(@Nullable String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
-        getEntities().forEach(entity -> controller.getServer().getOnlinePlayers()
-                .forEach(player -> updateVisibility(entity, player)));
+        lines.forEach(hologramLine -> controller.getServer().getOnlinePlayers()
+                .forEach(hologramLine::updateVisibility));
         return true;
     }
 
@@ -292,27 +295,24 @@ public class PaperHologram implements Hologram, TagSerializable {
     public boolean spawn() {
         if (isSpawned()) return false;
         lines.forEach(HologramLine::spawn);
+        this.spawned = true;
         return true;
     }
 
     @Override
     public Iterator<HologramLine<?>> iterator() {
-        return lines.iterator();
-    }
-
-    public void updateVisibility(Entity entity, Player player) {
-        if (canSee(player)) player.showEntity(controller.getPlugin(), entity);
-        else player.hideEntity(controller.getPlugin(), entity);
+        return getLines().iterator();
     }
 
     @Override
     public void despawn() {
-        lines.forEach(line -> line.getEntity().ifPresent(Entity::remove));
+        lines.forEach(HologramLine::despawn);
+        this.spawned = false;
     }
 
     @Override
     public boolean isSpawned() {
-        return getEntities().anyMatch(Entity::isValid);
+        return spawned;
     }
 
     @Override

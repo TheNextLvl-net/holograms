@@ -15,7 +15,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class PaperDisplayHologramLine<E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine<E> {
     private @Nullable Color glowColorOverride = null;
     private Display.@Nullable Brightness brightness = null;
-    private Display.Billboard billboard = Display.Billboard.FIXED;
+    private Display.Billboard billboard = Display.Billboard.CENTER;
     private Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
     private float displayHeight = 0;
     private float displayWidth = 0;

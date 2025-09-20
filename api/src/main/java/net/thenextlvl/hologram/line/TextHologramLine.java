@@ -3,6 +3,7 @@ package net.thenextlvl.hologram.line;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.entity.TextDisplay;
+import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -13,6 +14,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @return the displayed text
      */
+    @Nullable
     Component getText();
 
     /**
@@ -56,14 +58,14 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @return opacity or -1 if not set
      */
-    byte getTextOpacity();
+    float getTextOpacity();
 
     /**
      * Sets the text opacity.
      *
      * @param opacity new opacity or -1 if default
      */
-    void setTextOpacity(byte opacity);
+    void setTextOpacity(@Range(from = 0, to = 100) float opacity);
 
     /**
      * Gets if the text is shadowed.

@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -82,11 +83,23 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         this.entity = location.getWorld().spawn(location, getTypeClass(), this::preSpawn);
     }
 
+    public void updateVisibility(Player player) {
+        if (entity == null) return;
+        if (canSee(player)) player.showEntity(plugin, entity);
+        else player.hideEntity(plugin, entity);
+    }
+
+    public boolean canSee(Player player) {
+        if (entity == null || !entity.isValid()) return false;
+        if (!player.getWorld().equals(entity.getWorld())) return false;
+        return hologram.canSee(player);
+    }
+
     protected void preSpawn(E entity) {
         entity.setPersistent(false);
         entity.setVisibleByDefault(hologram.isVisibleByDefault());
 
-        if (hologram.getViewPermission() == null && hologram.isVisibleByDefault()) return;
-        plugin.getServer().getOnlinePlayers().forEach(player -> hologram.updateVisibility(entity, player));
+        // if (hologram.getViewPermission() != null || !hologram.isVisibleByDefault())
+        //     plugin.getServer().getOnlinePlayers().forEach(this::updateVisibility);
     }
 }

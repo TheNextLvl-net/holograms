@@ -79,7 +79,9 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     @Override
     public void spawn() {
         if (entity != null) return;
-        var location = getLocation();
+        // todo: do some more crazy math to calculate the perfect offset
+        var lineIndex = Math.max(0, hologram.getLineIndex(this));
+        var location = getLocation().clone().add(0, lineIndex, 0);
         this.entity = location.getWorld().spawn(location, getTypeClass(), this::preSpawn);
     }
 

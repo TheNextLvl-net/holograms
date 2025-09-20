@@ -116,4 +116,18 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
         this.alignment = alignment;
         getEntity().ifPresent(entity -> entity.setAlignment(alignment));
     }
+
+    @Override
+    protected void preSpawn(TextDisplay entity) {
+        entity.text(text);
+        entity.setAlignment(alignment);
+        entity.setSeeThrough(seeThrough);
+        entity.setShadowed(shadowed);
+        entity.setDefaultBackground(defaultBackground);
+        entity.setTextOpacity(opacity);
+        if (backgroundColor != null) entity.setBackgroundColor(backgroundColor);
+        if (lineWidth > 0) entity.setLineWidth(lineWidth);
+        
+        super.preSpawn(entity);
+    }
 }

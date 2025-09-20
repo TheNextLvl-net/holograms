@@ -34,4 +34,13 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
             if (attribute != null) attribute.setBaseValue(scale);
         });
     }
+
+    @Override
+    protected void preSpawn(E entity) {
+        getEntity(Attributable.class).ifPresent(attributable -> {
+            var attribute = attributable.getAttribute(Attribute.SCALE);
+            if (attribute != null) attribute.setBaseValue(scale);
+        });
+        super.preSpawn(entity);
+    }
 }

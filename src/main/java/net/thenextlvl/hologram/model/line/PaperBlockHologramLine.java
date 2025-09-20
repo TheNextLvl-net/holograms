@@ -31,4 +31,10 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDispla
         this.block = block.clone();
         getEntity().ifPresent(entity -> entity.setBlock(block));
     }
+
+    @Override
+    protected void preSpawn(BlockDisplay entity) {
+        entity.setBlock(block);
+        super.preSpawn(entity);
+    }
 }

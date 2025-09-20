@@ -54,4 +54,11 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay>
         this.displayTransform = display;
         getEntity().ifPresent(entity -> entity.setItemDisplayTransform(display));
     }
+
+    @Override
+    protected void preSpawn(ItemDisplay entity) {
+        entity.setItemStack(item);
+        entity.setItemDisplayTransform(displayTransform);
+        super.preSpawn(entity);
+    }
 }

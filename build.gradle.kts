@@ -46,6 +46,7 @@ paper {
         register("holograms.command")
         register("holograms.command.create") { children = listOf("holograms.command") }
         register("holograms.command.delete") { children = listOf("holograms.command") }
+        register("holograms.command.list") { children = listOf("holograms.command") }
     }
 }
 

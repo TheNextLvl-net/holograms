@@ -27,7 +27,7 @@ public class HologramPlugin extends JavaPlugin {
             .resource("messages.properties", Locale.US)
             .resource("messages_german.properties", Locale.GERMANY)
             .build();
-    
+
     public HologramPlugin() {
         getServer().getServicesManager().register(HologramController.class, controller, this, ServicePriority.Normal);
     }
@@ -55,7 +55,7 @@ public class HologramPlugin extends JavaPlugin {
     public PaperHologramController hologramController() {
         return controller;
     }
-    
+
     public ComponentBundle bundle() {
         return bundle;
     }

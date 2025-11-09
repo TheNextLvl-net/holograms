@@ -20,6 +20,7 @@ import net.thenextlvl.nbt.tag.Tag;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
@@ -139,6 +140,12 @@ public class PaperHologram implements Hologram, TagSerializable {
     @Override
     public boolean hasLine(HologramLine<?> line) {
         return lines.contains(line);
+    }
+
+    @Override
+    public EntityHologramLine<?> addEntityLine(EntityType entityType) throws IllegalArgumentException {
+        Preconditions.checkArgument(entityType.getEntityClass() != null, "Cannot spawn entity of type %s", entityType);
+        return addEntityLine(entityType.getEntityClass(), lines.size());
     }
 
     @Override

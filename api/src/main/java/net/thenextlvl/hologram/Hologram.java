@@ -8,6 +8,7 @@ import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
@@ -45,6 +46,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     void clearLines();
     boolean hasLine(HologramLine<?> line);
 
+    EntityHologramLine<?> addEntityLine(EntityType entityType) throws IllegalArgumentException;
     <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException;
     <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType, int index) throws IllegalArgumentException;
     BlockHologramLine addBlockLine();

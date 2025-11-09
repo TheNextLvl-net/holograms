@@ -11,7 +11,7 @@ import net.thenextlvl.hologram.command.brigadier.SimpleCommand;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class HologramListCommand extends SimpleCommand {
+final class HologramListCommand extends SimpleCommand {
     private HologramListCommand(HologramPlugin plugin) {
         super(plugin, "list", "holograms.command.list");
     }

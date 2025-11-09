@@ -1,0 +1,26 @@
+package net.thenextlvl.hologram.command.line;
+
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.command.brigadier.BrigadierCommand;
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
+public final class HologramLineCommand extends BrigadierCommand {
+    private HologramLineCommand(HologramPlugin plugin) {
+        super(plugin, "line", "holograms.command.line");
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
+        var command = new HologramLineCommand(plugin);
+        return command.create()
+                .then(HologramLineAddCommand.create(plugin));
+                //.then(HologramLineRemoveCommand.create(plugin))
+                //.then(HologramLineEditCommand.create(plugin))
+                //.then(HologramLineMoveCommand.create(plugin))
+                //.then(HologramLineAppendCommand.create(plugin))
+                //.then(HologramLinePrependCommand.create(plugin))
+                //.then(HologramLineReplaceCommand.create(plugin));
+    }   
+}

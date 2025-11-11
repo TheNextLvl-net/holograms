@@ -9,6 +9,11 @@ import org.jspecify.annotations.NullMarked;
 
 import java.util.Optional;
 
+/**
+ * Represents a line within a hologram.
+ *
+ * @since 0.1.0
+ */
 @NullMarked
 public interface HologramLine<E extends Entity> {
     Hologram getHologram();

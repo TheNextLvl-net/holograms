@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * An interface that represents a hologram
+ * 
+ * @since 0.1.0
  */
 @NullMarked
 public interface Hologram extends Iterable<HologramLine<?>> {
@@ -79,7 +82,14 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     boolean isPersistent();
     boolean persist();
 
-    boolean delete();
+    /**
+     * @since 0.2.0
+     */
+    Path getDataFile();
+    /**
+     * @since 0.2.0
+     */
+    Path getBackupFile();
 
     boolean spawn();
     void despawn();

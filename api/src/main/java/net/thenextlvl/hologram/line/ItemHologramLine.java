@@ -5,6 +5,11 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents a line type within a hologram that displays an item.
+ *
+ * @since 0.1.0
+ */
 @NullMarked
 public interface ItemHologramLine extends DisplayHologramLine<ItemDisplay> {
     /**

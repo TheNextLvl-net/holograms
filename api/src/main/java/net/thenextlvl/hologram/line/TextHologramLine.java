@@ -7,6 +7,11 @@ import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents a line type within a hologram that displays text content.
+ *
+ * @since 0.1.0
+ */
 @NullMarked
 public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
     /**

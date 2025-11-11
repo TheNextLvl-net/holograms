@@ -20,9 +20,11 @@ import org.bukkit.entity.TextDisplay;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -39,9 +41,22 @@ public class PaperHologramController implements HologramController {
     }
 
     @Override
+    public Path getDataPath(World world) {
+        return world.getWorldPath().resolve("holograms");
+    }
+
+    @Override
+    public Optional<Hologram> getHologram(Entity entity) {
+        return getHolograms(entity.getWorld())
+                .filter(hologram -> hologram.getLines().stream().anyMatch(line ->
+                        line.getEntity().filter(entity::equals).isPresent()))
+                .findAny();
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <E extends Entity> Optional<HologramLine<E>> getHologramLine(E entity) {
-        return holograms.stream()
+        return getHolograms(entity.getWorld())
                 .filter(hologram -> hologram.getLines().stream().anyMatch(line ->
                         line.getEntity().filter(entity::equals).isPresent()))
                 .map(character -> (HologramLine<E>) character)
@@ -65,34 +80,38 @@ public class PaperHologramController implements HologramController {
 
     @Override
     public Optional<Hologram> getHologram(String name) {
-        return holograms.stream()
-                .filter(hologram -> hologram.getName().equals(name))
+        return getHolograms().filter(hologram -> hologram.getName().equals(name))
                 .findAny();
     }
 
     @Override
     public Optional<HologramLine<?>> getHologramLine(UUID uuid) {
-        return holograms.stream().flatMap(hologram -> hologram.getLines().stream().filter(line ->
+        return getHolograms().flatMap(hologram -> hologram.getLines().stream().filter(line ->
                 line.getEntity().map(Entity::getUniqueId).filter(uuid::equals).isPresent())).findAny();
     }
 
     @Override
-    public @Unmodifiable Collection<? extends Hologram> getHolograms() {
-        return List.copyOf(holograms);
+    public Stream<Hologram> getHolograms() {
+        return holograms.stream();
     }
 
     @Override
-    public @Unmodifiable Collection<? extends Hologram> getHolograms(Player player) {
-        return holograms.stream()
-                .filter(hologram -> hologram.canSee(player))
-                .toList();
+    public Stream<Hologram> getHolograms(org.bukkit.Chunk chunk) {
+        return getHolograms(chunk.getWorld()).filter(hologram -> {
+            var chunkX = hologram.getLocation().getBlockX() >> 4;
+            var chunkZ = hologram.getLocation().getBlockZ() >> 4;
+            return chunkX == chunk.getX() && chunkZ == chunk.getZ();
+        });
     }
 
     @Override
-    public @Unmodifiable Collection<? extends Hologram> getHolograms(World world) {
-        return holograms.stream()
-                .filter(hologram -> world.equals(hologram.getWorld()))
-                .toList();
+    public Stream<Hologram> getHolograms(Player player) {
+        return getHolograms().filter(hologram -> hologram.canSee(player));
+    }
+
+    @Override
+    public Stream<Hologram> getHolograms(World world) {
+        return getHolograms().filter(hologram -> world.equals(hologram.getWorld()));
     }
 
     @Override
@@ -100,24 +119,24 @@ public class PaperHologramController implements HologramController {
         Preconditions.checkArgument(radius > 0, "Radius must be greater than 0");
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
         var radiusSquared = radius * radius;
-        return getHolograms(location.getWorld()).stream()
+        return getHolograms(location.getWorld())
                 .filter(hologram -> hologram.getLocation().distanceSquared(location) <= radiusSquared)
                 .toList();
     }
 
     @Override
-    public @Unmodifiable Stream<String> getHologramNames() {
-        return holograms.stream().map(Hologram::getName);
+    public Stream<String> getHologramNames() {
+        return getHolograms().map(Hologram::getName);
     }
 
     @Override
     public boolean hologramExists(String name) {
-        return holograms.stream().anyMatch(hologram -> hologram.getName().equals(name));
+        return getHolograms().anyMatch(hologram -> hologram.getName().equals(name));
     }
 
     @Override
     public boolean isHologramPart(Entity entity) {
-        return holograms.stream().anyMatch(hologram -> hologram.getLines().stream().anyMatch(line ->
+        return getHolograms(entity.getWorld()).anyMatch(hologram -> hologram.getLines().stream().anyMatch(line ->
                 line.getEntity().filter(entity::equals).isPresent()));
     }
 
@@ -135,6 +154,18 @@ public class PaperHologramController implements HologramController {
         preSpawn.accept(hologram);
         hologram.spawn();
         return hologram;
+    }
+
+    @Override
+    public boolean deleteHologram(Hologram hologram) {
+        hologram.despawn();
+        try {
+            Files.deleteIfExists(hologram.getDataFile());
+            Files.deleteIfExists(hologram.getBackupFile());
+        } catch (IOException e) {
+            plugin.getComponentLogger().warn("Failed to delete hologram data: {}", hologram.getName(), e);
+        }
+        return unregister(hologram);
     }
 
     public boolean unregister(Hologram hologram) {

@@ -104,4 +104,8 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         // if (hologram.getViewPermission() != null || !hologram.isVisibleByDefault())
         //     plugin.getServer().getOnlinePlayers().forEach(this::updateVisibility);
     }
+
+    public void invalidate() {
+        entity = null;
+    }
 }

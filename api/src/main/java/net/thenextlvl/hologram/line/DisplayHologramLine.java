@@ -7,6 +7,11 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Represents a line type within a hologram that is display-entity based.
+ *
+ * @since 0.1.0
+ */
 @NullMarked
 public interface DisplayHologramLine<E extends Display> extends HologramLine<E> {
     /**

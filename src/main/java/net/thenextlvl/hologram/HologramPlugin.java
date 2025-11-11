@@ -5,6 +5,7 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
 import net.thenextlvl.hologram.command.HologramCommand;
 import net.thenextlvl.hologram.controller.PaperHologramController;
+import net.thenextlvl.hologram.listener.ChunkListener;
 import net.thenextlvl.hologram.listener.HologramListener;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.ServicePriority;
@@ -44,6 +45,7 @@ public class HologramPlugin extends JavaPlugin {
     }
 
     private void registerListeners() {
+        getServer().getPluginManager().registerEvents(new ChunkListener(this), this);
         getServer().getPluginManager().registerEvents(new HologramListener(this), this);
     }
 

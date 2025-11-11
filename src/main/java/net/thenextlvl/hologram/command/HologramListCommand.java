@@ -24,7 +24,7 @@ final class HologramListCommand extends SimpleCommand {
     @Override
     public int run(CommandContext<CommandSourceStack> commandContext) {
         var sender = commandContext.getSource().getSender();
-        var holograms = plugin.hologramController().getHolograms().stream()
+        var holograms = plugin.hologramController().getHolograms()
                 .map(Hologram::getName)
                 .map(Component::text)
                 .toList();

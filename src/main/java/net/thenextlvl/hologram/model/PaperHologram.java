@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,6 +53,9 @@ public class PaperHologram implements Hologram, TagSerializable {
     private boolean visibleByDefault = true;
 
     private boolean spawned = false;
+    
+    private Path dataFile;
+    private Path backupFile;
 
     public PaperHologram(PaperHologramController controller, String name, Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
@@ -59,6 +63,8 @@ public class PaperHologram implements Hologram, TagSerializable {
         this.plugin = controller.getPlugin();
         this.location = location;
         this.name = name;
+        this.dataFile = controller.getDataPath(location.getWorld()).resolve(name + ".dat");
+        this.backupFile = dataFile.resolveSibling(name + ".dat_old");
     }
 
     public Stream<? extends Entity> getEntities() {
@@ -89,7 +95,8 @@ public class PaperHologram implements Hologram, TagSerializable {
 
     @Override
     public CompletableFuture<Boolean> teleportAsync(Location location) {
-        return CompletableFuture.completedFuture(false); // todo: implement
+        this.location = location;
+        return CompletableFuture.completedFuture(true); // todo: implement
     }
 
     @Override
@@ -291,12 +298,13 @@ public class PaperHologram implements Hologram, TagSerializable {
     }
 
     @Override
-    public boolean delete() {
-        despawn();
-        // todo: implement file deletion
-        //  backupFile.delete();
-        //  file.delete();
-        return controller.unregister(this);
+    public Path getDataFile() {
+        return dataFile;
+    }
+
+    @Override
+    public Path getBackupFile() {
+        return backupFile;
     }
 
     @Override
@@ -331,5 +339,9 @@ public class PaperHologram implements Hologram, TagSerializable {
     @Override
     public void deserialize(Tag tag) throws ParserException {
         // todo: implement
+    }
+
+    public void invalidate() {
+        lines.forEach(PaperHologramLine::invalidate);
     }
 }

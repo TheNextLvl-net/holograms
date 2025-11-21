@@ -1,12 +1,12 @@
 package net.thenextlvl.hologram;
 
-import core.i18n.file.ComponentBundle;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
 import net.thenextlvl.hologram.command.HologramCommand;
 import net.thenextlvl.hologram.controller.PaperHologramController;
 import net.thenextlvl.hologram.listener.ChunkListener;
 import net.thenextlvl.hologram.listener.HologramListener;
+import net.thenextlvl.i18n.ComponentBundle;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;

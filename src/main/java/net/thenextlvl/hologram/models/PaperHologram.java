@@ -1,22 +1,19 @@
-package net.thenextlvl.hologram.model;
+package net.thenextlvl.hologram.models;
 
 import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.controller.PaperHologramController;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
-import net.thenextlvl.hologram.model.line.PaperBlockHologramLine;
-import net.thenextlvl.hologram.model.line.PaperEntityHologramLine;
-import net.thenextlvl.hologram.model.line.PaperHologramLine;
-import net.thenextlvl.hologram.model.line.PaperItemHologramLine;
-import net.thenextlvl.hologram.model.line.PaperTextHologramLine;
-import net.thenextlvl.nbt.serialization.ParserException;
-import net.thenextlvl.nbt.serialization.TagSerializable;
-import net.thenextlvl.nbt.tag.Tag;
+import net.thenextlvl.hologram.models.line.PaperBlockHologramLine;
+import net.thenextlvl.hologram.models.line.PaperEntityHologramLine;
+import net.thenextlvl.hologram.models.line.PaperHologramLine;
+import net.thenextlvl.hologram.models.line.PaperItemHologramLine;
+import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
+import net.thenextlvl.nbt.NBTOutputStream;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -26,6 +23,9 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,13 +38,17 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
+
 @NullMarked
-public class PaperHologram implements Hologram, TagSerializable {
-    private final List<PaperHologramLine<?>> lines = new LinkedList<>();
+public class PaperHologram implements Hologram {
+    private final List<HologramLine<?>> lines = new LinkedList<>();
     private final Set<UUID> viewers = new HashSet<>();
 
     private final HologramPlugin plugin;
-    private final PaperHologramController controller;
     private final String name;
 
     private @Nullable String viewPermission;
@@ -53,29 +57,30 @@ public class PaperHologram implements Hologram, TagSerializable {
     private boolean visibleByDefault = true;
 
     private boolean spawned = false;
-    
+
     private Path dataFile;
     private Path backupFile;
 
-    public PaperHologram(PaperHologramController controller, String name, Location location) {
+    public PaperHologram(HologramPlugin plugin, String name, Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
-        this.controller = controller;
-        this.plugin = controller.getPlugin();
+
+        this.plugin = plugin;
         this.location = location;
         this.name = name;
-        this.dataFile = controller.getDataPath(location.getWorld()).resolve(name + ".dat");
-        this.backupFile = dataFile.resolveSibling(name + ".dat_old");
+
+        var dataFolder = plugin.hologramController().getDataFolder(location.getWorld());
+        this.dataFile = dataFolder.resolve(name + ".dat");
+        this.backupFile = dataFolder.resolve(name + ".dat_old");
+    }
+    
+    public HologramPlugin getPlugin() {
+        return plugin;
     }
 
     public Stream<? extends Entity> getEntities() {
         return lines.stream()
                 .map(hologramLine -> hologramLine.getEntity().orElse(null))
                 .filter(Objects::nonNull);
-    }
-
-    @Override
-    public PaperHologramController getController() {
-        return controller;
     }
 
     @Override
@@ -95,8 +100,36 @@ public class PaperHologram implements Hologram, TagSerializable {
 
     @Override
     public CompletableFuture<Boolean> teleportAsync(Location location) {
+        Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
+        var success = setLocation(location);
+        return CompletableFuture.completedFuture(success); // todo: teleport all lines
+    }
+
+    private boolean setLocation(Location location) {
+        if (this.location.equals(location)) return false;
+
+        if (this.location.getWorld().equals(location.getWorld())) {
+            this.location = location;
+            return true;
+        }
+
+        var target = plugin.hologramController().getDataFolder(location.getWorld());
+        var dataFile = target.resolve(getDataFile().getFileName());
+        var backupFile = target.resolve(getBackupFile().getFileName());
+
+        try {
+            Files.createDirectories(target);
+            if (Files.isRegularFile(getDataFile())) Files.move(getDataFile(), dataFile, REPLACE_EXISTING);
+            if (Files.isRegularFile(getBackupFile())) Files.move(getBackupFile(), backupFile, REPLACE_EXISTING);
+        } catch (IOException e) {
+            plugin.getComponentLogger().warn("Failed to move hologram data files for: {}", getName(), e);
+            return false;
+        }
+
+        this.dataFile = dataFile;
+        this.backupFile = backupFile;
         this.location = location;
-        return CompletableFuture.completedFuture(true); // todo: implement
+        return true;
     }
 
     @Override
@@ -212,8 +245,8 @@ public class PaperHologram implements Hologram, TagSerializable {
     public boolean setViewPermission(@Nullable String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
-        lines.forEach(hologramLine -> controller.getServer().getOnlinePlayers()
-                .forEach(hologramLine::updateVisibility));
+        lines.forEach(hologramLine -> plugin.getServer().getOnlinePlayers()
+                .forEach(player -> ((PaperHologramLine<?>) hologramLine).updateVisibility(player)));
         return true;
     }
 
@@ -294,7 +327,30 @@ public class PaperHologram implements Hologram, TagSerializable {
 
     @Override
     public boolean persist() {
-        return false; // todo: implement
+        if (!isPersistent()) return false;
+        var file = getDataFile();
+        var backup = getBackupFile();
+        try {
+            if (Files.isRegularFile(file)) Files.move(file, backup, REPLACE_EXISTING);
+            else Files.createDirectories(file.getParent());
+            try (var outputStream = new NBTOutputStream(
+                    Files.newOutputStream(file, WRITE, CREATE, TRUNCATE_EXISTING),
+                    StandardCharsets.UTF_8
+            )) {
+                outputStream.writeTag(getName(), plugin.nbt(getWorld()).serialize(this));
+                return true;
+            }
+        } catch (Throwable t) {
+            if (Files.isRegularFile(backup)) try {
+                Files.copy(backup, file, REPLACE_EXISTING);
+                plugin.getComponentLogger().warn("Recovered hologram {} from potential data loss", getName());
+            } catch (IOException e) {
+                plugin.getComponentLogger().error("Failed to restore hologram {}", getName(), e);
+            }
+            plugin.getComponentLogger().error("Failed to save hologram {}", getName(), t);
+            plugin.getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", HologramPlugin.ISSUES);
+            return false;
+        }
     }
 
     @Override
@@ -331,17 +387,7 @@ public class PaperHologram implements Hologram, TagSerializable {
         return spawned;
     }
 
-    @Override
-    public Tag serialize() throws ParserException {
-        return null; // todo: implement
-    }
-
-    @Override
-    public void deserialize(Tag tag) throws ParserException {
-        // todo: implement
-    }
-
     public void invalidate() {
-        lines.forEach(PaperHologramLine::invalidate);
+        lines.forEach(line -> ((PaperHologramLine<?>) line).invalidate());
     }
 }

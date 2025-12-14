@@ -30,13 +30,13 @@ import java.util.stream.Stream;
 @NullMarked
 public interface HologramController {
     /**
-     * Get the data path for the given world
+     * Get the data folder for the given world
      *
-     * @param world the world to get the data path for
-     * @return the data path for the given world
-     * @since 0.2.0
+     * @param world the world to get the data folder for
+     * @return the data folder for the given world
+     * @since 0.3.0
      */
-    Path getDataPath(World world);
+    Path getDataFolder(World world);
 
     /**
      * Get a hologram by its entity
@@ -207,4 +207,12 @@ public interface HologramController {
      * @since 0.2.0
      */
     boolean deleteHologram(Hologram hologram);
+
+    /**
+     * Performs the given action for each hologram.
+     *
+     * @param action the action to perform
+     * @since 0.1.0
+     */
+    void forEachHologram(Consumer<Hologram> action);
 }

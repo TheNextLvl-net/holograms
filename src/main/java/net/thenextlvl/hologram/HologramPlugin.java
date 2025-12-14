@@ -2,14 +2,17 @@ package net.thenextlvl.hologram;
 
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
-import net.thenextlvl.hologram.command.HologramCommand;
+import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.controller.PaperHologramController;
-import net.thenextlvl.hologram.listener.ChunkListener;
-import net.thenextlvl.hologram.listener.HologramListener;
+import net.thenextlvl.hologram.listeners.ChunkListener;
+import net.thenextlvl.hologram.listeners.HologramListener;
 import net.thenextlvl.i18n.ComponentBundle;
+import net.thenextlvl.nbt.serialization.NBT;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.World;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
 
 import java.nio.file.Path;
@@ -18,6 +21,8 @@ import java.util.Set;
 
 @NullMarked
 public class HologramPlugin extends JavaPlugin {
+    public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new";
+
     private final PaperHologramController controller = new PaperHologramController(this);
     private final Metrics metrics = new Metrics(this, 25817);
 
@@ -40,8 +45,9 @@ public class HologramPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->
-                event.registrar().register(HologramCommand.create(this), Set.of("holo")));
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            event.registrar().register(HologramCommand.create(this), "The main command to interact with holograms", Set.of("holo"));
+        });
     }
 
     private void registerListeners() {
@@ -51,6 +57,7 @@ public class HologramPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        controller.forEachHologram(Hologram::persist);
         metrics.shutdown();
     }
 
@@ -60,5 +67,14 @@ public class HologramPlugin extends JavaPlugin {
 
     public ComponentBundle bundle() {
         return bundle;
+    }
+
+    @Contract(value = "_ -> new", pure = true)
+    public NBT nbt(World world) {
+        return NBT.builder()
+                // .registerTypeHierarchyAdapter(Position.class, new FinePositionAdapter())
+                // .registerTypeHierarchyAdapter(Key.class, new KeyAdapter())
+                // .registerTypeHierarchyAdapter(Hologram.class, new HologramAdapter(this))
+                .build();
     }
 }

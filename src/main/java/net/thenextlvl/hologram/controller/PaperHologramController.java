@@ -8,7 +8,7 @@ import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
-import net.thenextlvl.hologram.model.PaperHologram;
+import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -34,14 +34,14 @@ import java.util.stream.Stream;
 @NullMarked
 public class PaperHologramController implements HologramController {
     private final HologramPlugin plugin;
-    private final Set<Hologram> holograms = new HashSet<>();
+    public final Set<Hologram> holograms = new HashSet<>();
 
     public PaperHologramController(HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public Path getDataPath(World world) {
+    public Path getDataFolder(World world) {
         return world.getWorldPath().resolve("holograms");
     }
 
@@ -143,7 +143,7 @@ public class PaperHologramController implements HologramController {
     @Override
     public Hologram createHologram(String name, Location location) throws IllegalStateException {
         Preconditions.checkState(!hologramExists(name), "Hologram named %s already exists", name);
-        var hologram = new PaperHologram(this, name, location);
+        var hologram = new PaperHologram(plugin, name, location);
         holograms.add(hologram);
         return hologram;
     }
@@ -166,6 +166,11 @@ public class PaperHologramController implements HologramController {
             plugin.getComponentLogger().warn("Failed to delete hologram data: {}", hologram.getName(), e);
         }
         return unregister(hologram);
+    }
+
+    @Override
+    public void forEachHologram(Consumer<Hologram> action) {
+        holograms.forEach(action);
     }
 
     public boolean unregister(Hologram hologram) {

@@ -1,9 +1,8 @@
-package net.thenextlvl.hologram.model.line;
+package net.thenextlvl.hologram.models.line;
 
 import net.thenextlvl.hologram.Hologram;
-import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.HologramLine;
-import net.thenextlvl.hologram.model.PaperHologram;
+import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -17,8 +16,6 @@ import java.util.Optional;
 
 @NullMarked
 public abstract class PaperHologramLine<E extends Entity> implements HologramLine<E> {
-    private final HologramPlugin plugin;
-
     private final PaperHologram hologram;
     private final Class<E> entityClass;
     private final EntityType entityType;
@@ -31,7 +28,6 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
                 .filter(type -> type.getEntityClass().isAssignableFrom(entityClass))
                 .findAny().orElseThrow(() -> new IllegalArgumentException("Entity type not found for " + entityClass));
         this.entityClass = entityClass;
-        this.plugin = hologram.getController().getPlugin();
     }
 
     @Override
@@ -87,8 +83,8 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
 
     public void updateVisibility(Player player) {
         if (entity == null) return;
-        if (canSee(player)) player.showEntity(plugin, entity);
-        else player.hideEntity(plugin, entity);
+        if (canSee(player)) player.showEntity(hologram.getPlugin(), entity);
+        else player.hideEntity(hologram.getPlugin(), entity);
     }
 
     public boolean canSee(Player player) {

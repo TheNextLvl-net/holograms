@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -28,8 +29,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @NullMarked
 public interface Hologram extends Iterable<HologramLine<?>> {
-    HologramController getController();
-
     String getName();
 
     Location getLocation();
@@ -80,6 +79,8 @@ public interface Hologram extends Iterable<HologramLine<?>> {
 
     boolean setPersistent(boolean persistent);
     boolean isPersistent();
+    
+    @Contract(mutates = "io")
     boolean persist();
 
     /**

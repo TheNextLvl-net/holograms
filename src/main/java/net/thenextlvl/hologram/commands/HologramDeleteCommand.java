@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.command;
+package net.thenextlvl.hologram.commands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -6,10 +6,10 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.command.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.jspecify.annotations.NullMarked;
 
-import static net.thenextlvl.hologram.command.HologramCommand.hologramArgument;
+import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 final class HologramDeleteCommand extends SimpleCommand {

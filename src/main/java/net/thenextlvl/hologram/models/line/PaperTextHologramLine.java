@@ -1,9 +1,9 @@
-package net.thenextlvl.hologram.model.line;
+package net.thenextlvl.hologram.models.line;
 
 import net.kyori.adventure.text.Component;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.TextHologramLine;
-import net.thenextlvl.hologram.model.PaperHologram;
+import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.TextDisplay;
 import org.jetbrains.annotations.Range;

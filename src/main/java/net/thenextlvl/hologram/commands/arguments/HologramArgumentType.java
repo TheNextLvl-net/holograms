@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.command.argument;
+package net.thenextlvl.hologram.commands.arguments;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;

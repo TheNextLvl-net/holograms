@@ -1,8 +1,8 @@
-package net.thenextlvl.hologram.model.line;
+package net.thenextlvl.hologram.models.line;
 
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.LineType;
-import net.thenextlvl.hologram.model.PaperHologram;
+import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;

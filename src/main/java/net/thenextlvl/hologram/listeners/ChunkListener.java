@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.listener;
+package net.thenextlvl.hologram.listeners;
 
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;

@@ -1,7 +1,7 @@
-package net.thenextlvl.hologram.listener;
+package net.thenextlvl.hologram.listeners;
 
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.model.PaperHologram;
+import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

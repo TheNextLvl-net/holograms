@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.command.line;
+package net.thenextlvl.hologram.commands.line;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -11,13 +11,13 @@ import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.command.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
-import static net.thenextlvl.hologram.command.HologramCommand.hologramArgument;
+import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 //  hologram line add block <hologram> <block>

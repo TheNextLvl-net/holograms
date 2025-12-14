@@ -1,9 +1,9 @@
-package net.thenextlvl.hologram.command.line;
+package net.thenextlvl.hologram.commands.line;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.command.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

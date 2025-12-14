@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.command.brigadier;
+package net.thenextlvl.hologram.commands.brigadier;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;

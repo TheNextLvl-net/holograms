@@ -1,4 +1,4 @@
-package net.thenextlvl.hologram.command;
+package net.thenextlvl.hologram.commands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -7,7 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.command.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

@@ -1,7 +1,7 @@
-package net.thenextlvl.hologram.model.line;
+package net.thenextlvl.hologram.models.line;
 
 import net.thenextlvl.hologram.line.DisplayHologramLine;
-import net.thenextlvl.hologram.model.PaperHologram;
+import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.util.Transformation;

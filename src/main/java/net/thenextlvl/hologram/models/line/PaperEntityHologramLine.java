@@ -1,9 +1,9 @@
-package net.thenextlvl.hologram.model.line;
+package net.thenextlvl.hologram.models.line;
 
 import net.kyori.adventure.util.TriState;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.LineType;
-import net.thenextlvl.hologram.model.PaperHologram;
+import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;

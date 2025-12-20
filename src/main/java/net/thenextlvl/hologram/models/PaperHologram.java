@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.models;
 
 import com.google.common.base.Preconditions;
+import io.papermc.paper.math.Position;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.BlockHologramLine;
@@ -14,6 +15,11 @@ import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import net.thenextlvl.hologram.models.line.PaperItemHologramLine;
 import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import net.thenextlvl.nbt.NBTOutputStream;
+import net.thenextlvl.nbt.serialization.ParserException;
+import net.thenextlvl.nbt.serialization.TagSerializable;
+import net.thenextlvl.nbt.tag.CompoundTag;
+import net.thenextlvl.nbt.tag.ListTag;
+import net.thenextlvl.nbt.tag.Tag;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -24,7 +30,6 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -39,12 +44,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
 
 @NullMarked
-public class PaperHologram implements Hologram {
+public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     private final List<HologramLine<?>> lines = new LinkedList<>();
     private final Set<UUID> viewers = new HashSet<>();
 
@@ -72,7 +74,11 @@ public class PaperHologram implements Hologram {
         this.dataFile = dataFolder.resolve(name + ".dat");
         this.backupFile = dataFolder.resolve(name + ".dat_old");
     }
-    
+
+    public PaperHologram(HologramPlugin plugin, String name, World world) {
+        this(plugin, name, new Location(world, 0, 0, 0));
+    }
+
     public HologramPlugin getPlugin() {
         return plugin;
     }
@@ -333,11 +339,8 @@ public class PaperHologram implements Hologram {
         try {
             if (Files.isRegularFile(file)) Files.move(file, backup, REPLACE_EXISTING);
             else Files.createDirectories(file.getParent());
-            try (var outputStream = new NBTOutputStream(
-                    Files.newOutputStream(file, WRITE, CREATE, TRUNCATE_EXISTING),
-                    StandardCharsets.UTF_8
-            )) {
-                outputStream.writeTag(getName(), plugin.nbt(getWorld()).serialize(this));
+            try (var outputStream = NBTOutputStream.create(file)) {
+                outputStream.writeTag(getName(), serialize());
                 return true;
             }
         } catch (Throwable t) {
@@ -389,5 +392,36 @@ public class PaperHologram implements Hologram {
 
     public void invalidate() {
         lines.forEach(line -> ((PaperHologramLine<?>) line).invalidate());
+    }
+
+    @Override
+    public CompoundTag serialize() throws ParserException {
+        var nbt = plugin.nbt(getWorld());
+        var builder = CompoundTag.builder();
+
+        builder.put("position", nbt.serialize(location));
+        builder.put("visibleByDefault", visibleByDefault);
+        if (viewPermission != null) builder.put("viewPermission", viewPermission);
+
+        var lines = this.lines.stream().map(nbt::serialize).toList();
+        if (!lines.isEmpty()) builder.put("lines", ListTag.of(lines));
+
+        return builder.build();
+    }
+
+    @Override
+    public void deserialize(CompoundTag tag) throws ParserException {
+        var nbt = plugin.nbt(getWorld());
+
+        tag.optional("position").map(tag1 -> nbt.deserialize(tag1, Position.class))
+                .map(position -> position.toLocation(getWorld()))
+                .ifPresent(this::setLocation);
+        tag.optional("viewPermission").map(Tag::getAsString).ifPresent(this::setViewPermission);
+        tag.optional("visibleByDefault").map(Tag::getAsBoolean).ifPresent(this::setVisibleByDefault);
+        
+        tag.optional("lines").map(Tag::getAsList).ifPresent(lines -> {
+            lines.stream().map(line -> nbt.deserialize(line, HologramLine.class))
+                    .forEach(this.lines::add);
+        });
     }
 }

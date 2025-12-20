@@ -1,7 +1,9 @@
 package net.thenextlvl.hologram;
 
+import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
+import net.thenextlvl.hologram.adapters.PositionAdapter;
 import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.controller.PaperHologramController;
 import net.thenextlvl.hologram.listeners.ChunkListener;
@@ -72,9 +74,8 @@ public class HologramPlugin extends JavaPlugin {
     @Contract(value = "_ -> new", pure = true)
     public NBT nbt(World world) {
         return NBT.builder()
-                // .registerTypeHierarchyAdapter(Position.class, new FinePositionAdapter())
+                .registerTypeHierarchyAdapter(Position.class, new PositionAdapter())
                 // .registerTypeHierarchyAdapter(Key.class, new KeyAdapter())
-                // .registerTypeHierarchyAdapter(Hologram.class, new HologramAdapter(this))
                 .build();
     }
 }

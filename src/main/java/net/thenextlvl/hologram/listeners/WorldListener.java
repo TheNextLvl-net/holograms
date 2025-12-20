@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.listeners;
 
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.models.PaperHologram;
 import net.thenextlvl.nbt.NBTInputStream;
 import net.thenextlvl.nbt.serialization.ParserException;
 import org.bukkit.World;
@@ -16,11 +17,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static java.nio.file.StandardOpenOption.READ;
 import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
 
 @NullMarked
@@ -61,14 +60,14 @@ public class WorldListener implements Listener {
 
     private @Nullable Hologram loadSafe(Path file, World world) {
         try {
-            try (var inputStream = stream(file)) {
+            try (var inputStream = NBTInputStream.create(file)) {
                 return load(inputStream, world);
             } catch (Exception e) {
                 var backup = file.resolveSibling(file.getFileName() + "_old");
                 if (!Files.isRegularFile(backup)) throw e;
                 plugin.getComponentLogger().warn("Failed to load hologram from {}", file, e);
                 plugin.getComponentLogger().warn("Falling back to {}", backup);
-                try (var inputStream = stream(backup)) {
+                try (var inputStream = NBTInputStream.create(backup)) {
                     return load(inputStream, world);
                 }
             }
@@ -85,14 +84,18 @@ public class WorldListener implements Listener {
         }
     }
 
-    private NBTInputStream stream(Path file) throws IOException {
-        return new NBTInputStream(Files.newInputStream(file, READ), StandardCharsets.UTF_8);
-    }
-
     private @Nullable Hologram load(NBTInputStream inputStream, World world) throws IOException {
-        var hologram = plugin.nbt(world).deserialize(inputStream.readTag(), Hologram.class);
-        if (plugin.hologramController().holograms.add(hologram)) return hologram;
-        plugin.getComponentLogger().warn("A hologram with the name '{}' is already loaded", hologram.getName());
-        return null;
+        var entry = inputStream.readNamedTag();
+        var name = entry.getKey();
+
+        if (plugin.hologramController().hologramExists(name)) {
+            plugin.getComponentLogger().warn("A hologram with the name '{}' is already loaded", name);
+            return null;
+        }
+
+        var hologram = new PaperHologram(plugin, name, world);
+        hologram.deserialize(entry.getValue());
+        plugin.hologramController().holograms.add(hologram);
+        return hologram;
     }
 }

@@ -13,7 +13,6 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -58,44 +57,40 @@ public class WorldListener implements Listener {
         });
     }
 
-    private @Nullable Hologram loadSafe(Path file, World world) {
+    private void loadSafe(Path file, World world) {
         try {
             try (var inputStream = NBTInputStream.create(file)) {
-                return load(inputStream, world);
+                load(inputStream, world);
             } catch (Exception e) {
                 var backup = file.resolveSibling(file.getFileName() + "_old");
                 if (!Files.isRegularFile(backup)) throw e;
                 plugin.getComponentLogger().warn("Failed to load hologram from {}", file, e);
                 plugin.getComponentLogger().warn("Falling back to {}", backup);
                 try (var inputStream = NBTInputStream.create(backup)) {
-                    return load(inputStream, world);
+                    load(inputStream, world);
                 }
             }
         } catch (ParserException e) {
             plugin.getComponentLogger().warn("Failed to load hologram from {}: {}", file, e.getMessage());
-            return null;
         } catch (EOFException e) {
             plugin.getComponentLogger().error("The hologram file {} is irrecoverably broken", file);
-            return null;
         } catch (Exception e) {
             plugin.getComponentLogger().error("Failed to load hologram from {}", file, e);
             plugin.getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
-            return null;
         }
     }
 
-    private @Nullable Hologram load(NBTInputStream inputStream, World world) throws IOException {
+    private void load(NBTInputStream inputStream, World world) throws IOException {
         var entry = inputStream.readNamedTag();
         var name = entry.getKey();
 
         if (plugin.hologramController().hologramExists(name)) {
             plugin.getComponentLogger().warn("A hologram with the name '{}' is already loaded", name);
-            return null;
+            return;
         }
 
         var hologram = new PaperHologram(plugin, name, world);
         hologram.deserialize(entry.getValue());
         plugin.hologramController().holograms.add(hologram);
-        return hologram;
     }
 }

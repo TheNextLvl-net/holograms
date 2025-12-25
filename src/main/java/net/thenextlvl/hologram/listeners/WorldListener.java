@@ -31,7 +31,7 @@ public class WorldListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldLoad(WorldLoadEvent event) {
-        var dataFolder = plugin.hologramController().getDataFolder(event.getWorld());
+        var dataFolder = plugin.hologramProvider().getDataFolder(event.getWorld());
         if (!Files.isDirectory(dataFolder)) return;
         try (var files = Files.find(dataFolder, 1, (path, attributes) -> {
             return attributes.isRegularFile() && path.getFileName().toString().endsWith(".dat");
@@ -44,12 +44,12 @@ public class WorldListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldSave(WorldSaveEvent event) {
-        plugin.hologramController().getHolograms(event.getWorld()).forEach(Hologram::persist);
+        plugin.hologramProvider().getHolograms(event.getWorld()).forEach(Hologram::persist);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onWorldUnload(WorldUnloadEvent event) {
-        plugin.hologramController().holograms.removeIf(hologram -> {
+        plugin.hologramProvider().holograms.removeIf(hologram -> {
             if (hologram.getWorld().equals(event.getWorld())) {
                 hologram.persist();
                 return true;
@@ -84,13 +84,13 @@ public class WorldListener implements Listener {
         var entry = inputStream.readNamedTag();
         var name = entry.getKey();
 
-        if (plugin.hologramController().hologramExists(name)) {
+        if (plugin.hologramProvider().hasHologram(name)) {
             plugin.getComponentLogger().warn("A hologram with the name '{}' is already loaded", name);
             return;
         }
 
         var hologram = new PaperHologram(plugin, name, world);
         hologram.deserialize(entry.getValue());
-        plugin.hologramController().holograms.add(hologram);
+        plugin.hologramProvider().holograms.add(hologram);
     }
 }

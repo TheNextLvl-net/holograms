@@ -18,7 +18,7 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityRemove(EntityRemoveEvent event) {
-        plugin.hologramController().getHologram(event.getEntity()).ifPresent(hologram -> {
+        plugin.hologramProvider().getHologram(event.getEntity()).ifPresent(hologram -> {
             hologram.persist();
             ((PaperHologram) hologram).invalidate();
         });

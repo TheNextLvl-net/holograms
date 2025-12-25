@@ -19,10 +19,12 @@ version = rootProject.version
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.thenextlvl.net/releases")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    implementation("net.thenextlvl:static-binder:0.1.3")
 }
 
 tasks.withType<Javadoc>().configureEach {

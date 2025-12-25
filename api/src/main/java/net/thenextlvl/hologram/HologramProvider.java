@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram;
 
+import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
@@ -12,8 +13,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jspecify.annotations.NullMarked;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -27,7 +28,12 @@ import java.util.stream.Stream;
  *
  * @since 0.1.0
  */
-public interface HologramController {
+@ApiStatus.NonExtendable
+public interface HologramProvider {
+    static HologramProvider instance() {
+        return StaticBinder.getInstance(HologramProvider.class.getClassLoader()).find(HologramProvider.class);
+    }
+
     /**
      * Get the data folder for the given world
      *
@@ -162,9 +168,18 @@ public interface HologramController {
      *
      * @param name the name of the hologram
      * @return {@code true} if the hologram exists, {@code false} otherwise
-     * @since 0.1.0
+     * @since 0.2.0
      */
-    boolean hologramExists(String name);
+    boolean hasHologram(String name);
+
+    /**
+     * Check if the given hologram exists
+     *
+     * @param hologram the hologram to check
+     * @return {@code true} if the hologram exists, {@code false} otherwise
+     * @since 0.2.0
+     */
+    boolean hasHologram(Hologram hologram);
 
     /**
      * Check if the given entity is part of a hologram

@@ -10,9 +10,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
  * 
  * @since 0.1.0
  */
+@ApiStatus.NonExtendable
 public interface Hologram extends Iterable<HologramLine<?>> {
     @Contract(pure = true)
     String getName();

@@ -71,7 +71,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         this.location = location;
         this.name = name;
 
-        var dataFolder = plugin.hologramController().getDataFolder(location.getWorld());
+        var dataFolder = plugin.hologramProvider().getDataFolder(location.getWorld());
         this.dataFile = dataFolder.resolve(name + ".dat");
         this.backupFile = dataFolder.resolve(name + ".dat_old");
     }
@@ -98,7 +98,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public boolean setName(String name) {
         if (Objects.equals(this.name, name)) return false;
-        if (plugin.hologramController().hologramExists(name)) return false;
+        if (plugin.hologramProvider().hasHologram(name)) return false;
         
         if (!updatePaths(getWorld())) return false;
 
@@ -107,7 +107,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     private boolean updatePaths(World world) {
-        var dataFolder = plugin.hologramController().getDataFolder(world);
+        var dataFolder = plugin.hologramProvider().getDataFolder(world);
         var dataFile = dataFolder.resolve(getDataFile().getFileName());
         var backupFile = dataFolder.resolve(getBackupFile().getFileName());
 

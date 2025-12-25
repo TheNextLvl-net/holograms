@@ -2,7 +2,7 @@ package net.thenextlvl.hologram.controller;
 
 import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.Hologram;
-import net.thenextlvl.hologram.HologramController;
+import net.thenextlvl.hologram.HologramProvider;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -32,11 +32,11 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @NullMarked
-public class PaperHologramController implements HologramController {
+public class PaperHologramProvider implements HologramProvider {
     private final HologramPlugin plugin;
     public final Set<Hologram> holograms = new HashSet<>();
 
-    public PaperHologramController(HologramPlugin plugin) {
+    public PaperHologramProvider(HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -130,8 +130,13 @@ public class PaperHologramController implements HologramController {
     }
 
     @Override
-    public boolean hologramExists(String name) {
+    public boolean hasHologram(String name) {
         return getHolograms().anyMatch(hologram -> hologram.getName().equals(name));
+    }
+
+    @Override
+    public boolean hasHologram(Hologram hologram) {
+        return holograms.contains(hologram);
     }
 
     @Override
@@ -142,7 +147,7 @@ public class PaperHologramController implements HologramController {
 
     @Override
     public Hologram createHologram(String name, Location location) throws IllegalStateException {
-        Preconditions.checkState(!hologramExists(name), "Hologram named %s already exists", name);
+        Preconditions.checkState(!hasHologram(name), "Hologram named %s already exists", name);
         var hologram = new PaperHologram(plugin, name, location);
         holograms.add(hologram);
         return hologram;

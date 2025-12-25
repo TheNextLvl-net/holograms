@@ -7,6 +7,7 @@ module net.thenextlvl.holograms {
 
     requires net.kyori.adventure;
     requires net.kyori.examination.api;
+    requires net.thenextlvl.binder;
     requires org.bukkit;
     requires org.joml;
 

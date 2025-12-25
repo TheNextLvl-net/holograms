@@ -18,7 +18,7 @@ public final class ChunkListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChunkLoad(ChunkLoadEvent event) {
-        plugin.hologramController().getHolograms(event.getChunk())
+        plugin.hologramProvider().getHolograms(event.getChunk())
                 .filter(hologram -> !hologram.isSpawned())
                 .forEach(Hologram::spawn);
     }

@@ -22,13 +22,13 @@ public final class HologramArgumentType implements CustomArgumentType.Converted<
 
     @Override
     public Hologram convert(String nativeType) {
-        return plugin.hologramController().getHologram(nativeType)
+        return plugin.hologramProvider().getHologram(nativeType)
                 .orElseThrow(() -> new NullPointerException("No hologram was found"));
     }
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        plugin.hologramController().getHologramNames()
+        plugin.hologramProvider().getHologramNames()
                 .map(StringArgumentType::escapeIfRequired)
                 .filter(name -> name.toLowerCase().contains(builder.getRemainingLowerCase()))
                 .forEach(builder::suggest);

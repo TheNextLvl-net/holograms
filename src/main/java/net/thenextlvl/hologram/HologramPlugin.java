@@ -4,16 +4,16 @@ import dev.faststats.bukkit.BukkitMetrics;
 import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
+import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.adapters.PositionAdapter;
 import net.thenextlvl.hologram.commands.HologramCommand;
-import net.thenextlvl.hologram.controller.PaperHologramController;
+import net.thenextlvl.hologram.controller.PaperHologramProvider;
 import net.thenextlvl.hologram.listeners.ChunkListener;
 import net.thenextlvl.hologram.listeners.HologramListener;
 import net.thenextlvl.i18n.ComponentBundle;
 import net.thenextlvl.nbt.serialization.NBT;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.World;
-import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
@@ -26,7 +26,7 @@ import java.util.Set;
 public class HologramPlugin extends JavaPlugin {
     public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new";
 
-    private final PaperHologramController controller = new PaperHologramController(this);
+    private final PaperHologramProvider provider = new PaperHologramProvider(this);
     private final Metrics metrics = new Metrics(this, 25817);
     private final dev.faststats.core.Metrics fastStats = BukkitMetrics.factory()
             .token("27b63937a461e94208f25b105af290cf")
@@ -41,7 +41,7 @@ public class HologramPlugin extends JavaPlugin {
             .build();
 
     public HologramPlugin() {
-        getServer().getServicesManager().register(HologramController.class, controller, this, ServicePriority.Normal);
+        StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
     }
 
     @Override
@@ -63,12 +63,12 @@ public class HologramPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        controller.forEachHologram(Hologram::persist);
+        provider.forEachHologram(Hologram::persist);
         metrics.shutdown();
     }
 
-    public PaperHologramController hologramController() {
-        return controller;
+    public PaperHologramProvider hologramProvider() {
+        return provider;
     }
 
     public ComponentBundle bundle() {

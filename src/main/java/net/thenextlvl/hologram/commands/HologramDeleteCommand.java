@@ -25,7 +25,7 @@ final class HologramDeleteCommand extends SimpleCommand {
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var success = plugin.hologramController().deleteHologram(hologram);
+        var success = plugin.hologramProvider().deleteHologram(hologram);
         var message = success ? "hologram.delete" : "hologram.delete.failed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.parsed("hologram", hologram.getName()));

@@ -35,12 +35,12 @@ final class HologramCreateCommand extends SimpleCommand {
         var sender = context.getSource().getSender();
 
         var placeholder = Placeholder.parsed("hologram", name);
-        if (plugin.hologramController().hologramExists(name)) {
+        if (plugin.hologramProvider().hasHologram(name)) {
             plugin.bundle().sendMessage(sender, "hologram.exists", placeholder);
             return 0;
         }
 
-        plugin.hologramController().spawnHologram(name, location, hologram -> {
+        plugin.hologramProvider().spawnHologram(name, location, hologram -> {
             hologram.addTextLine().setText(plugin.bundle().component("hologram.default", Locale.US,
                     Placeholder.parsed("hologram", StringArgumentType.escapeIfRequired(name))));
         });

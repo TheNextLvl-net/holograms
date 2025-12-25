@@ -27,7 +27,6 @@ import java.util.concurrent.CompletableFuture;
  * 
  * @since 0.1.0
  */
-@NullMarked
 public interface Hologram extends Iterable<HologramLine<?>> {
     @Contract(pure = true)
     String getName();

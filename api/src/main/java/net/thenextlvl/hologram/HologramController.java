@@ -27,7 +27,6 @@ import java.util.stream.Stream;
  *
  * @since 0.1.0
  */
-@NullMarked
 public interface HologramController {
     /**
      * Get the data folder for the given world

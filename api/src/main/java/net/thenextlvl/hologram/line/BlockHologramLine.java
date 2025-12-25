@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.line;
 
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -9,13 +10,13 @@ import org.jspecify.annotations.NullMarked;
  *
  * @since 0.1.0
  */
-@NullMarked
 public interface BlockHologramLine extends DisplayHologramLine<BlockDisplay> {
     /**
      * Gets the displayed block.
      *
      * @return the displayed block
      */
+    @Contract(pure = true)
     BlockData getBlock();
 
     /**
@@ -23,5 +24,6 @@ public interface BlockHologramLine extends DisplayHologramLine<BlockDisplay> {
      *
      * @param block the new block
      */
+    @Contract(mutates = "this")
     void setBlock(BlockData block);
 }

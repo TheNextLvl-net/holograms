@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.line;
 
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -8,9 +9,10 @@ import org.jspecify.annotations.NullMarked;
  *
  * @since 0.1.0
  */
-@NullMarked
 public interface EntityHologramLine<E extends Entity> extends HologramLine<E> {
+    @Contract(pure = true)
     double getScale();
 
+    @Contract(mutates = "this")
     void setScale(double scale);
 }

@@ -3,6 +3,7 @@ package net.thenextlvl.hologram.line;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.entity.TextDisplay;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -12,7 +13,6 @@ import org.jspecify.annotations.Nullable;
  *
  * @since 0.1.0
  */
-@NullMarked
 public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
     /**
      * Gets the displayed text.
@@ -20,6 +20,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      * @return the displayed text
      */
     @Nullable
+    @Contract(pure = true)
     Component getText();
 
     /**
@@ -27,6 +28,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @param text the new text
      */
+    @Contract(mutates = "this")
     void setText(@Nullable Component text);
 
     /**
@@ -34,6 +36,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @return the line width
      */
+    @Contract(pure = true)
     int getLineWidth();
 
     /**
@@ -41,6 +44,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @param width new line width
      */
+    @Contract(mutates = "this")
     void setLineWidth(int width);
 
     /**
@@ -49,6 +53,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      * @return the background color
      */
     @Nullable
+    @Contract(pure = true)
     Color getBackgroundColor();
 
     /**
@@ -56,6 +61,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @param color new background color
      */
+    @Contract(mutates = "this")
     void setBackgroundColor(@Nullable Color color);
 
     /**
@@ -63,6 +69,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @return opacity or -1 if not set
      */
+    @Contract(pure = true)
     float getTextOpacity();
 
     /**
@@ -70,6 +77,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @param opacity new opacity or -1 if default
      */
+    @Contract(mutates = "this")
     void setTextOpacity(@Range(from = 0, to = 100) float opacity);
 
     /**
@@ -77,6 +85,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @return shadow status
      */
+    @Contract(pure = true)
     boolean isShadowed();
 
     /**
@@ -84,6 +93,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @param shadow if shadowed
      */
+    @Contract(mutates = "this")
     void setShadowed(boolean shadow);
 
     /**
@@ -91,6 +101,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @return see through status
      */
+    @Contract(pure = true)
     boolean isSeeThrough();
 
     /**
@@ -98,6 +109,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @param seeThrough if see through
      */
+    @Contract(mutates = "this")
     void setSeeThrough(boolean seeThrough);
 
     /**
@@ -105,6 +117,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @return default background
      */
+    @Contract(pure = true)
     boolean isDefaultBackground();
 
     /**
@@ -112,6 +125,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @param defaultBackground if default
      */
+    @Contract(mutates = "this")
     void setDefaultBackground(boolean defaultBackground);
 
     /**
@@ -119,6 +133,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @return text alignment
      */
+    @Contract(pure = true)
     TextDisplay.TextAlignment getAlignment();
 
     /**
@@ -126,5 +141,6 @@ public interface TextHologramLine extends DisplayHologramLine<TextDisplay> {
      *
      * @param alignment new alignment
      */
+    @Contract(mutates = "this")
     void setAlignment(TextDisplay.TextAlignment alignment);
 }

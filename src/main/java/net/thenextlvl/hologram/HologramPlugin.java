@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram;
 
+import dev.faststats.bukkit.BukkitMetrics;
 import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
@@ -27,6 +28,9 @@ public class HologramPlugin extends JavaPlugin {
 
     private final PaperHologramController controller = new PaperHologramController(this);
     private final Metrics metrics = new Metrics(this, 25817);
+    private final dev.faststats.core.Metrics fastStats = BukkitMetrics.factory()
+            .token("27b63937a461e94208f25b105af290cf")
+            .create(this);
 
     private final Key key = Key.key("characters", "translations");
     private final Path translations = getDataPath().resolve("translations");

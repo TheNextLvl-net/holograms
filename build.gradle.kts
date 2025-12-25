@@ -29,6 +29,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("1.21.10-R0.1-SNAPSHOT")
+    implementation("dev.faststats.metrics:bukkit:0.6.0")
     implementation("net.thenextlvl:i18n:1.1.0")
     implementation("net.thenextlvl:nbt:4.0.2")
     implementation("org.bstats:bstats-bukkit:3.1.0")

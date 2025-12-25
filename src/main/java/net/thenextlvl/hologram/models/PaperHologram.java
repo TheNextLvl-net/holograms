@@ -51,17 +51,18 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     private final Set<UUID> viewers = new HashSet<>();
 
     private final HologramPlugin plugin;
-    private final String name;
 
-    private @Nullable String viewPermission;
-    private Location location;
-    private boolean persistent;
-    private boolean visibleByDefault = true;
-
-    private boolean spawned = false;
+    private String name;
 
     private Path dataFile;
     private Path backupFile;
+
+    private Location location;
+    private @Nullable String viewPermission;
+
+    private boolean persistent;
+    private boolean visibleByDefault = true;
+    private boolean spawned = false;
 
     public PaperHologram(HologramPlugin plugin, String name, Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
@@ -95,6 +96,36 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
+    public boolean setName(String name) {
+        if (Objects.equals(this.name, name)) return false;
+        if (plugin.hologramController().hologramExists(name)) return false;
+        
+        if (!updatePaths(getWorld())) return false;
+
+        this.name = name;
+        return true;
+    }
+
+    private boolean updatePaths(World world) {
+        var dataFolder = plugin.hologramController().getDataFolder(world);
+        var dataFile = dataFolder.resolve(getDataFile().getFileName());
+        var backupFile = dataFolder.resolve(getBackupFile().getFileName());
+
+        try {
+            Files.createDirectories(dataFolder);
+            if (Files.isRegularFile(getDataFile())) Files.move(getDataFile(), dataFile, REPLACE_EXISTING);
+            if (Files.isRegularFile(getBackupFile())) Files.move(getBackupFile(), backupFile, REPLACE_EXISTING);
+        } catch (IOException e) {
+            plugin.getComponentLogger().warn("Failed to move hologram data files for: {}", getName(), e);
+            return false;
+        }
+
+        this.dataFile = dataFile;
+        this.backupFile = backupFile;
+        return true;
+    }
+
+    @Override
     public Location getLocation() {
         return location;
     }
@@ -119,21 +150,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
             return true;
         }
 
-        var target = plugin.hologramController().getDataFolder(location.getWorld());
-        var dataFile = target.resolve(getDataFile().getFileName());
-        var backupFile = target.resolve(getBackupFile().getFileName());
-
-        try {
-            Files.createDirectories(target);
-            if (Files.isRegularFile(getDataFile())) Files.move(getDataFile(), dataFile, REPLACE_EXISTING);
-            if (Files.isRegularFile(getBackupFile())) Files.move(getBackupFile(), backupFile, REPLACE_EXISTING);
-        } catch (IOException e) {
-            plugin.getComponentLogger().warn("Failed to move hologram data files for: {}", getName(), e);
-            return false;
-        }
-
-        this.dataFile = dataFile;
-        this.backupFile = backupFile;
+        if (!updatePaths(location.getWorld())) return false;
+        
         this.location = location;
         return true;
     }
@@ -418,7 +436,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
                 .ifPresent(this::setLocation);
         tag.optional("viewPermission").map(Tag::getAsString).ifPresent(this::setViewPermission);
         tag.optional("visibleByDefault").map(Tag::getAsBoolean).ifPresent(this::setVisibleByDefault);
-        
+
         tag.optional("lines").map(Tag::getAsList).ifPresent(lines -> {
             lines.stream().map(line -> nbt.deserialize(line, HologramLine.class))
                     .forEach(this.lines::add);

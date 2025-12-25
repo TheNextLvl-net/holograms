@@ -29,55 +29,97 @@ import java.util.concurrent.CompletableFuture;
  */
 @NullMarked
 public interface Hologram extends Iterable<HologramLine<?>> {
+    @Contract(pure = true)
     String getName();
 
-    Location getLocation();
-    World getWorld();
+    /**
+     * @since 0.2.0
+     */
+    @Contract(mutates = "this,io")
+    boolean setName(String name);
 
+    @Contract(pure = true)
+    Location getLocation();
+    @Contract(pure = true)
+    World getWorld();
+    
+    @Contract(mutates = "this,io")
     CompletableFuture<Boolean> teleportAsync(Location location);
 
     @Unmodifiable
+    @Contract(pure = true)
     List<HologramLine<?>> getLines();
 
+    @Contract(pure = true)
     int getLineCount();
+    @Contract(pure = true)
     @Nullable HologramLine<?> getLine(int index) throws IndexOutOfBoundsException;
+    @Contract(pure = true)
     int getLineIndex(HologramLine<?> line);
+    @Contract(mutates = "this")
     boolean removeLine(HologramLine<?> line);
+    @Contract(mutates = "this")
     boolean removeLine(int index) throws IndexOutOfBoundsException;
+    @Contract(mutates = "this")
     boolean removeLines(Collection<HologramLine<?>> lines);
+    @Contract(mutates = "this")
     void clearLines();
+    @Contract(pure = true)
     boolean hasLine(HologramLine<?> line);
 
+    @Contract(value = "_ -> new", mutates = "this")
     EntityHologramLine<?> addEntityLine(EntityType entityType) throws IllegalArgumentException;
+    @Contract(value = "_ -> new", mutates = "this")
     <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException;
+    @Contract(value = "_, _ -> new", mutates = "this")
     <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType, int index) throws IllegalArgumentException;
+    @Contract(value = " -> new", mutates = "this")
     BlockHologramLine addBlockLine();
+    @Contract(value = "_ -> new", mutates = "this")
     BlockHologramLine addBlockLine(int index);
+    @Contract(value = " -> new", mutates = "this")
     ItemHologramLine addItemLine();
+    @Contract(value = "_ -> new", mutates = "this")
     ItemHologramLine addItemLine(int index);
+    @Contract(value = " -> new", mutates = "this")
     TextHologramLine addTextLine();
+    @Contract(value = "_ -> new", mutates = "this")
     TextHologramLine addTextLine(int index);
 
     @Nullable
+    @Contract(pure = true)
     String getViewPermission();
 
+    @Contract(mutates = "this")
     boolean setViewPermission(@Nullable String permission);
 
     @Unmodifiable
+    @Contract(pure = true)
     Set<UUID> getViewers();
 
+    @Contract(mutates = "this")
     boolean addViewer(UUID player);
+    @Contract(mutates = "this")
     boolean addViewers(Collection<UUID> players);
+    @Contract(mutates = "this")
     boolean removeViewer(UUID player);
+    @Contract(mutates = "this")
     boolean removeViewers(Collection<UUID> players);
+    @Contract(pure = true)
     boolean isViewer(UUID player);
+    @Contract(pure = true)
     boolean canSee(Player player);
+    @Contract(pure = true)
     boolean isTrackedBy(Player player);
 
+    @Contract(pure = true)
     boolean isVisibleByDefault();
+    @Contract(mutates = "this")
     boolean setVisibleByDefault(boolean visible);
 
+    @Contract(mutates = "this")
     boolean setPersistent(boolean persistent);
+    @Contract(pure = true)
     boolean isPersistent();
     
     @Contract(mutates = "io")
@@ -86,13 +128,18 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     /**
      * @since 0.2.0
      */
+    @Contract(pure = true)
     Path getDataFile();
     /**
      * @since 0.2.0
      */
+    @Contract(pure = true)
     Path getBackupFile();
 
+    @Contract(mutates = "this")
     boolean spawn();
+    @Contract(mutates = "this")
     void despawn();
+    @Contract(pure = true)
     boolean isSpawned();
 }

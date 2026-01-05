@@ -3,7 +3,6 @@ package net.thenextlvl.hologram.line;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -11,7 +10,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @since 0.1.0
  */
-public interface ItemHologramLine extends DisplayHologramLine<ItemDisplay> {
+public interface ItemHologramLine extends DisplayHologramLine<ItemHologramLine, ItemDisplay> {
     /**
      * Gets the displayed item stack.
      *
@@ -24,9 +23,10 @@ public interface ItemHologramLine extends DisplayHologramLine<ItemDisplay> {
      * Sets the displayed item stack.
      *
      * @param item the new item stack
+     * @return this
      */
-    @Contract(mutates = "this")
-    void setItemStack(@Nullable ItemStack item);
+    @Contract(value = "_ -> this", mutates = "this")
+    ItemHologramLine setItemStack(@Nullable ItemStack item);
 
     /**
      * Gets the item display transform for this entity.
@@ -44,7 +44,8 @@ public interface ItemHologramLine extends DisplayHologramLine<ItemDisplay> {
      * Defaults to {@link ItemDisplay.ItemDisplayTransform#FIXED}.
      *
      * @param display new display
+     * @return this
      */
-    @Contract(mutates = "this")
-    void setItemDisplayTransform(ItemDisplay.ItemDisplayTransform display);
+    @Contract(value = "_ -> this", mutates = "this")
+    ItemHologramLine setItemDisplayTransform(ItemDisplay.ItemDisplayTransform display);
 }

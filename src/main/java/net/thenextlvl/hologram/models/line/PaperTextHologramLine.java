@@ -10,8 +10,10 @@ import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
+
 @NullMarked
-public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay> implements TextHologramLine {
+public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologramLine, TextDisplay> implements TextHologramLine {
     private @Nullable Color backgroundColor;
     private @Nullable Component text = null;
     private TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
@@ -31,14 +33,15 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public @Nullable Component getText() {
-        return text;
+    public Optional<Component> getText() {
+        return Optional.ofNullable(text);
     }
 
     @Override
-    public void setText(@Nullable Component text) {
+    public TextHologramLine setText(@Nullable Component text) {
         this.text = text;
         getEntity().ifPresent(entity -> entity.text(text));
+        return this;
     }
 
     @Override
@@ -47,9 +50,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public void setLineWidth(int width) {
+    public TextHologramLine setLineWidth(int width) {
         this.lineWidth = width;
         getEntity().ifPresent(entity -> entity.setLineWidth(width));
+        return this;
     }
 
     @Override
@@ -58,9 +62,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public void setBackgroundColor(@Nullable Color color) {
+    public TextHologramLine setBackgroundColor(@Nullable Color color) {
         this.backgroundColor = color;
         getEntity().ifPresent(entity -> entity.setBackgroundColor(color));
+        return this;
     }
 
     @Override
@@ -69,9 +74,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public void setTextOpacity(@Range(from = 0, to = 100) float opacity) {
+    public TextHologramLine setTextOpacity(@Range(from = 0, to = 100) float opacity) {
         this.opacity = opacity;
         getEntity().ifPresent(this::updateOpacity);
+        return this;
     }
 
     @Override
@@ -80,9 +86,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public void setShadowed(boolean shadow) {
+    public TextHologramLine setShadowed(boolean shadow) {
         this.shadowed = shadow;
         getEntity().ifPresent(entity -> entity.setShadowed(shadow));
+        return this;
     }
 
     @Override
@@ -91,9 +98,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public void setSeeThrough(boolean seeThrough) {
+    public TextHologramLine setSeeThrough(boolean seeThrough) {
         this.seeThrough = seeThrough;
         getEntity().ifPresent(entity -> entity.setSeeThrough(seeThrough));
+        return this;
     }
 
     @Override
@@ -102,9 +110,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public void setDefaultBackground(boolean defaultBackground) {
+    public TextHologramLine setDefaultBackground(boolean defaultBackground) {
         this.defaultBackground = defaultBackground;
         getEntity().ifPresent(entity -> entity.setDefaultBackground(defaultBackground));
+        return this;
     }
 
     @Override
@@ -113,9 +122,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     }
 
     @Override
-    public void setAlignment(TextDisplay.TextAlignment alignment) {
+    public TextHologramLine setAlignment(TextDisplay.TextAlignment alignment) {
         this.alignment = alignment;
         getEntity().ifPresent(entity -> entity.setAlignment(alignment));
+        return this;
     }
 
     @Override

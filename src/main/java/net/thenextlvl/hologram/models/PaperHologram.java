@@ -8,6 +8,7 @@ import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.line.PaperBlockHologramLine;
 import net.thenextlvl.hologram.models.line.PaperEntityHologramLine;
@@ -60,7 +61,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     private Location location;
     private @Nullable String viewPermission;
 
-    private boolean persistent;
+    private boolean persistent = true;
     private boolean visibleByDefault = true;
     private boolean spawned = false;
 
@@ -99,7 +100,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean setName(String name) {
         if (Objects.equals(this.name, name)) return false;
         if (plugin.hologramProvider().hasHologram(name)) return false;
-        
+
         if (!updatePaths(getWorld())) return false;
 
         this.name = name;
@@ -151,7 +152,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         }
 
         if (!updatePaths(location.getWorld())) return false;
-        
+
         this.location = location;
         return true;
     }
@@ -414,7 +415,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public CompoundTag serialize() throws ParserException {
-        var nbt = plugin.nbt(getWorld());
+        var nbt = plugin.serializer(getWorld());
         var builder = CompoundTag.builder();
 
         builder.put("position", nbt.serialize(location));
@@ -429,7 +430,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public void deserialize(CompoundTag tag) throws ParserException {
-        var nbt = plugin.nbt(getWorld());
+        var nbt = plugin.deserializer(getWorld());
 
         tag.optional("position").map(tag1 -> nbt.deserialize(tag1, Position.class))
                 .map(position -> position.toLocation(getWorld()))
@@ -437,9 +438,16 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         tag.optional("viewPermission").map(Tag::getAsString).ifPresent(this::setViewPermission);
         tag.optional("visibleByDefault").map(Tag::getAsBoolean).ifPresent(this::setVisibleByDefault);
 
-        tag.optional("lines").map(Tag::getAsList).ifPresent(lines -> {
-            lines.stream().map(line -> nbt.deserialize(line, HologramLine.class))
-                    .forEach(this.lines::add);
+        tag.optional("lines").map(Tag::<CompoundTag>getAsList).ifPresent(lines -> {
+            lines.stream().map(line -> {
+                var type = nbt.deserialize(line.get("type"), LineType.class);
+                return nbt.<HologramLine<?>>deserialize(line, switch (type) {
+                    case ENTITY -> EntityHologramLine.class;
+                    case BLOCK -> BlockHologramLine.class;
+                    case ITEM -> ItemHologramLine.class;
+                    case TEXT -> TextHologramLine.class;
+                });
+            }).forEach(this.lines::add);
         });
     }
 }

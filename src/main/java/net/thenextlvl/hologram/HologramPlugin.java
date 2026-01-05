@@ -4,18 +4,43 @@ import dev.faststats.bukkit.BukkitMetrics;
 import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
 import net.thenextlvl.binder.StaticBinder;
+import net.thenextlvl.hologram.adapters.BlockDataAdapter;
+import net.thenextlvl.hologram.adapters.BrightnessAdapter;
+import net.thenextlvl.hologram.adapters.ColorAdapter;
+import net.thenextlvl.hologram.adapters.ComponentAdapter;
+import net.thenextlvl.hologram.adapters.ItemStackAdapter;
 import net.thenextlvl.hologram.adapters.PositionAdapter;
+import net.thenextlvl.hologram.adapters.QuaternionfAdapter;
+import net.thenextlvl.hologram.adapters.TransformationAdapter;
+import net.thenextlvl.hologram.adapters.Vector3fAdapter;
+import net.thenextlvl.hologram.adapters.serializers.BlockHologramLineSerializer;
+import net.thenextlvl.hologram.adapters.serializers.EntityHologramLineSerializer;
+import net.thenextlvl.hologram.adapters.serializers.ItemHologramLineSerializer;
+import net.thenextlvl.hologram.adapters.serializers.TextHologramLineSerializer;
 import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.controller.PaperHologramProvider;
+import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.EntityHologramLine;
+import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.LineType;
+import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.listeners.ChunkListener;
 import net.thenextlvl.hologram.listeners.HologramListener;
 import net.thenextlvl.i18n.ComponentBundle;
 import net.thenextlvl.nbt.serialization.NBT;
+import net.thenextlvl.nbt.serialization.adapters.EnumAdapter;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Color;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Display;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Contract;
+import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 
 import java.nio.file.Path;
@@ -75,11 +100,35 @@ public class HologramPlugin extends JavaPlugin {
         return bundle;
     }
 
-    @Contract(value = "_ -> new", pure = true)
-    public NBT nbt(World world) {
+    private NBT.Builder base(World world) {
         return NBT.builder()
+                .registerTypeHierarchyAdapter(BlockData.class, new BlockDataAdapter(getServer()))
+                .registerTypeHierarchyAdapter(Color.class, new ColorAdapter())
+                .registerTypeHierarchyAdapter(Component.class, new ComponentAdapter())
+                .registerTypeHierarchyAdapter(Display.Billboard.class, new EnumAdapter<>(Display.Billboard.class))
+                .registerTypeHierarchyAdapter(Display.Brightness.class, new BrightnessAdapter())
+                .registerTypeHierarchyAdapter(ItemStack.class, new ItemStackAdapter())
+                .registerTypeHierarchyAdapter(LineType.class, new EnumAdapter<>(LineType.class))
                 .registerTypeHierarchyAdapter(Position.class, new PositionAdapter())
+                .registerTypeHierarchyAdapter(Quaternionf.class, new QuaternionfAdapter())
+                .registerTypeHierarchyAdapter(Transformation.class, new TransformationAdapter())
+                .registerTypeHierarchyAdapter(Vector3f.class, new Vector3fAdapter())
                 // .registerTypeHierarchyAdapter(Key.class, new KeyAdapter())
+                ;
+    }
+
+    public NBT serializer(World world) {
+        return base(world)
+                .registerTypeHierarchyAdapter(BlockHologramLine.class, new BlockHologramLineSerializer())
+                .registerTypeHierarchyAdapter(EntityHologramLine.class, new EntityHologramLineSerializer())
+                .registerTypeHierarchyAdapter(ItemHologramLine.class, new ItemHologramLineSerializer())
+                .registerTypeHierarchyAdapter(TextHologramLine.class, new TextHologramLineSerializer())
+                .build();
+    }
+
+    public NBT deserializer(World world) {
+        return base(world)
+                .registerTypeHierarchyAdapter(EntityHologramLine.class, new EntityHologramLineSerializer())
                 .build();
     }
 }

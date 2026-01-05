@@ -41,8 +41,9 @@ final class HologramCreateCommand extends SimpleCommand {
         }
 
         plugin.hologramProvider().spawnHologram(name, location, hologram -> {
-            hologram.addTextLine().setText(plugin.bundle().component("hologram.default", Locale.US,
-                    Placeholder.parsed("hologram", StringArgumentType.escapeIfRequired(name))));
+            var text = plugin.bundle().component("hologram.default", Locale.US,
+                    Placeholder.parsed("hologram", StringArgumentType.escapeIfRequired(name)));
+            hologram.addTextLine().setText(text).setLineWidth(220);
         });
 
         plugin.bundle().sendMessage(sender, "hologram.created", placeholder);

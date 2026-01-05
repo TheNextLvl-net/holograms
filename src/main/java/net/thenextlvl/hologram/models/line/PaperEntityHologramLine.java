@@ -30,9 +30,10 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    public void setScale(double scale) {
+    public EntityHologramLine<E> setScale(double scale) {
         this.scale = scale;
         getEntity(Attributable.class).ifPresent(this::updateScale);
+        return this;
     }
 
     @Override

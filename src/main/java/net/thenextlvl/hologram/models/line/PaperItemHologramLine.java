@@ -10,7 +10,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay> implements ItemHologramLine {
+public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologramLine, ItemDisplay> implements ItemHologramLine {
     private ItemDisplay.ItemDisplayTransform displayTransform = ItemDisplay.ItemDisplayTransform.NONE;
     private @Nullable ItemStack item = null;
 
@@ -29,9 +29,10 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay>
     }
 
     @Override
-    public void setItemStack(@Nullable ItemStack item) {
+    public ItemHologramLine setItemStack(@Nullable ItemStack item) {
         this.item = item != null ? item.clone() : null;
         getEntity().ifPresent(entity -> entity.setItemStack(item));
+        return this;
     }
 
     @Override
@@ -40,9 +41,10 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay>
     }
 
     @Override
-    public void setItemDisplayTransform(ItemDisplay.ItemDisplayTransform display) {
+    public ItemHologramLine setItemDisplayTransform(ItemDisplay.ItemDisplayTransform display) {
         this.displayTransform = display;
         getEntity().ifPresent(entity -> entity.setItemDisplayTransform(display));
+        return this;
     }
 
     @Override

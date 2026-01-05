@@ -9,7 +9,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDisplay> implements BlockHologramLine {
+public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologramLine, BlockDisplay> implements BlockHologramLine {
     private BlockData block = BlockType.AIR.createBlockData();
 
     public PaperBlockHologramLine(PaperHologram hologram) {
@@ -27,9 +27,10 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDispla
     }
 
     @Override
-    public void setBlock(BlockData block) {
+    public BlockHologramLine setBlock(BlockData block) {
         this.block = block.clone();
         getEntity().ifPresent(entity -> entity.setBlock(block));
+        return this;
     }
 
     @Override

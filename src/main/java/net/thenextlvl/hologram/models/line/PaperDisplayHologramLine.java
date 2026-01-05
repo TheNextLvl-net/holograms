@@ -11,8 +11,10 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
+
 @NullMarked
-public abstract class PaperDisplayHologramLine<E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine<E> {
+public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, E>, E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine<T, E> {
     private @Nullable Color glowColorOverride = null;
     private Display.@Nullable Brightness brightness = null;
     private Display.Billboard billboard = Display.Billboard.CENTER;
@@ -41,7 +43,7 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setTransformation(Transformation transformation) {
+    public T setTransformation(Transformation transformation) {
         this.transformation = new Transformation(
                 transformation.getTranslation(),
                 transformation.getLeftRotation(),
@@ -49,10 +51,11 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
                 transformation.getRightRotation()
         );
         getEntity().ifPresent(entity -> entity.setTransformation(transformation));
+        return getSelf();
     }
 
     @Override
-    public void setTransformationMatrix(Matrix4f transformationMatrix) {
+    public T setTransformationMatrix(Matrix4f transformationMatrix) {
         this.transformation = new Transformation(
                 transformationMatrix.getTranslation(new Vector3f()),
                 transformationMatrix.getRotation(new AxisAngle4f()),
@@ -60,6 +63,7 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
                 transformationMatrix.getRotation(new AxisAngle4f())
         );
         getEntity().ifPresent(entity -> entity.setTransformationMatrix(transformationMatrix));
+        return getSelf();
     }
 
     @Override
@@ -68,9 +72,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setInterpolationDuration(int duration) {
+    public T setInterpolationDuration(int duration) {
         this.interpolationDuration = duration;
         getEntity().ifPresent(entity -> entity.setInterpolationDuration(duration));
+        return getSelf();
     }
 
     @Override
@@ -79,9 +84,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setTeleportDuration(int duration) {
+    public T setTeleportDuration(int duration) {
         this.teleportDuration = duration;
         getEntity().ifPresent(entity -> entity.setTeleportDuration(duration));
+        return getSelf();
     }
 
     @Override
@@ -90,9 +96,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setViewRange(float range) {
+    public T setViewRange(float range) {
         this.viewRange = range;
         getEntity().ifPresent(entity -> entity.setViewRange(range));
+        return getSelf();
     }
 
     @Override
@@ -101,9 +108,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setShadowRadius(float radius) {
+    public T setShadowRadius(float radius) {
         this.shadowRadius = radius;
         getEntity().ifPresent(entity -> entity.setShadowRadius(radius));
+        return getSelf();
     }
 
     @Override
@@ -112,9 +120,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setShadowStrength(float strength) {
+    public T setShadowStrength(float strength) {
         this.shadowStrength = strength;
         getEntity().ifPresent(entity -> entity.setShadowStrength(strength));
+        return getSelf();
     }
 
     @Override
@@ -123,9 +132,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setDisplayWidth(float width) {
+    public T setDisplayWidth(float width) {
         this.displayWidth = width;
         getEntity().ifPresent(entity -> entity.setDisplayWidth(width));
+        return getSelf();
     }
 
     @Override
@@ -134,9 +144,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setDisplayHeight(float height) {
+    public T setDisplayHeight(float height) {
         this.displayHeight = height;
         getEntity().ifPresent(entity -> entity.setDisplayHeight(height));
+        return getSelf();
     }
 
     @Override
@@ -145,9 +156,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setInterpolationDelay(int ticks) {
+    public T setInterpolationDelay(int ticks) {
         this.interpolationDelay = ticks;
         getEntity().ifPresent(entity -> entity.setInterpolationDelay(ticks));
+        return getSelf();
     }
 
     @Override
@@ -156,31 +168,39 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperH
     }
 
     @Override
-    public void setBillboard(Display.Billboard billboard) {
+    public T setBillboard(Display.Billboard billboard) {
         this.billboard = billboard;
         getEntity().ifPresent(entity -> entity.setBillboard(billboard));
+        return getSelf();
     }
 
     @Override
-    public @Nullable Color getGlowColorOverride() {
-        return glowColorOverride;
+    public Optional<Color> getGlowColorOverride() {
+        return Optional.ofNullable(glowColorOverride);
     }
 
     @Override
-    public void setGlowColorOverride(@Nullable Color color) {
+    public T setGlowColorOverride(@Nullable Color color) {
         this.glowColorOverride = color;
         getEntity().ifPresent(entity -> entity.setGlowColorOverride(color));
+        return getSelf();
     }
 
     @Override
-    public Display.@Nullable Brightness getBrightness() {
-        return brightness;
+    public Optional<Display.Brightness> getBrightness() {
+        return Optional.ofNullable(brightness);
     }
 
     @Override
-    public void setBrightness(Display.@Nullable Brightness brightness) {
+    public T setBrightness(Display.@Nullable Brightness brightness) {
         this.brightness = brightness;
         getEntity().ifPresent(entity -> entity.setBrightness(brightness));
+        return getSelf();
+    }
+
+    @SuppressWarnings("unchecked")
+    private T getSelf() {
+        return (T) this;
     }
 
     @Override

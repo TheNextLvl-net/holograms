@@ -52,6 +52,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
             livingEntity.setAI(false);
             livingEntity.setCollidable(false);
             livingEntity.setCanPickupItems(false);
+            livingEntity.setRemoveWhenFarAway(true);
         }
 
         if (entity instanceof Attributable attributable) {

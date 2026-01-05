@@ -23,6 +23,7 @@ public final class HologramCommand extends BrigadierCommand {
                 .then(HologramDeleteCommand.create(plugin))
                 .then(HologramLineCommand.create(plugin))
                 .then(HologramListCommand.create(plugin))
+                .then(HologramTeleportCommand.create(plugin))
                 // edit command
                 //  hologram line remove <hologram> <index>
                 //  hologram line edit <hologram> <index> replace <match> <text>

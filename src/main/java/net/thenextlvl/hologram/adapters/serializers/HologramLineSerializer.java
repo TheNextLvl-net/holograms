@@ -12,7 +12,7 @@ abstract class HologramLineSerializer<T extends HologramLine<?>> implements TagS
     @Override
     public CompoundTag serialize(T object, TagSerializationContext context) throws ParserException {
         return CompoundTag.builder()
-                .put("type", context.serialize(object.getType()))
+                .put("lineType", context.serialize(object.getType()))
                 .build();
     }
 }

@@ -2,10 +2,6 @@ package net.thenextlvl.hologram.listeners;
 
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.models.PaperHologram;
-import net.thenextlvl.nbt.NBTInputStream;
-import net.thenextlvl.nbt.serialization.ParserException;
-import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -13,13 +9,6 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.jspecify.annotations.NullMarked;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
 
 @NullMarked
 public class WorldListener implements Listener {
@@ -31,15 +20,7 @@ public class WorldListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldLoad(WorldLoadEvent event) {
-        var dataFolder = plugin.hologramProvider().getDataFolder(event.getWorld());
-        if (!Files.isDirectory(dataFolder)) return;
-        try (var files = Files.find(dataFolder, 1, (path, attributes) -> {
-            return attributes.isRegularFile() && path.getFileName().toString().endsWith(".dat");
-        })) {
-            files.forEach(path -> loadSafe(path, event.getWorld()));
-        } catch (IOException e) {
-            plugin.getComponentLogger().error("Failed to load all holograms in world {}", event.getWorld().getName(), e);
-        }
+        plugin.loadHolograms(event.getWorld());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -55,42 +36,5 @@ public class WorldListener implements Listener {
                 return true;
             } else return false;
         });
-    }
-
-    private void loadSafe(Path file, World world) {
-        try {
-            try (var inputStream = NBTInputStream.create(file)) {
-                load(inputStream, world);
-            } catch (Exception e) {
-                var backup = file.resolveSibling(file.getFileName() + "_old");
-                if (!Files.isRegularFile(backup)) throw e;
-                plugin.getComponentLogger().warn("Failed to load hologram from {}", file, e);
-                plugin.getComponentLogger().warn("Falling back to {}", backup);
-                try (var inputStream = NBTInputStream.create(backup)) {
-                    load(inputStream, world);
-                }
-            }
-        } catch (ParserException e) {
-            plugin.getComponentLogger().warn("Failed to load hologram from {}: {}", file, e.getMessage());
-        } catch (EOFException e) {
-            plugin.getComponentLogger().error("The hologram file {} is irrecoverably broken", file);
-        } catch (Exception e) {
-            plugin.getComponentLogger().error("Failed to load hologram from {}", file, e);
-            plugin.getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
-        }
-    }
-
-    private void load(NBTInputStream inputStream, World world) throws IOException {
-        var entry = inputStream.readNamedTag();
-        var name = entry.getKey();
-
-        if (plugin.hologramProvider().hasHologram(name)) {
-            plugin.getComponentLogger().warn("A hologram with the name '{}' is already loaded", name);
-            return;
-        }
-
-        var hologram = new PaperHologram(plugin, name, world);
-        hologram.deserialize(entry.getValue());
-        plugin.hologramProvider().holograms.add(hologram);
     }
 }

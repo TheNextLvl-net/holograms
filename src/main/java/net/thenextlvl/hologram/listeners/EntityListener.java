@@ -20,7 +20,9 @@ public class EntityListener implements Listener {
     public void onEntityRemove(EntityRemoveEvent event) {
         plugin.hologramProvider().getHologram(event.getEntity()).ifPresent(hologram -> {
             hologram.persist();
-            ((PaperHologram) hologram).invalidate();
+            ((PaperHologram) hologram).invalidate(event.getEntity());
+            hologram.despawn();
+            System.out.println("unloaded hologram " + hologram.getName());
         });
     }
 }

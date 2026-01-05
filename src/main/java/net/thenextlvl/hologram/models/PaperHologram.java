@@ -390,6 +390,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (isSpawned()) return false;
         lines.forEach(HologramLine::spawn);
         this.spawned = true;
+        System.out.println("Spawned hologram " + getName());
         return true;
     }
 
@@ -409,8 +410,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return spawned;
     }
 
-    public void invalidate() {
-        lines.forEach(line -> ((PaperHologramLine<?>) line).invalidate());
+    public void invalidate(Entity entity) {
+        lines.forEach(line -> ((PaperHologramLine<?>) line).invalidate(entity));
     }
 
     @Override
@@ -430,7 +431,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public void deserialize(CompoundTag tag) throws ParserException {
-        var nbt = plugin.deserializer(getWorld());
+        var nbt = plugin.deserializer(this);
 
         tag.optional("position").map(tag1 -> nbt.deserialize(tag1, Position.class))
                 .map(position -> position.toLocation(getWorld()))
@@ -440,7 +441,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
         tag.optional("lines").map(Tag::<CompoundTag>getAsList).ifPresent(lines -> {
             lines.stream().map(line -> {
-                var type = nbt.deserialize(line.get("type"), LineType.class);
+                var type = nbt.deserialize(line.get("lineType"), LineType.class);
                 return nbt.<HologramLine<?>>deserialize(line, switch (type) {
                     case ENTITY -> EntityHologramLine.class;
                     case BLOCK -> BlockHologramLine.class;

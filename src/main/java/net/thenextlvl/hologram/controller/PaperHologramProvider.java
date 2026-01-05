@@ -2,13 +2,14 @@ package net.thenextlvl.hologram.controller;
 
 import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.Hologram;
-import net.thenextlvl.hologram.HologramProvider;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.HologramProvider;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -59,7 +60,7 @@ public class PaperHologramProvider implements HologramProvider {
         return getHolograms(entity.getWorld())
                 .filter(hologram -> hologram.getLines().stream().anyMatch(line ->
                         line.getEntity().filter(entity::equals).isPresent()))
-                .map(character -> (HologramLine<E>) character)
+                .map(hologram -> (HologramLine<E>) hologram)
                 .findFirst();
     }
 
@@ -96,7 +97,7 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    public Stream<Hologram> getHolograms(org.bukkit.Chunk chunk) {
+    public Stream<Hologram> getHolograms(Chunk chunk) {
         return getHolograms(chunk.getWorld()).filter(hologram -> {
             var chunkX = hologram.getLocation().getBlockX() >> 4;
             var chunkZ = hologram.getLocation().getBlockZ() >> 4;

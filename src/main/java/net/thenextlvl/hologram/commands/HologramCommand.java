@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.commands;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -23,6 +24,7 @@ public final class HologramCommand extends BrigadierCommand {
                 .then(HologramDeleteCommand.create(plugin))
                 .then(HologramLineCommand.create(plugin))
                 .then(HologramListCommand.create(plugin))
+                .then(HologramRenameCommand.create(plugin))
                 .then(HologramTeleportCommand.create(plugin))
                 // edit command
                 //  hologram line remove <hologram> <index>
@@ -32,6 +34,10 @@ public final class HologramCommand extends BrigadierCommand {
                 //  hologram line edit <hologram> <index> prepend <text>
                 //  hologram line move <hologram> <index> <new-index>
                 .build();
+    }
+
+    public static RequiredArgumentBuilder<CommandSourceStack, String> nameArgument() {
+        return Commands.argument("name", StringArgumentType.string());
     }
     
     public static RequiredArgumentBuilder<CommandSourceStack, ?> hologramArgument(HologramPlugin plugin) {

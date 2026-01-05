@@ -2,16 +2,16 @@ package net.thenextlvl.hologram.commands;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Locale;
+
+import static net.thenextlvl.hologram.commands.HologramCommand.nameArgument;
 
 @NullMarked
 final class HologramCreateCommand extends SimpleCommand {
@@ -22,10 +22,6 @@ final class HologramCreateCommand extends SimpleCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramCreateCommand(plugin);
         return command.create().then(nameArgument().executes(command));
-    }
-
-    private static RequiredArgumentBuilder<CommandSourceStack, String> nameArgument() {
-        return Commands.argument("name", StringArgumentType.string());
     }
 
     @Override

@@ -390,7 +390,6 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (isSpawned()) return false;
         lines.forEach(HologramLine::spawn);
         this.spawned = true;
-        System.out.println("Spawned hologram " + getName());
         return true;
     }
 

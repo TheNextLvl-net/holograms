@@ -22,7 +22,6 @@ public class EntityListener implements Listener {
             hologram.persist();
             ((PaperHologram) hologram).invalidate(event.getEntity());
             hologram.despawn();
-            System.out.println("unloaded hologram " + hologram.getName());
         });
     }
 }

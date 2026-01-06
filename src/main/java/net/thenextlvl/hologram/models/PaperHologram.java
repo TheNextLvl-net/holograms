@@ -240,12 +240,12 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public EntityHologramLine<?> addEntityLine(EntityType entityType) throws IllegalArgumentException {
-        return addEntityLine(entityType, lines.size());
+        return addEntityLine(entityType, 0);
     }
 
     @Override
     public <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException {
-        return addEntityLine(entityType, lines.size());
+        return addEntityLine(entityType, 0);
     }
 
     @Override
@@ -264,7 +264,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public BlockHologramLine addBlockLine() {
-        return addBlockLine(lines.size());
+        return addBlockLine(0);
     }
 
     @Override
@@ -277,7 +277,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public ItemHologramLine addItemLine() {
-        return addItemLine(lines.size());
+        return addItemLine(0);
     }
 
     @Override
@@ -290,7 +290,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public TextHologramLine addTextLine() {
-        return addTextLine(lines.size());
+        return addTextLine(0);
     }
 
     @Override

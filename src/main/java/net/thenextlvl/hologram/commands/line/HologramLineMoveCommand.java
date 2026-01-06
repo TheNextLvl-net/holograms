@@ -9,6 +9,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import org.jspecify.annotations.NullMarked;
 
 import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
@@ -21,8 +22,10 @@ final class HologramLineMoveCommand extends SimpleCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramLineMoveCommand(plugin);
-        var from = Commands.argument("from", IntegerArgumentType.integer(1));
-        var to = Commands.argument("to", IntegerArgumentType.integer(1));
+        var from = Commands.argument("from", IntegerArgumentType.integer(1))
+                .suggests(LineSuggestionProvider.INSTANCE);
+        var to = Commands.argument("to", IntegerArgumentType.integer(1))
+                .suggests(LineSuggestionProvider.INSTANCE);
         return command.create().then(hologramArgument(plugin)
                 .then(from.then(to.executes(command))));
     }

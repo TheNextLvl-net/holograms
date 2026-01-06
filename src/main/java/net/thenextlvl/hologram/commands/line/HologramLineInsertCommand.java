@@ -14,6 +14,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -40,6 +41,7 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
     private LiteralArgumentBuilder<CommandSourceStack> createLine(String name, ArgumentType<?> argumentType, Command<CommandSourceStack> command) {
         return Commands.literal(name).then(hologramArgument(plugin)
                 .then(Commands.argument("line", IntegerArgumentType.integer(1))
+                        .suggests(LineSuggestionProvider.INSTANCE)
                         .then(Commands.argument(name, argumentType).executes(command))));
     }
 

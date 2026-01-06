@@ -13,7 +13,7 @@ abstract class DisplayHologramLineSerializer<T extends DisplayHologramLine<T, ?>
         var builder = CompoundTag.builder();
         line.getGlowColorOverride().map(context::serialize).ifPresent(tag -> builder.put("glowColorOverride", tag));
         line.getBrightness().map(context::serialize).ifPresent(tag -> builder.put("brightness", tag));
-        return builder
+        return builder.putAll(super.serialize(line, context))
                 .put("height", line.getDisplayHeight())
                 .put("width", line.getDisplayWidth())
                 .put("shadowRadius", line.getShadowRadius())
@@ -24,7 +24,6 @@ abstract class DisplayHologramLineSerializer<T extends DisplayHologramLine<T, ?>
                 .put("teleportDuration", line.getTeleportDuration())
                 .put("billboard", context.serialize(line.getBillboard()))
                 .put("transformation", context.serialize(line.getTransformation()))
-                .putAll(super.serialize(line, context))
                 .build();
     }
 }   

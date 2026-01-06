@@ -10,9 +10,8 @@ import org.jspecify.annotations.NullMarked;
 public final class ItemHologramLineSerializer extends DisplayHologramLineSerializer<ItemHologramLine> {
     @Override
     public CompoundTag serialize(ItemHologramLine line, TagSerializationContext context) throws ParserException {
-        return CompoundTag.builder()
+        return CompoundTag.builder().putAll(super.serialize(line, context))
                 .put("itemStack", context.serialize(line.getItemStack()))
-                .putAll(super.serialize(line, context))
                 .build();
     }
 }

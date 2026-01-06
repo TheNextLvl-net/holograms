@@ -57,8 +57,8 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public @Nullable Color getBackgroundColor() {
-        return backgroundColor;
+    public Optional<Color> getBackgroundColor() {
+        return Optional.ofNullable(backgroundColor);
     }
 
     @Override

@@ -10,10 +10,9 @@ import org.jspecify.annotations.NullMarked;
 public final class EntityHologramLineSerializer extends HologramLineSerializer<EntityHologramLine<?>> {
     @Override
     public CompoundTag serialize(EntityHologramLine<?> line, TagSerializationContext context) throws ParserException {
-        return CompoundTag.builder()
+        return CompoundTag.builder().putAll(super.serialize(line, context))
                 .put("scale", line.getScale())
                 .put("entityType", context.serialize(line.getEntityType()))
-                .putAll(super.serialize(line, context))
                 .build();
     }
 }

@@ -12,6 +12,14 @@ public final class TextHologramLineSerializer extends DisplayHologramLineSeriali
     public CompoundTag serialize(TextHologramLine line, TagSerializationContext context) throws ParserException {
         var builder = CompoundTag.builder();
         line.getText().map(context::serialize).ifPresent(tag -> builder.put("text", tag));
-        return builder.putAll(super.serialize(line, context)).build();
-    }   
+        line.getBackgroundColor().map(context::serialize).ifPresent(color -> builder.put("backgroundColor", color));
+        return builder.putAll(super.serialize(line, context))
+                .put("lineWidth", line.getLineWidth())
+                .put("textOpacity", line.getTextOpacity())
+                .put("shadowed", line.isShadowed())
+                .put("seeThrough", line.isSeeThrough())
+                .put("defaultBackground", line.isDefaultBackground())
+                .put("alignment", context.serialize(line.getAlignment()))
+                .build();
+    }
 }

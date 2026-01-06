@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.models.line;
 
+import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
@@ -65,20 +66,18 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         return hologram.getWorld();
     }
 
-    @Override
     public void despawn() {
         if (entity == null) return;
         entity.remove();
         entity = null;
     }
 
-    @Override
-    public void spawn() {
-        if (entity != null && entity.isValid()) return;
+    public E spawn() throws IllegalStateException {
+        Preconditions.checkState(entity == null || !entity.isValid(), "Entity is already spawned");
         // todo: do some more crazy math to calculate the perfect offset
         var lineIndex = Math.max(0, hologram.getLineIndex(this));
         var location = getLocation().clone().add(0, lineIndex, 0);
-        this.entity = location.getWorld().spawn(location, getTypeClass(), this::preSpawn);
+        return this.entity = location.getWorld().spawn(location, getTypeClass(), this::preSpawn);
     }
 
     public void updateVisibility(Player player) {

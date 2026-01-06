@@ -54,9 +54,8 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @return the background color
      */
-    @Nullable
     @Contract(pure = true)
-    Color getBackgroundColor();
+    Optional<Color> getBackgroundColor();
 
     /**
      * Sets the text background color.

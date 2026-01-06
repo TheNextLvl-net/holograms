@@ -15,12 +15,16 @@ public final class HologramLineCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramLineCommand(plugin);
         return command.create()
-                .then(HologramLineAddCommand.create(plugin));
-                //.then(HologramLineRemoveCommand.create(plugin))
-                //.then(HologramLineEditCommand.create(plugin))
-                //.then(HologramLineMoveCommand.create(plugin))
-                //.then(HologramLineAppendCommand.create(plugin))
-                //.then(HologramLinePrependCommand.create(plugin))
-                //.then(HologramLineReplaceCommand.create(plugin));
-    }   
+                .then(HologramLineAddCommand.create(plugin))
+                .then(HologramLineInsertCommand.create(plugin))
+                .then(HologramLineMoveCommand.create(plugin))
+                .then(HologramLineRemoveCommand.create(plugin))
+                .then(HologramLineSwapCommand.create(plugin));
+        //.then(HologramLineRemoveCommand.create(plugin))
+        //.then(HologramLineEditCommand.create(plugin))
+        //.then(HologramLineMoveCommand.create(plugin))
+        //.then(HologramLineAppendCommand.create(plugin))
+        //.then(HologramLinePrependCommand.create(plugin))
+        //.then(HologramLineReplaceCommand.create(plugin));
+    }
 }

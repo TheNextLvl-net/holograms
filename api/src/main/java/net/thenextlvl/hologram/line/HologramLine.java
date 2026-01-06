@@ -38,9 +38,4 @@ public interface HologramLine<E extends Entity> {
 
     @Contract(pure = true)
     World getWorld();
-
-    @Contract(mutates = "this")
-    void despawn();
-    @Contract(mutates = "this")
-    void spawn();
 }

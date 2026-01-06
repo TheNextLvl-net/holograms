@@ -27,7 +27,6 @@ public final class HologramCommand extends BrigadierCommand {
                 .then(HologramRenameCommand.create(plugin))
                 .then(HologramTeleportCommand.create(plugin))
                 // edit command
-                //  hologram line remove <hologram> <index>
                 //  hologram line edit <hologram> <index> replace <match> <text>
                 //  hologram line edit <hologram> <index> set <text>
                 //  hologram line edit <hologram> <index> append <text>

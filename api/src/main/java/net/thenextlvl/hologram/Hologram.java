@@ -59,18 +59,24 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     @Contract(mutates = "this")
     boolean removeLine(HologramLine<?> line);
     @Contract(mutates = "this")
-    boolean removeLine(int index) throws IndexOutOfBoundsException;
+    boolean removeLine(int index);
     @Contract(mutates = "this")
     boolean removeLines(Collection<HologramLine<?>> lines);
     @Contract(mutates = "this")
     void clearLines();
     @Contract(pure = true)
     boolean hasLine(HologramLine<?> line);
+    @Contract(mutates = "this")
+    boolean moveLine(int from, int to);
+    @Contract(mutates = "this")
+    boolean swapLines(int line1, int line2);
 
     @Contract(value = "_ -> new", mutates = "this")
     EntityHologramLine<?> addEntityLine(EntityType entityType) throws IllegalArgumentException;
     @Contract(value = "_ -> new", mutates = "this")
     <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException;
+    @Contract(value = "_, _ -> new", mutates = "this")
+    EntityHologramLine<?> addEntityLine(EntityType entityType, int index) throws IllegalArgumentException;
     @Contract(value = "_, _ -> new", mutates = "this")
     <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType, int index) throws IllegalArgumentException;
     @Contract(value = " -> new", mutates = "this")

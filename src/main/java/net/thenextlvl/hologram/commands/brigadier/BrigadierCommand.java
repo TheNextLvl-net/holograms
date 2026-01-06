@@ -2,8 +2,10 @@ package net.thenextlvl.hologram.commands.brigadier;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.resolvers.ArgumentResolver;
 import net.thenextlvl.hologram.HologramPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -39,5 +41,10 @@ public abstract class BrigadierCommand {
                 return Optional.empty();
             throw e;
         }
+    }
+
+    public <T> Optional<T> resolveArgument(CommandContext<CommandSourceStack> context, String name, Class<? extends ArgumentResolver<T>> type) throws CommandSyntaxException {
+        var resolver = tryGetArgument(context, name, type).orElse(null);
+        return resolver != null ? Optional.of(resolver.resolve(context.getSource())) : Optional.empty();
     }
 }

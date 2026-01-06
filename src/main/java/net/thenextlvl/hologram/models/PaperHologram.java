@@ -101,16 +101,16 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (Objects.equals(this.name, name)) return false;
         if (plugin.hologramProvider().hasHologram(name)) return false;
 
-        if (!updatePaths(getWorld())) return false;
+        if (!updatePaths(getWorld(), name)) return false;
 
         this.name = name;
         return true;
     }
 
-    private boolean updatePaths(World world) {
+    private boolean updatePaths(World world, String name) {
         var dataFolder = plugin.hologramProvider().getDataFolder(world);
-        var dataFile = dataFolder.resolve(getDataFile().getFileName());
-        var backupFile = dataFolder.resolve(getBackupFile().getFileName());
+        var dataFile = dataFolder.resolve(name + ".dat");
+        var backupFile = dataFolder.resolve(name + ".dat_old");
 
         try {
             Files.createDirectories(dataFolder);
@@ -151,7 +151,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
             return true;
         }
 
-        if (!updatePaths(location.getWorld())) return false;
+        if (!updatePaths(location.getWorld(), name)) return false;
 
         this.location = location;
         return true;

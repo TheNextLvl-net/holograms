@@ -96,9 +96,9 @@ public class HologramPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS.newHandler(event -> {
             event.registrar().register(HologramCommand.create(this), "The main command to interact with holograms", Set.of("holo"));
-        });
+        }));
     }
 
     private void registerListeners() {

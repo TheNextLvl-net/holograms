@@ -3,9 +3,8 @@ package net.thenextlvl.hologram.commands;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
-import net.thenextlvl.hologram.Hologram;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.jspecify.annotations.NullMarked;
@@ -24,10 +23,10 @@ final class HologramListCommand extends SimpleCommand {
     @Override
     public int run(CommandContext<CommandSourceStack> commandContext) {
         var sender = commandContext.getSource().getSender();
-        var holograms = plugin.hologramProvider().getHolograms()
-                .map(Hologram::getName)
-                .map(Component::text)
-                .toList();
+        var holograms = plugin.hologramProvider().getHolograms().map(hologram -> {
+            return plugin.bundle().component("hologram.list.entry", sender, 
+                    Placeholder.parsed("hologram", hologram.getName()));
+        }).toList();
         var message = holograms.isEmpty() ? "hologram.list.empty" : "hologram.list";
         plugin.bundle().sendMessage(sender, message,
                 Formatter.number("amount", holograms.size()),

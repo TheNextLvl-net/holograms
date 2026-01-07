@@ -32,6 +32,11 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologr
         getEntity().ifPresent(entity -> entity.setBlock(block));
         return this;
     }
+    
+    @Override
+    public double getHeight() {
+        return 1;
+    }
 
     @Override
     protected void preSpawn(BlockDisplay entity) {

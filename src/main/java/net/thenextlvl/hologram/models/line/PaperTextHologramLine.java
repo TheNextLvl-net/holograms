@@ -1,11 +1,13 @@
 package net.thenextlvl.hologram.models.line;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.vehicle.VehicleUpdateEvent;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -21,7 +23,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     private boolean seeThrough = false;
     private boolean shadowed = false;
     private float opacity = 0;
-    private int lineWidth = 200;
+    private int lineWidth = Integer.MAX_VALUE;
 
     public PaperTextHologramLine(PaperHologram hologram) {
         super(hologram, TextDisplay.class);
@@ -126,6 +128,15 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
         this.alignment = alignment;
         getEntity().ifPresent(entity -> entity.setAlignment(alignment));
         return this;
+    }
+
+    @Override
+    public double getHeight() {
+        // todo: respect text alignment
+        // todo: respect billboard?
+        var deserialize = text != null ? MiniMessage.miniMessage().serialize(text) : null;
+        var lines = deserialize != null ? deserialize.split("\n|<br>|<newline>").length : 1;
+        return (0.25 * getTransformation().getScale().y()) * lines;
     }
 
     @Override

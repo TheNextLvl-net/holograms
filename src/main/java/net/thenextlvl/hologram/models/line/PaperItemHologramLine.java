@@ -48,6 +48,16 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     }
 
     @Override
+    public double getHeight() {
+        return 0.9;
+    }
+
+    @Override
+    public double getOffsetBefore() {
+        return 0.45;
+    }
+
+    @Override
     protected void preSpawn(ItemDisplay entity) {
         entity.setItemStack(item);
         entity.setItemDisplayTransform(displayTransform);

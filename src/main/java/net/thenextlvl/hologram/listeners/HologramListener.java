@@ -5,7 +5,7 @@ import org.bukkit.event.Listener;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class HologramListener implements Listener {
+public final class HologramListener implements Listener {
     private final HologramPlugin plugin;
 
     public HologramListener(HologramPlugin plugin) {

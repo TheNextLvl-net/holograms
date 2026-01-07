@@ -11,7 +11,7 @@ import org.bukkit.event.world.WorldUnloadEvent;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class WorldListener implements Listener {
+public final class WorldListener implements Listener {
     private final HologramPlugin plugin;
 
     public WorldListener(HologramPlugin plugin) {

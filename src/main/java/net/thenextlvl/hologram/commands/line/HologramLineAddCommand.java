@@ -29,16 +29,15 @@ public final class HologramLineAddCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramLineAddCommand(plugin);
-        return command.create()
+        return command.create().then(hologramArgument(plugin)
                 .then(command.createLine("block", ArgumentTypes.blockState(), command::block))
                 .then(command.createLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::entity))
                 .then(command.createLine("item", ArgumentTypes.itemStack(), command::item))
-                .then(command.createLine("text", StringArgumentType.greedyString(), command::text));
+                .then(command.createLine("text", StringArgumentType.greedyString(), command::text)));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> createLine(String name, ArgumentType<?> argumentType, Command<CommandSourceStack> command) {
-        return Commands.literal(name).then(hologramArgument(plugin)
-                .then(Commands.argument(name, argumentType).executes(command)));
+        return Commands.literal(name).then(Commands.argument(name, argumentType).executes(command));
     }
 
     private int block(CommandContext<CommandSourceStack> context) {

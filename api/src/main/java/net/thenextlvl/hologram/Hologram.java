@@ -92,6 +92,17 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     @Contract(value = "_ -> new", mutates = "this")
     TextHologramLine addTextLine(int index);
 
+    @Contract(value = "_, _ -> new", mutates = "this")
+    EntityHologramLine<?> setEntityLine(EntityType entityType, int index) throws IllegalArgumentException;
+    @Contract(value = "_, _ -> new", mutates = "this")
+    <T extends Entity> EntityHologramLine<T> setEntityLine(Class<T> entityType, int index) throws IllegalArgumentException;
+    @Contract(value = "_ -> new", mutates = "this")
+    BlockHologramLine setBlockLine(int index);
+    @Contract(value = "_ -> new", mutates = "this")
+    ItemHologramLine setItemLine(int index);
+    @Contract(value = "_ -> new", mutates = "this")
+    TextHologramLine setTextLine(int index);
+
     @Nullable
     @Contract(pure = true)
     String getViewPermission();

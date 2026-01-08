@@ -302,6 +302,48 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
+    public EntityHologramLine<?> setEntityLine(EntityType entityType, int index) throws IllegalArgumentException {
+        Preconditions.checkArgument(entityType.getEntityClass() != null, "Cannot spawn entity of type %s", entityType);
+        return setEntityLine(entityType.getEntityClass(), index);
+    }
+
+    @Override
+    public <T extends Entity> EntityHologramLine<T> setEntityLine(Class<T> entityType, int index) throws IllegalArgumentException {
+        var hologramLine = new PaperEntityHologramLine<>(this, entityType);
+        var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
+        previous.despawn();
+        updateHologram();
+        return hologramLine;
+    }
+
+    @Override
+    public BlockHologramLine setBlockLine(int index) {
+        var hologramLine = new PaperBlockHologramLine(this);
+        var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
+        previous.despawn();
+        updateHologram();
+        return hologramLine;
+    }
+
+    @Override
+    public ItemHologramLine setItemLine(int index) {
+        var hologramLine = new PaperItemHologramLine(this);
+        var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
+        previous.despawn();
+        updateHologram();
+        return hologramLine;
+    }
+
+    @Override
+    public TextHologramLine setTextLine(int index) {
+        var hologramLine = new PaperTextHologramLine(this);
+        var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
+        previous.despawn();
+        updateHologram();
+        return hologramLine;
+    }
+
+    @Override
     public @Nullable String getViewPermission() {
         return viewPermission;
     }

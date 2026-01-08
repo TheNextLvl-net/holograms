@@ -20,6 +20,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
+import java.util.function.BiConsumer;
+
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
@@ -31,49 +33,44 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramLineInsertCommand(plugin);
-        return command.create()
-                .then(command.createLine("block", ArgumentTypes.blockState(), command::block))
-                .then(command.createLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::entity))
-                .then(command.createLine("item", ArgumentTypes.itemStack(), command::item))
-                .then(command.createLine("text", StringArgumentType.greedyString(), command::text));
+        var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                .suggests(LineSuggestionProvider.INSTANCE);
+        return command.create().then(hologramArgument(plugin).then(line
+                .then(command.createLine("block", ArgumentTypes.blockState(), command::insertBlockLine))
+                .then(command.createLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::insertEntityLine))
+                .then(command.createLine("item", ArgumentTypes.itemStack(), command::insertItemLine))
+                .then(command.createLine("text", StringArgumentType.greedyString(), command::insertTextLine))));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> createLine(String name, ArgumentType<?> argumentType, Command<CommandSourceStack> command) {
-        return Commands.literal(name).then(hologramArgument(plugin)
-                .then(Commands.argument("line", IntegerArgumentType.integer(1))
-                        .suggests(LineSuggestionProvider.INSTANCE)
-                        .then(Commands.argument(name, argumentType).executes(command))));
+        return Commands.literal(name).then(Commands.argument(name, argumentType).executes(command));
     }
 
-    private int block(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLineCount() - context.getArgument("line", int.class) + 1;
-        var block = context.getArgument("block", BlockState.class);
-        hologram.addBlockLine(line).setBlock(block.getBlockData());
-        return SINGLE_SUCCESS;
+    private int insertBlockLine(CommandContext<CommandSourceStack> context) {
+        var block = context.getArgument("block", BlockState.class).getBlockData();
+        return insertLine(context, (hologram, line) -> hologram.addBlockLine(line).setBlock(block));
     }
 
-    private int entity(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLineCount() - context.getArgument("line", int.class) + 1;
+    private int insertEntityLine(CommandContext<CommandSourceStack> context) {
         var entity = context.getArgument("entity", EntityType.class);
-        hologram.addEntityLine(entity, line);
-        return SINGLE_SUCCESS;
+        return insertLine(context, (hologram, line) -> hologram.addEntityLine(entity, line));
     }
 
-    private int item(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLineCount() - context.getArgument("line", int.class) + 1;
+    private int insertItemLine(CommandContext<CommandSourceStack> context) {
         var item = context.getArgument("item", ItemStack.class);
-        hologram.addItemLine(line).setItemStack(item);
-        return SINGLE_SUCCESS;
+        return insertLine(context, (hologram, line) -> hologram.addItemLine(line).setItemStack(item));
     }
 
-    private int text(CommandContext<CommandSourceStack> context) {
+    private int insertTextLine(CommandContext<CommandSourceStack> context) {
+        var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
+        return insertLine(context, (hologram, line) -> hologram.addTextLine(line).setText(text));
+    }
+
+    private int insertLine(CommandContext<CommandSourceStack> context, BiConsumer<Hologram, Integer> consumer) {
         var hologram = context.getArgument("hologram", Hologram.class);
         var line = hologram.getLineCount() - context.getArgument("line", int.class) + 1;
-        var text = context.getArgument("text", String.class);
-        hologram.addTextLine(line).setText(MiniMessage.miniMessage().deserialize(text));
+        consumer.accept(hologram, line);
+        // todo: send message
         return SINGLE_SUCCESS;
     }
 }

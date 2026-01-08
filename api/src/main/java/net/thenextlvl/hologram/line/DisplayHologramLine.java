@@ -18,7 +18,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
     /**
      * Gets the transformation applied to this display.
      *
-     * @return the transformation
+     * @return a copy of the transformation
      */
     @Contract(pure = true)
     Transformation getTransformation();

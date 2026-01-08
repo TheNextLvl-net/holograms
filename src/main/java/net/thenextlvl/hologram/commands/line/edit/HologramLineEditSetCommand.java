@@ -31,37 +31,37 @@ final class HologramLineEditSetCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramLineEditSetCommand(plugin);
         return command.create()
-                .then(command.setLine("block", ArgumentTypes.blockState(), command::block))
-                .then(command.setLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::entity))
-                .then(command.setLine("item", ArgumentTypes.itemStack(), command::item))
-                .then(command.setLine("text", StringArgumentType.greedyString(), command::text));
+                .then(command.setLine("block", ArgumentTypes.blockState(), command::setBlockLine))
+                .then(command.setLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::setEntityLine))
+                .then(command.setLine("item", ArgumentTypes.itemStack(), command::setItemLine))
+                .then(command.setLine("text", StringArgumentType.greedyString(), command::setTextLine));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> setLine(String name, ArgumentType<?> argumentType, Command<CommandSourceStack> command) {
         return Commands.literal(name).then(Commands.argument(name, argumentType).executes(command));
     }
 
-    private int block(CommandContext<CommandSourceStack> context) {
+    private int setBlockLine(CommandContext<CommandSourceStack> context) {
         var block = context.getArgument("block", BlockState.class).getBlockData();
-        return line(context, (hologram, line) -> hologram.setBlockLine(line).setBlock(block));
+        return setLine(context, (hologram, line) -> hologram.setBlockLine(line).setBlock(block));
     }
-    
-    private int entity(CommandContext<CommandSourceStack> context) {
+
+    private int setEntityLine(CommandContext<CommandSourceStack> context) {
         var entity = context.getArgument("entity", EntityType.class);
-        return line(context, (hologram, line) -> hologram.setEntityLine(entity, line));
+        return setLine(context, (hologram, line) -> hologram.setEntityLine(entity, line));
     }
 
-    private int item(CommandContext<CommandSourceStack> context) {
+    private int setItemLine(CommandContext<CommandSourceStack> context) {
         var item = context.getArgument("item", ItemStack.class);
-        return line(context, (hologram, line) -> hologram.setItemLine(line).setItemStack(item));
+        return setLine(context, (hologram, line) -> hologram.setItemLine(line).setItemStack(item));
     }
 
-    private int text(CommandContext<CommandSourceStack> context) {
+    private int setTextLine(CommandContext<CommandSourceStack> context) {
         var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
-        return line(context, (hologram, line) -> hologram.setTextLine(line).setText(text));
+        return setLine(context, (hologram, line) -> hologram.setTextLine(line).setText(text));
     }
 
-    private int line(CommandContext<CommandSourceStack> context, BiConsumer<Hologram, Integer> setter) {
+    private int setLine(CommandContext<CommandSourceStack> context, BiConsumer<Hologram, Integer> setter) {
         var hologram = context.getArgument("hologram", Hologram.class);
         var line = hologram.getLineCount() - context.getArgument("line", int.class);
         setter.accept(hologram, line);

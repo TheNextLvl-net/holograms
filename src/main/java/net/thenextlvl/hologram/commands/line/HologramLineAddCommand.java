@@ -18,6 +18,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
+import java.util.function.Consumer;
+
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
@@ -30,41 +32,40 @@ public final class HologramLineAddCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramLineAddCommand(plugin);
         return command.create().then(hologramArgument(plugin)
-                .then(command.createLine("block", ArgumentTypes.blockState(), command::block))
-                .then(command.createLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::entity))
-                .then(command.createLine("item", ArgumentTypes.itemStack(), command::item))
-                .then(command.createLine("text", StringArgumentType.greedyString(), command::text)));
+                .then(command.addLine("block", ArgumentTypes.blockState(), command::addBlockLine))
+                .then(command.addLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityLine))
+                .then(command.addLine("item", ArgumentTypes.itemStack(), command::addItemLine))
+                .then(command.addLine("text", StringArgumentType.greedyString(), command::addTextLine)));
     }
 
-    private LiteralArgumentBuilder<CommandSourceStack> createLine(String name, ArgumentType<?> argumentType, Command<CommandSourceStack> command) {
+    private LiteralArgumentBuilder<CommandSourceStack> addLine(String name, ArgumentType<?> argumentType, Command<CommandSourceStack> command) {
         return Commands.literal(name).then(Commands.argument(name, argumentType).executes(command));
     }
 
-    private int block(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var block = context.getArgument("block", BlockState.class);
-        hologram.addBlockLine().setBlock(block.getBlockData());
-        return SINGLE_SUCCESS;
+    private int addBlockLine(CommandContext<CommandSourceStack> context) {
+        var block = context.getArgument("block", BlockState.class).getBlockData();
+        return addLine(context, hologram -> hologram.addBlockLine().setBlock(block));
     }
 
-    private int entity(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
+    private int addEntityLine(CommandContext<CommandSourceStack> context) {
         var entity = context.getArgument("entity", EntityType.class);
-        hologram.addEntityLine(entity);
-        return SINGLE_SUCCESS;
+        return addLine(context, hologram -> hologram.addEntityLine(entity));
     }
 
-    private int item(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
+    private int addItemLine(CommandContext<CommandSourceStack> context) {
         var item = context.getArgument("item", ItemStack.class);
-        hologram.addItemLine().setItemStack(item);
-        return SINGLE_SUCCESS;
+        return addLine(context, hologram -> hologram.addItemLine().setItemStack(item));
     }
 
-    private int text(CommandContext<CommandSourceStack> context) {
+    private int addTextLine(CommandContext<CommandSourceStack> context) {
+        var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
+        return addLine(context, hologram -> hologram.addTextLine().setText(text));
+    }
+
+    private int addLine(CommandContext<CommandSourceStack> context, Consumer<Hologram> consumer) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var text = context.getArgument("text", String.class);
-        hologram.addTextLine().setText(MiniMessage.miniMessage().deserialize(text));
+        consumer.accept(hologram);
+        // todo: send message
         return SINGLE_SUCCESS;
     }
 }

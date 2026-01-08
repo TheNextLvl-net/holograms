@@ -28,9 +28,9 @@ final class HologramLineEditAppendCommand extends SimpleCommand {
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
         var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
-        var line = hologram.getLineCount() - context.getArgument("line", int.class);
+        var line = hologram.getLine(hologram.getLineCount() - context.getArgument("line", int.class));
 
-        if (hologram.getLine(line) instanceof TextHologramLine textLine) {
+        if (line instanceof TextHologramLine textLine) {
             textLine.getText().map(component -> component.append(text)).ifPresent(textLine::setText);
             // todo: send message
         }

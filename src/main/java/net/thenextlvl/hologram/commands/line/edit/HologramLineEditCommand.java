@@ -1,10 +1,16 @@
 package net.thenextlvl.hologram.commands.line.edit;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import org.jspecify.annotations.NullMarked;
+
+import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 public final class HologramLineEditCommand extends BrigadierCommand {
@@ -14,10 +20,12 @@ public final class HologramLineEditCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramLineEditCommand(plugin);
-        return command.create()
+        var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                .suggests(LineSuggestionProvider.INSTANCE);
+        return command.create().then(hologramArgument(plugin).then(line
                 .then(HologramLineEditAppendCommand.create(plugin))
                 .then(HologramLineEditPrependCommand.create(plugin))
                 .then(HologramLineEditReplaceCommand.create(plugin))
-                .then(HologramLineEditSetCommand.create(plugin));
+                .then(HologramLineEditSetCommand.create(plugin))));
     }
 }

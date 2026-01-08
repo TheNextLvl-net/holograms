@@ -11,6 +11,7 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
@@ -44,6 +45,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setTransformation(Transformation transformation) {
+        if (Objects.equals(this.transformation, transformation)) return getSelf();
         this.transformation = new Transformation(
                 transformation.getTranslation(),
                 transformation.getLeftRotation(),
@@ -51,6 +53,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
                 transformation.getRightRotation()
         );
         getEntity().ifPresent(entity -> entity.setTransformation(transformation));
+        getHologram().updateHologram();
         return getSelf();
     }
 
@@ -63,6 +66,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
                 transformationMatrix.getRotation(new AxisAngle4f())
         );
         getEntity().ifPresent(entity -> entity.setTransformationMatrix(transformationMatrix));
+        getHologram().updateHologram();
         return getSelf();
     }
 
@@ -73,6 +77,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setInterpolationDuration(int duration) {
+        if (duration == this.interpolationDuration) return getSelf();
         this.interpolationDuration = duration;
         getEntity().ifPresent(entity -> entity.setInterpolationDuration(duration));
         return getSelf();
@@ -85,6 +90,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setTeleportDuration(int duration) {
+        if (duration == this.teleportDuration) return getSelf();
         this.teleportDuration = duration;
         getEntity().ifPresent(entity -> entity.setTeleportDuration(duration));
         return getSelf();
@@ -97,6 +103,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setViewRange(float range) {
+        if (range == this.viewRange) return getSelf();
         this.viewRange = range;
         getEntity().ifPresent(entity -> entity.setViewRange(range));
         return getSelf();
@@ -109,6 +116,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setShadowRadius(float radius) {
+        if (radius == this.shadowRadius) return getSelf();
         this.shadowRadius = radius;
         getEntity().ifPresent(entity -> entity.setShadowRadius(radius));
         return getSelf();
@@ -121,6 +129,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setShadowStrength(float strength) {
+        if (strength == this.shadowStrength) return getSelf();
         this.shadowStrength = strength;
         getEntity().ifPresent(entity -> entity.setShadowStrength(strength));
         return getSelf();
@@ -133,6 +142,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setDisplayWidth(float width) {
+        if (width == this.displayWidth) return getSelf();
         this.displayWidth = width;
         getEntity().ifPresent(entity -> entity.setDisplayWidth(width));
         return getSelf();
@@ -145,8 +155,10 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setDisplayHeight(float height) {
+        if (height == this.displayHeight) return getSelf();
         this.displayHeight = height;
         getEntity().ifPresent(entity -> entity.setDisplayHeight(height));
+        getHologram().updateHologram();
         return getSelf();
     }
 
@@ -157,8 +169,10 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setInterpolationDelay(int ticks) {
+        if (ticks == this.interpolationDelay) return getSelf();
         this.interpolationDelay = ticks;
         getEntity().ifPresent(entity -> entity.setInterpolationDelay(ticks));
+        getHologram().updateHologram();
         return getSelf();
     }
 
@@ -169,6 +183,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setBillboard(Display.Billboard billboard) {
+        if (Objects.equals(this.billboard, billboard)) return getSelf();
         this.billboard = billboard;
         getEntity().ifPresent(entity -> entity.setBillboard(billboard));
         return getSelf();
@@ -181,6 +196,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setGlowColorOverride(@Nullable Color color) {
+        if (Objects.equals(this.glowColorOverride, color)) return getSelf();
         this.glowColorOverride = color;
         getEntity().ifPresent(entity -> entity.setGlowColorOverride(color));
         return getSelf();
@@ -193,6 +209,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setBrightness(Display.@Nullable Brightness brightness) {
+        if (Objects.equals(this.brightness, brightness)) return getSelf();
         this.brightness = brightness;
         getEntity().ifPresent(entity -> entity.setBrightness(brightness));
         return getSelf();

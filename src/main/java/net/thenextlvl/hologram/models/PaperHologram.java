@@ -492,7 +492,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         this.spawned = false;
     }
 
-    private void updateHologram() {
+    public void updateHologram() {
         // todo: properly implement this
         despawn();
         spawn();

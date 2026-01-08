@@ -8,7 +8,6 @@ import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Explosive;
 import org.bukkit.entity.LivingEntity;
@@ -47,8 +46,10 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
 
     @Override
     public EntityHologramLine<E> setScale(double scale) {
+        if (this.scale == scale) return this;
         this.scale = scale;
         getEntity(Attributable.class).ifPresent(this::updateScale);
+        getHologram().updateHologram();
         return this;
     }
 

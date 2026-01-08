@@ -2,7 +2,6 @@ package net.thenextlvl.hologram.commands.line.edit;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
@@ -24,8 +23,12 @@ public final class HologramLineEditCommand extends BrigadierCommand {
                 .suggests(LineSuggestionProvider.INSTANCE);
         return command.create().then(hologramArgument(plugin).then(line
                 .then(HologramLineEditAppendCommand.create(plugin))
+                .then(HologramLineEditBillboardCommand.create(plugin))
+                .then(HologramLineEditBrightnessCommand.create(plugin))
+                .then(HologramLineEditColorCommand.create(plugin))
                 .then(HologramLineEditPrependCommand.create(plugin))
                 .then(HologramLineEditReplaceCommand.create(plugin))
+                .then(HologramLineEditScaleCommand.create(plugin))
                 .then(HologramLineEditSetCommand.create(plugin))));
     }
 }

@@ -169,7 +169,6 @@ public class HologramPlugin extends JavaPlugin {
         })) {
             files.map(path -> loadSafe(path, world))
                     .filter(Objects::nonNull)
-                    .filter(hologram -> hologram.getLocation().isChunkLoaded())
                     .forEach(Hologram::spawn);
         } catch (IOException e) {
             getComponentLogger().error("Failed to load all holograms in world {}", world.getName(), e);

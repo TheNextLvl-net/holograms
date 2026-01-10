@@ -138,9 +138,7 @@ public class HologramPlugin extends JavaPlugin {
                 .registerTypeHierarchyAdapter(Quaternionf.class, new QuaternionfAdapter())
                 .registerTypeHierarchyAdapter(TextAlignment.class, new EnumAdapter<>(TextAlignment.class))
                 .registerTypeHierarchyAdapter(Transformation.class, new TransformationAdapter())
-                .registerTypeHierarchyAdapter(Vector3f.class, new Vector3fAdapter())
-                // .registerTypeHierarchyAdapter(Key.class, new KeyAdapter())
-                ;
+                .registerTypeHierarchyAdapter(Vector3f.class, new Vector3fAdapter());
     }
 
     public NBT serializer(World world) {

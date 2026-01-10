@@ -21,10 +21,10 @@ final class HologramLineEditScaleCommand extends SimpleCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramLineEditScaleCommand(plugin);
-        var x = Commands.argument("x", FloatArgumentType.floatArg(0));
-        var y = Commands.argument("y", FloatArgumentType.floatArg(0));
-        var z = Commands.argument("z", FloatArgumentType.floatArg(0));
-        var scale = Commands.argument("scale", FloatArgumentType.floatArg(0));
+        var x = Commands.argument("x", FloatArgumentType.floatArg(0.1f));
+        var y = Commands.argument("y", FloatArgumentType.floatArg(0.1f));
+        var z = Commands.argument("z", FloatArgumentType.floatArg(0.1f));
+        var scale = Commands.argument("scale", FloatArgumentType.floatArg(0.1f));
         return command.create()
                 .then(scale.executes(command))
                 .then(x.then(y.then(z.executes(command))));

@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.10-R0.1-SNAPSHOT")
+    paperweight.foliaDevBundle("1.21.11-R0.1-SNAPSHOT")
     implementation("dev.faststats.metrics:bukkit:0.8.1")
     implementation("net.thenextlvl:i18n:1.1.0")
     implementation("net.thenextlvl:nbt:4.3.1")
@@ -44,6 +44,7 @@ paper {
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net"
     authors = listOf("NonSwag")
+    foliaSupported = true
     permissions {
         register("holograms.command")
         register("holograms.command.create") { children = listOf("holograms.command") }
@@ -87,5 +88,5 @@ modrinth {
     uploadFile.set(tasks.shadowJar)
     gameVersions.set(versions)
     syncBodyFrom.set(rootProject.file("README.md").readText())
-    loaders.add("paper")
+    loaders.addAll((property("loaders") as String).split(",").map { it.trim() })
 }

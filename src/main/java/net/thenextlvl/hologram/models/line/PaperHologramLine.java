@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @NullMarked
 public abstract class PaperHologramLine<E extends Entity> implements HologramLine<E> {
@@ -98,6 +99,15 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         if (entity == null || !entity.isValid()) return false;
         if (!player.getWorld().equals(entity.getWorld())) return false;
         return hologram.canSee(player);
+    }
+
+    public CompletableFuture<Boolean> teleportRelative(Location previous, Location location) {
+        return getEntity().filter(Entity::isValid).map(e -> e.teleportAsync(new Location(
+                location.getWorld(),
+                location.getX() + e.getX() - previous.getX(),
+                location.getY() + e.getY() - previous.getY(),
+                location.getZ() + e.getZ() - previous.getZ()
+        ))).orElseGet(() -> CompletableFuture.completedFuture(false));
     }
 
     protected void preSpawn(E entity) {

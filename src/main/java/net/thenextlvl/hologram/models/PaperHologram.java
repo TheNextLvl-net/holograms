@@ -139,9 +139,14 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public CompletableFuture<Boolean> teleportAsync(Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
+        var previous = this.location;
         var success = setLocation(location);
-        if (success) updateHologram();
-        return CompletableFuture.completedFuture(success); // todo: teleport all lines
+        if (!success) return CompletableFuture.completedFuture(false);
+        return CompletableFuture.allOf(lines.stream()
+                .map(line -> (PaperHologramLine<?>) line)
+                .map(line -> line.teleportRelative(previous, location))
+                .toArray(CompletableFuture[]::new)
+        ).thenApply(v -> true);
     }
 
     private boolean setLocation(Location location) {

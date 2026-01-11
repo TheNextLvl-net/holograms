@@ -26,7 +26,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
 
     @Override
     public double getHeight() {
-        return getEntity().map(Entity::getHeight).orElse(0.5);
+        return getEntity().map(Entity::getHeight).orElse(0d) * scale;
     }
 
     @Override

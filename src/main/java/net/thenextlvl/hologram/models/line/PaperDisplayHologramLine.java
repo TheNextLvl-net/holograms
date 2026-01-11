@@ -172,7 +172,6 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
         if (ticks == this.interpolationDelay) return getSelf();
         this.interpolationDelay = ticks;
         getEntity().ifPresent(entity -> entity.setInterpolationDelay(ticks));
-        getHologram().updateHologram();
         return getSelf();
     }
 

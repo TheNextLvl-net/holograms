@@ -22,6 +22,7 @@ public final class HologramLineEditCommand extends BrigadierCommand {
         var line = Commands.argument("line", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.INSTANCE);
         return command.create().then(hologramArgument(plugin).then(line
+                .then(HologramLineEditAlignmentCommand.create(plugin))
                 .then(HologramLineEditAppendCommand.create(plugin))
                 .then(HologramLineEditBillboardCommand.create(plugin))
                 .then(HologramLineEditBrightnessCommand.create(plugin))

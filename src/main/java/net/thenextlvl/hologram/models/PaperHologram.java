@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -174,8 +175,14 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public HologramLine<?> getLine(int index) throws IndexOutOfBoundsException {
-        return lines.get(index);
+    public Optional<HologramLine<?>> getLine(int index) {
+        if (index < 0 || index >= lines.size()) return Optional.empty();
+        return Optional.of(lines.get(index));
+    }
+
+    @Override
+    public <T extends HologramLine<?>> Optional<T> getLine(int index, Class<T> type) {
+        return getLine(index).filter(type::isInstance).map(type::cast);
     }
 
     @Override

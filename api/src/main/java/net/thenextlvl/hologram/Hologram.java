@@ -18,6 +18,7 @@ import org.jspecify.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +54,9 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     @Contract(pure = true)
     int getLineCount();
     @Contract(pure = true)
-    HologramLine<?> getLine(int index) throws IndexOutOfBoundsException;
+    Optional<HologramLine<?>> getLine(int index);
+    @Contract(pure = true)
+    <T extends HologramLine<?>> Optional<T> getLine(int index, Class<T> type);
     @Contract(pure = true)
     int getLineIndex(HologramLine<?> line);
     @Contract(mutates = "this")

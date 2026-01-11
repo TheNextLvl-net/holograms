@@ -8,6 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
@@ -34,10 +35,16 @@ public final class LineSuggestionProvider implements SuggestionProvider<CommandS
 
     private static Message getTooltip(Hologram hologram, int index) {
         var tooltip = switch (hologram.getLine(index - 1)) {
-            case BlockHologramLine blockLine -> Component.translatable(blockLine.getBlock().getMaterial());
-            case EntityHologramLine<?> entityLine -> Component.translatable(entityLine.getEntityType());
-            case ItemHologramLine itemLine -> Component.translatable(itemLine.getItemStack().getType());
-            case TextHologramLine textLine -> textLine.getText().orElse(Component.empty());
+            case BlockHologramLine blockLine -> Component.text("Block: ")
+                    .append(Component.translatable(blockLine.getBlock().getMaterial()));
+            case EntityHologramLine<?> entityLine -> Component.text("Entity: ")
+                    .append(Component.translatable(entityLine.getEntityType()));
+            case ItemHologramLine itemLine -> Component.text("Item: ")
+                    .append(Component.translatable(itemLine.getItemStack().getType()));
+            case TextHologramLine textLine -> textLine.getText().map(component -> {
+                var serialize = MiniMessage.miniMessage().serialize(component);
+                return MiniMessage.miniMessage().deserialize("Text: " + serialize.replace("\n", "\\n"));
+            }).orElse(Component.empty());
             default -> Component.text("Unknown Line " + index);
         };
         return MessageComponentSerializer.message().serialize(tooltip);

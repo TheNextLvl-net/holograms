@@ -106,9 +106,8 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     @Contract(value = "_ -> new", mutates = "this")
     TextHologramLine setTextLine(int index);
 
-    @Nullable
     @Contract(pure = true)
-    String getViewPermission();
+    Optional<String> getViewPermission();
 
     @Contract(mutates = "this")
     boolean setViewPermission(@Nullable String permission);

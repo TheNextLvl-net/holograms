@@ -356,8 +356,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public @Nullable String getViewPermission() {
-        return viewPermission;
+    public Optional<String> getViewPermission() {
+        return Optional.ofNullable(viewPermission);
     }
 
     @Override

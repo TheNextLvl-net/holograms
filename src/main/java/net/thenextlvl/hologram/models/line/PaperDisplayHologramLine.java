@@ -16,18 +16,18 @@ import java.util.Optional;
 
 @NullMarked
 public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, E>, E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine<T, E> {
-    private @Nullable Color glowColorOverride = null;
-    private Display.@Nullable Brightness brightness = null;
-    private Display.Billboard billboard = Display.Billboard.CENTER;
-    private Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
-    private float displayHeight = 0;
-    private float displayWidth = 0;
-    private float shadowRadius = 0;
-    private float shadowStrength = 1;
-    private float viewRange = 1;
-    private int interpolationDelay = 0;
-    private int interpolationDuration = 0;
-    private int teleportDuration = 4;
+    protected @Nullable Color glowColorOverride = null;
+    protected Display.@Nullable Brightness brightness = null;
+    protected Display.Billboard billboard = Display.Billboard.CENTER;
+    protected Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
+    protected float displayHeight = 0;
+    protected float displayWidth = 0;
+    protected float shadowRadius = 0;
+    protected float shadowStrength = 1;
+    protected float viewRange = 1;
+    protected int interpolationDelay = 0;
+    protected int interpolationDuration = 0;
+    protected int teleportDuration = 4;
 
     public PaperDisplayHologramLine(PaperHologram hologram, Class<E> entityClass) {
         super(hologram, entityClass);

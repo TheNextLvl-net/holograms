@@ -27,7 +27,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     private float viewRange = 1;
     private int interpolationDelay = 0;
     private int interpolationDuration = 0;
-    private int teleportDuration = 0;
+    private int teleportDuration = 4;
 
     public PaperDisplayHologramLine(PaperHologram hologram, Class<E> entityClass) {
         super(hologram, entityClass);

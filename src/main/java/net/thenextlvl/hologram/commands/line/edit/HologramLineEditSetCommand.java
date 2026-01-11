@@ -13,6 +13,9 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +46,10 @@ final class HologramLineEditSetCommand extends BrigadierCommand {
 
     private int setBlockLine(CommandContext<CommandSourceStack> context) {
         var block = context.getArgument("block", BlockState.class).getBlockData();
-        return setLine(context, (hologram, line) -> hologram.setBlockLine(line).setBlock(block));
+        return setLine(context, (hologram, line) -> {
+            var blockLine = hologram.getLine(line) instanceof BlockHologramLine b ? b : hologram.setBlockLine(line);
+            blockLine.setBlock(block);
+        });
     }
 
     private int setEntityLine(CommandContext<CommandSourceStack> context) {
@@ -53,12 +59,18 @@ final class HologramLineEditSetCommand extends BrigadierCommand {
 
     private int setItemLine(CommandContext<CommandSourceStack> context) {
         var item = context.getArgument("item", ItemStack.class);
-        return setLine(context, (hologram, line) -> hologram.setItemLine(line).setItemStack(item));
+        return setLine(context, (hologram, line) -> {
+            var itemLine = hologram.getLine(line) instanceof ItemHologramLine i ? i : hologram.setItemLine(line);
+            itemLine.setItemStack(item);
+        });
     }
 
     private int setTextLine(CommandContext<CommandSourceStack> context) {
         var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
-        return setLine(context, (hologram, line) -> hologram.setTextLine(line).setText(text));
+        return setLine(context, (hologram, line) -> {
+            var textLine = hologram.getLine(line) instanceof TextHologramLine t ? t : hologram.setTextLine(line);
+            textLine.setText(text);
+        });
     }
 
     private int setLine(CommandContext<CommandSourceStack> context, BiConsumer<Hologram, Integer> setter) {

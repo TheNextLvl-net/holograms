@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram;
 
 import dev.faststats.bukkit.BukkitMetrics;
+import io.papermc.paper.ServerBuildInfo;
 import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
@@ -36,6 +37,7 @@ import net.thenextlvl.hologram.listeners.EntityListener;
 import net.thenextlvl.hologram.listeners.HologramListener;
 import net.thenextlvl.hologram.listeners.WorldListener;
 import net.thenextlvl.hologram.models.PaperHologram;
+import net.thenextlvl.hologram.version.PluginVersionChecker;
 import net.thenextlvl.i18n.ComponentBundle;
 import net.thenextlvl.nbt.NBTInputStream;
 import net.thenextlvl.nbt.serialization.NBT;
@@ -70,12 +72,15 @@ import java.util.Set;
 @NullMarked
 public class HologramPlugin extends JavaPlugin {
     public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new";
+    public static final boolean RUNNING_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
 
     private final PaperHologramProvider provider = new PaperHologramProvider(this);
     private final Metrics metrics = new Metrics(this, 25817);
     private final dev.faststats.core.Metrics fastStats = BukkitMetrics.factory()
             .token("27b63937a461e94208f25b105af290cf")
             .create(this);
+
+    private final PluginVersionChecker versionChecker = new PluginVersionChecker(this);
 
     private final Key key = Key.key("holograms", "translations");
     private final Path translations = getDataPath().resolve("translations");
@@ -87,6 +92,11 @@ public class HologramPlugin extends JavaPlugin {
 
     public HologramPlugin() {
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
+    }
+
+    @Override
+    public void onLoad() {
+        versionChecker.checkVersion();
     }
 
     @Override

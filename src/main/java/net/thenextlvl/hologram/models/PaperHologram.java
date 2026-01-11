@@ -21,6 +21,7 @@ import net.thenextlvl.nbt.serialization.TagSerializable;
 import net.thenextlvl.nbt.tag.CompoundTag;
 import net.thenextlvl.nbt.tag.ListTag;
 import net.thenextlvl.nbt.tag.Tag;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -129,12 +130,18 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public Location getLocation() {
-        return location;
+        return location.clone();
     }
 
     @Override
     public World getWorld() {
         return location.getWorld();
+    }
+
+    public boolean isInChunk(Chunk chunk) {
+        var chunkX = location.getBlockX() >> 4;
+        var chunkZ = location.getBlockZ() >> 4;
+        return chunkX == chunk.getX() && chunkZ == chunk.getZ();
     }
 
     @Override
@@ -165,8 +172,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public @Unmodifiable List<HologramLine<?>> getLines() {
-        return List.copyOf(lines);
+    public Stream<HologramLine<?>> getLines() {
+        return lines.stream();
     }
 
     @Override
@@ -481,7 +488,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public boolean spawn() {
-        if (isSpawned() || !getLocation().isChunkLoaded()) return false;
+        if (isSpawned() || !location.isChunkLoaded()) return false;
         var offset = 0d;
         // Start from the bottom line, going up
         for (var index = lines.size() - 1; index >= 0; index--) {
@@ -496,13 +503,15 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public Iterator<HologramLine<?>> iterator() {
-        return getLines().iterator();
+        return lines.iterator();
     }
 
     @Override
-    public void despawn() {
+    public boolean despawn() {
+        if (!isSpawned()) return false;
         lines.forEach(hologramLine -> ((PaperHologramLine<?>) hologramLine).despawn());
         this.spawned = false;
+        return true;
     }
 
     public void updateHologram() {

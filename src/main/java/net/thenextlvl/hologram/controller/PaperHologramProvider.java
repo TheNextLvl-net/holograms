@@ -18,13 +18,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -49,7 +47,7 @@ public class PaperHologramProvider implements HologramProvider {
     @Override
     public Optional<Hologram> getHologram(Entity entity) {
         return getHolograms(entity.getWorld())
-                .filter(hologram -> hologram.getLines().stream().anyMatch(line ->
+                .filter(hologram -> hologram.getLines().anyMatch(line ->
                         line.getEntity().filter(entity::equals).isPresent()))
                 .findAny();
     }
@@ -58,7 +56,7 @@ public class PaperHologramProvider implements HologramProvider {
     @SuppressWarnings("unchecked")
     public <E extends Entity> Optional<HologramLine<E>> getHologramLine(E entity) {
         return getHolograms(entity.getWorld())
-                .filter(hologram -> hologram.getLines().stream().anyMatch(line ->
+                .filter(hologram -> hologram.getLines().anyMatch(line ->
                         line.getEntity().filter(entity::equals).isPresent()))
                 .map(hologram -> (HologramLine<E>) hologram)
                 .findFirst();
@@ -87,7 +85,7 @@ public class PaperHologramProvider implements HologramProvider {
 
     @Override
     public Optional<HologramLine<?>> getHologramLine(UUID uuid) {
-        return getHolograms().flatMap(hologram -> hologram.getLines().stream().filter(line ->
+        return getHolograms().flatMap(hologram -> hologram.getLines().filter(line ->
                 line.getEntity().map(Entity::getUniqueId).filter(uuid::equals).isPresent())).findAny();
     }
 
@@ -99,9 +97,7 @@ public class PaperHologramProvider implements HologramProvider {
     @Override
     public Stream<Hologram> getHolograms(Chunk chunk) {
         return getHolograms(chunk.getWorld()).filter(hologram -> {
-            var chunkX = hologram.getLocation().getBlockX() >> 4;
-            var chunkZ = hologram.getLocation().getBlockZ() >> 4;
-            return chunkX == chunk.getX() && chunkZ == chunk.getZ();
+            return ((PaperHologram) hologram).isInChunk(chunk);
         });
     }
 
@@ -116,13 +112,13 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    public @Unmodifiable Collection<? extends Hologram> getHologramNearby(Location location, double radius) {
+    public Stream<Hologram> getHologramNearby(Location location, double radius) {
         Preconditions.checkArgument(radius > 0, "Radius must be greater than 0");
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
         var radiusSquared = radius * radius;
-        return getHolograms(location.getWorld())
-                .filter(hologram -> hologram.getLocation().distanceSquared(location) <= radiusSquared)
-                .toList();
+        return getHolograms(location.getWorld()).filter(hologram -> {
+            return hologram.getLocation().distanceSquared(location) <= radiusSquared;
+        });
     }
 
     @Override
@@ -142,7 +138,7 @@ public class PaperHologramProvider implements HologramProvider {
 
     @Override
     public boolean isHologramPart(Entity entity) {
-        return getHolograms(entity.getWorld()).anyMatch(hologram -> hologram.getLines().stream().anyMatch(line ->
+        return getHolograms(entity.getWorld()).anyMatch(hologram -> hologram.getLines().anyMatch(line ->
                 line.getEntity().filter(entity::equals).isPresent()));
     }
 

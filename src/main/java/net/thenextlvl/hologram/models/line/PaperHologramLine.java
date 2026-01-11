@@ -57,8 +57,8 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     @Override
-    public Location getLocation() {
-        return hologram.getLocation();
+    public Optional<Location> getLocation() {
+        return getEntity().map(Entity::getLocation);
     }
 
     @Override
@@ -84,7 +84,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
 
     public E spawn(double offset) throws IllegalStateException {
         Preconditions.checkState(entity == null || !entity.isValid(), "Entity is already spawned");
-        var location = getLocation().clone().add(0, offset, 0);
+        var location = hologram.getLocation().add(0, offset, 0);
         return this.entity = location.getWorld().spawn(location, getTypeClass(), false, this::preSpawn);
     }
 

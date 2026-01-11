@@ -32,7 +32,7 @@ final class HologramLineRemoveCommand extends SimpleCommand {
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
         var line = context.getArgument("line", int.class);
-        var success = hologram.removeLine(hologram.getLineCount() - line);
+        var success = hologram.removeLine(line - 1);
         var message = success ? "hologram.line.remove" : "hologram.line.remove.failed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.parsed("hologram", hologram.getName()),

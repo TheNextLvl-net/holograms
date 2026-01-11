@@ -245,12 +245,12 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public EntityHologramLine<?> addEntityLine(EntityType entityType) throws IllegalArgumentException {
-        return addEntityLine(entityType, 0);
+        return addEntityLine(entityType, lines.size());
     }
 
     @Override
     public <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException {
-        return addEntityLine(entityType, 0);
+        return addEntityLine(entityType, lines.size());
     }
 
     @Override
@@ -269,7 +269,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public BlockHologramLine addBlockLine() {
-        return addBlockLine(0);
+        return addBlockLine(lines.size());
     }
 
     @Override
@@ -282,7 +282,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public ItemHologramLine addItemLine() {
-        return addItemLine(0);
+        return addItemLine(lines.size());
     }
 
     @Override
@@ -295,7 +295,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public TextHologramLine addTextLine() {
-        return addTextLine(0);
+        return addTextLine(lines.size());
     }
 
     @Override
@@ -476,7 +476,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean spawn() {
         if (isSpawned() || !getLocation().isChunkLoaded()) return false;
         var offset = 0d;
-        for (var line : lines) {
+        for (var index = lines.size() - 1; index >= 0; index--) {
+            var line = lines.get(index);
             var hologramLine = (PaperHologramLine<?>) line;
             var spawn = hologramLine.spawn(offset + hologramLine.getOffsetBefore());
             offset += 0.05 + hologramLine.getHeight() + hologramLine.getOffsetAfter();

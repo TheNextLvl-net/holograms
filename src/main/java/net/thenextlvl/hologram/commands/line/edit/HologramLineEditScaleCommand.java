@@ -40,7 +40,7 @@ final class HologramLineEditScaleCommand extends SimpleCommand {
             return new Vector3f(x, y, z);
         });
         
-        var line = hologram.getLine(hologram.getLineCount() - context.getArgument("line", int.class));
+        var line = hologram.getLine(context.getArgument("line", int.class) - 1);
         if (line instanceof DisplayHologramLine<?, ?> displayLine) {
             var transformation = displayLine.getTransformation();
             transformation.getScale().set(scale);

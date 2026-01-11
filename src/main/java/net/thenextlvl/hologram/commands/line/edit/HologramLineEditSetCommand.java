@@ -63,7 +63,7 @@ final class HologramLineEditSetCommand extends BrigadierCommand {
 
     private int setLine(CommandContext<CommandSourceStack> context, BiConsumer<Hologram, Integer> setter) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLineCount() - context.getArgument("line", int.class);
+        var line = context.getArgument("line", int.class) - 1;
         setter.accept(hologram, line);
         // todo: send message
         return SINGLE_SUCCESS;

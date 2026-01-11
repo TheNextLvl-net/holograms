@@ -68,7 +68,7 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
 
     private int insertLine(CommandContext<CommandSourceStack> context, BiConsumer<Hologram, Integer> consumer) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLineCount() - context.getArgument("line", int.class) + 1;
+        var line = context.getArgument("line", int.class) - 1;
         consumer.accept(hologram, line);
         // todo: send message
         return SINGLE_SUCCESS;

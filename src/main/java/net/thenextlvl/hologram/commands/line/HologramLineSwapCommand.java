@@ -35,7 +35,7 @@ final class HologramLineSwapCommand extends SimpleCommand {
         var hologram = context.getArgument("hologram", Hologram.class);
         var first = context.getArgument("first", int.class);
         var second = context.getArgument("second", int.class);
-        var success = hologram.swapLines(hologram.getLineCount() - first, hologram.getLineCount() - second);
+        var success = hologram.swapLines(first - 1, second - 1);
         var message = success ? "hologram.line.swap" : "hologram.line.swap.failed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.parsed("hologram", hologram.getName()),

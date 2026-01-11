@@ -28,7 +28,7 @@ final class HologramLineEditPrependCommand extends SimpleCommand {
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
         var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
-        var line = hologram.getLine(hologram.getLineCount() - context.getArgument("line", int.class));
+        var line = hologram.getLine(context.getArgument("line", int.class) - 1);
 
         if (line instanceof TextHologramLine textLine) {
             textLine.getText().map(text::append).ifPresent(textLine::setText);

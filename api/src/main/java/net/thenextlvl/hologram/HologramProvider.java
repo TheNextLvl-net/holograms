@@ -14,6 +14,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -30,10 +31,11 @@ import java.util.stream.Stream;
 public interface HologramProvider {
     /**
      * Returns the hologram provider instance.
-     * 
+     *
      * @return the hologram provider
      * @since 0.3.0
      */
+    @Contract(pure = true)
     static HologramProvider instance() {
         return StaticBinder.getInstance(HologramProvider.class.getClassLoader()).find(HologramProvider.class);
     }
@@ -45,6 +47,7 @@ public interface HologramProvider {
      * @return the data folder for the given world
      * @since 0.3.0
      */
+    @Contract(pure = true)
     Path getDataFolder(World world);
 
     /**
@@ -54,6 +57,7 @@ public interface HologramProvider {
      * @return the hologram that contains the given entity
      * @since 0.3.0
      */
+    @Contract(pure = true)
     Optional<Hologram> getHologram(Entity entity);
 
     /**
@@ -64,6 +68,7 @@ public interface HologramProvider {
      * @return the hologram line with the given entity
      * @since 0.1.0
      */
+    @Contract(pure = true)
     <E extends Entity> Optional<HologramLine<E>> getHologramLine(E entity);
 
     /**
@@ -73,6 +78,7 @@ public interface HologramProvider {
      * @return the hologram line with the given display
      * @since 0.1.0
      */
+    @Contract(pure = true)
     Optional<BlockHologramLine> getHologramLine(BlockDisplay display);
 
     /**
@@ -82,6 +88,7 @@ public interface HologramProvider {
      * @return the hologram line with the given display
      * @since 0.1.0
      */
+    @Contract(pure = true)
     Optional<ItemHologramLine> getHologramLine(ItemDisplay display);
 
     /**
@@ -91,6 +98,7 @@ public interface HologramProvider {
      * @return the hologram line with the given display
      * @since 0.1.0
      */
+    @Contract(pure = true)
     Optional<TextHologramLine> getHologramLine(TextDisplay display);
 
     /**
@@ -100,6 +108,7 @@ public interface HologramProvider {
      * @return the hologram with the given name
      * @since 0.1.0
      */
+    @Contract(pure = true)
     Optional<Hologram> getHologram(String name);
 
     /**
@@ -109,6 +118,7 @@ public interface HologramProvider {
      * @return the hologram line with the given UUID
      * @since 0.1.0
      */
+    @Contract(pure = true)
     Optional<HologramLine<?>> getHologramLine(UUID uuid);
 
     /**
@@ -117,6 +127,7 @@ public interface HologramProvider {
      * @return all holograms
      * @since 0.3.0
      */
+    @Contract(pure = true)
     Stream<Hologram> getHolograms();
 
     /**
@@ -126,6 +137,7 @@ public interface HologramProvider {
      * @return all holograms in the given chunk
      * @since 0.3.0
      */
+    @Contract(pure = true)
     Stream<Hologram> getHolograms(Chunk chunk);
 
     /**
@@ -135,6 +147,7 @@ public interface HologramProvider {
      * @return all holograms visible to the given player
      * @since 0.3.0
      */
+    @Contract(pure = true)
     Stream<Hologram> getHolograms(Player player);
 
     /**
@@ -144,6 +157,7 @@ public interface HologramProvider {
      * @return all holograms in the given world
      * @since 0.3.0
      */
+    @Contract(pure = true)
     Stream<Hologram> getHolograms(World world);
 
     /**
@@ -156,6 +170,7 @@ public interface HologramProvider {
      * @throws IllegalArgumentException if the world of the location is {@code null}
      * @since 0.4.0
      */
+    @Contract(pure = true)
     Stream<Hologram> getHologramNearby(Location location, double radius) throws IllegalArgumentException;
 
     /**
@@ -164,6 +179,7 @@ public interface HologramProvider {
      * @return the names of all holograms
      * @since 0.1.0
      */
+    @Contract(pure = true)
     Stream<String> getHologramNames();
 
     /**
@@ -173,6 +189,7 @@ public interface HologramProvider {
      * @return {@code true} if the hologram exists, {@code false} otherwise
      * @since 0.3.0
      */
+    @Contract(pure = true)
     boolean hasHologram(String name);
 
     /**
@@ -182,6 +199,7 @@ public interface HologramProvider {
      * @return {@code true} if the hologram exists, {@code false} otherwise
      * @since 0.3.0
      */
+    @Contract(pure = true)
     boolean hasHologram(Hologram hologram);
 
     /**
@@ -191,6 +209,7 @@ public interface HologramProvider {
      * @return {@code true} if the entity is part of a hologram, {@code false} otherwise
      * @since 0.1.0
      */
+    @Contract(pure = true)
     boolean isHologramPart(Entity entity);
 
     /**
@@ -202,6 +221,7 @@ public interface HologramProvider {
      * @throws IllegalStateException if a hologram with the given name already exists
      * @since 0.1.0
      */
+    @Contract(mutates = "this")
     Hologram createHologram(String name, Location location) throws IllegalStateException;
 
     /**
@@ -214,6 +234,7 @@ public interface HologramProvider {
      * @throws IllegalStateException if a hologram with the given name already exists
      * @since 0.1.0
      */
+    @Contract(mutates = "this")
     Hologram spawnHologram(String name, Location location, Consumer<Hologram> preSpawn) throws IllegalStateException;
 
     /**
@@ -223,6 +244,7 @@ public interface HologramProvider {
      * @return {@code true} if the hologram was deleted, {@code false} otherwise
      * @since 0.3.0
      */
+    @Contract(mutates = "this,io,param")
     boolean deleteHologram(Hologram hologram);
 
     /**

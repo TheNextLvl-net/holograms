@@ -480,8 +480,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         for (var index = lines.size() - 1; index >= 0; index--) {
             var line = lines.get(index);
             var hologramLine = (PaperHologramLine<?>) line;
-            offset += hologramLine.getOffsetBefore();
-            var spawn = hologramLine.spawn(offset);
+            var spawn = hologramLine.spawn(offset + hologramLine.getOffsetBefore());
             offset += 0.05 + hologramLine.getHeight() + hologramLine.getOffsetAfter();
         }
         this.spawned = true;

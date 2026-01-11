@@ -21,6 +21,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets the displayed text.
      *
      * @return the displayed text
+     * @since 0.3.0
      */
     @Contract(pure = true)
     Optional<Component> getText();
@@ -30,6 +31,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param text the new text
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setText(@Nullable Component text);
@@ -38,6 +40,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets the maximum line width before wrapping.
      *
      * @return the line width
+     * @since 0.1.0
      */
     @Contract(pure = true)
     int getLineWidth();
@@ -47,6 +50,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param width new line width
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setLineWidth(int width);
@@ -55,6 +59,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets the text background color.
      *
      * @return the background color
+     * @since 0.3.0
      */
     @Contract(pure = true)
     Optional<Color> getBackgroundColor();
@@ -64,6 +69,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param color new background color
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setBackgroundColor(@Nullable Color color);
@@ -72,6 +78,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets the text opacity.
      *
      * @return opacity or -1 if not set
+     * @since 0.1.0
      */
     @Contract(pure = true)
     float getTextOpacity();
@@ -81,6 +88,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param opacity new opacity or -1 if default
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setTextOpacity(@Range(from = 0, to = 100) float opacity);
@@ -89,6 +97,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets if the text is shadowed.
      *
      * @return shadow status
+     * @since 0.1.0
      */
     @Contract(pure = true)
     boolean isShadowed();
@@ -98,6 +107,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param shadow if shadowed
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setShadowed(boolean shadow);
@@ -106,6 +116,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets if the text is see through.
      *
      * @return see through status
+     * @since 0.1.0
      */
     @Contract(pure = true)
     boolean isSeeThrough();
@@ -115,6 +126,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param seeThrough if see through
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setSeeThrough(boolean seeThrough);
@@ -123,6 +135,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets if the text has its default background.
      *
      * @return default background
+     * @since 0.1.0
      */
     @Contract(pure = true)
     boolean isDefaultBackground();
@@ -132,6 +145,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param defaultBackground if default
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setDefaultBackground(boolean defaultBackground);
@@ -140,6 +154,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets the text alignment for this display.
      *
      * @return text alignment
+     * @since 0.1.0
      */
     @Contract(pure = true)
     TextDisplay.TextAlignment getAlignment();
@@ -149,6 +164,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param alignment new alignment
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setAlignment(TextDisplay.TextAlignment alignment);

@@ -21,6 +21,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the transformation applied to this display.
      *
      * @return a copy of the transformation
+     * @since 0.1.0
      */
     @Contract(pure = true)
     Transformation getTransformation();
@@ -30,6 +31,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param transformation the new transformation
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setTransformation(Transformation transformation);
@@ -39,6 +41,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param transformationMatrix the transformation matrix
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setTransformationMatrix(Matrix4f transformationMatrix);
@@ -47,6 +50,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the interpolation duration of this display.
      *
      * @return interpolation duration
+     * @since 0.1.0
      */
     @Contract(pure = true)
     int getInterpolationDuration();
@@ -56,6 +60,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param duration new duration
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setInterpolationDuration(int duration);
@@ -69,6 +74,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * </ul>
      *
      * @return teleport duration
+     * @since 0.1.0
      */
     @Contract(pure = true)
     int getTeleportDuration();
@@ -80,6 +86,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * @return this
      * @throws IllegalArgumentException if duration is not between 0 and 59
      * @see #getTeleportDuration()
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setTeleportDuration(int duration);
@@ -88,6 +95,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the view distance/range of this display.
      *
      * @return view range
+     * @since 0.1.0
      */
     @Contract(pure = true)
     float getViewRange();
@@ -97,6 +105,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param range new range
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setViewRange(float range);
@@ -105,6 +114,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the shadow radius of this display.
      *
      * @return radius
+     * @since 0.1.0
      */
     @Contract(pure = true)
     float getShadowRadius();
@@ -114,6 +124,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param radius new radius
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setShadowRadius(float radius);
@@ -122,6 +133,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the shadow strength of this display.
      *
      * @return shadow strength
+     * @since 0.1.0
      */
     @Contract(pure = true)
     float getShadowStrength();
@@ -131,6 +143,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param strength new strength
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setShadowStrength(float strength);
@@ -139,6 +152,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the width of this display.
      *
      * @return width
+     * @since 0.1.0
      */
     @Contract(pure = true)
     float getDisplayWidth();
@@ -148,6 +162,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param width new width
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setDisplayWidth(float width);
@@ -156,6 +171,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the height of this display.
      *
      * @return height
+     * @since 0.1.0
      */
     @Contract(pure = true)
     float getDisplayHeight();
@@ -165,6 +181,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param height new height
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setDisplayHeight(float height);
@@ -173,6 +190,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the amount of ticks before client-side interpolation will commence.
      *
      * @return interpolation delay ticks
+     * @since 0.1.0
      */
     @Contract(pure = true)
     int getInterpolationDelay();
@@ -182,6 +200,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param ticks interpolation delay ticks
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setInterpolationDelay(int ticks);
@@ -193,6 +212,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * face the player.
      *
      * @return billboard setting
+     * @since 0.1.0
      */
     @Contract(pure = true)
     Display.Billboard getBillboard();
@@ -205,6 +225,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param billboard new setting
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setBillboard(Display.Billboard billboard);
@@ -213,6 +234,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the scoreboard team overridden glow color of this display.
      *
      * @return glow color
+     * @since 0.3.0
      */
     @Contract(pure = true)
     Optional<Color> getGlowColorOverride();
@@ -222,6 +244,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param color new color
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setGlowColorOverride(@Nullable Color color);
@@ -230,6 +253,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      * Gets the brightness override of the entity.
      *
      * @return brightness override, if set
+     * @since 0.3.0
      */
     @Contract(pure = true)
     Optional<Display.Brightness> getBrightness();
@@ -239,6 +263,7 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      *
      * @param brightness new brightness override
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setBrightness(Display.@Nullable Brightness brightness);

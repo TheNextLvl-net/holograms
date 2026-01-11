@@ -16,6 +16,7 @@ public interface BlockHologramLine extends DisplayHologramLine<BlockHologramLine
      * Gets the displayed block.
      *
      * @return the displayed block
+     * @since 0.1.0
      */
     @Contract(pure = true)
     BlockData getBlock();
@@ -25,6 +26,7 @@ public interface BlockHologramLine extends DisplayHologramLine<BlockHologramLine
      *
      * @param block the new block
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     BlockHologramLine setBlock(BlockData block);

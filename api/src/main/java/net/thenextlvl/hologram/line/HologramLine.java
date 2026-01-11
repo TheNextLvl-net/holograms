@@ -17,27 +17,77 @@ import java.util.Optional;
  */
 @ApiStatus.NonExtendable
 public interface HologramLine<E extends Entity> {
+    /**
+     * Gets the hologram this line belongs to.
+     *
+     * @return hologram
+     * @since 0.1.0
+     */
     @Contract(pure = true)
     Hologram getHologram();
 
+    /**
+     * Gets the entity representing this line.
+     *
+     * @return entity
+     * @since 0.1.0
+     */
     @Contract(pure = true)
     Optional<E> getEntity();
 
+    /**
+     * Gets the entity representing this line, if it is of the given type.
+     *
+     * @param type entity type
+     * @param <T>  entity type
+     * @return entity
+     * @since 0.1.0
+     */
     @Contract(pure = true)
     <T> Optional<T> getEntity(Class<T> type);
 
+    /**
+     * Gets the class of the entity representing this line.
+     *
+     * @return entity class
+     * @since 0.3.0
+     */
     @Contract(pure = true)
     Class<E> getTypeClass();
 
+    /**
+     * Gets the entity type of the entity representing this line.
+     *
+     * @return entity type
+     * @since 0.3.0
+     */
     @Contract(pure = true)
     EntityType getEntityType();
 
+    /**
+     * Gets the type of this line.
+     *
+     * @return line type
+     * @since 0.3.0
+     */
     @Contract(pure = true)
     LineType getType();
 
-    @Contract(pure = true)
-    Location getLocation();
+    /**
+     * Gets the location of this line.
+     *
+     * @return an optional containing the exact line location
+     * @since 0.3.0
+     */
+    @Contract(value = " -> new", pure = true)
+    Optional<Location> getLocation();
 
+    /**
+     * Gets the world of this line.
+     *
+     * @return the world of this line
+     * @since 0.3.0
+     */
     @Contract(pure = true)
     World getWorld();
 }

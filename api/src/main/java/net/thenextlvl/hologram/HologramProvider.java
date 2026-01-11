@@ -14,10 +14,8 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -30,6 +28,12 @@ import java.util.stream.Stream;
  */
 @ApiStatus.NonExtendable
 public interface HologramProvider {
+    /**
+     * Returns the hologram provider instance.
+     * 
+     * @return the hologram provider
+     * @since 0.3.0
+     */
     static HologramProvider instance() {
         return StaticBinder.getInstance(HologramProvider.class.getClassLoader()).find(HologramProvider.class);
     }
@@ -48,7 +52,7 @@ public interface HologramProvider {
      *
      * @param entity the entity of the hologram
      * @return the hologram that contains the given entity
-     * @since 0.2.0
+     * @since 0.3.0
      */
     Optional<Hologram> getHologram(Entity entity);
 
@@ -111,7 +115,7 @@ public interface HologramProvider {
      * Get all holograms
      *
      * @return all holograms
-     * @since 0.2.0
+     * @since 0.3.0
      */
     Stream<Hologram> getHolograms();
 
@@ -120,7 +124,7 @@ public interface HologramProvider {
      *
      * @param chunk the chunk to check
      * @return all holograms in the given chunk
-     * @since 0.2.0
+     * @since 0.3.0
      */
     Stream<Hologram> getHolograms(Chunk chunk);
 
@@ -129,7 +133,7 @@ public interface HologramProvider {
      *
      * @param player the player to check
      * @return all holograms visible to the given player
-     * @since 0.2.0
+     * @since 0.3.0
      */
     Stream<Hologram> getHolograms(Player player);
 
@@ -138,7 +142,7 @@ public interface HologramProvider {
      *
      * @param world the world to check
      * @return all holograms in the given world
-     * @since 0.2.0
+     * @since 0.3.0
      */
     Stream<Hologram> getHolograms(World world);
 
@@ -150,10 +154,9 @@ public interface HologramProvider {
      * @return all holograms nearby the given location
      * @throws IllegalArgumentException if the radius is smaller than 1
      * @throws IllegalArgumentException if the world of the location is {@code null}
-     * @since 0.1.0
+     * @since 0.4.0
      */
-    @Unmodifiable
-    Collection<? extends Hologram> getHologramNearby(Location location, double radius) throws IllegalArgumentException;
+    Stream<Hologram> getHologramNearby(Location location, double radius) throws IllegalArgumentException;
 
     /**
      * Get the names of all holograms
@@ -168,7 +171,7 @@ public interface HologramProvider {
      *
      * @param name the name of the hologram
      * @return {@code true} if the hologram exists, {@code false} otherwise
-     * @since 0.2.0
+     * @since 0.3.0
      */
     boolean hasHologram(String name);
 
@@ -177,7 +180,7 @@ public interface HologramProvider {
      *
      * @param hologram the hologram to check
      * @return {@code true} if the hologram exists, {@code false} otherwise
-     * @since 0.2.0
+     * @since 0.3.0
      */
     boolean hasHologram(Hologram hologram);
 
@@ -218,7 +221,7 @@ public interface HologramProvider {
      *
      * @param hologram the hologram to delete
      * @return {@code true} if the hologram was deleted, {@code false} otherwise
-     * @since 0.2.0
+     * @since 0.3.0
      */
     boolean deleteHologram(Hologram hologram);
 
@@ -226,7 +229,7 @@ public interface HologramProvider {
      * Performs the given action for each hologram.
      *
      * @param action the action to perform
-     * @since 0.1.0
+     * @since 0.3.0
      */
     void forEachHologram(Consumer<Hologram> action);
 }

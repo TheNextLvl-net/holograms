@@ -17,6 +17,7 @@ public interface ItemHologramLine extends DisplayHologramLine<ItemHologramLine, 
      * Gets the displayed item stack.
      *
      * @return the displayed item stack
+     * @since 0.1.0
      */
     @Contract(pure = true)
     ItemStack getItemStack();
@@ -26,6 +27,7 @@ public interface ItemHologramLine extends DisplayHologramLine<ItemHologramLine, 
      *
      * @param item the new item stack
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     ItemHologramLine setItemStack(@Nullable ItemStack item);
@@ -36,6 +38,7 @@ public interface ItemHologramLine extends DisplayHologramLine<ItemHologramLine, 
      * Defaults to {@link ItemDisplay.ItemDisplayTransform#FIXED}.
      *
      * @return item display transform
+     * @since 0.1.0
      */
     @Contract(pure = true)
     ItemDisplay.ItemDisplayTransform getItemDisplayTransform();
@@ -47,6 +50,7 @@ public interface ItemHologramLine extends DisplayHologramLine<ItemHologramLine, 
      *
      * @param display new display
      * @return this
+     * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     ItemHologramLine setItemDisplayTransform(ItemDisplay.ItemDisplayTransform display);

@@ -11,9 +11,22 @@ import org.jetbrains.annotations.Contract;
  */
 @ApiStatus.NonExtendable
 public interface EntityHologramLine<E extends Entity> extends HologramLine<E> {
+    /**
+     * Gets the scale of the entity.
+     *
+     * @return scale
+     * @since 0.1.0
+     */
     @Contract(pure = true)
     double getScale();
 
+    /**
+     * Sets the scale of the entity.
+     *
+     * @param scale new scale
+     * @return this
+     * @since 0.3.0
+     */
     @Contract(value = "_ -> this", mutates = "this")
     EntityHologramLine<E> setScale(double scale);
 }

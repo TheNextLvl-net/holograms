@@ -26,11 +26,9 @@ final class HologramLineEditTeleportDurationCommand extends SimpleCommand {
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1);
+        var line = hologram.getLine(context.getArgument("line", int.class) - 1, DisplayHologramLine.class);
         var duration = context.getArgument("duration", int.class);
-        if (line instanceof DisplayHologramLine<?, ?> displayLine) {
-            displayLine.setTeleportDuration(duration);
-        }
+        line.ifPresent(displayLine -> displayLine.setTeleportDuration(duration));
         // todo: send message
         return SINGLE_SUCCESS;
     }

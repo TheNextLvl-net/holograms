@@ -27,11 +27,9 @@ final class HologramLineEditBillboardCommand extends SimpleCommand {
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1);
+        var line = hologram.getLine(context.getArgument("line", int.class) - 1, DisplayHologramLine.class);
         var billboard = context.getArgument("billboard", Billboard.class);
-        if (line instanceof DisplayHologramLine<?, ?> displayLine) {
-            displayLine.setBillboard(billboard);
-        }
+        line.ifPresent(displayLine -> displayLine.setBillboard(billboard));
         // todo: send message
         return SINGLE_SUCCESS;
     }

@@ -47,8 +47,9 @@ final class HologramLineEditSetCommand extends BrigadierCommand {
     private int setBlockLine(CommandContext<CommandSourceStack> context) {
         var block = context.getArgument("block", BlockState.class).getBlockData();
         return setLine(context, (hologram, line) -> {
-            var blockLine = hologram.getLine(line) instanceof BlockHologramLine b ? b : hologram.setBlockLine(line);
-            blockLine.setBlock(block);
+            hologram.getLine(line, BlockHologramLine.class)
+                    .orElseGet(() -> hologram.setBlockLine(line))
+                    .setBlock(block);
         });
     }
 
@@ -60,16 +61,18 @@ final class HologramLineEditSetCommand extends BrigadierCommand {
     private int setItemLine(CommandContext<CommandSourceStack> context) {
         var item = context.getArgument("item", ItemStack.class);
         return setLine(context, (hologram, line) -> {
-            var itemLine = hologram.getLine(line) instanceof ItemHologramLine i ? i : hologram.setItemLine(line);
-            itemLine.setItemStack(item);
+            hologram.getLine(line, ItemHologramLine.class)
+                    .orElseGet(() -> hologram.setItemLine(line))
+                    .setItemStack(item);
         });
     }
 
     private int setTextLine(CommandContext<CommandSourceStack> context) {
         var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
         return setLine(context, (hologram, line) -> {
-            var textLine = hologram.getLine(line) instanceof TextHologramLine t ? t : hologram.setTextLine(line);
-            textLine.setText(text);
+            hologram.getLine(line, TextHologramLine.class)
+                    .orElseGet(() -> hologram.setTextLine(line))
+                    .setText(text);
         });
     }
 

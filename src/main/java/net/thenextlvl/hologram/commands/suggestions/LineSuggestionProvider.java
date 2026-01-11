@@ -34,7 +34,7 @@ public final class LineSuggestionProvider implements SuggestionProvider<CommandS
     }
 
     private static Message getTooltip(Hologram hologram, int index) {
-        var tooltip = switch (hologram.getLine(index - 1)) {
+        var tooltip = switch (hologram.getLine(index - 1).orElse(null)) {
             case BlockHologramLine blockLine -> Component.text("Block: ")
                     .append(Component.translatable(blockLine.getBlock().getMaterial()));
             case EntityHologramLine<?> entityLine -> Component.text("Entity: ")
@@ -45,6 +45,7 @@ public final class LineSuggestionProvider implements SuggestionProvider<CommandS
                 var serialize = MiniMessage.miniMessage().serialize(component);
                 return MiniMessage.miniMessage().deserialize("Text: " + serialize.replace("\n", "\\n"));
             }).orElse(Component.empty());
+            case null -> Component.empty();
             default -> Component.text("Unknown Line " + index);
         };
         return MessageComponentSerializer.message().serialize(tooltip);

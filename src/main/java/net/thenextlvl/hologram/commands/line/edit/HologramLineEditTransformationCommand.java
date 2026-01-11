@@ -27,11 +27,9 @@ final class HologramLineEditTransformationCommand extends SimpleCommand {
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1);
+        var line = hologram.getLine(context.getArgument("line", int.class) - 1, ItemHologramLine.class);
         var transformation = context.getArgument("transformation", ItemDisplayTransform.class);
-        if (line instanceof ItemHologramLine itemLine) {
-            itemLine.setItemDisplayTransform(transformation);
-        }
+        line.ifPresent(itemLine -> itemLine.setItemDisplayTransform(transformation));
         // todo: send message
         return SINGLE_SUCCESS;
     }

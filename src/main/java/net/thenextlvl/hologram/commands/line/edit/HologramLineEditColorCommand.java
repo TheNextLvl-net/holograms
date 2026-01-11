@@ -33,15 +33,15 @@ final class HologramLineEditColorCommand extends SimpleCommand {
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1);
+        var line = hologram.getLine(context.getArgument("line", int.class) - 1, TextHologramLine.class);
         var color = tryGetArgument(context, "hex", TextColor.class)
                 .or(() -> tryGetArgument(context, "color", NamedTextColor.class))
                 .orElse(null);
-        if (line instanceof TextHologramLine textLine) {
+        line.ifPresent(textLine -> {
             textLine.getText().map(component -> component.color(color))
                     .ifPresent(textLine::setText);
-        }
-        // todo: send message
+            // todo: send message
+        });
         return SINGLE_SUCCESS;
     }
 }

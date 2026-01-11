@@ -12,6 +12,7 @@ public final class ItemHologramLineSerializer extends DisplayHologramLineSeriali
     public CompoundTag serialize(ItemHologramLine line, TagSerializationContext context) throws ParserException {
         return CompoundTag.builder().putAll(super.serialize(line, context))
                 .put("itemStack", context.serialize(line.getItemStack()))
+                .put("itemDisplayTransform", context.serialize(line.getItemDisplayTransform()))
                 .build();
     }
 }

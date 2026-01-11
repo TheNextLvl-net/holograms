@@ -72,7 +72,6 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         entity = null;
     }
 
-    // todo: do some more crazy math to calculate the perfect offset
     public abstract double getHeight();
 
     public double getOffsetBefore() {

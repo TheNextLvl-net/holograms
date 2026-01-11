@@ -35,7 +35,7 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologr
     
     @Override
     public double getHeight() {
-        return 1;
+        return transformation.getScale().y();
     }
 
     @Override

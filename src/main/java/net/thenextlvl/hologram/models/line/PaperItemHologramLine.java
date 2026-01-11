@@ -59,7 +59,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
             case GROUND, THIRDPERSON_LEFTHAND, THIRDPERSON_RIGHTHAND, FIRSTPERSON_LEFTHAND, FIRSTPERSON_RIGHTHAND ->
                     0.45;
             case FIXED -> 0.5;
-        };
+        } * transformation.getScale().y();
     }
 
     @Override

@@ -133,7 +133,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     public double getHeight() {
         var deserialize = text != null ? MiniMessage.miniMessage().serialize(text) : null;
         var lines = deserialize != null ? deserialize.split("\n|<br>|<newline>").length : 1;
-        return (0.25 * getTransformation().getScale().y()) * lines;
+        return (0.25 * transformation.getScale().y()) * lines;
     }
 
     @Override

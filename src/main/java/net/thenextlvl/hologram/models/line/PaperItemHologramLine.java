@@ -4,14 +4,17 @@ import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 @NullMarked
 public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologramLine, ItemDisplay> implements ItemHologramLine {
-    private ItemDisplay.ItemDisplayTransform displayTransform = ItemDisplay.ItemDisplayTransform.NONE;
+    private ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
     private @Nullable ItemStack item = null;
 
     public PaperItemHologramLine(PaperHologram hologram) {
@@ -36,25 +39,33 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     }
 
     @Override
-    public ItemDisplay.ItemDisplayTransform getItemDisplayTransform() {
+    public ItemDisplayTransform getItemDisplayTransform() {
         return displayTransform;
     }
 
     @Override
-    public ItemHologramLine setItemDisplayTransform(ItemDisplay.ItemDisplayTransform display) {
+    public ItemHologramLine setItemDisplayTransform(ItemDisplayTransform display) {
+        if (Objects.equals(this.displayTransform, display)) return this;
         this.displayTransform = display;
         getEntity().ifPresent(entity -> entity.setItemDisplayTransform(display));
+        getHologram().updateHologram();
         return this;
     }
 
     @Override
     public double getHeight() {
-        return 0.9;
+        return switch (displayTransform) {
+            case NONE, HEAD, GUI -> 1;
+            case GROUND, THIRDPERSON_LEFTHAND, THIRDPERSON_RIGHTHAND, FIRSTPERSON_LEFTHAND, FIRSTPERSON_RIGHTHAND ->
+                    0.45;
+            case FIXED -> 0.5;
+        };
     }
 
     @Override
     public double getOffsetBefore() {
-        return 0.45;
+        if (displayTransform == ItemDisplayTransform.GROUND) return 0;
+        return getHeight() / 2;
     }
 
     @Override

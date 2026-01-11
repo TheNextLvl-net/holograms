@@ -42,6 +42,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     public TextHologramLine setText(@Nullable Component text) {
         this.text = text;
         getEntity().ifPresent(entity -> entity.text(text));
+        getHologram().updateHologram();
         return this;
     }
 

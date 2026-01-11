@@ -3,6 +3,7 @@ package net.thenextlvl.hologram.line;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Range;
@@ -157,7 +158,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * @since 0.1.0
      */
     @Contract(pure = true)
-    TextDisplay.TextAlignment getAlignment();
+    TextAlignment getAlignment();
 
     /**
      * Sets the text alignment for this display.
@@ -167,5 +168,5 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setAlignment(TextDisplay.TextAlignment alignment);
+    TextHologramLine setAlignment(TextAlignment alignment);
 }

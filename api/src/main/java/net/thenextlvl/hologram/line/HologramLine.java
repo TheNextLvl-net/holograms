@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Optional;
@@ -14,6 +15,7 @@ import java.util.Optional;
  *
  * @since 0.1.0
  */
+@ApiStatus.NonExtendable
 public interface HologramLine<E extends Entity> {
     @Contract(pure = true)
     Hologram getHologram();

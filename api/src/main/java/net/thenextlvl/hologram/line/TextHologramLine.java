@@ -3,6 +3,7 @@ package net.thenextlvl.hologram.line;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.entity.TextDisplay;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.Nullable;
@@ -14,6 +15,7 @@ import java.util.Optional;
  *
  * @since 0.1.0
  */
+@ApiStatus.NonExtendable
 public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, TextDisplay> {
     /**
      * Gets the displayed text.

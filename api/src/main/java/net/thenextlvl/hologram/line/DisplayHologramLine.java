@@ -3,6 +3,7 @@ package net.thenextlvl.hologram.line;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.util.Transformation;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
@@ -14,6 +15,7 @@ import java.util.Optional;
  *
  * @since 0.1.0
  */
+@ApiStatus.NonExtendable
 public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E extends Display> extends HologramLine<E> {
     /**
      * Gets the transformation applied to this display.

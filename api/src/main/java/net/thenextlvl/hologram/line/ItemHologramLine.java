@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.line;
 
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
@@ -10,6 +11,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @since 0.1.0
  */
+@ApiStatus.NonExtendable
 public interface ItemHologramLine extends DisplayHologramLine<ItemHologramLine, ItemDisplay> {
     /**
      * Gets the displayed item stack.

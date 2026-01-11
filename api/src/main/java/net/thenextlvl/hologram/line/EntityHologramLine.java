@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.line;
 
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.Contract;
  *
  * @since 0.1.0
  */
+@ApiStatus.NonExtendable
 public interface EntityHologramLine<E extends Entity> extends HologramLine<E> {
     @Contract(pure = true)
     double getScale();

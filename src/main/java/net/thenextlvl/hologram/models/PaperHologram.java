@@ -174,7 +174,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public @Nullable HologramLine<?> getLine(int index) throws IndexOutOfBoundsException {
+    public HologramLine<?> getLine(int index) throws IndexOutOfBoundsException {
         return lines.get(index);
     }
 

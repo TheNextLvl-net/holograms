@@ -53,7 +53,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     @Contract(pure = true)
     int getLineCount();
     @Contract(pure = true)
-    @Nullable HologramLine<?> getLine(int index) throws IndexOutOfBoundsException;
+    HologramLine<?> getLine(int index) throws IndexOutOfBoundsException;
     @Contract(pure = true)
     int getLineIndex(HologramLine<?> line);
     @Contract(mutates = "this")

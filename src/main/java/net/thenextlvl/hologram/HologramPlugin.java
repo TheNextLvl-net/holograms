@@ -71,7 +71,7 @@ import java.util.Set;
 
 @NullMarked
 public class HologramPlugin extends JavaPlugin {
-    public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new";
+    public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new?template=bug_report.yml";
     public static final boolean RUNNING_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
 
     private final PaperHologramProvider provider = new PaperHologramProvider(this);

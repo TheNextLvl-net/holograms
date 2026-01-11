@@ -476,12 +476,13 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean spawn() {
         if (isSpawned() || !getLocation().isChunkLoaded()) return false;
         var offset = 0d;
+        // Start from the bottom line, going up
         for (var index = lines.size() - 1; index >= 0; index--) {
             var line = lines.get(index);
             var hologramLine = (PaperHologramLine<?>) line;
-            var spawn = hologramLine.spawn(offset + hologramLine.getOffsetBefore());
+            offset += hologramLine.getOffsetBefore();
+            var spawn = hologramLine.spawn(offset);
             offset += 0.05 + hologramLine.getHeight() + hologramLine.getOffsetAfter();
-            // fixme: last line height for multiline texts is not counted correctly
         }
         this.spawned = true;
         return true;

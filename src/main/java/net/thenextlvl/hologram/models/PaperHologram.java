@@ -148,7 +148,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public CompletableFuture<Boolean> teleportAsync(Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
         var previous = this.location;
-        var success = setLocation(location);
+        var success = setLocation(location.clone());
         if (!success) return CompletableFuture.completedFuture(false);
         return CompletableFuture.allOf(lines.stream()
                 .map(line -> (PaperHologramLine<?>) line)
@@ -536,6 +536,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         var builder = CompoundTag.builder();
 
         builder.put("position", nbt.serialize(location));
+        builder.put("rotation", CompoundTag.builder()
+                .put("yaw", location.getYaw())
+                .put("pitch", location.getPitch())
+                .build());
         builder.put("visibleByDefault", visibleByDefault);
         if (viewPermission != null) builder.put("viewPermission", viewPermission);
 
@@ -549,9 +553,16 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public void deserialize(CompoundTag tag) throws ParserException {
         var nbt = plugin.deserializer(this);
 
-        tag.optional("position").map(tag1 -> nbt.deserialize(tag1, Position.class))
-                .map(position -> position.toLocation(getWorld()))
-                .ifPresent(this::setLocation);
+        tag.optional("position").map(tag1 -> nbt.deserialize(tag1, Position.class)).ifPresent(position -> {
+            this.location.setX(position.x());
+            this.location.setY(position.y());
+            this.location.setZ(position.z());
+        });
+        tag.optional("rotation").map(Tag::getAsCompound).ifPresent(rotation -> {
+            rotation.optional("yaw").map(Tag::getAsFloat).ifPresent(location::setYaw);
+            rotation.optional("pitch").map(Tag::getAsFloat).ifPresent(location::setPitch);
+        });
+
         tag.optional("viewPermission").map(Tag::getAsString).ifPresent(this::setViewPermission);
         tag.optional("visibleByDefault").map(Tag::getAsBoolean).ifPresent(this::setVisibleByDefault);
 

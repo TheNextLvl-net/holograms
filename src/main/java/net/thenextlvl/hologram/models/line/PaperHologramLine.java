@@ -105,7 +105,8 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
                 location.getWorld(),
                 location.getX() + e.getX() - previous.getX(),
                 location.getY() + e.getY() - previous.getY(),
-                location.getZ() + e.getZ() - previous.getZ()
+                location.getZ() + e.getZ() - previous.getZ(),
+                location.getYaw(), location.getPitch()
         ))).orElseGet(() -> CompletableFuture.completedFuture(false));
     }
 

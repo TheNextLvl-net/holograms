@@ -4,6 +4,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.arguments.EnumArgumentType;
@@ -26,11 +28,33 @@ final class HologramLineEditTransformationCommand extends SimpleCommand {
 
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
+        var sender = context.getSource().getSender();
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1, ItemHologramLine.class);
+        var lineNumber = context.getArgument("line", int.class);
         var transformation = context.getArgument("transformation", ItemDisplayTransform.class);
-        line.ifPresent(itemLine -> itemLine.setItemDisplayTransform(transformation));
-        // todo: send message
+
+        var message = hologram.getLine(lineNumber - 1, ItemHologramLine.class).map(itemLine -> {
+            if (itemLine.getItemDisplayTransform() == transformation) return "nothing.changed";
+            itemLine.setItemDisplayTransform(transformation);
+            return "hologram.transformation";
+        }).orElse("hologram.type.item");
+
+        var transformationName = plugin.bundle().component(switch (transformation) {
+            case FIRSTPERSON_LEFTHAND -> "transformation.firstperson-lefthand";
+            case FIRSTPERSON_RIGHTHAND -> "transformation.firstperson-righthand";
+            case FIXED -> "transformation.fixed";
+            case GROUND -> "transformation.ground";
+            case GUI -> "transformation.gui";
+            case HEAD -> "transformation.head";
+            case NONE -> "transformation.none";
+            case THIRDPERSON_LEFTHAND -> "transformation.thirdperson-lefthand";
+            case THIRDPERSON_RIGHTHAND -> "transformation.thirdperson-righthand";
+        }, sender);
+
+        plugin.bundle().sendMessage(sender, message,
+                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.component("transformation", transformationName),
+                Formatter.number("line", lineNumber));
         return SINGLE_SUCCESS;
     }
 }

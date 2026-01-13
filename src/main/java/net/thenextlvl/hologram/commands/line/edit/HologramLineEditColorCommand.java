@@ -7,6 +7,8 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
@@ -33,15 +35,20 @@ final class HologramLineEditColorCommand extends SimpleCommand {
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1, TextHologramLine.class);
+        var line = context.getArgument("line", int.class);
         var color = tryGetArgument(context, "hex", TextColor.class)
                 .or(() -> tryGetArgument(context, "color", NamedTextColor.class))
                 .orElse(null);
-        line.ifPresent(textLine -> {
+
+        var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
             textLine.getText().map(component -> component.color(color))
                     .ifPresent(textLine::setText);
-            // todo: send message
-        });
+            return color != null ? "hologram.text.color" : "hologram.text.color.reset";
+        }).orElse("hologram.type.text");
+
+        plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                Placeholder.parsed("hologram", hologram.getName()),
+                Formatter.number("line", line));
         return SINGLE_SUCCESS;
     }
 }

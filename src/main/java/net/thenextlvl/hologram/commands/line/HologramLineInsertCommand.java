@@ -11,6 +11,8 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
@@ -68,9 +70,11 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
 
     private int insertLine(CommandContext<CommandSourceStack> context, BiConsumer<Hologram, Integer> consumer) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = context.getArgument("line", int.class) - 1;
-        consumer.accept(hologram, line);
-        // todo: send message
+        var line = context.getArgument("line", int.class);
+        consumer.accept(hologram, line - 1);
+        plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.line.insert",
+                Placeholder.parsed("hologram", hologram.getName()),
+                Formatter.number("line", line));
         return SINGLE_SUCCESS;
     }
 }

@@ -10,6 +10,8 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
@@ -65,7 +67,9 @@ public final class HologramLineAddCommand extends BrigadierCommand {
     private int addLine(CommandContext<CommandSourceStack> context, Consumer<Hologram> consumer) {
         var hologram = context.getArgument("hologram", Hologram.class);
         consumer.accept(hologram);
-        // todo: send message
+        plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.line.add",
+                Placeholder.parsed("hologram", hologram.getName()),
+                Formatter.number("line", hologram.getLineCount()));
         return SINGLE_SUCCESS;
     }
 }

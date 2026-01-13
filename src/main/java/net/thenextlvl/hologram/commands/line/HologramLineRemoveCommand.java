@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
@@ -33,10 +34,10 @@ final class HologramLineRemoveCommand extends SimpleCommand {
         var hologram = context.getArgument("hologram", Hologram.class);
         var line = context.getArgument("line", int.class);
         var success = hologram.removeLine(line - 1);
-        var message = success ? "hologram.line.remove" : "hologram.line.remove.failed";
+        var message = success ? "hologram.line.remove" : "hologram.line.invalid";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.parsed("hologram", hologram.getName()),
-                Placeholder.parsed("line", String.valueOf(line)));
+                Formatter.number("line", line));
         return success ? SINGLE_SUCCESS : 0;
     }
 }

@@ -6,6 +6,8 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
@@ -30,15 +32,19 @@ final class HologramLineEditReplaceCommand extends SimpleCommand {
         var hologram = context.getArgument("hologram", Hologram.class);
         var match = context.getArgument("match", String.class);
         var text = context.getArgument("text", String.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1, TextHologramLine.class);
+        var line = context.getArgument("line", int.class);
 
-        line.ifPresent(textLine -> {
+        var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
             textLine.getText().map(MiniMessage.miniMessage()::serialize)
                     .map(s -> s.replace(match, text))
                     .map(MiniMessage.miniMessage()::deserialize)
                     .ifPresent(textLine::setText);
-            // todo: send message
-        });
+            return "hologram.text.set";
+        }).orElse("hologram.type.text");
+
+        plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                Placeholder.parsed("hologram", hologram.getName()),
+                Formatter.number("line", line));
         return SINGLE_SUCCESS;
     }
 }

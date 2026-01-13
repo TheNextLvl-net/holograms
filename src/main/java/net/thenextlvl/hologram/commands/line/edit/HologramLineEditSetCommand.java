@@ -10,10 +10,13 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.block.BlockState;
@@ -55,7 +58,12 @@ final class HologramLineEditSetCommand extends BrigadierCommand {
 
     private int setEntityLine(CommandContext<CommandSourceStack> context) {
         var entity = context.getArgument("entity", EntityType.class);
-        return setLine(context, (hologram, line) -> hologram.setEntityLine(entity, line));
+        return setLine(context, (hologram, line) -> {
+            var scale = hologram.getLine(line, EntityHologramLine.class)
+                    .map(EntityHologramLine::getScale);
+            var entityLine = hologram.setEntityLine(entity, line);
+            scale.ifPresent(entityLine::setScale);
+        });
     }
 
     private int setItemLine(CommandContext<CommandSourceStack> context) {
@@ -78,9 +86,15 @@ final class HologramLineEditSetCommand extends BrigadierCommand {
 
     private int setLine(CommandContext<CommandSourceStack> context, BiConsumer<Hologram, Integer> setter) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = context.getArgument("line", int.class) - 1;
-        setter.accept(hologram, line);
-        // todo: send message
-        return SINGLE_SUCCESS;
+        var line = context.getArgument("line", int.class);
+
+        var success = line <= hologram.getLineCount();
+        if (success) setter.accept(hologram, line - 1);
+
+        var message = success ? "hologram.line.set" : "hologram.line.invalid";
+        plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                Placeholder.parsed("hologram", hologram.getName()),
+                Formatter.number("line", line));
+        return success ? SINGLE_SUCCESS : 0;
     }
 }

@@ -238,7 +238,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean moveLine(int line, int index) {
         if (line == index) return false;
         if (line < 0 || line >= lines.size()) return false;
-        if (index < 0 || index > lines.size()) return false;
+        if (index < 0 || index >= lines.size()) return false;
         lines.add(index, lines.remove(line));
         updateHologram();
         return true;

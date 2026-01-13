@@ -5,6 +5,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
@@ -31,17 +33,26 @@ final class HologramLineEditBrightnessCommand extends SimpleCommand {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public int run(CommandContext<CommandSourceStack> context) {
         var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1, DisplayHologramLine.class);
+        var line = context.getArgument("line", int.class);
         var brightness = tryGetArgument(context, "brightness", int.class).map(
                 b -> new Brightness(b, b)
         ).or(() -> tryGetArgument(context, "block light", int.class).map(blockLight -> {
             var skyLight = context.getArgument("sky light", int.class);
             return new Brightness(blockLight, skyLight);
         })).orElse(null);
-        line.ifPresent(displayLine -> displayLine.setBrightness(brightness));
-        // todo: send message
+
+        var message = hologram.getLine(line - 1, DisplayHologramLine.class).map(displayLine -> {
+            if (displayLine.getBrightness().orElse(null) == brightness) return "nothing.changed";
+            displayLine.setBrightness(brightness);
+            return brightness != null ? "hologram.brightness" : "hologram.brightness.reset";
+        }).orElse("hologram.type.display");
+
+        plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                Placeholder.parsed("hologram", hologram.getName()),
+                Formatter.number("line", line));
         return SINGLE_SUCCESS;
     }
 }

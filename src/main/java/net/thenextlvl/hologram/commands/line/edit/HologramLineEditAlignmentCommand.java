@@ -4,6 +4,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.arguments.EnumArgumentType;
@@ -26,11 +28,27 @@ final class HologramLineEditAlignmentCommand extends SimpleCommand {
 
     @Override
     public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var line = hologram.getLine(context.getArgument("line", int.class) - 1, TextHologramLine.class);
+        var sender = context.getSource().getSender();
         var alignment = context.getArgument("alignment", TextAlignment.class);
-        line.ifPresent(textLine -> textLine.setAlignment(alignment));
-        // todo: send message
+        var hologram = context.getArgument("hologram", Hologram.class);
+        var line = context.getArgument("line", int.class);
+
+        var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
+            if (textLine.getAlignment() == alignment) return "nothing.changed";
+            textLine.setAlignment(alignment);
+            return "hologram.text-alignment";
+        }).orElse("hologram.type.text");
+
+        var alignmentName = plugin.bundle().component(switch (alignment) {
+            case LEFT -> "text-alignment.left";
+            case CENTER -> "text-alignment.center";
+            case RIGHT -> "text-alignment.right";
+        }, sender);
+
+        plugin.bundle().sendMessage(sender, message,
+                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.component("alignment", alignmentName),
+                Formatter.number("line", line));
         return SINGLE_SUCCESS;
     }
 }

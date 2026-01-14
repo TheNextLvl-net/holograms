@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
@@ -14,6 +15,8 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import org.jspecify.annotations.NullMarked;
+
+import java.util.Objects;
 
 @NullMarked
 final class HologramLineEditColorCommand extends SimpleCommand {
@@ -41,6 +44,7 @@ final class HologramLineEditColorCommand extends SimpleCommand {
                 .orElse(null);
 
         var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
+            if (Objects.equals(textLine.getText().map(Component::color).orElse(null), color)) return "nothing.changed";
             textLine.getText().map(component -> component.color(color))
                     .ifPresent(textLine::setText);
             return color != null ? "hologram.text.color" : "hologram.text.color.reset";

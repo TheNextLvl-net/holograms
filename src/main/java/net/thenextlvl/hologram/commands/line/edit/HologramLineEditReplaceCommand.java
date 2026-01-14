@@ -35,10 +35,11 @@ final class HologramLineEditReplaceCommand extends SimpleCommand {
         var line = context.getArgument("line", int.class);
 
         var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
-            textLine.getText().map(MiniMessage.miniMessage()::serialize)
+            var result = textLine.getText().map(MiniMessage.miniMessage()::serialize)
                     .map(s -> s.replace(match, text))
-                    .map(MiniMessage.miniMessage()::deserialize)
-                    .ifPresent(textLine::setText);
+                    .map(MiniMessage.miniMessage()::deserialize);
+            if (textLine.getText().equals(result)) return "nothing.changed";
+            result.ifPresent(textLine::setText);
             return "hologram.text.set";
         }).orElse("hologram.type.text");
 

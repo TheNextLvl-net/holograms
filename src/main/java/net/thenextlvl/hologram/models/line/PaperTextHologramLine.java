@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
@@ -40,6 +41,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
 
     @Override
     public TextHologramLine setText(@Nullable Component text) {
+        if (Objects.equals(this.text, text)) return this;
         this.text = text;
         getEntity().ifPresent(entity -> entity.text(text));
         getHologram().updateHologram();

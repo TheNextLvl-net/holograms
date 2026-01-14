@@ -24,6 +24,7 @@ public final class HologramLineEditCommand extends BrigadierCommand {
         return command.create().then(hologramArgument(plugin).then(line
                 .then(HologramLineEditAlignmentCommand.create(plugin))
                 .then(HologramLineEditAppendCommand.create(plugin))
+                .then(HologramLineEditBackgroundColorCommand.create(plugin))
                 .then(HologramLineEditBillboardCommand.create(plugin))
                 .then(HologramLineEditBrightnessCommand.create(plugin))
                 .then(HologramLineEditColorCommand.create(plugin))

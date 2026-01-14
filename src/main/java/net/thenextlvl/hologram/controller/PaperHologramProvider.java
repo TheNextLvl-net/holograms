@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.HologramProvider;
+import net.thenextlvl.hologram.event.HologramCreateEvent;
+import net.thenextlvl.hologram.event.HologramDeleteEvent;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
@@ -147,6 +149,7 @@ public class PaperHologramProvider implements HologramProvider {
         Preconditions.checkState(!hasHologram(name), "Hologram named %s already exists", name);
         var hologram = new PaperHologram(plugin, name, location);
         holograms.add(hologram);
+        new HologramCreateEvent(hologram).callEvent();
         return hologram;
     }
 
@@ -160,6 +163,8 @@ public class PaperHologramProvider implements HologramProvider {
 
     @Override
     public boolean deleteHologram(Hologram hologram) {
+        if (!new HologramDeleteEvent(hologram).callEvent()) return false;
+
         hologram.despawn();
         try {
             Files.deleteIfExists(hologram.getDataFile());

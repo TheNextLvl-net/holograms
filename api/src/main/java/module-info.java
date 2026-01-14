@@ -2,6 +2,7 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 module net.thenextlvl.holograms {
+    exports net.thenextlvl.hologram.event;
     exports net.thenextlvl.hologram.line;
     exports net.thenextlvl.hologram;
 

@@ -29,12 +29,15 @@ repositories {
 
 dependencies {
     paperweight.foliaDevBundle("1.21.11-R0.1-SNAPSHOT")
-    implementation("dev.faststats.metrics:bukkit:0.9.0")
+
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
     implementation("net.thenextlvl:i18n:1.1.0")
     implementation("net.thenextlvl:nbt:4.3.1")
     implementation("net.thenextlvl:static-binder:0.1.3")
+
+    implementation("dev.faststats.metrics:bukkit:0.10.1")
     implementation("org.bstats:bstats-bukkit:3.1.0")
+
     implementation(project(":api"))
 }
 

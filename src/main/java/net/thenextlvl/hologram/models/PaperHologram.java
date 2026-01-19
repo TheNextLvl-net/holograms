@@ -47,6 +47,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
 
 @NullMarked
 public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
@@ -120,6 +121,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
             if (Files.isRegularFile(getBackupFile())) Files.move(getBackupFile(), backupFile, REPLACE_EXISTING);
         } catch (IOException e) {
             plugin.getComponentLogger().warn("Failed to move hologram data files for: {}", getName(), e);
+            plugin.getComponentLogger().warn("Please look for similar issues or report this on GitHub: {}", ISSUES);
+            HologramPlugin.ERROR_TRACKER.trackError(e);
             return false;
         }
 
@@ -471,7 +474,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
                 plugin.getComponentLogger().error("Failed to restore hologram {}", getName(), e);
             }
             plugin.getComponentLogger().error("Failed to save hologram {}", getName(), t);
-            plugin.getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", HologramPlugin.ISSUES);
+            plugin.getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
+            HologramPlugin.ERROR_TRACKER.trackError(t);
             return false;
         }
     }

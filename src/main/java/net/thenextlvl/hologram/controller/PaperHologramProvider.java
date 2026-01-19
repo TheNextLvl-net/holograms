@@ -32,6 +32,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
+
 @NullMarked
 public class PaperHologramProvider implements HologramProvider {
     private final HologramPlugin plugin;
@@ -171,6 +173,8 @@ public class PaperHologramProvider implements HologramProvider {
             Files.deleteIfExists(hologram.getBackupFile());
         } catch (IOException e) {
             plugin.getComponentLogger().warn("Failed to delete hologram data: {}", hologram.getName(), e);
+            plugin.getComponentLogger().warn("Please look for similar issues or report this on GitHub: {}", ISSUES);
+            HologramPlugin.ERROR_TRACKER.trackError(e);
         }
         return unregister(hologram);
     }

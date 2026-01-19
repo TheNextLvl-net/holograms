@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram;
 
 import dev.faststats.bukkit.BukkitMetrics;
+import dev.faststats.core.ErrorTracker;
 import io.papermc.paper.ServerBuildInfo;
 import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -71,6 +72,7 @@ import java.util.Set;
 
 @NullMarked
 public class HologramPlugin extends JavaPlugin {
+    public static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
     public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new?template=bug_report.yml";
     public static final boolean RUNNING_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
 
@@ -78,6 +80,7 @@ public class HologramPlugin extends JavaPlugin {
     private final Metrics metrics = new Metrics(this, 25817);
     private final dev.faststats.core.Metrics fastStats = BukkitMetrics.factory()
             .token("27b63937a461e94208f25b105af290cf")
+            .errorTracker(ERROR_TRACKER)
             .create(this);
 
     private final PluginVersionChecker versionChecker = new PluginVersionChecker(this);
@@ -180,6 +183,8 @@ public class HologramPlugin extends JavaPlugin {
                     .forEach(Hologram::spawn);
         } catch (IOException e) {
             getComponentLogger().error("Failed to load all holograms in world {}", world.getName(), e);
+            getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
+            ERROR_TRACKER.trackError(e);
         }
     }
 
@@ -203,6 +208,7 @@ public class HologramPlugin extends JavaPlugin {
         } catch (Exception e) {
             getComponentLogger().error("Failed to load hologram from {}", file, e);
             getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
+            ERROR_TRACKER.trackError(e);
         }
         return null;
     }

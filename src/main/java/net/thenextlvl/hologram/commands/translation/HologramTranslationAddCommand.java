@@ -6,11 +6,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.arguments.LocaleArgumentType;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.locale.LanguageTags;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Locale;
@@ -40,11 +40,10 @@ public final class HologramTranslationAddCommand extends SimpleCommand {
 
         var success = plugin.translations().override(key, locale, translation);
 
-        var inLocale = sender.get(Identity.LOCALE).orElse(Locale.US);
         var message = success ? "hologram.translation.added" : "nothing.changed";
         plugin.bundle().sendMessage(sender, message,
-                Placeholder.parsed("key", key),
-                Placeholder.parsed("locale", locale.getDisplayName(inLocale)));
+                Placeholder.parsed("locale", LanguageTags.getLanguageName(locale)),
+                Placeholder.parsed("key", key));
         return success ? SINGLE_SUCCESS : 0;
     }
 }

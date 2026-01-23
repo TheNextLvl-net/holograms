@@ -4,14 +4,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.locale.LanguageTags;
 import org.jspecify.annotations.NullMarked;
-
-import java.util.Locale;
 
 import static net.thenextlvl.hologram.commands.translation.HologramTranslationCommand.keyArgument;
 
@@ -32,7 +30,6 @@ public final class HologramTranslationListCommand extends SimpleCommand {
     public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var source = context.getSource().getSender();
         tryGetArgument(context, "key", String.class).ifPresentOrElse(key -> {
-            var inLocale = source.get(Identity.LOCALE).orElse(Locale.US);
             var translations = plugin.translations().getTranslations(key);
             plugin.bundle().sendMessage(source, "hologram.translation.header",
                     Placeholder.parsed("key", key),
@@ -40,7 +37,7 @@ public final class HologramTranslationListCommand extends SimpleCommand {
                     Formatter.number("amount", translations.size()));
             translations.forEach((locale, translation) -> {
                 plugin.bundle().sendMessage(source, "hologram.translation",
-                        Placeholder.parsed("locale", locale.getDisplayName(inLocale)),
+                        Placeholder.parsed("locale", LanguageTags.getLanguageName(locale)),
                         Placeholder.unparsed("translation", translation));
             });
         }, () -> {

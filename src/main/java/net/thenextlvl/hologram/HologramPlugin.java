@@ -96,6 +96,7 @@ public class HologramPlugin extends JavaPlugin {
     private final ComponentBundle hologramBundle = ComponentBundle.builder(key, translations.resolve("lines"))
             .resource("english.properties", Locale.US)
             .resource("german.properties", Locale.GERMANY)
+            .scope(ComponentBundle.Scope.NONE)
             .build().registerTranslations();
 
     public HologramPlugin() {

@@ -30,7 +30,7 @@ dependencies {
     paperweight.foliaDevBundle("1.21.11-R0.1-SNAPSHOT")
 
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
-    implementation("net.thenextlvl:i18n:1.1.0")
+    implementation("net.thenextlvl:i18n:1.2.0")
     implementation("net.thenextlvl:nbt:4.3.3")
     implementation("net.thenextlvl:static-binder:0.1.3")
 

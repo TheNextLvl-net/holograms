@@ -11,7 +11,6 @@ import net.thenextlvl.hologram.locale.LanguageTags;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @NullMarked
@@ -26,10 +25,9 @@ public class LocaleArgumentType implements CustomArgumentType.Converted<Locale, 
 
     @Override
     public Locale convert(String nativeType) {
-        return LanguageTags.getTagForLanguage(nativeType)
-                .or(() -> Optional.of(nativeType))
-                .map(Locale::forLanguageTag)
-                .orElseThrow(() -> new NullPointerException("No language tag found for " + nativeType));
+        var locale = LanguageTags.getLocale(nativeType);
+        if (locale != null) return locale;
+        throw new NullPointerException("Unknown language: " + nativeType);
     }
 
     @Override

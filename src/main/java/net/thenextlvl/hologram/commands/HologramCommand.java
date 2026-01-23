@@ -9,6 +9,7 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.arguments.HologramArgumentType;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.line.HologramLineCommand;
+import net.thenextlvl.hologram.commands.translation.HologramTranslationCommand;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -26,13 +27,14 @@ public final class HologramCommand extends BrigadierCommand {
                 .then(HologramListCommand.create(plugin))
                 .then(HologramRenameCommand.create(plugin))
                 .then(HologramTeleportCommand.create(plugin))
+                .then(HologramTranslationCommand.create(plugin))
                 .build();
     }
 
     public static RequiredArgumentBuilder<CommandSourceStack, String> nameArgument() {
         return Commands.argument("name", StringArgumentType.string());
     }
-    
+
     public static RequiredArgumentBuilder<CommandSourceStack, ?> hologramArgument(HologramPlugin plugin) {
         return Commands.argument("hologram", new HologramArgumentType(plugin));
     }

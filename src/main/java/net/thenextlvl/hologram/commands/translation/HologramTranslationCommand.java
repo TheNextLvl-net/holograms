@@ -1,0 +1,32 @@
+package net.thenextlvl.hologram.commands.translation;
+
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.TranslationKeySuggestionProvider;
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
+public final class HologramTranslationCommand extends BrigadierCommand {
+    private HologramTranslationCommand(HologramPlugin plugin) {
+        super(plugin, "translation", "holograms.command.translation");
+    }
+
+    public static LiteralCommandNode<CommandSourceStack> create(HologramPlugin plugin) {
+        var command = new HologramTranslationCommand(plugin);
+        return command.create()
+                .then(HologramTranslationAddCommand.create(plugin))
+                .then(HologramTranslationListCommand.create(plugin))
+                .then(HologramTranslationRemoveCommand.create(plugin))
+                .build();
+    }
+
+    static RequiredArgumentBuilder<CommandSourceStack, String> keyArgument(HologramPlugin plugin) {
+        return Commands.argument("key", StringArgumentType.word())
+                .suggests(new TranslationKeySuggestionProvider<>(plugin));
+    }
+}

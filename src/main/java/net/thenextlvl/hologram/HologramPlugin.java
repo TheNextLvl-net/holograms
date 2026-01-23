@@ -93,6 +93,11 @@ public class HologramPlugin extends JavaPlugin {
             .resource("messages_german.properties", Locale.GERMANY)
             .build();
 
+    private final ComponentBundle hologramBundle = ComponentBundle.builder(key, translations.resolve("lines"))
+            .resource("english.properties", Locale.US)
+            .resource("german.properties", Locale.GERMANY)
+            .build().registerTranslations();
+
     public HologramPlugin() {
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
     }

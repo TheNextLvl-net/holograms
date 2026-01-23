@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -32,7 +33,7 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
     private volatile Locale defaultLocale = Locale.US;
 
     protected MutableTranslationStore(final Key name) {
-        this.name = Objects.requireNonNull(name, "name");
+        this.name = name;
     }
 
     protected @Nullable T translationValue(final String key, final Locale locale) {
@@ -160,6 +161,14 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
     public Map<Locale, T> getTranslations(String key) {
         var translation = translations.get(key);
         return translation == null ? Map.of() : translation.translations;
+    }
+
+    public Map<Locale, Map<String, T>> getAllTranslations() {
+        var map = new HashMap<Locale, Map<String, T>>();
+        translations.values().forEach(translation -> translation.translations.forEach((locale, t) -> {
+            map.computeIfAbsent(locale, k -> new HashMap<>()).put(translation.key, t);
+        }));
+        return map;
     }
 
     public final class Translation implements Examinable {

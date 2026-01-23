@@ -12,6 +12,7 @@ public final class EntityHologramLineSerializer extends HologramLineSerializer<E
     public CompoundTag serialize(EntityHologramLine<?> line, TagSerializationContext context) throws ParserException {
         return CompoundTag.builder().putAll(super.serialize(line, context))
                 .put("scale", line.getScale())
+                .put("offset", context.serialize(line.getOffset()))
                 .put("entityType", context.serialize(line.getEntityType()))
                 .build();
     }

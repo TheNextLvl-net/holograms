@@ -15,10 +15,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.EquipmentSlot;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine<E> implements EntityHologramLine<E> {
+    private final Vector3f offset = new Vector3f();
     private double scale = 1;
 
     public PaperEntityHologramLine(PaperHologram hologram, Class<E> entityClass) throws IllegalArgumentException {
@@ -51,6 +53,24 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
         this.scale = scale;
         getEntity(Attributable.class).ifPresent(this::updateScale);
         getHologram().updateHologram();
+        return this;
+    }
+
+    @Override
+    public Vector3f getOffset() {
+        return new Vector3f(offset);
+    }
+
+    @Override
+    public EntityHologramLine<E> setOffset(Vector3f offset) {
+        if (this.offset.equals(offset)) return this;
+        getEntity().ifPresent(entity -> {
+            var location = entity.getLocation();
+            location.subtract(this.offset.x(), this.offset.y(), this.offset.z());
+            location.add(offset.x(), offset.y(), offset.z());
+            entity.teleportAsync(location);
+        });
+        this.offset.set(offset);
         return this;
     }
 

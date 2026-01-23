@@ -8,6 +8,7 @@ import net.thenextlvl.nbt.serialization.TagDeserializationContext;
 import net.thenextlvl.nbt.tag.CompoundTag;
 import net.thenextlvl.nbt.tag.Tag;
 import org.bukkit.entity.EntityType;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -19,6 +20,7 @@ public final class EntityHologramLineDeserializer extends HologramLineDeserializ
     @Override
     protected void deserialize(EntityHologramLine<?> line, CompoundTag tag, TagDeserializationContext context) throws ParserException {
         tag.optional("scale").map(Tag::getAsDouble).ifPresent(line::setScale);
+        tag.optional("offset").map(tag1 -> context.deserialize(tag1, Vector3f.class)).ifPresent(line::setOffset);
     }
 
     @Override

@@ -127,6 +127,7 @@ public class HologramPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChunkListener(this), this);
         getServer().getPluginManager().registerEvents(new EntityListener(this), this);
         getServer().getPluginManager().registerEvents(new HologramListener(this), this);
+        getServer().getPluginManager().registerEvents(new LocaleListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
     }
 

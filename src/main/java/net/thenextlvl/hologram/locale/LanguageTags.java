@@ -194,8 +194,11 @@ public final class LanguageTags {
     );
 
     public static Stream<Map.Entry<Locale, String>> getLanguages() {
-        return LANGUAGE_TAGS.entrySet().stream()
-                .map(entry -> Map.entry(Locale.forLanguageTag(entry.getValue()), entry.getKey()));
+        return LANGUAGE_TAGS.entrySet().stream().map(entry -> {
+            Locale locale = Translator.parseLocale(entry.getValue());
+            if (locale == null) return null;
+            return Map.entry(locale, entry.getKey());
+        }).filter(Objects::nonNull);
     }
 
     public static @Nullable Locale getLocale(String languageName) {

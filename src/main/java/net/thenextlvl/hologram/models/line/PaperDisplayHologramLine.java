@@ -19,7 +19,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     protected @Nullable Color glowColorOverride = null;
     protected Display.@Nullable Brightness brightness = null;
     protected Display.Billboard billboard = Display.Billboard.CENTER;
-    protected Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
+    protected final Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
     protected float displayHeight = 0;
     protected float displayWidth = 0;
     protected float shadowRadius = 0;
@@ -46,12 +46,10 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     @Override
     public T setTransformation(Transformation transformation) {
         if (Objects.equals(this.transformation, transformation)) return getSelf();
-        this.transformation = new Transformation(
-                transformation.getTranslation(),
-                transformation.getLeftRotation(),
-                transformation.getScale(),
-                transformation.getRightRotation()
-        );
+        this.transformation.getLeftRotation().set(transformation.getLeftRotation());
+        this.transformation.getRightRotation().set(transformation.getRightRotation());
+        this.transformation.getScale().set(transformation.getScale());
+        this.transformation.getTranslation().set(transformation.getTranslation());
         getEntity().ifPresent(entity -> entity.setTransformation(transformation));
         getHologram().updateHologram();
         return getSelf();
@@ -59,12 +57,10 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setTransformationMatrix(Matrix4f transformationMatrix) {
-        this.transformation = new Transformation(
-                transformationMatrix.getTranslation(new Vector3f()),
-                transformationMatrix.getRotation(new AxisAngle4f()),
-                transformationMatrix.getScale(new Vector3f()),
-                transformationMatrix.getRotation(new AxisAngle4f())
-        );
+        this.transformation.getLeftRotation().set(transformationMatrix.getRotation(new AxisAngle4f()));
+        this.transformation.getRightRotation().set(transformationMatrix.getRotation(new AxisAngle4f()));
+        this.transformation.getScale().set(transformationMatrix.getScale(new Vector3f()));
+        this.transformation.getTranslation().set(transformationMatrix.getTranslation(new Vector3f()));
         getEntity().ifPresent(entity -> entity.setTransformationMatrix(transformationMatrix));
         getHologram().updateHologram();
         return getSelf();

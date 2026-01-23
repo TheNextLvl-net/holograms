@@ -135,7 +135,6 @@ public class HologramPlugin extends JavaPlugin {
     public void onDisable() {
         provider.forEachHologram(Hologram::persist);
         metrics.shutdown();
-        translations.save();
     }
 
     public PaperHologramProvider hologramProvider() {

@@ -7,6 +7,7 @@ import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.translation.GlobalTranslator;
 import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.adapters.BlockDataAdapter;
 import net.thenextlvl.hologram.adapters.BrightnessAdapter;
@@ -36,8 +37,11 @@ import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.listeners.ChunkListener;
 import net.thenextlvl.hologram.listeners.EntityListener;
 import net.thenextlvl.hologram.listeners.HologramListener;
+import net.thenextlvl.hologram.listeners.LocaleListener;
 import net.thenextlvl.hologram.listeners.WorldListener;
+import net.thenextlvl.hologram.locale.HologramTranslationStore;
 import net.thenextlvl.hologram.models.PaperHologram;
+import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import net.thenextlvl.hologram.version.PluginVersionChecker;
 import net.thenextlvl.i18n.ComponentBundle;
 import net.thenextlvl.nbt.NBTInputStream;
@@ -52,6 +56,7 @@ import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Display.Brightness;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -86,21 +91,19 @@ public class HologramPlugin extends JavaPlugin {
     private final PluginVersionChecker versionChecker = new PluginVersionChecker(this);
 
     private final Key key = Key.key("holograms", "translations");
-    private final Path translations = getDataPath().resolve("translations");
-    private final ComponentBundle bundle = ComponentBundle.builder(key, translations)
+    private final Path path = getDataPath().resolve("translations");
+    private final ComponentBundle bundle = ComponentBundle.builder(key, path)
             .placeholder("prefix", "prefix")
             .resource("messages.properties", Locale.US)
             .resource("messages_german.properties", Locale.GERMANY)
             .build();
 
-    private final ComponentBundle hologramBundle = ComponentBundle.builder(key, translations.resolve("lines"))
-            .resource("english.properties", Locale.US)
-            .resource("german.properties", Locale.GERMANY)
-            .scope(ComponentBundle.Scope.NONE)
-            .build().registerTranslations();
+    private final HologramTranslationStore translations = new HologramTranslationStore(this);
 
     public HologramPlugin() {
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
+        GlobalTranslator.translator().addSource(translations);
+        translations.read();
     }
 
     @Override
@@ -131,6 +134,7 @@ public class HologramPlugin extends JavaPlugin {
     public void onDisable() {
         provider.forEachHologram(Hologram::persist);
         metrics.shutdown();
+        translations.save();
     }
 
     public PaperHologramProvider hologramProvider() {
@@ -139,6 +143,10 @@ public class HologramPlugin extends JavaPlugin {
 
     public ComponentBundle bundle() {
         return bundle;
+    }
+
+    public HologramTranslationStore translations() {
+        return translations;
     }
 
     private NBT.Builder base(World world) {
@@ -232,5 +240,18 @@ public class HologramPlugin extends JavaPlugin {
         hologram.deserialize(entry.getValue());
         hologramProvider().holograms.add(hologram);
         return hologram;
+    }
+
+    public void updateHologramTextLines(@Nullable Player player) {
+        var holograms = player != null 
+                ? hologramProvider().getHolograms(player)
+                : hologramProvider().getHolograms();
+        holograms.forEach(hologram -> hologram.getLines().forEach(hologramLine -> {
+            if (!(hologramLine instanceof PaperTextHologramLine line)) return;
+            line.getText().ifPresent(text -> line.getEntity().ifPresent(entity -> {
+                entity.text(Component.empty());
+                entity.text(text);
+            }));
+        }));
     }
 }

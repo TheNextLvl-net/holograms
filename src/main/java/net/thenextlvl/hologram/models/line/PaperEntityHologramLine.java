@@ -5,6 +5,7 @@ import net.kyori.adventure.util.TriState;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.models.PaperHologram;
+import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
@@ -51,6 +52,11 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
         getEntity(Attributable.class).ifPresent(this::updateScale);
         getHologram().updateHologram();
         return this;
+    }
+
+    @Override
+    protected Location mutateSpawnLocation(Location location) {
+        return location.add(getOffset().x(), getOffset().y(), getOffset().z());
     }
 
     @Override

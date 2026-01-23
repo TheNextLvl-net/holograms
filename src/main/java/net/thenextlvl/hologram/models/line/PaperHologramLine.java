@@ -84,8 +84,12 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
 
     public E spawn(double offset) throws IllegalStateException {
         Preconditions.checkState(entity == null || !entity.isValid(), "Entity is already spawned");
-        var location = hologram.getLocation().add(0, offset, 0);
+        var location = mutateSpawnLocation(hologram.getLocation().add(0, offset, 0));
         return this.entity = location.getWorld().spawn(location, getTypeClass(), false, this::preSpawn);
+    }
+    
+    protected Location mutateSpawnLocation(Location location) {
+        return location;
     }
 
     public void updateVisibility(Player player) {

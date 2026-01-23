@@ -149,6 +149,10 @@ public class HologramPlugin extends JavaPlugin {
     public HologramTranslationStore translations() {
         return translations;
     }
+    
+    public Path getTranslationsPath() {
+        return path;
+    }
 
     private NBT.Builder base(World world) {
         return NBT.builder()

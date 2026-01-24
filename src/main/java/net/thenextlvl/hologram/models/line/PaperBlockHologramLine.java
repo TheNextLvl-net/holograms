@@ -6,6 +6,7 @@ import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -29,12 +30,12 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologr
     @Override
     public BlockHologramLine setBlock(final BlockData block) {
         this.block = block.clone();
-        getEntity().ifPresent(entity -> entity.setBlock(block));
+        getEntities().values().forEach(entity -> entity.setBlock(block));
         return this;
     }
-    
+
     @Override
-    public double getHeight() {
+    public double getHeight(final Player player) {
         return transformation.getScale().y();
     }
 

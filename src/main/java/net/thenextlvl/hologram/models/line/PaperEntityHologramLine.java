@@ -13,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Explosive;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.EquipmentSlot;
 import org.joml.Vector3f;
@@ -28,8 +29,8 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    public double getHeight() {
-        return getEntity().map(Entity::getHeight).orElse(0d) * scale;
+    public double getHeight(final Player player) {
+        return getEntity(player).map(Entity::getHeight).orElse(0d) * scale;
     }
 
     @Override
@@ -51,7 +52,10 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     public EntityHologramLine<E> setScale(final double scale) {
         if (this.scale == scale) return this;
         this.scale = scale;
-        getEntity(Attributable.class).ifPresent(this::updateScale);
+        getEntities().values().stream()
+                .filter(Attributable.class::isInstance)
+                .map(Attributable.class::cast)
+                .forEach(this::updateScale);
         getHologram().updateHologram();
         return this;
     }
@@ -64,7 +68,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     @Override
     public EntityHologramLine<E> setOffset(final Vector3f offset) {
         if (this.offset.equals(offset)) return this;
-        getEntity().ifPresent(entity -> {
+        getEntities().values().forEach(entity -> {
             final var location = entity.getLocation();
             location.subtract(this.offset.x(), this.offset.y(), this.offset.z());
             location.add(offset.x(), offset.y(), offset.z());
@@ -76,7 +80,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
 
     @Override
     protected Location mutateSpawnLocation(final Location location) {
-        return location.add(getOffset().x(), getOffset().y(), getOffset().z());
+        return location.add(offset.x(), offset.y(), offset.z());
     }
 
     @Override

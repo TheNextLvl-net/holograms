@@ -543,7 +543,9 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.1.0
      */
     @Contract(mutates = "this")
-    boolean spawn();
+    void spawn();
+
+    boolean spawn(Player player);
 
     /**
      * Despawns this hologram if possible.
@@ -551,7 +553,9 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.4.0
      */
     @Contract(mutates = "this")
-    boolean despawn();
+    void despawn();
+
+    boolean despawn(Player player);
 
     /**
      * Checks if this hologram is spawned.
@@ -560,5 +564,5 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    boolean isSpawned();
+    boolean isSpawned(Player player);
 }

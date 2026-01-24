@@ -50,7 +50,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
         this.transformation.getRightRotation().set(transformation.getRightRotation());
         this.transformation.getScale().set(transformation.getScale());
         this.transformation.getTranslation().set(transformation.getTranslation());
-        getEntity().ifPresent(entity -> entity.setTransformation(transformation));
+        getEntities().values().forEach(entity -> entity.setTransformation(transformation));
         getHologram().updateHologram();
         return getSelf();
     }
@@ -61,7 +61,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
         this.transformation.getRightRotation().set(transformationMatrix.getRotation(new AxisAngle4f()));
         this.transformation.getScale().set(transformationMatrix.getScale(new Vector3f()));
         this.transformation.getTranslation().set(transformationMatrix.getTranslation(new Vector3f()));
-        getEntity().ifPresent(entity -> entity.setTransformationMatrix(transformationMatrix));
+        getEntities().values().forEach(entity -> entity.setTransformationMatrix(transformationMatrix));
         getHologram().updateHologram();
         return getSelf();
     }
@@ -75,7 +75,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setInterpolationDuration(final int duration) {
         if (duration == this.interpolationDuration) return getSelf();
         this.interpolationDuration = duration;
-        getEntity().ifPresent(entity -> entity.setInterpolationDuration(duration));
+        getEntities().values().forEach(entity -> entity.setInterpolationDuration(duration));
         return getSelf();
     }
 
@@ -88,7 +88,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setTeleportDuration(final int duration) {
         if (duration == this.teleportDuration) return getSelf();
         this.teleportDuration = duration;
-        getEntity().ifPresent(entity -> entity.setTeleportDuration(duration));
+        getEntities().values().forEach(entity -> entity.setTeleportDuration(duration));
         return getSelf();
     }
 
@@ -101,7 +101,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setViewRange(final float range) {
         if (range == this.viewRange) return getSelf();
         this.viewRange = range;
-        getEntity().ifPresent(entity -> entity.setViewRange(range));
+        getEntities().values().forEach(entity -> entity.setViewRange(range));
         return getSelf();
     }
 
@@ -114,7 +114,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setShadowRadius(final float radius) {
         if (radius == this.shadowRadius) return getSelf();
         this.shadowRadius = radius;
-        getEntity().ifPresent(entity -> entity.setShadowRadius(radius));
+        getEntities().values().forEach(entity -> entity.setShadowRadius(radius));
         return getSelf();
     }
 
@@ -127,7 +127,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setShadowStrength(final float strength) {
         if (strength == this.shadowStrength) return getSelf();
         this.shadowStrength = strength;
-        getEntity().ifPresent(entity -> entity.setShadowStrength(strength));
+        getEntities().values().forEach(entity -> entity.setShadowStrength(strength));
         return getSelf();
     }
 
@@ -140,7 +140,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setDisplayWidth(final float width) {
         if (width == this.displayWidth) return getSelf();
         this.displayWidth = width;
-        getEntity().ifPresent(entity -> entity.setDisplayWidth(width));
+        getEntities().values().forEach(entity -> entity.setDisplayWidth(width));
         return getSelf();
     }
 
@@ -153,7 +153,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setDisplayHeight(final float height) {
         if (height == this.displayHeight) return getSelf();
         this.displayHeight = height;
-        getEntity().ifPresent(entity -> entity.setDisplayHeight(height));
+        getEntities().values().forEach(entity -> entity.setDisplayHeight(height));
         getHologram().updateHologram();
         return getSelf();
     }
@@ -167,7 +167,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setInterpolationDelay(final int ticks) {
         if (ticks == this.interpolationDelay) return getSelf();
         this.interpolationDelay = ticks;
-        getEntity().ifPresent(entity -> entity.setInterpolationDelay(ticks));
+        getEntities().values().forEach(entity -> entity.setInterpolationDelay(ticks));
         return getSelf();
     }
 
@@ -180,7 +180,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setBillboard(final Display.Billboard billboard) {
         if (Objects.equals(this.billboard, billboard)) return getSelf();
         this.billboard = billboard;
-        getEntity().ifPresent(entity -> entity.setBillboard(billboard));
+        getEntities().values().forEach(entity -> entity.setBillboard(billboard));
         return getSelf();
     }
 
@@ -193,7 +193,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setGlowColorOverride(@Nullable final Color color) {
         if (Objects.equals(this.glowColorOverride, color)) return getSelf();
         this.glowColorOverride = color;
-        getEntity().ifPresent(entity -> entity.setGlowColorOverride(color));
+        getEntities().values().forEach(entity -> entity.setGlowColorOverride(color));
         return getSelf();
     }
 
@@ -206,7 +206,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     public T setBrightness(final Display.@Nullable Brightness brightness) {
         if (Objects.equals(this.brightness, brightness)) return getSelf();
         this.brightness = brightness;
-        getEntity().ifPresent(entity -> entity.setBrightness(brightness));
+        getEntities().values().forEach(entity -> entity.setBrightness(brightness));
         return getSelf();
     }
 

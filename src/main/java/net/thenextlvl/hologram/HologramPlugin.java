@@ -72,7 +72,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 @NullMarked
@@ -197,9 +196,7 @@ public class HologramPlugin extends JavaPlugin {
         try (final var files = Files.find(dataFolder, 1, (path, attributes) -> {
             return attributes.isRegularFile() && path.getFileName().toString().endsWith(".dat");
         })) {
-            files.map(path -> loadSafe(path, world))
-                    .filter(Objects::nonNull)
-                    .forEach(Hologram::spawn);
+            files.forEach(path -> loadSafe(path, world));
         } catch (final IOException e) {
             getComponentLogger().error("Failed to load all holograms in world {}", world.getName(), e);
             getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
@@ -253,7 +250,7 @@ public class HologramPlugin extends JavaPlugin {
                 : hologramProvider().getHolograms();
         holograms.forEach(hologram -> hologram.getLines().forEach(hologramLine -> {
             if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
-            line.getText().ifPresent(text -> line.getEntity().ifPresent(entity -> {
+            line.getText().ifPresent(text -> line.getEntities().forEach((ignored, entity) -> {
                 entity.text(Component.empty());
                 entity.text(text);
             }));

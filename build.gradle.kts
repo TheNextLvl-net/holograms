@@ -34,7 +34,7 @@ dependencies {
     implementation("net.thenextlvl:nbt:4.3.3")
     implementation("net.thenextlvl:static-binder:0.1.3")
 
-    implementation("dev.faststats.metrics:bukkit:0.12.0")
+    implementation("dev.faststats.metrics:bukkit:0.13.1")
     implementation("org.bstats:bstats-bukkit:3.1.0")
 
     implementation(project(":api"))

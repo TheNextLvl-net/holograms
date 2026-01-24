@@ -57,7 +57,8 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
             var path = this.path.resolve(locale + ".properties");
             var properties = new Properties();
             translations.forEach(properties::setProperty);
-            properties.store(Files.newBufferedWriter(path), null);
+            var comment = LanguageTags.getLanguageName(locale);
+            properties.store(Files.newBufferedWriter(path), comment);
         } catch (IOException e) {
             plugin.getComponentLogger().warn("Failed to save translations for locale {}", locale, e);
         }

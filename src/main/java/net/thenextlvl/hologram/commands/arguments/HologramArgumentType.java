@@ -16,18 +16,18 @@ import java.util.concurrent.CompletableFuture;
 public final class HologramArgumentType implements CustomArgumentType.Converted<Hologram, String> {
     private final HologramPlugin plugin;
 
-    public HologramArgumentType(HologramPlugin plugin) {
+    public HologramArgumentType(final HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public Hologram convert(String nativeType) {
+    public Hologram convert(final String nativeType) {
         return plugin.hologramProvider().getHologram(nativeType)
                 .orElseThrow(() -> new NullPointerException("No hologram was found"));
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         plugin.hologramProvider().getHologramNames()
                 .map(StringArgumentType::escapeIfRequired)
                 .filter(name -> name.toLowerCase().contains(builder.getRemainingLowerCase()))

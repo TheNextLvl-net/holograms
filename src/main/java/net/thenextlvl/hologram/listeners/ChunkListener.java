@@ -12,12 +12,12 @@ import org.jspecify.annotations.NullMarked;
 public final class ChunkListener implements Listener {
     private final HologramPlugin plugin;
 
-    public ChunkListener(HologramPlugin plugin) {
+    public ChunkListener(final HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onChunkLoad(ChunkLoadEvent event) {
+    public void onChunkLoad(final ChunkLoadEvent event) {
         plugin.hologramProvider().getHolograms(event.getChunk())
                 .forEach(Hologram::spawn);
     }

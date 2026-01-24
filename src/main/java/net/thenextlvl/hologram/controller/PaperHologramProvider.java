@@ -39,17 +39,17 @@ public class PaperHologramProvider implements HologramProvider {
     private final HologramPlugin plugin;
     public final Set<Hologram> holograms = new HashSet<>();
 
-    public PaperHologramProvider(HologramPlugin plugin) {
+    public PaperHologramProvider(final HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public Path getDataFolder(World world) {
+    public Path getDataFolder(final World world) {
         return world.getWorldPath().resolve("holograms");
     }
 
     @Override
-    public Optional<Hologram> getHologram(Entity entity) {
+    public Optional<Hologram> getHologram(final Entity entity) {
         return getHolograms(entity.getWorld())
                 .filter(hologram -> hologram.getLines().anyMatch(line ->
                         line.getEntity().filter(entity::equals).isPresent()))
@@ -58,7 +58,7 @@ public class PaperHologramProvider implements HologramProvider {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <E extends Entity> Optional<HologramLine<E>> getHologramLine(E entity) {
+    public <E extends Entity> Optional<HologramLine<E>> getHologramLine(final E entity) {
         return getHolograms(entity.getWorld())
                 .filter(hologram -> hologram.getLines().anyMatch(line ->
                         line.getEntity().filter(entity::equals).isPresent()))
@@ -67,28 +67,28 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    public Optional<BlockHologramLine> getHologramLine(BlockDisplay display) {
+    public Optional<BlockHologramLine> getHologramLine(final BlockDisplay display) {
         return getHologramLine((Entity) display).map(BlockHologramLine.class::cast);
     }
 
     @Override
-    public Optional<ItemHologramLine> getHologramLine(ItemDisplay display) {
+    public Optional<ItemHologramLine> getHologramLine(final ItemDisplay display) {
         return getHologramLine((Entity) display).map(ItemHologramLine.class::cast);
     }
 
     @Override
-    public Optional<TextHologramLine> getHologramLine(TextDisplay display) {
+    public Optional<TextHologramLine> getHologramLine(final TextDisplay display) {
         return getHologramLine((Entity) display).map(TextHologramLine.class::cast);
     }
 
     @Override
-    public Optional<Hologram> getHologram(String name) {
+    public Optional<Hologram> getHologram(final String name) {
         return getHolograms().filter(hologram -> hologram.getName().equals(name))
                 .findAny();
     }
 
     @Override
-    public Optional<HologramLine<?>> getHologramLine(UUID uuid) {
+    public Optional<HologramLine<?>> getHologramLine(final UUID uuid) {
         return getHolograms().flatMap(hologram -> hologram.getLines().filter(line ->
                 line.getEntity().map(Entity::getUniqueId).filter(uuid::equals).isPresent())).findAny();
     }
@@ -99,27 +99,27 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    public Stream<Hologram> getHolograms(Chunk chunk) {
+    public Stream<Hologram> getHolograms(final Chunk chunk) {
         return getHolograms(chunk.getWorld()).filter(hologram -> {
             return ((PaperHologram) hologram).isInChunk(chunk);
         });
     }
 
     @Override
-    public Stream<Hologram> getHolograms(Player player) {
+    public Stream<Hologram> getHolograms(final Player player) {
         return getHolograms().filter(hologram -> hologram.canSee(player));
     }
 
     @Override
-    public Stream<Hologram> getHolograms(World world) {
+    public Stream<Hologram> getHolograms(final World world) {
         return getHolograms().filter(hologram -> world.equals(hologram.getWorld()));
     }
 
     @Override
-    public Stream<Hologram> getHologramNearby(Location location, double radius) {
+    public Stream<Hologram> getHologramNearby(final Location location, final double radius) {
         Preconditions.checkArgument(radius > 0, "Radius must be greater than 0");
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
-        var radiusSquared = radius * radius;
+        final var radiusSquared = radius * radius;
         return getHolograms(location.getWorld()).filter(hologram -> {
             return hologram.getLocation().distanceSquared(location) <= radiusSquared;
         });
@@ -131,47 +131,47 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    public boolean hasHologram(String name) {
+    public boolean hasHologram(final String name) {
         return getHolograms().anyMatch(hologram -> hologram.getName().equals(name));
     }
 
     @Override
-    public boolean hasHologram(Hologram hologram) {
+    public boolean hasHologram(final Hologram hologram) {
         return holograms.contains(hologram);
     }
 
     @Override
-    public boolean isHologramPart(Entity entity) {
+    public boolean isHologramPart(final Entity entity) {
         return getHolograms(entity.getWorld()).anyMatch(hologram -> hologram.getLines().anyMatch(line ->
                 line.getEntity().filter(entity::equals).isPresent()));
     }
 
     @Override
-    public Hologram createHologram(String name, Location location) throws IllegalStateException {
+    public Hologram createHologram(final String name, final Location location) throws IllegalStateException {
         Preconditions.checkState(!hasHologram(name), "Hologram named %s already exists", name);
-        var hologram = new PaperHologram(plugin, name, location);
+        final var hologram = new PaperHologram(plugin, name, location);
         holograms.add(hologram);
         new HologramCreateEvent(hologram).callEvent();
         return hologram;
     }
 
     @Override
-    public Hologram spawnHologram(String name, Location location, Consumer<Hologram> preSpawn) throws IllegalStateException {
-        var hologram = createHologram(name, location);
+    public Hologram spawnHologram(final String name, final Location location, final Consumer<Hologram> preSpawn) throws IllegalStateException {
+        final var hologram = createHologram(name, location);
         preSpawn.accept(hologram);
         hologram.spawn();
         return hologram;
     }
 
     @Override
-    public boolean deleteHologram(Hologram hologram) {
+    public boolean deleteHologram(final Hologram hologram) {
         if (!new HologramDeleteEvent(hologram).callEvent()) return false;
 
         hologram.despawn();
         try {
             Files.deleteIfExists(hologram.getDataFile());
             Files.deleteIfExists(hologram.getBackupFile());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             plugin.getComponentLogger().warn("Failed to delete hologram data: {}", hologram.getName(), e);
             plugin.getComponentLogger().warn("Please look for similar issues or report this on GitHub: {}", ISSUES);
             HologramPlugin.ERROR_TRACKER.trackError(e);
@@ -180,11 +180,11 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    public void forEachHologram(Consumer<Hologram> action) {
+    public void forEachHologram(final Consumer<Hologram> action) {
         holograms.forEach(action);
     }
 
-    public boolean unregister(Hologram hologram) {
+    public boolean unregister(final Hologram hologram) {
         return holograms.remove(hologram);
     }
 

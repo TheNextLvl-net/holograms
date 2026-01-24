@@ -15,23 +15,23 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditInterpolationDelayCommand extends SimpleCommand {
-    private HologramLineEditInterpolationDelayCommand(HologramPlugin plugin) {
+    private HologramLineEditInterpolationDelayCommand(final HologramPlugin plugin) {
         super(plugin, "interpolation-delay", "holograms.command.line.edit.interpolation-delay");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditInterpolationDelayCommand(plugin);
-        var named = Commands.argument("delay", ArgumentTypes.time());
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditInterpolationDelayCommand(plugin);
+        final var named = Commands.argument("delay", ArgumentTypes.time());
         return command.create().then(named.executes(command));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var lineNumber = context.getArgument("line", int.class);
-        var delay = context.getArgument("delay", int.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var lineNumber = context.getArgument("line", int.class);
+        final var delay = context.getArgument("delay", int.class);
 
-        var message = hologram.getLine(lineNumber - 1, DisplayHologramLine.class).map(displayLine -> {
+        final var message = hologram.getLine(lineNumber - 1, DisplayHologramLine.class).map(displayLine -> {
             if (displayLine.getInterpolationDelay() == delay) return "nothing.changed";
             displayLine.setInterpolationDelay(delay);
             return "hologram.interpolation-delay";

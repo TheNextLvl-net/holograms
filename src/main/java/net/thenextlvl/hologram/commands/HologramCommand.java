@@ -14,12 +14,12 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class HologramCommand extends BrigadierCommand {
-    private HologramCommand(HologramPlugin plugin) {
+    private HologramCommand(final HologramPlugin plugin) {
         super(plugin, "hologram", "holograms.command");
     }
 
-    public static LiteralCommandNode<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramCommand(plugin);
+    public static LiteralCommandNode<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramCommand(plugin);
         return command.create()
                 .then(HologramCreateCommand.create(plugin))
                 .then(HologramDeleteCommand.create(plugin))
@@ -35,7 +35,7 @@ public final class HologramCommand extends BrigadierCommand {
         return Commands.argument("name", StringArgumentType.string());
     }
 
-    public static RequiredArgumentBuilder<CommandSourceStack, ?> hologramArgument(HologramPlugin plugin) {
+    public static RequiredArgumentBuilder<CommandSourceStack, ?> hologramArgument(final HologramPlugin plugin) {
         return Commands.argument("hologram", new HologramArgumentType(plugin));
     }
 }

@@ -8,7 +8,7 @@ import org.jspecify.annotations.NullMarked;
 public final class HologramListener implements Listener {
     private final HologramPlugin plugin;
 
-    public HologramListener(HologramPlugin plugin) {
+    public HologramListener(final HologramPlugin plugin) {
         this.plugin = plugin;
     }
 }

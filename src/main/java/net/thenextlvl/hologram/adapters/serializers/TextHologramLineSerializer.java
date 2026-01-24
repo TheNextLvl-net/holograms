@@ -9,8 +9,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class TextHologramLineSerializer extends DisplayHologramLineSerializer<TextHologramLine> {
     @Override
-    public CompoundTag serialize(TextHologramLine line, TagSerializationContext context) throws ParserException {
-        var builder = CompoundTag.builder();
+    public CompoundTag serialize(final TextHologramLine line, final TagSerializationContext context) throws ParserException {
+        final var builder = CompoundTag.builder();
         line.getText().map(context::serialize).ifPresent(tag -> builder.put("text", tag));
         line.getBackgroundColor().map(context::serialize).ifPresent(color -> builder.put("backgroundColor", color));
         return builder.putAll(super.serialize(line, context))

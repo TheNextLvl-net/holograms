@@ -22,7 +22,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     private final EntityType entityType;
     private @Nullable E entity;
 
-    public PaperHologramLine(PaperHologram hologram, Class<E> entityClass) {
+    public PaperHologramLine(final PaperHologram hologram, final Class<E> entityClass) {
         this.hologram = hologram;
         this.entityType = Arrays.stream(EntityType.values())
                 .filter(type -> type.getEntityClass() != null)
@@ -52,7 +52,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     @Override
-    public <T> Optional<T> getEntity(Class<T> type) {
+    public <T> Optional<T> getEntity(final Class<T> type) {
         return getEntity().filter(type::isInstance).map(type::cast);
     }
 
@@ -82,29 +82,29 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         return 0;
     }
 
-    public E spawn(double offset) throws IllegalStateException {
+    public E spawn(final double offset) throws IllegalStateException {
         Preconditions.checkState(entity == null || !entity.isValid(), "Entity is already spawned");
-        var location = mutateSpawnLocation(hologram.getLocation().add(0, offset, 0));
+        final var location = mutateSpawnLocation(hologram.getLocation().add(0, offset, 0));
         return this.entity = location.getWorld().spawn(location, getTypeClass(), false, this::preSpawn);
     }
     
-    protected Location mutateSpawnLocation(Location location) {
+    protected Location mutateSpawnLocation(final Location location) {
         return location;
     }
 
-    public void updateVisibility(Player player) {
+    public void updateVisibility(final Player player) {
         if (entity == null) return;
         if (canSee(player)) player.showEntity(hologram.getPlugin(), entity);
         else player.hideEntity(hologram.getPlugin(), entity);
     }
 
-    public boolean canSee(Player player) {
+    public boolean canSee(final Player player) {
         if (entity == null || !entity.isValid()) return false;
         if (!player.getWorld().equals(entity.getWorld())) return false;
         return hologram.canSee(player);
     }
 
-    public CompletableFuture<Boolean> teleportRelative(Location previous, Location location) {
+    public CompletableFuture<Boolean> teleportRelative(final Location previous, final Location location) {
         return getEntity().filter(Entity::isValid).map(e -> e.teleportAsync(new Location(
                 location.getWorld(),
                 location.getX() + e.getX() - previous.getX(),
@@ -114,7 +114,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         ))).orElseGet(() -> CompletableFuture.completedFuture(false));
     }
 
-    protected void preSpawn(E entity) {
+    protected void preSpawn(final E entity) {
         entity.setPersistent(false);
         entity.setVisibleByDefault(hologram.isVisibleByDefault());
 
@@ -122,7 +122,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         //     plugin.getServer().getOnlinePlayers().forEach(this::updateVisibility);
     }
 
-    public void invalidate(Entity entity) {
+    public void invalidate(final Entity entity) {
         if (this.entity == entity) this.entity = null;
     }
 }

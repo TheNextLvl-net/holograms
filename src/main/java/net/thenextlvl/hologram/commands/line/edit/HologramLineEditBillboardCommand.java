@@ -16,30 +16,30 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditBillboardCommand extends SimpleCommand {
-    private HologramLineEditBillboardCommand(HologramPlugin plugin) {
+    private HologramLineEditBillboardCommand(final HologramPlugin plugin) {
         super(plugin, "billboard", "holograms.command.line.edit.billboard");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditBillboardCommand(plugin);
-        var named = Commands.argument("billboard", new EnumArgumentType<>(Billboard.class));
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditBillboardCommand(plugin);
+        final var named = Commands.argument("billboard", new EnumArgumentType<>(Billboard.class));
         return command.create().then(named.executes(command));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var sender = context.getSource().getSender();
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var line = context.getArgument("line", int.class);
-        var billboard = context.getArgument("billboard", Billboard.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var sender = context.getSource().getSender();
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var line = context.getArgument("line", int.class);
+        final var billboard = context.getArgument("billboard", Billboard.class);
 
-        var message = hologram.getLine(line - 1, DisplayHologramLine.class).map(textLine -> {
+        final var message = hologram.getLine(line - 1, DisplayHologramLine.class).map(textLine -> {
             if (textLine.getBillboard() == billboard) return "nothing.changed";
             textLine.setBillboard(billboard);
             return "hologram.billboard";
         }).orElse("hologram.type.display");
 
-        var billboardName = plugin.bundle().component(switch (billboard) {
+        final var billboardName = plugin.bundle().component(switch (billboard) {
             case FIXED -> "billboard.fixed";
             case VERTICAL -> "billboard.vertical";
             case HORIZONTAL -> "billboard.horizontal";

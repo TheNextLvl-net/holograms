@@ -21,14 +21,14 @@ import java.util.Objects;
 
 @NullMarked
 final class HologramLineEditBackgroundColorCommand extends SimpleCommand {
-    private HologramLineEditBackgroundColorCommand(HologramPlugin plugin) {
+    private HologramLineEditBackgroundColorCommand(final HologramPlugin plugin) {
         super(plugin, "background-color", "holograms.command.line.edit.background-color");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditBackgroundColorCommand(plugin);
-        var named = Commands.argument("color", ArgumentTypes.namedColor());
-        var hex = Commands.argument("hex", new ColorArgumentType());
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditBackgroundColorCommand(plugin);
+        final var named = Commands.argument("color", ArgumentTypes.namedColor());
+        final var hex = Commands.argument("hex", new ColorArgumentType());
         return command.create()
                 .then(named.executes(command))
                 .then(hex.executes(command))
@@ -36,15 +36,15 @@ final class HologramLineEditBackgroundColorCommand extends SimpleCommand {
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var line = context.getArgument("line", int.class);
-        var color = tryGetArgument(context, "hex", Color.class)
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var line = context.getArgument("line", int.class);
+        final var color = tryGetArgument(context, "hex", Color.class)
                 .or(() -> tryGetArgument(context, "color", NamedTextColor.class)
                         .map(TextColor::value).map(Color::fromRGB))
                 .orElse(null);
 
-        var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
+        final var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
             if (Objects.equals(textLine.getBackgroundColor().orElse(null), color)) return "nothing.changed";
             textLine.setBackgroundColor(color);
             return color != null ? "hologram.text.background-color" : "hologram.text.background-color.reset";

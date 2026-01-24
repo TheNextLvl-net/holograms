@@ -16,27 +16,27 @@ import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 final class HologramLineSwapCommand extends SimpleCommand {
-    private HologramLineSwapCommand(HologramPlugin plugin) {
+    private HologramLineSwapCommand(final HologramPlugin plugin) {
         super(plugin, "swap", "holograms.command.line.swap");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineSwapCommand(plugin);
-        var first = Commands.argument("first", IntegerArgumentType.integer(1))
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineSwapCommand(plugin);
+        final var first = Commands.argument("first", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.INSTANCE);
-        var second = Commands.argument("second", IntegerArgumentType.integer(1))
+        final var second = Commands.argument("second", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.INSTANCE);
         return command.create().then(hologramArgument(plugin)
                 .then(first.then(second.executes(command))));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var first = context.getArgument("first", int.class);
-        var second = context.getArgument("second", int.class);
-        var success = hologram.swapLines(first - 1, second - 1);
-        var message = success ? "hologram.line.swap" : "hologram.line.swap.failed";
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var first = context.getArgument("first", int.class);
+        final var second = context.getArgument("second", int.class);
+        final var success = hologram.swapLines(first - 1, second - 1);
+        final var message = success ? "hologram.line.swap" : "hologram.line.swap.failed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.parsed("hologram", hologram.getName()),
                 Placeholder.parsed("first", String.valueOf(first)),

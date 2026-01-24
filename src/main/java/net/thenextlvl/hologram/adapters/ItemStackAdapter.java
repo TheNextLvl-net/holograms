@@ -13,13 +13,13 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class ItemStackAdapter implements TagAdapter<ItemStack> {
     @Override
-    public ItemStack deserialize(Tag tag, TagDeserializationContext context) throws ParserException {
-        var bytes = tag.getAsByteArray();
+    public ItemStack deserialize(final Tag tag, final TagDeserializationContext context) throws ParserException {
+        final var bytes = tag.getAsByteArray();
         return bytes.length == 0 ? ItemStack.of(Material.AIR) : ItemStack.deserializeBytes(bytes);
     }
 
     @Override
-    public Tag serialize(ItemStack itemStack, TagSerializationContext context) throws ParserException {
+    public Tag serialize(final ItemStack itemStack, final TagSerializationContext context) throws ParserException {
         return ByteArrayTag.of(itemStack.isEmpty() ? new byte[0] : itemStack.serializeAsBytes());
     }
 }

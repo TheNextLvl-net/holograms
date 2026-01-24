@@ -27,12 +27,12 @@ import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 public final class HologramLineAddCommand extends BrigadierCommand {
-    private HologramLineAddCommand(HologramPlugin plugin) {
+    private HologramLineAddCommand(final HologramPlugin plugin) {
         super(plugin, "add", "holograms.command.line.add");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineAddCommand(plugin);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineAddCommand(plugin);
         return command.create().then(hologramArgument(plugin)
                 .then(command.addLine("block", ArgumentTypes.blockState(), command::addBlockLine))
                 .then(command.addLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityLine))
@@ -40,32 +40,32 @@ public final class HologramLineAddCommand extends BrigadierCommand {
                 .then(command.addLine("text", StringArgumentType.greedyString(), command::addTextLine)));
     }
 
-    private LiteralArgumentBuilder<CommandSourceStack> addLine(String name, ArgumentType<?> argumentType, Command<CommandSourceStack> command) {
+    private LiteralArgumentBuilder<CommandSourceStack> addLine(final String name, final ArgumentType<?> argumentType, final Command<CommandSourceStack> command) {
         return Commands.literal(name).then(Commands.argument(name, argumentType).executes(command));
     }
 
-    private int addBlockLine(CommandContext<CommandSourceStack> context) {
-        var block = context.getArgument("block", BlockState.class).getBlockData();
+    private int addBlockLine(final CommandContext<CommandSourceStack> context) {
+        final var block = context.getArgument("block", BlockState.class).getBlockData();
         return addLine(context, hologram -> hologram.addBlockLine().setBlock(block));
     }
 
-    private int addEntityLine(CommandContext<CommandSourceStack> context) {
-        var entity = context.getArgument("entity", EntityType.class);
+    private int addEntityLine(final CommandContext<CommandSourceStack> context) {
+        final var entity = context.getArgument("entity", EntityType.class);
         return addLine(context, hologram -> hologram.addEntityLine(entity));
     }
 
-    private int addItemLine(CommandContext<CommandSourceStack> context) {
-        var item = context.getArgument("item", ItemStack.class);
+    private int addItemLine(final CommandContext<CommandSourceStack> context) {
+        final var item = context.getArgument("item", ItemStack.class);
         return addLine(context, hologram -> hologram.addItemLine().setItemStack(item));
     }
 
-    private int addTextLine(CommandContext<CommandSourceStack> context) {
-        var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
+    private int addTextLine(final CommandContext<CommandSourceStack> context) {
+        final var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
         return addLine(context, hologram -> hologram.addTextLine().setText(text));
     }
 
-    private int addLine(CommandContext<CommandSourceStack> context, Consumer<Hologram> consumer) {
-        var hologram = context.getArgument("hologram", Hologram.class);
+    private int addLine(final CommandContext<CommandSourceStack> context, final Consumer<Hologram> consumer) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
         consumer.accept(hologram);
         plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.line.add",
                 Placeholder.parsed("hologram", hologram.getName()),

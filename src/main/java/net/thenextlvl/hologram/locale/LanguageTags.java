@@ -195,18 +195,18 @@ public final class LanguageTags {
 
     public static Stream<Map.Entry<Locale, String>> getLanguages() {
         return LANGUAGE_TAGS.entrySet().stream().map(entry -> {
-            Locale locale = Translator.parseLocale(entry.getValue());
+            final Locale locale = Translator.parseLocale(entry.getValue());
             if (locale == null) return null;
             return Map.entry(locale, entry.getKey());
         }).filter(Objects::nonNull);
     }
 
-    public static @Nullable Locale getLocale(String languageName) {
-        var value = LANGUAGE_TAGS.get(languageName);
+    public static @Nullable Locale getLocale(final String languageName) {
+        final var value = LANGUAGE_TAGS.get(languageName);
         return value != null ? Translator.parseLocale(value) : null;
     }
 
-    public static String getLanguageName(Locale locale) {
+    public static String getLanguageName(final Locale locale) {
         return LANGUAGE_TAGS.keySet().stream()
                 .filter(s -> locale.equals(getLocale(s)))
                 .findAny()

@@ -12,12 +12,12 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class ColorAdapter implements TagAdapter<Color> {
     @Override
-    public Color deserialize(Tag tag, TagDeserializationContext context) throws ParserException {
+    public Color deserialize(final Tag tag, final TagDeserializationContext context) throws ParserException {
         return Color.fromARGB(tag.getAsInt());
     }
 
     @Override
-    public Tag serialize(Color object, TagSerializationContext context) throws ParserException {
+    public Tag serialize(final Color object, final TagSerializationContext context) throws ParserException {
         return IntTag.of(object.asARGB());
     }
 }

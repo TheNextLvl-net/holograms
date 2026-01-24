@@ -17,37 +17,37 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditOffsetCommand extends SimpleCommand {
-    private HologramLineEditOffsetCommand(HologramPlugin plugin) {
+    private HologramLineEditOffsetCommand(final HologramPlugin plugin) {
         super(plugin, "offset", "holograms.command.line.edit.offset");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditOffsetCommand(plugin);
-        var x = Commands.argument("x", FloatArgumentType.floatArg());
-        var y = Commands.argument("y", FloatArgumentType.floatArg());
-        var z = Commands.argument("z", FloatArgumentType.floatArg());
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditOffsetCommand(plugin);
+        final var x = Commands.argument("x", FloatArgumentType.floatArg());
+        final var y = Commands.argument("y", FloatArgumentType.floatArg());
+        final var z = Commands.argument("z", FloatArgumentType.floatArg());
         return command.create()
                 .then(Commands.literal("reset").executes(command))
                 .then(x.then(y.then(z.executes(command))));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var lineNumber = context.getArgument("line", int.class);
-        var offset = tryGetArgument(context, "x", float.class).map(x -> {
-            var y = context.getArgument("y", float.class);
-            var z = context.getArgument("z", float.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var lineNumber = context.getArgument("line", int.class);
+        final var offset = tryGetArgument(context, "x", float.class).map(x -> {
+            final var y = context.getArgument("y", float.class);
+            final var z = context.getArgument("z", float.class);
             return new Vector3f(x, y, z);
         }).orElseGet(Vector3f::new);
 
-        var message = hologram.getLine(lineNumber - 1).map(line -> {
-            if (line instanceof DisplayHologramLine<?, ?> displayLine) {
-                var transformation = displayLine.getTransformation();
+        final var message = hologram.getLine(lineNumber - 1).map(line -> {
+            if (line instanceof final DisplayHologramLine<?, ?> displayLine) {
+                final var transformation = displayLine.getTransformation();
                 if (transformation.getTranslation().equals(offset)) return "nothing.changed";
                 transformation.getTranslation().set(offset);
                 displayLine.setTransformation(transformation);
-            } else if (line instanceof EntityHologramLine<?> entityLine) {
+            } else if (line instanceof final EntityHologramLine<?> entityLine) {
                 if (entityLine.getOffset().equals(offset)) return "nothing.changed";
                 entityLine.setOffset(offset);
             }

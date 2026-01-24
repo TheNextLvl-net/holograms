@@ -12,19 +12,19 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class ItemHologramLineDeserializer extends DisplayHologramLineDeserializer<ItemHologramLine> {
-    public ItemHologramLineDeserializer(PaperHologram hologram) {
+    public ItemHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }
 
     @Override
-    protected void deserialize(ItemHologramLine line, CompoundTag tag, TagDeserializationContext context) throws ParserException {
+    protected void deserialize(final ItemHologramLine line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
         tag.optional("itemStack").map(tag1 -> context.deserialize(tag1, ItemStack.class)).ifPresent(line::setItemStack);
         tag.optional("itemDisplayTransform").map(tag1 -> context.deserialize(tag1, ItemDisplayTransform.class)).ifPresent(line::setItemDisplayTransform);
         super.deserialize(line, tag, context);
     }
 
     @Override
-    protected ItemHologramLine createLine(CompoundTag tag, TagDeserializationContext context) {
+    protected ItemHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
         return new PaperItemHologramLine(hologram);
     }
 }

@@ -12,7 +12,7 @@ import org.jspecify.annotations.NullMarked;
 public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologramLine, BlockDisplay> implements BlockHologramLine {
     private BlockData block = BlockType.AIR.createBlockData();
 
-    public PaperBlockHologramLine(PaperHologram hologram) {
+    public PaperBlockHologramLine(final PaperHologram hologram) {
         super(hologram, BlockDisplay.class);
     }
 
@@ -27,7 +27,7 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologr
     }
 
     @Override
-    public BlockHologramLine setBlock(BlockData block) {
+    public BlockHologramLine setBlock(final BlockData block) {
         this.block = block.clone();
         getEntity().ifPresent(entity -> entity.setBlock(block));
         return this;
@@ -39,7 +39,7 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologr
     }
 
     @Override
-    protected void preSpawn(BlockDisplay entity) {
+    protected void preSpawn(final BlockDisplay entity) {
         entity.setBlock(block);
         super.preSpawn(entity);
     }

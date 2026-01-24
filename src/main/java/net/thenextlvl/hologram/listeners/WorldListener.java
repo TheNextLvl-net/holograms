@@ -14,22 +14,22 @@ import org.jspecify.annotations.NullMarked;
 public final class WorldListener implements Listener {
     private final HologramPlugin plugin;
 
-    public WorldListener(HologramPlugin plugin) {
+    public WorldListener(final HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldLoad(WorldLoadEvent event) {
+    public void onWorldLoad(final WorldLoadEvent event) {
         plugin.loadHolograms(event.getWorld());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldSave(WorldSaveEvent event) {
+    public void onWorldSave(final WorldSaveEvent event) {
         plugin.hologramProvider().getHolograms(event.getWorld()).forEach(Hologram::persist);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onWorldUnload(WorldUnloadEvent event) {
+    public void onWorldUnload(final WorldUnloadEvent event) {
         plugin.hologramProvider().holograms.removeIf(hologram -> {
             if (hologram.getWorld().equals(event.getWorld())) {
                 hologram.persist();

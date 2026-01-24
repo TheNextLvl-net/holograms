@@ -17,7 +17,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     private ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
     private @Nullable ItemStack item = null;
 
-    public PaperItemHologramLine(PaperHologram hologram) {
+    public PaperItemHologramLine(final PaperHologram hologram) {
         super(hologram, ItemDisplay.class);
     }
 
@@ -32,7 +32,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     }
 
     @Override
-    public ItemHologramLine setItemStack(@Nullable ItemStack item) {
+    public ItemHologramLine setItemStack(@Nullable final ItemStack item) {
         this.item = item != null ? item.clone() : null;
         getEntity().ifPresent(entity -> entity.setItemStack(item));
         return this;
@@ -44,7 +44,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     }
 
     @Override
-    public ItemHologramLine setItemDisplayTransform(ItemDisplayTransform display) {
+    public ItemHologramLine setItemDisplayTransform(final ItemDisplayTransform display) {
         if (Objects.equals(this.displayTransform, display)) return this;
         this.displayTransform = display;
         getEntity().ifPresent(entity -> entity.setItemDisplayTransform(display));
@@ -69,7 +69,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     }
 
     @Override
-    protected void preSpawn(ItemDisplay entity) {
+    protected void preSpawn(final ItemDisplay entity) {
         entity.setItemStack(item);
         entity.setItemDisplayTransform(displayTransform);
         super.preSpawn(entity);

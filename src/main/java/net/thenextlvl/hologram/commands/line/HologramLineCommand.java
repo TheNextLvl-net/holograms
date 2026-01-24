@@ -9,12 +9,12 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class HologramLineCommand extends BrigadierCommand {
-    private HologramLineCommand(HologramPlugin plugin) {
+    private HologramLineCommand(final HologramPlugin plugin) {
         super(plugin, "line", "holograms.command.line");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineCommand(plugin);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineCommand(plugin);
         return command.create()
                 .then(HologramLineAddCommand.create(plugin))
                 .then(HologramLineEditCommand.create(plugin))

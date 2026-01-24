@@ -12,8 +12,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class Matrix4fAdapter implements TagAdapter<Matrix4f> {
     @Override
-    public Matrix4f deserialize(Tag tag, TagDeserializationContext context) throws ParserException {
-        var root = tag.getAsCompound();
+    public Matrix4f deserialize(final Tag tag, final TagDeserializationContext context) throws ParserException {
+        final var root = tag.getAsCompound();
         return new Matrix4f(
                 root.get("m00").getAsFloat(),
                 root.get("m01").getAsFloat(),
@@ -35,7 +35,7 @@ public final class Matrix4fAdapter implements TagAdapter<Matrix4f> {
     }
 
     @Override
-    public CompoundTag serialize(Matrix4f matrix4f, TagSerializationContext context) {
+    public CompoundTag serialize(final Matrix4f matrix4f, final TagSerializationContext context) {
         return CompoundTag.builder()
                 .put("m00", matrix4f.m00())
                 .put("m01", matrix4f.m01())

@@ -11,23 +11,23 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramListCommand extends SimpleCommand {
-    private HologramListCommand(HologramPlugin plugin) {
+    private HologramListCommand(final HologramPlugin plugin) {
         super(plugin, "list", "holograms.command.list");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramListCommand(plugin);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramListCommand(plugin);
         return command.create().executes(command);
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> commandContext) {
-        var sender = commandContext.getSource().getSender();
-        var holograms = plugin.hologramProvider().getHolograms().map(hologram -> {
+    public int run(final CommandContext<CommandSourceStack> commandContext) {
+        final var sender = commandContext.getSource().getSender();
+        final var holograms = plugin.hologramProvider().getHolograms().map(hologram -> {
             return plugin.bundle().component("hologram.list.entry", sender, 
                     Placeholder.parsed("hologram", hologram.getName()));
         }).toList();
-        var message = holograms.isEmpty() ? "hologram.list.empty" : "hologram.list";
+        final var message = holograms.isEmpty() ? "hologram.list.empty" : "hologram.list";
         plugin.bundle().sendMessage(sender, message,
                 Formatter.number("amount", holograms.size()),
                 Formatter.joining("holograms", holograms));

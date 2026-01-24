@@ -14,12 +14,12 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class TextHologramLineDeserializer extends DisplayHologramLineDeserializer<TextHologramLine> {
-    public TextHologramLineDeserializer(PaperHologram hologram) {
+    public TextHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }
 
     @Override
-    protected void deserialize(TextHologramLine line, CompoundTag tag, TagDeserializationContext context) throws ParserException {
+    protected void deserialize(final TextHologramLine line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
         tag.optional("text").map(tag1 -> context.deserialize(tag1, Component.class)).ifPresent(line::setText);
         tag.optional("lineWidth").map(Tag::getAsInt).ifPresent(line::setLineWidth);
         tag.optional("backgroundColor").map(tag1 -> context.deserialize(tag1, Color.class)).ifPresent(line::setBackgroundColor);
@@ -32,7 +32,7 @@ public final class TextHologramLineDeserializer extends DisplayHologramLineDeser
     }
 
     @Override
-    protected TextHologramLine createLine(CompoundTag tag, TagDeserializationContext context) {
+    protected TextHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
         return new PaperTextHologramLine(hologram);
     }
 }

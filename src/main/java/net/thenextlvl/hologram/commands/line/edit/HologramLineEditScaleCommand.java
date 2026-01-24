@@ -17,39 +17,39 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditScaleCommand extends SimpleCommand {
-    private HologramLineEditScaleCommand(HologramPlugin plugin) {
+    private HologramLineEditScaleCommand(final HologramPlugin plugin) {
         super(plugin, "scale", "holograms.command.line.edit.scale");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditScaleCommand(plugin);
-        var x = Commands.argument("x", FloatArgumentType.floatArg(0.1f));
-        var y = Commands.argument("y", FloatArgumentType.floatArg(0.1f));
-        var z = Commands.argument("z", FloatArgumentType.floatArg(0.1f));
-        var scale = Commands.argument("scale", FloatArgumentType.floatArg(0.1f));
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditScaleCommand(plugin);
+        final var x = Commands.argument("x", FloatArgumentType.floatArg(0.1f));
+        final var y = Commands.argument("y", FloatArgumentType.floatArg(0.1f));
+        final var z = Commands.argument("z", FloatArgumentType.floatArg(0.1f));
+        final var scale = Commands.argument("scale", FloatArgumentType.floatArg(0.1f));
         return command.create()
                 .then(scale.executes(command))
                 .then(x.then(y.then(z.executes(command))));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var lineNumber = context.getArgument("line", int.class);
-        var scale = tryGetArgument(context, "scale", float.class).map(Vector3f::new).orElseGet(() -> {
-            var x = context.getArgument("x", float.class);
-            var y = context.getArgument("y", float.class);
-            var z = context.getArgument("z", float.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var lineNumber = context.getArgument("line", int.class);
+        final var scale = tryGetArgument(context, "scale", float.class).map(Vector3f::new).orElseGet(() -> {
+            final var x = context.getArgument("x", float.class);
+            final var y = context.getArgument("y", float.class);
+            final var z = context.getArgument("z", float.class);
             return new Vector3f(x, y, z);
         });
 
-        var message = hologram.getLine(lineNumber - 1).map(line -> {
-            if (line instanceof DisplayHologramLine<?, ?> displayLine) {
-                var transformation = displayLine.getTransformation();
+        final var message = hologram.getLine(lineNumber - 1).map(line -> {
+            if (line instanceof final DisplayHologramLine<?, ?> displayLine) {
+                final var transformation = displayLine.getTransformation();
                 if (transformation.getScale().equals(scale)) return "nothing.changed";
                 transformation.getScale().set(scale);
                 displayLine.setTransformation(transformation);
-            } else if (line instanceof EntityHologramLine<?> entityLine) {
+            } else if (line instanceof final EntityHologramLine<?> entityLine) {
                 if (entityLine.getScale() == scale.y()) return "nothing.changed";
                 entityLine.setScale(scale.y());
             } else return "hologram.type.display";

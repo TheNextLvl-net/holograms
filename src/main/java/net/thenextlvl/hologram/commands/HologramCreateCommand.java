@@ -20,35 +20,35 @@ import static net.thenextlvl.hologram.commands.HologramCommand.nameArgument;
 
 @NullMarked
 final class HologramCreateCommand extends SimpleCommand {
-    private HologramCreateCommand(HologramPlugin plugin) {
+    private HologramCreateCommand(final HologramPlugin plugin) {
         super(plugin, "create", "holograms.command.create");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramCreateCommand(plugin);
-        var position = Commands.argument("position", ArgumentTypes.finePosition()).executes(command);
-        var world = Commands.argument("world", ArgumentTypes.world()).executes(command);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramCreateCommand(plugin);
+        final var position = Commands.argument("position", ArgumentTypes.finePosition()).executes(command);
+        final var world = Commands.argument("world", ArgumentTypes.world()).executes(command);
         return command.create().then(nameArgument().then(position.then(world)).executes(command));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        var name = context.getArgument("name", String.class);
-        var world = tryGetArgument(context, "world", World.class)
+    public int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        final var name = context.getArgument("name", String.class);
+        final var world = tryGetArgument(context, "world", World.class)
                 .orElseGet(() -> context.getSource().getLocation().getWorld());
-        var location = resolveArgument(context, "position", FinePositionResolver.class)
+        final var location = resolveArgument(context, "position", FinePositionResolver.class)
                 .map(finePosition -> finePosition.toLocation(world))
                 .orElseGet(context.getSource()::getLocation);
-        var sender = context.getSource().getSender();
+        final var sender = context.getSource().getSender();
 
-        var placeholder = Placeholder.parsed("hologram", name);
+        final var placeholder = Placeholder.parsed("hologram", name);
         if (plugin.hologramProvider().hasHologram(name)) {
             plugin.bundle().sendMessage(sender, "hologram.exists", placeholder);
             return 0;
         }
 
         plugin.hologramProvider().spawnHologram(name, location, hologram -> {
-            var text = plugin.bundle().component("hologram.default", Locale.US,
+            final var text = plugin.bundle().component("hologram.default", Locale.US,
                     Placeholder.parsed("hologram", StringArgumentType.escapeIfRequired(name)));
             hologram.addTextLine().setText(text);
         });

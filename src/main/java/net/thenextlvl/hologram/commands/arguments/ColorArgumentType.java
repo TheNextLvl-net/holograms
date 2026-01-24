@@ -9,11 +9,11 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class ColorArgumentType implements CustomArgumentType.Converted<Color, String> {
     @Override
-    public Color convert(String nativeType) {
+    public Color convert(final String nativeType) {
         if (nativeType.length() != 8) {
             throw new IllegalStateException("Color hex must be 8 characters long");
         }
-        var argb = Long.decode("0x" + nativeType);
+        final var argb = Long.decode("0x" + nativeType);
         return Color.fromARGB(argb.intValue());
     }
 

@@ -23,26 +23,26 @@ public final class LineSuggestionProvider implements SuggestionProvider<CommandS
     public static final LineSuggestionProvider INSTANCE = new LineSuggestionProvider();
 
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
-        var hologram = context.getLastChild().getArgument("hologram", Hologram.class);
+    public CompletableFuture<Suggestions> getSuggestions(final CommandContext<CommandSourceStack> context, final SuggestionsBuilder builder) {
+        final var hologram = context.getLastChild().getArgument("hologram", Hologram.class);
         for (var index = 1; index <= hologram.getLineCount(); index++) {
-            var line = String.valueOf(index);
+            final var line = String.valueOf(index);
             if (!line.contains(builder.getRemaining())) continue;
             builder.suggest(line, getTooltip(hologram, index));
         }
         return builder.buildFuture();
     }
 
-    private static Message getTooltip(Hologram hologram, int index) {
-        var tooltip = switch (hologram.getLine(index - 1).orElse(null)) {
-            case BlockHologramLine blockLine -> Component.text("Block: ")
+    private static Message getTooltip(final Hologram hologram, final int index) {
+        final var tooltip = switch (hologram.getLine(index - 1).orElse(null)) {
+            case final BlockHologramLine blockLine -> Component.text("Block: ")
                     .append(Component.translatable(blockLine.getBlock().getMaterial()));
-            case EntityHologramLine<?> entityLine -> Component.text("Entity: ")
+            case final EntityHologramLine<?> entityLine -> Component.text("Entity: ")
                     .append(Component.translatable(entityLine.getEntityType()));
-            case ItemHologramLine itemLine -> Component.text("Item: ")
+            case final ItemHologramLine itemLine -> Component.text("Item: ")
                     .append(Component.translatable(itemLine.getItemStack().getType()));
-            case TextHologramLine textLine -> textLine.getText().map(component -> {
-                var serialize = MiniMessage.miniMessage().serialize(component);
+            case final TextHologramLine textLine -> textLine.getText().map(component -> {
+                final var serialize = MiniMessage.miniMessage().serialize(component);
                 return MiniMessage.miniMessage().deserialize("Text: " + serialize.replace("\n", "\\n"));
             }).orElse(Component.empty());
             case null -> Component.empty();

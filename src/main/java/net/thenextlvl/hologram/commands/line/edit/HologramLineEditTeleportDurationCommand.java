@@ -15,23 +15,23 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditTeleportDurationCommand extends SimpleCommand {
-    private HologramLineEditTeleportDurationCommand(HologramPlugin plugin) {
+    private HologramLineEditTeleportDurationCommand(final HologramPlugin plugin) {
         super(plugin, "teleport-duration", "holograms.command.line.edit.teleport-duration");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditTeleportDurationCommand(plugin);
-        var named = Commands.argument("duration", ArgumentTypes.time());
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditTeleportDurationCommand(plugin);
+        final var named = Commands.argument("duration", ArgumentTypes.time());
         return command.create().then(named.executes(command));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var lineNumber = context.getArgument("line", int.class);
-        var duration = context.getArgument("duration", int.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var lineNumber = context.getArgument("line", int.class);
+        final var duration = context.getArgument("duration", int.class);
 
-        var message = hologram.getLine(lineNumber - 1, DisplayHologramLine.class).map(displayLine -> {
+        final var message = hologram.getLine(lineNumber - 1, DisplayHologramLine.class).map(displayLine -> {
             if (displayLine.getTeleportDuration() == duration) return "nothing.changed";
             displayLine.setTeleportDuration(duration);
             return "hologram.teleport-duration";

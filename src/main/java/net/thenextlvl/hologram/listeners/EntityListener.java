@@ -21,12 +21,12 @@ import org.jspecify.annotations.NullMarked;
 public final class EntityListener implements Listener {
     private final HologramPlugin plugin;
 
-    public EntityListener(HologramPlugin plugin) {
+    public EntityListener(final HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityRemove(EntityRemoveEvent event) {
+    public void onEntityRemove(final EntityRemoveEvent event) {
         plugin.hologramProvider().getHologram(event.getEntity()).ifPresent(hologram -> {
             hologram.persist();
             ((PaperHologram) hologram).invalidate(event.getEntity());
@@ -35,48 +35,48 @@ public final class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityCombust(EntityCombustEvent event) {
+    public void onEntityCombust(final EntityCombustEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getEntity()));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityDamage(EntityDamageEvent event) {
+    public void onEntityDamage(final EntityDamageEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getEntity()));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPrePlayerEntityAttack(PrePlayerAttackEntityEvent event) {
+    public void onPrePlayerEntityAttack(final PrePlayerAttackEntityEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getAttacked()));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerPickEntity(PlayerPickEntityEvent event) {
+    public void onPlayerPickEntity(final PlayerPickEntityEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getEntity()));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+    public void onPlayerArmorStandManipulate(final PlayerArmorStandManipulateEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getRightClicked()));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+    public void onPlayerInteractEntity(final PlayerInteractEntityEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getRightClicked()));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onCreeperPower(CreeperPowerEvent event) {
+    public void onCreeperPower(final CreeperPowerEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getEntity()));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onProjectileHit(ProjectileHitEvent event) {
+    public void onProjectileHit(final ProjectileHitEvent event) {
         event.setCancelled(event.getHitEntity() != null && plugin.hologramProvider().isHologramPart(event.getHitEntity()));
     }
 
     // waiting for https://github.com/PaperMC/Paper/pull/13252
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityKnockback(EntityKnockbackEvent event) {
+    public void onEntityKnockback(final EntityKnockbackEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getEntity()));
     }
 }

@@ -19,32 +19,33 @@ import static net.thenextlvl.hologram.commands.translation.HologramTranslationCo
 
 @NullMarked
 public final class HologramTranslationAddCommand extends SimpleCommand {
-    private HologramTranslationAddCommand(HologramPlugin plugin) {
+    
+    private HologramTranslationAddCommand(final HologramPlugin plugin) {
         super(plugin, "add", "holograms.command.translation.add");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramTranslationAddCommand(plugin);
-        var locale = Commands.argument("locale", new LocaleArgumentType(plugin, false));
-        var translation = Commands.argument("translation", StringArgumentType.greedyString());
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramTranslationAddCommand(plugin);
+        final var locale = Commands.argument("locale", new LocaleArgumentType(plugin, false));
+        final var translation = Commands.argument("translation", StringArgumentType.greedyString());
         return command.create().then(translationKeyArgument(plugin)
                 .then(locale.then(translation.executes(command))));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        var sender = context.getSource().getSender();
-        var locale = context.getArgument("locale", Locale.class);
-        var key = context.getArgument("translation key", String.class);
-        var translation = context.getArgument("translation", String.class);
+    public int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        final var sender = context.getSource().getSender();
+        final var locale = context.getArgument("locale", Locale.class);
+        final var key = context.getArgument("translation key", String.class);
+        final var translation = context.getArgument("translation", String.class);
 
-        var success = plugin.translations().override(key, locale, translation);
+        final var success = plugin.translations().override(key, locale, translation);
         if (success) {
             plugin.updateHologramTextLines(null);
             plugin.translations().save(locale);
         }
 
-        var message = success ? "hologram.translation.added" : "nothing.changed";
+        final var message = success ? "hologram.translation.added" : "nothing.changed";
         plugin.bundle().sendMessage(sender, message,
                 Placeholder.parsed("locale", LanguageTags.getLanguageName(locale)),
                 Placeholder.parsed("key", key));

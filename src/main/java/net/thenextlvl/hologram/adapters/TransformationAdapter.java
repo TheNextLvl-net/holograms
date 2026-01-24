@@ -14,17 +14,17 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class TransformationAdapter implements TagAdapter<Transformation> {
     @Override
-    public Transformation deserialize(Tag tag, TagDeserializationContext context) throws ParserException {
-        var root = tag.getAsCompound();
-        var translation = context.deserialize(root.get("translation"), Vector3f.class);
-        var leftRotation = context.deserialize(root.get("leftRotation"), Quaternionf.class);
-        var scale = context.deserialize(root.get("scale"), Vector3f.class);
-        var rightRotation = context.deserialize(root.get("rightRotation"), Quaternionf.class);
+    public Transformation deserialize(final Tag tag, final TagDeserializationContext context) throws ParserException {
+        final var root = tag.getAsCompound();
+        final var translation = context.deserialize(root.get("translation"), Vector3f.class);
+        final var leftRotation = context.deserialize(root.get("leftRotation"), Quaternionf.class);
+        final var scale = context.deserialize(root.get("scale"), Vector3f.class);
+        final var rightRotation = context.deserialize(root.get("rightRotation"), Quaternionf.class);
         return new Transformation(translation, leftRotation, scale, rightRotation);
     }
 
     @Override
-    public Tag serialize(Transformation transformation, TagSerializationContext context) throws ParserException {
+    public Tag serialize(final Transformation transformation, final TagSerializationContext context) throws ParserException {
         return CompoundTag.builder()
                 .put("translation", context.serialize(transformation.getTranslation()))
                 .put("leftRotation", context.serialize(transformation.getLeftRotation()))

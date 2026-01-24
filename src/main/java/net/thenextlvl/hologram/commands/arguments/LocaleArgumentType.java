@@ -18,14 +18,14 @@ public class LocaleArgumentType implements CustomArgumentType.Converted<Locale, 
     private final HologramPlugin plugin;
     private final boolean filter;
 
-    public LocaleArgumentType(HologramPlugin plugin, boolean filter) {
+    public LocaleArgumentType(final HologramPlugin plugin, final boolean filter) {
         this.plugin = plugin;
         this.filter = filter;
     }
 
     @Override
-    public Locale convert(String nativeType) {
-        var locale = LanguageTags.getLocale(nativeType);
+    public Locale convert(final String nativeType) {
+        final var locale = LanguageTags.getLocale(nativeType);
         if (locale != null) return locale;
         throw new NullPointerException("Unknown language: " + nativeType);
     }
@@ -36,8 +36,8 @@ public class LocaleArgumentType implements CustomArgumentType.Converted<Locale, 
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        var key = context.getLastChild().getArgument("translation key", String.class);
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        final var key = context.getLastChild().getArgument("translation key", String.class);
         LanguageTags.getLanguages()
                 .filter(entry -> !filter || plugin.translations().contains(key, entry.getKey()))
                 .map(entry -> StringArgumentType.escapeIfRequired(entry.getValue()))

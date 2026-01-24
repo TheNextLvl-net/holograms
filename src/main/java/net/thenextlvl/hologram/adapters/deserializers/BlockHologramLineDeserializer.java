@@ -11,18 +11,18 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class BlockHologramLineDeserializer extends DisplayHologramLineDeserializer<BlockHologramLine> {
-    public BlockHologramLineDeserializer(PaperHologram hologram) {
+    public BlockHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }
 
     @Override
-    protected void deserialize(BlockHologramLine line, CompoundTag tag, TagDeserializationContext context) throws ParserException {
+    protected void deserialize(final BlockHologramLine line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
         tag.optional("block").map(tag1 -> context.deserialize(tag1, BlockData.class)).ifPresent(line::setBlock);
         super.deserialize(line, tag, context);
     }
 
     @Override
-    protected BlockHologramLine createLine(CompoundTag tag, TagDeserializationContext context) {
+    protected BlockHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
         return new PaperBlockHologramLine(hologram);
     }
 }

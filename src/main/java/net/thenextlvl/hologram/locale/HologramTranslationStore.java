@@ -19,47 +19,47 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
     private final HologramPlugin plugin;
     private final Path path;
 
-    public HologramTranslationStore(HologramPlugin plugin) {
+    public HologramTranslationStore(final HologramPlugin plugin) {
         super(Key.key("holograms", "translations"), MiniMessage.miniMessage());
         this.path = plugin.getTranslationsPath().resolve("custom");
         this.plugin = plugin;
     }
 
     public void read() {
-        try (var files = Files.list(this.path)) {
+        try (final var files = Files.list(this.path)) {
             files.filter(path -> path.getFileName().toString().endsWith(".properties")).forEach(this::readLocale);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             plugin.getComponentLogger().warn("Failed to read custom translations", e);
         }
     }
 
-    private void readLocale(Path path) {
-        try (var reader = Files.newBufferedReader(path)) {
-            var properties = new Properties();
+    private void readLocale(final Path path) {
+        try (final var reader = Files.newBufferedReader(path)) {
+            final var properties = new Properties();
             properties.load(reader);
-            var string = path.getFileName().toString();
-            var substring = string.substring(0, string.length() - ".properties".length());
-            var locale = Translator.parseLocale(substring);
+            final var string = path.getFileName().toString();
+            final var substring = string.substring(0, string.length() - ".properties".length());
+            final var locale = Translator.parseLocale(substring);
             if (locale == null) plugin.getComponentLogger().warn("Invalid locale for {}", substring);
             else properties.forEach((key, value) -> register(key.toString(), locale, value.toString()));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             plugin.getComponentLogger().warn("Failed to read custom translations from {}", path, e);
         }
     }
 
-    public void save(Locale locale) {
+    public void save(final Locale locale) {
         saveLocale(locale, getAllTranslations(locale));
     }
 
-    private void saveLocale(Locale locale, Map<String, String> translations) {
+    private void saveLocale(final Locale locale, final Map<String, String> translations) {
         try {
             Files.createDirectories(this.path);
-            var path = this.path.resolve(locale + ".properties");
-            var properties = new Properties();
+            final var path = this.path.resolve(locale + ".properties");
+            final var properties = new Properties();
             translations.forEach(properties::setProperty);
-            var comment = LanguageTags.getLanguageName(locale);
+            final var comment = LanguageTags.getLanguageName(locale);
             properties.store(Files.newBufferedWriter(path), comment);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             plugin.getComponentLogger().warn("Failed to save translations for locale {}", locale, e);
         }
     }

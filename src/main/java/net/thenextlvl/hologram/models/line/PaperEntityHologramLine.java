@@ -23,7 +23,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     private final Vector3f offset = new Vector3f();
     private double scale = 1;
 
-    public PaperEntityHologramLine(PaperHologram hologram, Class<E> entityClass) throws IllegalArgumentException {
+    public PaperEntityHologramLine(final PaperHologram hologram, final Class<E> entityClass) throws IllegalArgumentException {
         super(hologram, entityClass);
     }
 
@@ -48,7 +48,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    public EntityHologramLine<E> setScale(double scale) {
+    public EntityHologramLine<E> setScale(final double scale) {
         if (this.scale == scale) return this;
         this.scale = scale;
         getEntity(Attributable.class).ifPresent(this::updateScale);
@@ -62,10 +62,10 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    public EntityHologramLine<E> setOffset(Vector3f offset) {
+    public EntityHologramLine<E> setOffset(final Vector3f offset) {
         if (this.offset.equals(offset)) return this;
         getEntity().ifPresent(entity -> {
-            var location = entity.getLocation();
+            final var location = entity.getLocation();
             location.subtract(this.offset.x(), this.offset.y(), this.offset.z());
             location.add(offset.x(), offset.y(), offset.z());
             entity.teleportAsync(location);
@@ -75,59 +75,59 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    protected Location mutateSpawnLocation(Location location) {
+    protected Location mutateSpawnLocation(final Location location) {
         return location.add(getOffset().x(), getOffset().y(), getOffset().z());
     }
 
     @Override
-    protected void preSpawn(E entity) {
+    protected void preSpawn(final E entity) {
         entity.setSilent(true);
         entity.setInvulnerable(true);
         entity.setGravity(false);
         entity.setNoPhysics(true);
 
-        if (entity instanceof Mob mob) {
+        if (entity instanceof final Mob mob) {
             getHologram().getPlugin().getServer().getMobGoals().removeAllGoals(mob);
             mob.setDespawnInPeacefulOverride(TriState.FALSE);
             mob.setAware(false);
         }
 
-        if (entity instanceof TNTPrimed explosive) {
+        if (entity instanceof final TNTPrimed explosive) {
             explosive.setFuseTicks(Integer.MAX_VALUE);
         }
 
-        if (entity instanceof Explosive explosive) {
+        if (entity instanceof final Explosive explosive) {
             explosive.setIsIncendiary(false);
             explosive.setYield(0);
         }
 
 
-        if (entity instanceof Pathfinder pathfinder) {
+        if (entity instanceof final Pathfinder pathfinder) {
             pathfinder.setCanFloat(false);
             pathfinder.setCanOpenDoors(false);
             pathfinder.setCanPassDoors(false);
         }
 
-        if (entity instanceof LivingEntity livingEntity) {
+        if (entity instanceof final LivingEntity livingEntity) {
             livingEntity.setAI(false);
             livingEntity.setCollidable(false);
             livingEntity.setCanPickupItems(false);
             livingEntity.setRemoveWhenFarAway(true);
         }
 
-        if (entity instanceof Attributable attributable) {
+        if (entity instanceof final Attributable attributable) {
             updateScale(attributable);
         }
 
-        if (entity instanceof ArmorStand armorStand) {
+        if (entity instanceof final ArmorStand armorStand) {
             armorStand.setDisabledSlots(EquipmentSlot.values());
         }
 
         super.preSpawn(entity);
     }
 
-    private void updateScale(Attributable attributable) {
-        var attribute = attributable.getAttribute(Attribute.SCALE);
+    private void updateScale(final Attributable attributable) {
+        final var attribute = attributable.getAttribute(Attribute.SCALE);
         if (attribute != null) attribute.setBaseValue(scale);
     }
 }

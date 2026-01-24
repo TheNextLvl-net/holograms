@@ -16,27 +16,27 @@ import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 final class HologramLineMoveCommand extends SimpleCommand {
-    private HologramLineMoveCommand(HologramPlugin plugin) {
+    private HologramLineMoveCommand(final HologramPlugin plugin) {
         super(plugin, "move", "holograms.command.line.move");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineMoveCommand(plugin);
-        var from = Commands.argument("from", IntegerArgumentType.integer(1))
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineMoveCommand(plugin);
+        final var from = Commands.argument("from", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.INSTANCE);
-        var to = Commands.argument("to", IntegerArgumentType.integer(1))
+        final var to = Commands.argument("to", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.INSTANCE);
         return command.create().then(hologramArgument(plugin)
                 .then(from.then(to.executes(command))));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var from = context.getArgument("from", int.class);
-        var to = context.getArgument("to", int.class);
-        var success = hologram.moveLine(from - 1, to - 1);
-        var message = success ? "hologram.line.move" : "hologram.line.move.failed";
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var from = context.getArgument("from", int.class);
+        final var to = context.getArgument("to", int.class);
+        final var success = hologram.moveLine(from - 1, to - 1);
+        final var message = success ? "hologram.line.move" : "hologram.line.move.failed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.parsed("hologram", hologram.getName()),
                 Placeholder.parsed("from", String.valueOf(from)),

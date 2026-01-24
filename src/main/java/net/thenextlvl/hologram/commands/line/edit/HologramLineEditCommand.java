@@ -13,13 +13,13 @@ import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 public final class HologramLineEditCommand extends BrigadierCommand {
-    private HologramLineEditCommand(HologramPlugin plugin) {
+    private HologramLineEditCommand(final HologramPlugin plugin) {
         super(plugin, "edit", "holograms.command.line.edit");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditCommand(plugin);
-        var line = Commands.argument("line", IntegerArgumentType.integer(1))
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditCommand(plugin);
+        final var line = Commands.argument("line", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.INSTANCE);
         return command.create().then(hologramArgument(plugin).then(line
                 .then(HologramLineEditAlignmentCommand.create(plugin))

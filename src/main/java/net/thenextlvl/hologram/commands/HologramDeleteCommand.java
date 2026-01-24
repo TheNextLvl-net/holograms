@@ -13,20 +13,20 @@ import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 final class HologramDeleteCommand extends SimpleCommand {
-    private HologramDeleteCommand(HologramPlugin plugin) {
+    private HologramDeleteCommand(final HologramPlugin plugin) {
         super(plugin, "delete", "holograms.command.delete");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramDeleteCommand(plugin);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramDeleteCommand(plugin);
         return command.create().then(hologramArgument(plugin).executes(command));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var success = plugin.hologramProvider().deleteHologram(hologram);
-        var message = success ? "hologram.delete" : "hologram.delete.failed";
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var success = plugin.hologramProvider().deleteHologram(hologram);
+        final var message = success ? "hologram.delete" : "hologram.delete.failed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.parsed("hologram", hologram.getName()));
         return SINGLE_SUCCESS;

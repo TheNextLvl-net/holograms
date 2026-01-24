@@ -16,30 +16,30 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditAlignmentCommand extends SimpleCommand {
-    private HologramLineEditAlignmentCommand(HologramPlugin plugin) {
+    private HologramLineEditAlignmentCommand(final HologramPlugin plugin) {
         super(plugin, "alignment", "holograms.command.line.edit.alignment");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditAlignmentCommand(plugin);
-        var named = Commands.argument("alignment", new EnumArgumentType<>(TextAlignment.class));
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditAlignmentCommand(plugin);
+        final var named = Commands.argument("alignment", new EnumArgumentType<>(TextAlignment.class));
         return command.create().then(named.executes(command));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var sender = context.getSource().getSender();
-        var alignment = context.getArgument("alignment", TextAlignment.class);
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var line = context.getArgument("line", int.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var sender = context.getSource().getSender();
+        final var alignment = context.getArgument("alignment", TextAlignment.class);
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var line = context.getArgument("line", int.class);
 
-        var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
+        final var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
             if (textLine.getAlignment() == alignment) return "nothing.changed";
             textLine.setAlignment(alignment);
             return "hologram.text-alignment";
         }).orElse("hologram.type.text");
 
-        var alignmentName = plugin.bundle().component(switch (alignment) {
+        final var alignmentName = plugin.bundle().component(switch (alignment) {
             case LEFT -> "text-alignment.left";
             case CENTER -> "text-alignment.center";
             case RIGHT -> "text-alignment.right";

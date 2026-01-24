@@ -14,30 +14,30 @@ import static net.thenextlvl.hologram.commands.HologramCommand.nameArgument;
 
 @NullMarked
 public final class HologramRenameCommand extends SimpleCommand {
-    private HologramRenameCommand(HologramPlugin plugin) {
+    private HologramRenameCommand(final HologramPlugin plugin) {
         super(plugin, "rename", "holograms.command.rename");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramRenameCommand(plugin);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramRenameCommand(plugin);
         return command.create().then(hologramArgument(plugin)
                 .then(nameArgument().executes(command)));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var name = context.getArgument("name", String.class);
-        var sender = context.getSource().getSender();
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var name = context.getArgument("name", String.class);
+        final var sender = context.getSource().getSender();
 
         if (plugin.hologramProvider().hasHologram(name)) {
             plugin.bundle().sendMessage(sender, "hologram.exists", Placeholder.parsed("hologram", name));
             return 0;
         }
 
-        var oldName = hologram.getName();
-        var success = hologram.setName(name);
-        var message = success ? "hologram.renamed" : "nothing.changed";
+        final var oldName = hologram.getName();
+        final var success = hologram.setName(name);
+        final var message = success ? "hologram.renamed" : "nothing.changed";
 
         plugin.bundle().sendMessage(sender, message,
                 Placeholder.parsed("hologram", oldName),

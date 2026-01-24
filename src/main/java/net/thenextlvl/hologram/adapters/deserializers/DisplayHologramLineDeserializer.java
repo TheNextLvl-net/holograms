@@ -15,12 +15,12 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 abstract class DisplayHologramLineDeserializer<T extends DisplayHologramLine<T, ?>> extends HologramLineDeserializer<T> {
-    protected DisplayHologramLineDeserializer(PaperHologram hologram) {
+    protected DisplayHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }
 
     @Override
-    protected void deserialize(T line, CompoundTag tag, TagDeserializationContext context) throws ParserException {
+    protected void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
         tag.optional("viewRange").map(Tag::getAsFloat).ifPresent(line::setViewRange);
         tag.optional("displayWidth").map(Tag::getAsFloat).ifPresent(line::setDisplayWidth);
         tag.optional("displayHeight").map(Tag::getAsFloat).ifPresent(line::setDisplayHeight);

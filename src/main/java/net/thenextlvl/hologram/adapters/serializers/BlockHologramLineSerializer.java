@@ -9,7 +9,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class BlockHologramLineSerializer extends DisplayHologramLineSerializer<BlockHologramLine> {
     @Override
-    public CompoundTag serialize(BlockHologramLine line, TagSerializationContext context) throws ParserException {
+    public CompoundTag serialize(final BlockHologramLine line, final TagSerializationContext context) throws ParserException {
         return CompoundTag.builder().putAll(super.serialize(line, context))
                 .put("block", context.serialize(line.getBlock()))
                 .build();

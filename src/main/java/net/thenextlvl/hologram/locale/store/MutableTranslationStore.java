@@ -137,7 +137,7 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
     @Override
     public final boolean equals(final Object other) {
         if (this == other) return true;
-        if (!(other instanceof MutableTranslationStore<?> that)) return false;
+        if (!(other instanceof final MutableTranslationStore<?> that)) return false;
 
         return this.name.equals(that.name);
     }
@@ -156,15 +156,15 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
         return translations.keySet().stream();
     }
 
-    public Map<Locale, T> getTranslations(String key) {
-        var translation = translations.get(key);
+    public Map<Locale, T> getTranslations(final String key) {
+        final var translation = translations.get(key);
         return translation == null ? Map.of() : translation.translations;
     }
 
-    public Map<String, T> getAllTranslations(Locale locale) {
-        var map = new HashMap<String, T>();
+    public Map<String, T> getAllTranslations(final Locale locale) {
+        final var map = new HashMap<String, T>();
         translations.values().forEach(translation -> {
-            var t = translation.translations.get(locale);
+            final var t = translation.translations.get(locale);
             if (t != null) map.put(translation.key, t);
         });
         return map;
@@ -201,7 +201,7 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
         }
 
         private boolean override(final Locale locale, final T translation) {
-            T put = this.translations.put(locale, translation);
+            final T put = this.translations.put(locale, translation);
             return !translation.equals(put);
         }
 
@@ -216,7 +216,7 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
         @Override
         public boolean equals(final Object other) {
             if (this == other) return true;
-            if (!(other instanceof MutableTranslationStore<?>.Translation that)) return false;
+            if (!(other instanceof final MutableTranslationStore<?>.Translation that)) return false;
             return this.key.equals(that.key) && this.translations.equals(that.translations);
         }
 

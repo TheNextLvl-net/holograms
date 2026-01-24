@@ -13,20 +13,20 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class EntityHologramLineDeserializer extends HologramLineDeserializer<EntityHologramLine<?>> {
-    public EntityHologramLineDeserializer(PaperHologram hologram) {
+    public EntityHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }
 
     @Override
-    protected void deserialize(EntityHologramLine<?> line, CompoundTag tag, TagDeserializationContext context) throws ParserException {
+    protected void deserialize(final EntityHologramLine<?> line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
         tag.optional("scale").map(Tag::getAsDouble).ifPresent(line::setScale);
         tag.optional("offset").map(tag1 -> context.deserialize(tag1, Vector3f.class)).ifPresent(line::setOffset);
     }
 
     @Override
     @SuppressWarnings("DataFlowIssue")
-    protected EntityHologramLine<?> createLine(CompoundTag tag, TagDeserializationContext context) {
-        var type = context.deserialize(tag.get("entityType"), EntityType.class);
+    protected EntityHologramLine<?> createLine(final CompoundTag tag, final TagDeserializationContext context) {
+        final var type = context.deserialize(tag.get("entityType"), EntityType.class);
         return new PaperEntityHologramLine<>(hologram, type.getEntityClass());
     }
 }

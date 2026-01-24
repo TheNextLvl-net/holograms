@@ -17,24 +17,24 @@ import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 final class HologramLineRemoveCommand extends SimpleCommand {
-    private HologramLineRemoveCommand(HologramPlugin plugin) {
+    private HologramLineRemoveCommand(final HologramPlugin plugin) {
         super(plugin, "remove", "holograms.command.line.remove");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineRemoveCommand(plugin);
-        var line = Commands.argument("line", IntegerArgumentType.integer(1))
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineRemoveCommand(plugin);
+        final var line = Commands.argument("line", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.INSTANCE);
         return command.create().then(hologramArgument(plugin)
                 .then(line.executes(command)));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var line = context.getArgument("line", int.class);
-        var success = hologram.removeLine(line - 1);
-        var message = success ? "hologram.line.remove" : "hologram.line.invalid";
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var line = context.getArgument("line", int.class);
+        final var success = hologram.removeLine(line - 1);
+        final var message = success ? "hologram.line.remove" : "hologram.line.invalid";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.parsed("hologram", hologram.getName()),
                 Formatter.number("line", line));

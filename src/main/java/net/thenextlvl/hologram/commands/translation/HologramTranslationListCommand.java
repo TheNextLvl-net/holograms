@@ -15,22 +15,22 @@ import static net.thenextlvl.hologram.commands.translation.HologramTranslationCo
 
 @NullMarked
 public final class HologramTranslationListCommand extends SimpleCommand {
-    private HologramTranslationListCommand(HologramPlugin plugin) {
+    private HologramTranslationListCommand(final HologramPlugin plugin) {
         super(plugin, "list", "holograms.command.translation.list");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramTranslationListCommand(plugin);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramTranslationListCommand(plugin);
         return command.create()
                 .then(translationKeyArgument(plugin).executes(command))
                 .executes(command);
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        var source = context.getSource().getSender();
+    public int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        final var source = context.getSource().getSender();
         tryGetArgument(context, "translation key", String.class).ifPresentOrElse(key -> {
-            var translations = plugin.translations().getTranslations(key);
+            final var translations = plugin.translations().getTranslations(key);
             plugin.bundle().sendMessage(source, "hologram.translation.header",
                     Placeholder.parsed("key", key),
                     Formatter.booleanChoice("plural", translations.size() != 1),
@@ -41,7 +41,7 @@ public final class HologramTranslationListCommand extends SimpleCommand {
                         Placeholder.unparsed("translation", translation));
             });
         }, () -> {
-            var translations = plugin.translations().getTranslationKeys()
+            final var translations = plugin.translations().getTranslationKeys()
                     .sorted()
                     .map(key -> plugin.bundle().component("hologram.translation.entry", source, Placeholder.parsed("key", key)))
                     .toList();

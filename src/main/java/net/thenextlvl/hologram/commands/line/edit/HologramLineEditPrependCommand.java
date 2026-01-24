@@ -17,23 +17,23 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditPrependCommand extends SimpleCommand {
-    private HologramLineEditPrependCommand(HologramPlugin plugin) {
+    private HologramLineEditPrependCommand(final HologramPlugin plugin) {
         super(plugin, "prepend", "holograms.command.line.edit.prepend");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditPrependCommand(plugin);
-        var text = Commands.argument("text", StringArgumentType.greedyString());
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditPrependCommand(plugin);
+        final var text = Commands.argument("text", StringArgumentType.greedyString());
         return command.create().then(text.executes(command));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
-        var line = context.getArgument("line", int.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
+        final var line = context.getArgument("line", int.class);
 
-        var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
+        final var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
             if (text.equals(Component.empty())) return "nothing.changed";
             textLine.getText().map(text::append).ifPresent(textLine::setText);
             return "hologram.text.set";

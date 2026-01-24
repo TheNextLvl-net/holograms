@@ -16,26 +16,26 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditReplaceCommand extends SimpleCommand {
-    private HologramLineEditReplaceCommand(HologramPlugin plugin) {
+    private HologramLineEditReplaceCommand(final HologramPlugin plugin) {
         super(plugin, "replace", "holograms.command.line.edit.replace");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditReplaceCommand(plugin);
-        var match = Commands.argument("match", StringArgumentType.string());
-        var text = Commands.argument("text", StringArgumentType.string());
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditReplaceCommand(plugin);
+        final var match = Commands.argument("match", StringArgumentType.string());
+        final var text = Commands.argument("text", StringArgumentType.string());
         return command.create().then(match.then(text.executes(command)));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var match = context.getArgument("match", String.class);
-        var text = context.getArgument("text", String.class);
-        var line = context.getArgument("line", int.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var match = context.getArgument("match", String.class);
+        final var text = context.getArgument("text", String.class);
+        final var line = context.getArgument("line", int.class);
 
-        var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
-            var result = textLine.getText().map(MiniMessage.miniMessage()::serialize)
+        final var message = hologram.getLine(line - 1, TextHologramLine.class).map(textLine -> {
+            final var result = textLine.getText().map(MiniMessage.miniMessage()::serialize)
                     .map(s -> s.replace(match, text))
                     .map(MiniMessage.miniMessage()::deserialize);
             if (textLine.getText().equals(result)) return "nothing.changed";

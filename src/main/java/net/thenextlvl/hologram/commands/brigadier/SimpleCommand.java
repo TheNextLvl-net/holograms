@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public abstract class SimpleCommand extends BrigadierCommand implements Command<CommandSourceStack> {
-    protected SimpleCommand(HologramPlugin plugin, String name, @Nullable String permission) {
+    protected SimpleCommand(final HologramPlugin plugin, final String name, @Nullable final String permission) {
         super(plugin, name, permission);
     }
 }

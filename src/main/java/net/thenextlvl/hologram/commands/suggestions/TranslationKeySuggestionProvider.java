@@ -13,12 +13,12 @@ import java.util.concurrent.CompletableFuture;
 public class TranslationKeySuggestionProvider<S> implements SuggestionProvider<S> {
     private final HologramPlugin plugin;
 
-    public TranslationKeySuggestionProvider(HologramPlugin plugin) {
+    public TranslationKeySuggestionProvider(final HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         plugin.translations().getTranslationKeys()
                 .filter(name -> name.toLowerCase().contains(builder.getRemainingLowerCase()))
                 .forEach(builder::suggest);

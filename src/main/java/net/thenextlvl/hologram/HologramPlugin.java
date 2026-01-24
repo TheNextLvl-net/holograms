@@ -149,12 +149,12 @@ public class HologramPlugin extends JavaPlugin {
     public HologramTranslationStore translations() {
         return translations;
     }
-    
+
     public Path getTranslationsPath() {
         return path;
     }
 
-    private NBT.Builder base(World world) {
+    private NBT.Builder base(final World world) {
         return NBT.builder()
                 .registerTypeHierarchyAdapter(Billboard.class, new EnumAdapter<>(Billboard.class))
                 .registerTypeHierarchyAdapter(BlockData.class, new BlockDataAdapter(getServer()))
@@ -173,7 +173,7 @@ public class HologramPlugin extends JavaPlugin {
                 .registerTypeHierarchyAdapter(Vector3f.class, new Vector3fAdapter());
     }
 
-    public NBT serializer(World world) {
+    public NBT serializer(final World world) {
         return base(world)
                 .registerTypeHierarchyAdapter(BlockHologramLine.class, new BlockHologramLineSerializer())
                 .registerTypeHierarchyAdapter(EntityHologramLine.class, new EntityHologramLineSerializer())
@@ -182,7 +182,7 @@ public class HologramPlugin extends JavaPlugin {
                 .build();
     }
 
-    public NBT deserializer(PaperHologram hologram) {
+    public NBT deserializer(final PaperHologram hologram) {
         return base(hologram.getWorld())
                 .registerTypeHierarchyAdapter(BlockHologramLine.class, new BlockHologramLineDeserializer(hologram))
                 .registerTypeHierarchyAdapter(EntityHologramLine.class, new EntityHologramLineDeserializer(hologram))
@@ -191,40 +191,40 @@ public class HologramPlugin extends JavaPlugin {
                 .build();
     }
 
-    public void loadHolograms(World world) {
-        var dataFolder = hologramProvider().getDataFolder(world);
+    public void loadHolograms(final World world) {
+        final var dataFolder = hologramProvider().getDataFolder(world);
         if (!Files.isDirectory(dataFolder)) return;
-        try (var files = Files.find(dataFolder, 1, (path, attributes) -> {
+        try (final var files = Files.find(dataFolder, 1, (path, attributes) -> {
             return attributes.isRegularFile() && path.getFileName().toString().endsWith(".dat");
         })) {
             files.map(path -> loadSafe(path, world))
                     .filter(Objects::nonNull)
                     .forEach(Hologram::spawn);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             getComponentLogger().error("Failed to load all holograms in world {}", world.getName(), e);
             getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
             ERROR_TRACKER.trackError(e);
         }
     }
 
-    public @Nullable Hologram loadSafe(Path file, World world) {
+    public @Nullable Hologram loadSafe(final Path file, final World world) {
         try {
-            try (var inputStream = NBTInputStream.create(file)) {
+            try (final var inputStream = NBTInputStream.create(file)) {
                 return load(inputStream, world);
-            } catch (Exception e) {
-                var backup = file.resolveSibling(file.getFileName() + "_old");
+            } catch (final Exception e) {
+                final var backup = file.resolveSibling(file.getFileName() + "_old");
                 if (!Files.isRegularFile(backup)) throw e;
                 getComponentLogger().warn("Failed to load hologram from {}", file, e);
                 getComponentLogger().warn("Falling back to {}", backup);
-                try (var inputStream = NBTInputStream.create(backup)) {
+                try (final var inputStream = NBTInputStream.create(backup)) {
                     return load(inputStream, world);
                 }
             }
-        } catch (ParserException e) {
+        } catch (final ParserException e) {
             getComponentLogger().error("Failed to load hologram from {}", file, e);
-        } catch (EOFException e) {
+        } catch (final EOFException e) {
             getComponentLogger().error("The hologram file {} is irrecoverably broken", file);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             getComponentLogger().error("Failed to load hologram from {}", file, e);
             getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
             ERROR_TRACKER.trackError(e);
@@ -232,27 +232,27 @@ public class HologramPlugin extends JavaPlugin {
         return null;
     }
 
-    private @Nullable Hologram load(NBTInputStream inputStream, World world) throws IOException {
-        var entry = inputStream.readNamedTag();
-        var name = entry.getKey();
+    private @Nullable Hologram load(final NBTInputStream inputStream, final World world) throws IOException {
+        final var entry = inputStream.readNamedTag();
+        final var name = entry.getKey();
 
         if (hologramProvider().hasHologram(name)) {
             getComponentLogger().warn("A hologram with the name '{}' is already loaded", name);
             return null;
         }
 
-        var hologram = new PaperHologram(this, name, world);
+        final var hologram = new PaperHologram(this, name, world);
         hologram.deserialize(entry.getValue());
         hologramProvider().holograms.add(hologram);
         return hologram;
     }
 
-    public void updateHologramTextLines(@Nullable Player player) {
-        var holograms = player != null 
+    public void updateHologramTextLines(@Nullable final Player player) {
+        final var holograms = player != null
                 ? hologramProvider().getHolograms(player)
                 : hologramProvider().getHolograms();
         holograms.forEach(hologram -> hologram.getLines().forEach(hologramLine -> {
-            if (!(hologramLine instanceof PaperTextHologramLine line)) return;
+            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
             line.getText().ifPresent(text -> line.getEntity().ifPresent(entity -> {
                 entity.text(Component.empty());
                 entity.text(text);

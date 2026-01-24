@@ -16,30 +16,30 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 final class HologramLineEditTransformationCommand extends SimpleCommand {
-    private HologramLineEditTransformationCommand(HologramPlugin plugin) {
+    private HologramLineEditTransformationCommand(final HologramPlugin plugin) {
         super(plugin, "transformation", "holograms.command.line.edit.transformation");
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramLineEditTransformationCommand(plugin);
-        var named = Commands.argument("transformation", new EnumArgumentType<>(ItemDisplayTransform.class));
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramLineEditTransformationCommand(plugin);
+        final var named = Commands.argument("transformation", new EnumArgumentType<>(ItemDisplayTransform.class));
         return command.create().then(named.executes(command));
     }
 
     @Override
-    public int run(CommandContext<CommandSourceStack> context) {
-        var sender = context.getSource().getSender();
-        var hologram = context.getArgument("hologram", Hologram.class);
-        var lineNumber = context.getArgument("line", int.class);
-        var transformation = context.getArgument("transformation", ItemDisplayTransform.class);
+    public int run(final CommandContext<CommandSourceStack> context) {
+        final var sender = context.getSource().getSender();
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var lineNumber = context.getArgument("line", int.class);
+        final var transformation = context.getArgument("transformation", ItemDisplayTransform.class);
 
-        var message = hologram.getLine(lineNumber - 1, ItemHologramLine.class).map(itemLine -> {
+        final var message = hologram.getLine(lineNumber - 1, ItemHologramLine.class).map(itemLine -> {
             if (itemLine.getItemDisplayTransform() == transformation) return "nothing.changed";
             itemLine.setItemDisplayTransform(transformation);
             return "hologram.transformation";
         }).orElse("hologram.type.item");
 
-        var transformationName = plugin.bundle().component(switch (transformation) {
+        final var transformationName = plugin.bundle().component(switch (transformation) {
             case FIRSTPERSON_LEFTHAND -> "transformation.firstperson-lefthand";
             case FIRSTPERSON_RIGHTHAND -> "transformation.firstperson-righthand";
             case FIXED -> "transformation.fixed";

@@ -25,7 +25,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     private float opacity = 0;
     private int lineWidth = Integer.MAX_VALUE;
 
-    public PaperTextHologramLine(PaperHologram hologram) {
+    public PaperTextHologramLine(final PaperHologram hologram) {
         super(hologram, TextDisplay.class);
     }
 
@@ -40,7 +40,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public TextHologramLine setText(@Nullable Component text) {
+    public TextHologramLine setText(@Nullable final Component text) {
         if (Objects.equals(this.text, text)) return this;
         this.text = text;
         getEntity().ifPresent(entity -> entity.text(text));
@@ -54,7 +54,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public TextHologramLine setLineWidth(int width) {
+    public TextHologramLine setLineWidth(final int width) {
         this.lineWidth = width;
         getEntity().ifPresent(entity -> entity.setLineWidth(width));
         return this;
@@ -66,7 +66,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public TextHologramLine setBackgroundColor(@Nullable Color color) {
+    public TextHologramLine setBackgroundColor(@Nullable final Color color) {
         this.backgroundColor = color;
         getEntity().ifPresent(entity -> entity.setBackgroundColor(color));
         return this;
@@ -78,7 +78,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public TextHologramLine setTextOpacity(@Range(from = 0, to = 100) float opacity) {
+    public TextHologramLine setTextOpacity(@Range(from = 0, to = 100) final float opacity) {
         this.opacity = opacity;
         getEntity().ifPresent(this::updateOpacity);
         return this;
@@ -90,7 +90,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public TextHologramLine setShadowed(boolean shadow) {
+    public TextHologramLine setShadowed(final boolean shadow) {
         this.shadowed = shadow;
         getEntity().ifPresent(entity -> entity.setShadowed(shadow));
         return this;
@@ -102,7 +102,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public TextHologramLine setSeeThrough(boolean seeThrough) {
+    public TextHologramLine setSeeThrough(final boolean seeThrough) {
         this.seeThrough = seeThrough;
         getEntity().ifPresent(entity -> entity.setSeeThrough(seeThrough));
         return this;
@@ -114,7 +114,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public TextHologramLine setDefaultBackground(boolean defaultBackground) {
+    public TextHologramLine setDefaultBackground(final boolean defaultBackground) {
         this.defaultBackground = defaultBackground;
         getEntity().ifPresent(entity -> entity.setDefaultBackground(defaultBackground));
         return this;
@@ -126,7 +126,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public TextHologramLine setAlignment(TextDisplay.TextAlignment alignment) {
+    public TextHologramLine setAlignment(final TextDisplay.TextAlignment alignment) {
         this.alignment = alignment;
         getEntity().ifPresent(entity -> entity.setAlignment(alignment));
         return this;
@@ -134,13 +134,13 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
 
     @Override
     public double getHeight() {
-        var deserialize = text != null ? MiniMessage.miniMessage().serialize(text) : null;
-        var lines = deserialize != null ? deserialize.split("\n|<br>|<newline>").length : 1;
+        final var deserialize = text != null ? MiniMessage.miniMessage().serialize(text) : null;
+        final var lines = deserialize != null ? deserialize.split("\n|<br>|<newline>").length : 1;
         return (0.25 * transformation.getScale().y()) * lines;
     }
 
     @Override
-    protected void preSpawn(TextDisplay entity) {
+    protected void preSpawn(final TextDisplay entity) {
         entity.text(text);
         entity.setAlignment(alignment);
         entity.setSeeThrough(seeThrough);
@@ -153,7 +153,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
         super.preSpawn(entity);
     }
 
-    private void updateOpacity(TextDisplay entity) {
+    private void updateOpacity(final TextDisplay entity) {
         entity.setTextOpacity((byte) Math.round(25f + ((100f - opacity) * 2.3f)));
     }
 }

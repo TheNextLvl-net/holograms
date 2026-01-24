@@ -12,12 +12,12 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class HologramTranslationCommand extends BrigadierCommand {
-    private HologramTranslationCommand(HologramPlugin plugin) {
+    private HologramTranslationCommand(final HologramPlugin plugin) {
         super(plugin, "translation", "holograms.command.translation");
     }
 
-    public static LiteralCommandNode<CommandSourceStack> create(HologramPlugin plugin) {
-        var command = new HologramTranslationCommand(plugin);
+    public static LiteralCommandNode<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramTranslationCommand(plugin);
         return command.create()
                 .then(HologramTranslationAddCommand.create(plugin))
                 .then(HologramTranslationListCommand.create(plugin))
@@ -25,7 +25,7 @@ public final class HologramTranslationCommand extends BrigadierCommand {
                 .build();
     }
 
-    static RequiredArgumentBuilder<CommandSourceStack, String> translationKeyArgument(HologramPlugin plugin) {
+    static RequiredArgumentBuilder<CommandSourceStack, String> translationKeyArgument(final HologramPlugin plugin) {
         return Commands.argument("translation key", StringArgumentType.word())
                 .suggests(new TranslationKeySuggestionProvider<>(plugin));
     }

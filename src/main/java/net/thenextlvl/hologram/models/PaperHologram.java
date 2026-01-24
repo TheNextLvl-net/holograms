@@ -68,19 +68,19 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     private boolean visibleByDefault = true;
     private boolean spawned = false;
 
-    public PaperHologram(HologramPlugin plugin, String name, Location location) {
+    public PaperHologram(final HologramPlugin plugin, final String name, final Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
 
         this.plugin = plugin;
         this.location = location;
         this.name = name;
 
-        var dataFolder = plugin.hologramProvider().getDataFolder(location.getWorld());
+        final var dataFolder = plugin.hologramProvider().getDataFolder(location.getWorld());
         this.dataFile = dataFolder.resolve(name + ".dat");
         this.backupFile = dataFolder.resolve(name + ".dat_old");
     }
 
-    public PaperHologram(HologramPlugin plugin, String name, World world) {
+    public PaperHologram(final HologramPlugin plugin, final String name, final World world) {
         this(plugin, name, new Location(world, 0, 0, 0));
     }
 
@@ -100,7 +100,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public boolean setName(String name) {
+    public boolean setName(final String name) {
         if (Objects.equals(this.name, name)) return false;
         if (plugin.hologramProvider().hasHologram(name)) return false;
 
@@ -110,16 +110,16 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return true;
     }
 
-    private boolean updatePaths(World world, String name) {
-        var dataFolder = plugin.hologramProvider().getDataFolder(world);
-        var dataFile = dataFolder.resolve(name + ".dat");
-        var backupFile = dataFolder.resolve(name + ".dat_old");
+    private boolean updatePaths(final World world, final String name) {
+        final var dataFolder = plugin.hologramProvider().getDataFolder(world);
+        final var dataFile = dataFolder.resolve(name + ".dat");
+        final var backupFile = dataFolder.resolve(name + ".dat_old");
 
         try {
             Files.createDirectories(dataFolder);
             if (Files.isRegularFile(getDataFile())) Files.move(getDataFile(), dataFile, REPLACE_EXISTING);
             if (Files.isRegularFile(getBackupFile())) Files.move(getBackupFile(), backupFile, REPLACE_EXISTING);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             plugin.getComponentLogger().warn("Failed to move hologram data files for: {}", getName(), e);
             plugin.getComponentLogger().warn("Please look for similar issues or report this on GitHub: {}", ISSUES);
             HologramPlugin.ERROR_TRACKER.trackError(e);
@@ -141,17 +141,17 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return location.getWorld();
     }
 
-    public boolean isInChunk(Chunk chunk) {
-        var chunkX = location.getBlockX() >> 4;
-        var chunkZ = location.getBlockZ() >> 4;
+    public boolean isInChunk(final Chunk chunk) {
+        final var chunkX = location.getBlockX() >> 4;
+        final var chunkZ = location.getBlockZ() >> 4;
         return chunkX == chunk.getX() && chunkZ == chunk.getZ();
     }
 
     @Override
-    public CompletableFuture<Boolean> teleportAsync(Location location) {
+    public CompletableFuture<Boolean> teleportAsync(final Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
-        var previous = this.location;
-        var success = setLocation(location.clone());
+        final var previous = this.location;
+        final var success = setLocation(location.clone());
         if (!success) return CompletableFuture.completedFuture(false);
         return CompletableFuture.allOf(lines.stream()
                 .map(line -> (PaperHologramLine<?>) line)
@@ -160,7 +160,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         ).thenApply(v -> true);
     }
 
-    private boolean setLocation(Location location) {
+    private boolean setLocation(final Location location) {
         if (this.location.equals(location)) return false;
 
         if (this.location.getWorld().equals(location.getWorld())) {
@@ -185,41 +185,41 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public Optional<HologramLine<?>> getLine(int index) {
+    public Optional<HologramLine<?>> getLine(final int index) {
         if (index < 0 || index >= lines.size()) return Optional.empty();
         return Optional.of(lines.get(index));
     }
 
     @Override
-    public <T extends HologramLine<?>> Optional<T> getLine(int index, Class<T> type) {
+    public <T extends HologramLine<?>> Optional<T> getLine(final int index, final Class<T> type) {
         return getLine(index).filter(type::isInstance).map(type::cast);
     }
 
     @Override
-    public int getLineIndex(HologramLine<?> line) {
+    public int getLineIndex(final HologramLine<?> line) {
         return lines.indexOf(line);
     }
 
     @Override
-    public boolean removeLine(HologramLine<?> line) {
-        var removed = lines.remove(line);
+    public boolean removeLine(final HologramLine<?> line) {
+        final var removed = lines.remove(line);
         if (removed) line.getEntity().ifPresent(Entity::remove);
         updateHologram();
         return removed;
     }
 
     @Override
-    public boolean removeLine(int index) {
+    public boolean removeLine(final int index) {
         if (index < 0 || index >= lines.size()) return false;
-        var removed = lines.remove(index);
+        final var removed = lines.remove(index);
         removed.getEntity().ifPresent(Entity::remove);
         updateHologram();
         return true;
     }
 
     @Override
-    public boolean removeLines(Collection<HologramLine<?>> lines) {
-        var removed = lines.stream().map(this::removeLine).reduce(false, Boolean::logicalOr);
+    public boolean removeLines(final Collection<HologramLine<?>> lines) {
+        final var removed = lines.stream().map(this::removeLine).reduce(false, Boolean::logicalOr);
         if (removed) updateHologram();
         return removed;
     }
@@ -233,12 +233,12 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public boolean hasLine(HologramLine<?> line) {
+    public boolean hasLine(final HologramLine<?> line) {
         return lines.contains(line);
     }
 
     @Override
-    public boolean moveLine(int line, int index) {
+    public boolean moveLine(final int line, final int index) {
         if (line == index) return false;
         if (line < 0 || line >= lines.size()) return false;
         if (index < 0 || index >= lines.size()) return false;
@@ -248,12 +248,12 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public boolean swapLines(int line1, int line2) {
+    public boolean swapLines(final int line1, final int line2) {
         if (line1 == line2) return false;
         if (line1 < 0 || line1 >= lines.size()) return false;
         if (line2 < 0 || line2 >= lines.size()) return false;
-        var hologramLine1 = lines.get(line1);
-        var hologramLine2 = lines.get(line2);
+        final var hologramLine1 = lines.get(line1);
+        final var hologramLine2 = lines.get(line2);
         lines.set(line1, hologramLine2);
         lines.set(line2, hologramLine1);
         updateHologram();
@@ -261,24 +261,24 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public EntityHologramLine<?> addEntityLine(EntityType entityType) throws IllegalArgumentException {
+    public EntityHologramLine<?> addEntityLine(final EntityType entityType) throws IllegalArgumentException {
         return addEntityLine(entityType, lines.size());
     }
 
     @Override
-    public <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException {
+    public <T extends Entity> EntityHologramLine<T> addEntityLine(final Class<T> entityType) throws IllegalArgumentException {
         return addEntityLine(entityType, lines.size());
     }
 
     @Override
-    public EntityHologramLine<?> addEntityLine(EntityType entityType, int index) throws IllegalArgumentException {
+    public EntityHologramLine<?> addEntityLine(final EntityType entityType, final int index) throws IllegalArgumentException {
         Preconditions.checkArgument(entityType.getEntityClass() != null, "Cannot spawn entity of type %s", entityType);
         return addEntityLine(entityType.getEntityClass(), index);
     }
 
     @Override
-    public <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType, int index) throws IllegalArgumentException {
-        var hologramLine = new PaperEntityHologramLine<>(this, entityType);
+    public <T extends Entity> EntityHologramLine<T> addEntityLine(final Class<T> entityType, final int index) throws IllegalArgumentException {
+        final var hologramLine = new PaperEntityHologramLine<>(this, entityType);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
@@ -290,8 +290,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public BlockHologramLine addBlockLine(int index) {
-        var hologramLine = new PaperBlockHologramLine(this);
+    public BlockHologramLine addBlockLine(final int index) {
+        final var hologramLine = new PaperBlockHologramLine(this);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
@@ -303,8 +303,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public ItemHologramLine addItemLine(int index) {
-        var hologramLine = new PaperItemHologramLine(this);
+    public ItemHologramLine addItemLine(final int index) {
+        final var hologramLine = new PaperItemHologramLine(this);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
@@ -316,50 +316,50 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public TextHologramLine addTextLine(int index) {
-        var hologramLine = new PaperTextHologramLine(this);
+    public TextHologramLine addTextLine(final int index) {
+        final var hologramLine = new PaperTextHologramLine(this);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
     }
 
     @Override
-    public EntityHologramLine<?> setEntityLine(EntityType entityType, int index) throws IllegalArgumentException {
+    public EntityHologramLine<?> setEntityLine(final EntityType entityType, final int index) throws IllegalArgumentException {
         Preconditions.checkArgument(entityType.getEntityClass() != null, "Cannot spawn entity of type %s", entityType);
         return setEntityLine(entityType.getEntityClass(), index);
     }
 
     @Override
-    public <T extends Entity> EntityHologramLine<T> setEntityLine(Class<T> entityType, int index) throws IllegalArgumentException {
-        var hologramLine = new PaperEntityHologramLine<>(this, entityType);
-        var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
+    public <T extends Entity> EntityHologramLine<T> setEntityLine(final Class<T> entityType, final int index) throws IllegalArgumentException {
+        final var hologramLine = new PaperEntityHologramLine<>(this, entityType);
+        final var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
         previous.despawn();
         updateHologram();
         return hologramLine;
     }
 
     @Override
-    public BlockHologramLine setBlockLine(int index) {
-        var hologramLine = new PaperBlockHologramLine(this);
-        var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
+    public BlockHologramLine setBlockLine(final int index) {
+        final var hologramLine = new PaperBlockHologramLine(this);
+        final var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
         previous.despawn();
         updateHologram();
         return hologramLine;
     }
 
     @Override
-    public ItemHologramLine setItemLine(int index) {
-        var hologramLine = new PaperItemHologramLine(this);
-        var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
+    public ItemHologramLine setItemLine(final int index) {
+        final var hologramLine = new PaperItemHologramLine(this);
+        final var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
         previous.despawn();
         updateHologram();
         return hologramLine;
     }
 
     @Override
-    public TextHologramLine setTextLine(int index) {
-        var hologramLine = new PaperTextHologramLine(this);
-        var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
+    public TextHologramLine setTextLine(final int index) {
+        final var hologramLine = new PaperTextHologramLine(this);
+        final var previous = (PaperHologramLine<?>) lines.set(index, hologramLine);
         previous.despawn();
         updateHologram();
         return hologramLine;
@@ -371,7 +371,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public boolean setViewPermission(@Nullable String permission) {
+    public boolean setViewPermission(@Nullable final String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
         lines.forEach(hologramLine -> plugin.getServer().getOnlinePlayers()
@@ -385,40 +385,40 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public boolean addViewer(UUID player) {
+    public boolean addViewer(final UUID player) {
         if (!viewers.add(player)) return false;
         if (lines.isEmpty() || isVisibleByDefault()) return true;
-        var online = plugin.getServer().getPlayer(player);
+        final var online = plugin.getServer().getPlayer(player);
         if (online != null) getEntities().forEach(entity -> online.showEntity(plugin, entity));
         return true;
     }
 
     @Override
-    public boolean addViewers(Collection<UUID> players) {
+    public boolean addViewers(final Collection<UUID> players) {
         return players.stream().map(this::addViewer).reduce(false, Boolean::logicalOr);
     }
 
     @Override
-    public boolean removeViewer(UUID player) {
+    public boolean removeViewer(final UUID player) {
         if (!viewers.remove(player)) return false;
         if (lines.isEmpty() || isVisibleByDefault()) return true;
-        var online = plugin.getServer().getPlayer(player);
+        final var online = plugin.getServer().getPlayer(player);
         if (online != null) getEntities().forEach(entity -> online.hideEntity(plugin, entity));
         return true;
     }
 
     @Override
-    public boolean removeViewers(Collection<UUID> players) {
+    public boolean removeViewers(final Collection<UUID> players) {
         return players.stream().map(this::removeViewer).reduce(false, Boolean::logicalOr);
     }
 
     @Override
-    public boolean isViewer(UUID player) {
+    public boolean isViewer(final UUID player) {
         return viewers.contains(player);
     }
 
     @Override
-    public boolean canSee(Player player) {
+    public boolean canSee(final Player player) {
         if (lines.isEmpty() || !isSpawned()) return false;
         if (!player.getWorld().equals(location.getWorld())) return false;
         if (viewPermission != null && !player.hasPermission(viewPermission)) return false;
@@ -426,7 +426,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public boolean isTrackedBy(Player player) {
+    public boolean isTrackedBy(final Player player) {
         return getEntities().anyMatch(entity -> entity.getTrackedBy().contains(player));
     }
 
@@ -436,14 +436,14 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public boolean setVisibleByDefault(boolean visible) {
+    public boolean setVisibleByDefault(final boolean visible) {
         if (this.visibleByDefault == visible) return false;
         this.visibleByDefault = visible;
         return true;
     }
 
     @Override
-    public boolean setPersistent(boolean persistent) {
+    public boolean setPersistent(final boolean persistent) {
         if (this.persistent == persistent) return false;
         this.persistent = persistent;
         return true;
@@ -457,20 +457,20 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public boolean persist() {
         if (!isPersistent()) return false;
-        var file = getDataFile();
-        var backup = getBackupFile();
+        final var file = getDataFile();
+        final var backup = getBackupFile();
         try {
             if (Files.isRegularFile(file)) Files.move(file, backup, REPLACE_EXISTING);
             else Files.createDirectories(file.getParent());
-            try (var outputStream = NBTOutputStream.create(file)) {
+            try (final var outputStream = NBTOutputStream.create(file)) {
                 outputStream.writeTag(getName(), serialize());
                 return true;
             }
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             if (Files.isRegularFile(backup)) try {
                 Files.copy(backup, file, REPLACE_EXISTING);
                 plugin.getComponentLogger().warn("Recovered hologram {} from potential data loss", getName());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 plugin.getComponentLogger().error("Failed to restore hologram {}", getName(), e);
             }
             plugin.getComponentLogger().error("Failed to save hologram {}", getName(), t);
@@ -496,9 +496,9 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         var offset = 0d;
         // Start from the bottom line, going up
         for (var index = lines.size() - 1; index >= 0; index--) {
-            var line = lines.get(index);
-            var hologramLine = (PaperHologramLine<?>) line;
-            var spawn = hologramLine.spawn(offset + hologramLine.getOffsetBefore());
+            final var line = lines.get(index);
+            final var hologramLine = (PaperHologramLine<?>) line;
+            final var spawn = hologramLine.spawn(offset + hologramLine.getOffsetBefore());
             offset += 0.05 + hologramLine.getHeight() + hologramLine.getOffsetAfter();
         }
         this.spawned = true;
@@ -530,14 +530,14 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return spawned;
     }
 
-    public void invalidate(Entity entity) {
+    public void invalidate(final Entity entity) {
         lines.forEach(line -> ((PaperHologramLine<?>) line).invalidate(entity));
     }
 
     @Override
     public CompoundTag serialize() throws ParserException {
-        var nbt = plugin.serializer(getWorld());
-        var builder = CompoundTag.builder();
+        final var nbt = plugin.serializer(getWorld());
+        final var builder = CompoundTag.builder();
 
         builder.put("position", nbt.serialize(location));
         builder.put("rotation", CompoundTag.builder()
@@ -547,15 +547,15 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         builder.put("visibleByDefault", visibleByDefault);
         if (viewPermission != null) builder.put("viewPermission", viewPermission);
 
-        var lines = this.lines.stream().map(nbt::serialize).toList();
+        final var lines = this.lines.stream().map(nbt::serialize).toList();
         if (!lines.isEmpty()) builder.put("lines", ListTag.of(lines));
 
         return builder.build();
     }
 
     @Override
-    public void deserialize(CompoundTag tag) throws ParserException {
-        var nbt = plugin.deserializer(this);
+    public void deserialize(final CompoundTag tag) throws ParserException {
+        final var nbt = plugin.deserializer(this);
 
         tag.optional("position").map(tag1 -> nbt.deserialize(tag1, Position.class)).ifPresent(position -> {
             this.location.setX(position.x());
@@ -572,7 +572,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
         tag.optional("lines").map(Tag::<CompoundTag>getAsList).ifPresent(lines -> {
             lines.stream().map(line -> {
-                var type = nbt.deserialize(line.get("lineType"), LineType.class);
+                final var type = nbt.deserialize(line.get("lineType"), LineType.class);
                 return nbt.<HologramLine<?>>deserialize(line, switch (type) {
                     case ENTITY -> EntityHologramLine.class;
                     case BLOCK -> BlockHologramLine.class;

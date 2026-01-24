@@ -13,18 +13,18 @@ import org.jspecify.annotations.NullMarked;
 abstract class HologramLineDeserializer<T extends HologramLine<?>> implements TagDeserializer<T> {
     protected final PaperHologram hologram;
 
-    protected HologramLineDeserializer(PaperHologram hologram) {
+    protected HologramLineDeserializer(final PaperHologram hologram) {
         this.hologram = hologram;
     }
 
     protected abstract void deserialize(T line, CompoundTag tag, TagDeserializationContext context) throws ParserException;
-    
+
     protected abstract T createLine(CompoundTag tag, TagDeserializationContext context);
 
     @Override
-    public final T deserialize(Tag tag, TagDeserializationContext context) throws ParserException {
-        var root = tag.getAsCompound();
-        var line = createLine(root, context);
+    public final T deserialize(final Tag tag, final TagDeserializationContext context) throws ParserException {
+        final var root = tag.getAsCompound();
+        final var line = createLine(root, context);
         deserialize(line, root, context);
         return line;
     }

@@ -81,8 +81,6 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
         return this.translations.computeIfAbsent(key, Translation::new).override(locale, translation);
     }
 
-    protected abstract void onUpdate();
-
     @Override
     public final void register(final String key, final Locale locale, final T translation) {
         this.translations.computeIfAbsent(key, Translation::new).register(locale, translation);
@@ -163,12 +161,14 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
         return translation == null ? Map.of() : translation.translations;
     }
 
-    public Map<Locale, Map<String, T>> getAllTranslations() {
-        var map = new HashMap<Locale, Map<String, T>>();
-        translations.values().forEach(translation -> translation.translations.forEach((locale, t) -> {
-            map.computeIfAbsent(locale, k -> new HashMap<>()).put(translation.key, t);
-        }));
+    public Map<String, T> getAllTranslations(Locale locale) {
+        var map = new HashMap<String, T>();
+        translations.values().forEach(translation -> {
+            var t = translation.translations.get(locale);
+            if (t != null) map.put(translation.key, t);
+        });
         return map;
+        
     }
 
     public final class Translation implements Examinable {
@@ -198,12 +198,10 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
             if (this.translations.putIfAbsent(locale, translation) != null) {
                 throw new IllegalArgumentException(String.format("Translation already exists: %s for %s", this.key, locale));
             }
-            onUpdate();
         }
 
         private boolean override(final Locale locale, final T translation) {
             T put = this.translations.put(locale, translation);
-            onUpdate();
             return !translation.equals(put);
         }
 

@@ -35,7 +35,11 @@ public final class HologramTranslationRemoveCommand extends SimpleCommand {
         var key = context.getArgument("key", String.class);
 
         var success = plugin.translations().contains(key, locale);
-        if (success) plugin.translations().unregister(key, locale);
+        if (success) {
+            plugin.translations().unregister(key, locale);
+            plugin.updateHologramTextLines(null);
+            plugin.translations().save(locale);
+        }
 
         var message = success ? "hologram.translation.removed" : "nothing.changed";
         plugin.bundle().sendMessage(sender, message,

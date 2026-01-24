@@ -39,6 +39,10 @@ public final class HologramTranslationAddCommand extends SimpleCommand {
         var translation = context.getArgument("translation", String.class);
 
         var success = plugin.translations().override(key, locale, translation);
+        if (success) {
+            plugin.updateHologramTextLines(null);
+            plugin.translations().save(locale);
+        }
 
         var message = success ? "hologram.translation.added" : "nothing.changed";
         plugin.bundle().sendMessage(sender, message,

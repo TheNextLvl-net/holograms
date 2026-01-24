@@ -62,10 +62,4 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
             plugin.getComponentLogger().warn("Failed to save translations for locale {}", locale, e);
         }
     }
-
-    @Override
-    protected void onUpdate() {
-        plugin.updateHologramTextLines(null);
-        save();
-    }
 }

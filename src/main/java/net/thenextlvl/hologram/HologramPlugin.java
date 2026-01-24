@@ -134,6 +134,7 @@ public class HologramPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         provider.forEachHologram(Hologram::persist);
+        fastStats.shutdown();
         metrics.shutdown();
     }
 

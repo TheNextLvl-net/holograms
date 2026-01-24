@@ -15,7 +15,7 @@ import org.jspecify.annotations.NullMarked;
 
 import java.util.Locale;
 
-import static net.thenextlvl.hologram.commands.translation.HologramTranslationCommand.keyArgument;
+import static net.thenextlvl.hologram.commands.translation.HologramTranslationCommand.translationKeyArgument;
 
 @NullMarked
 public final class HologramTranslationAddCommand extends SimpleCommand {
@@ -27,7 +27,7 @@ public final class HologramTranslationAddCommand extends SimpleCommand {
         var command = new HologramTranslationAddCommand(plugin);
         var locale = Commands.argument("locale", new LocaleArgumentType(plugin, false));
         var translation = Commands.argument("translation", StringArgumentType.greedyString());
-        return command.create().then(keyArgument(plugin)
+        return command.create().then(translationKeyArgument(plugin)
                 .then(locale.then(translation.executes(command))));
     }
 
@@ -35,7 +35,7 @@ public final class HologramTranslationAddCommand extends SimpleCommand {
     public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var sender = context.getSource().getSender();
         var locale = context.getArgument("locale", Locale.class);
-        var key = context.getArgument("key", String.class);
+        var key = context.getArgument("translation key", String.class);
         var translation = context.getArgument("translation", String.class);
 
         var success = plugin.translations().override(key, locale, translation);

@@ -11,7 +11,7 @@ import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import net.thenextlvl.hologram.locale.LanguageTags;
 import org.jspecify.annotations.NullMarked;
 
-import static net.thenextlvl.hologram.commands.translation.HologramTranslationCommand.keyArgument;
+import static net.thenextlvl.hologram.commands.translation.HologramTranslationCommand.translationKeyArgument;
 
 @NullMarked
 public final class HologramTranslationListCommand extends SimpleCommand {
@@ -22,14 +22,14 @@ public final class HologramTranslationListCommand extends SimpleCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramTranslationListCommand(plugin);
         return command.create()
-                .then(keyArgument(plugin).executes(command))
+                .then(translationKeyArgument(plugin).executes(command))
                 .executes(command);
     }
 
     @Override
     public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var source = context.getSource().getSender();
-        tryGetArgument(context, "key", String.class).ifPresentOrElse(key -> {
+        tryGetArgument(context, "translation key", String.class).ifPresentOrElse(key -> {
             var translations = plugin.translations().getTranslations(key);
             plugin.bundle().sendMessage(source, "hologram.translation.header",
                     Placeholder.parsed("key", key),

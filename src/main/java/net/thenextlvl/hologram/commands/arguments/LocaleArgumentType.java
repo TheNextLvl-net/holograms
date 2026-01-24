@@ -37,7 +37,7 @@ public class LocaleArgumentType implements CustomArgumentType.Converted<Locale, 
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        var key = context.getLastChild().getArgument("key", String.class);
+        var key = context.getLastChild().getArgument("translation key", String.class);
         LanguageTags.getLanguages()
                 .filter(entry -> !filter || plugin.translations().contains(key, entry.getKey()))
                 .map(entry -> StringArgumentType.escapeIfRequired(entry.getValue()))

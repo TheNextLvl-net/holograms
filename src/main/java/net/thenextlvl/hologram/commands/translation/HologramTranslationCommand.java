@@ -25,8 +25,8 @@ public final class HologramTranslationCommand extends BrigadierCommand {
                 .build();
     }
 
-    static RequiredArgumentBuilder<CommandSourceStack, String> keyArgument(HologramPlugin plugin) {
-        return Commands.argument("key", StringArgumentType.word())
+    static RequiredArgumentBuilder<CommandSourceStack, String> translationKeyArgument(HologramPlugin plugin) {
+        return Commands.argument("translation key", StringArgumentType.word())
                 .suggests(new TranslationKeySuggestionProvider<>(plugin));
     }
 }

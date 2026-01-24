@@ -14,7 +14,7 @@ import org.jspecify.annotations.NullMarked;
 
 import java.util.Locale;
 
-import static net.thenextlvl.hologram.commands.translation.HologramTranslationCommand.keyArgument;
+import static net.thenextlvl.hologram.commands.translation.HologramTranslationCommand.translationKeyArgument;
 
 @NullMarked
 public final class HologramTranslationRemoveCommand extends SimpleCommand {
@@ -25,14 +25,14 @@ public final class HologramTranslationRemoveCommand extends SimpleCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(HologramPlugin plugin) {
         var command = new HologramTranslationRemoveCommand(plugin);
         var locale = Commands.argument("locale", new LocaleArgumentType(plugin, true));
-        return command.create().then(keyArgument(plugin).then(locale.executes(command)));
+        return command.create().then(translationKeyArgument(plugin).then(locale.executes(command)));
     }
 
     @Override
     public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var sender = context.getSource().getSender();
         var locale = context.getArgument("locale", Locale.class);
-        var key = context.getArgument("key", String.class);
+        var key = context.getArgument("translation key", String.class);
 
         var success = plugin.translations().contains(key, locale);
         if (success) {

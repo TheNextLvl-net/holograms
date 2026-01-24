@@ -7,7 +7,6 @@ import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.translation.GlobalTranslator;
 import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.adapters.BlockDataAdapter;
 import net.thenextlvl.hologram.adapters.BrightnessAdapter;
@@ -38,8 +37,11 @@ import net.thenextlvl.hologram.listeners.ChunkListener;
 import net.thenextlvl.hologram.listeners.EntityListener;
 import net.thenextlvl.hologram.listeners.HologramListener;
 import net.thenextlvl.hologram.listeners.LocaleListener;
+import net.thenextlvl.hologram.listeners.PluginListener;
 import net.thenextlvl.hologram.listeners.WorldListener;
 import net.thenextlvl.hologram.locale.HologramTranslationStore;
+import net.thenextlvl.hologram.locale.MiniPlaceholdersFormatter;
+import net.thenextlvl.hologram.locale.PlaceholderAPIFormatter;
 import net.thenextlvl.hologram.models.PaperHologram;
 import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import net.thenextlvl.hologram.version.PluginVersionChecker;
@@ -99,9 +101,11 @@ public class HologramPlugin extends JavaPlugin {
 
     private final HologramTranslationStore translations = new HologramTranslationStore(this);
 
+    public @Nullable MiniPlaceholdersFormatter miniFormatter = null;
+    public @Nullable PlaceholderAPIFormatter papiFormatter = null;
+
     public HologramPlugin() {
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
-        GlobalTranslator.translator().addSource(translations);
         translations.read();
     }
 
@@ -127,6 +131,7 @@ public class HologramPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityListener(this), this);
         getServer().getPluginManager().registerEvents(new HologramListener(this), this);
         getServer().getPluginManager().registerEvents(new LocaleListener(this), this);
+        getServer().getPluginManager().registerEvents(new PluginListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
     }
 
@@ -250,10 +255,8 @@ public class HologramPlugin extends JavaPlugin {
                 : hologramProvider().getHolograms();
         holograms.forEach(hologram -> hologram.getLines().forEach(hologramLine -> {
             if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
-            line.getText().ifPresent(text -> line.getEntities().forEach((ignored, entity) -> {
-                entity.text(Component.empty());
-                entity.text(text);
-            }));
+            if (player == null) line.getEntities().forEach(line::updateText);
+            else line.getEntity(player).ifPresent(textDisplay -> line.updateText(player, textDisplay));
         }));
     }
 }

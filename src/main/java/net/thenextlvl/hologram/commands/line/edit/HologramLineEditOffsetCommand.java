@@ -55,7 +55,7 @@ final class HologramLineEditOffsetCommand extends SimpleCommand {
         }).orElse("hologram.line.invalid");
 
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", lineNumber));
         return SINGLE_SUCCESS;
     }

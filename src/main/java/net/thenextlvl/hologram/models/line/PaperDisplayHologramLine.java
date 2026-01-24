@@ -4,6 +4,7 @@ import net.thenextlvl.hologram.line.DisplayHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
@@ -216,7 +217,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    protected void preSpawn(final E entity) {
+    protected void preSpawn(final E entity, final Player player) {
         entity.setTransformation(transformation);
         entity.setDisplayWidth(displayWidth);
         entity.setDisplayHeight(displayHeight);
@@ -230,6 +231,6 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
         entity.setGlowColorOverride(glowColorOverride);
         entity.setBrightness(brightness);
 
-        super.preSpawn(entity);
+        super.preSpawn(entity, player);
     }
 }

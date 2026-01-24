@@ -52,13 +52,13 @@ final class HologramTeleportCommand extends SimpleCommand {
         if (position == null && sender instanceof final Player player) {
             player.teleportAsync(hologram.getLocation(), COMMAND).thenAccept(success -> {
                 final var message = success ? "hologram.teleport.success" : "hologram.teleport.failed";
-                plugin.bundle().sendMessage(sender, message, Placeholder.parsed("hologram", hologram.getName()));
+                plugin.bundle().sendMessage(sender, message, Placeholder.unparsed("hologram", hologram.getName()));
             });
             return SINGLE_SUCCESS;
         } else if (position != null) {
             hologram.teleportAsync(position).thenAccept(success -> {
                 final var message = success ? "hologram.move.success" : "hologram.move.failed";
-                plugin.bundle().sendMessage(sender, message, Placeholder.parsed("hologram", hologram.getName()));
+                plugin.bundle().sendMessage(sender, message, Placeholder.unparsed("hologram", hologram.getName()));
             });
             return SINGLE_SUCCESS;
         } else {

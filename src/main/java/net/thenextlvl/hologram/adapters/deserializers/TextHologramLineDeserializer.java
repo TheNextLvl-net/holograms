@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.adapters.deserializers;
 
-import net.kyori.adventure.text.Component;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
@@ -20,7 +19,7 @@ public final class TextHologramLineDeserializer extends DisplayHologramLineDeser
 
     @Override
     protected void deserialize(final TextHologramLine line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
-        tag.optional("text").map(tag1 -> context.deserialize(tag1, Component.class)).ifPresent(line::setText);
+        tag.optional("text").map(Tag::getAsString).ifPresent(line::setUnparsedText);
         tag.optional("lineWidth").map(Tag::getAsInt).ifPresent(line::setLineWidth);
         tag.optional("backgroundColor").map(tag1 -> context.deserialize(tag1, Color.class)).ifPresent(line::setBackgroundColor);
         tag.optional("textOpacity").map(Tag::getAsFloat).ifPresent(line::setTextOpacity);

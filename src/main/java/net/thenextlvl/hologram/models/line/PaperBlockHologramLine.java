@@ -40,8 +40,8 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologr
     }
 
     @Override
-    protected void preSpawn(final BlockDisplay entity) {
+    protected void preSpawn(final BlockDisplay entity, final Player player) {
         entity.setBlock(block);
-        super.preSpawn(entity);
+        super.preSpawn(entity, player);
     }
 }

@@ -66,7 +66,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     private boolean persistent = true;
     private boolean visibleByDefault = true;
-    private Set<Player> spawned = new HashSet<>(); // fixme: make this safe
+    private final Set<Player> spawned = new HashSet<>(); // fixme: make this safe
 
     public PaperHologram(final HologramPlugin plugin, final String name, final Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
@@ -533,7 +533,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public void updateHologram() {
-        spawned.forEach(this::updateHologram);
+        Set.copyOf(spawned).forEach(this::updateHologram); // fixme: fix concurrency properly
     }
 
     public void updateHologram(final Player player) {

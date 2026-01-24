@@ -70,9 +70,9 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     }
 
     @Override
-    protected void preSpawn(final ItemDisplay entity) {
+    protected void preSpawn(final ItemDisplay entity, final Player player) {
         entity.setItemStack(item);
         entity.setItemDisplayTransform(displayTransform);
-        super.preSpawn(entity);
+        super.preSpawn(entity, player);
     }
 }

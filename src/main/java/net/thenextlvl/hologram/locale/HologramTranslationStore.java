@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.locale;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 import net.kyori.adventure.translation.Translator;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.locale.store.MutableMiniMessageTranslationStore;
@@ -16,6 +17,7 @@ import java.util.Properties;
 
 @NullMarked
 public final class HologramTranslationStore extends MutableMiniMessageTranslationStore {
+    private final TranslatableComponentRenderer<Locale> renderer = TranslatableComponentRenderer.usingTranslationSource(this);
     private final HologramPlugin plugin;
     private final Path path;
 
@@ -23,6 +25,10 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
         super(Key.key("holograms", "translations"), MiniMessage.miniMessage());
         this.path = plugin.getTranslationsPath().resolve("custom");
         this.plugin = plugin;
+    }
+
+    public TranslatableComponentRenderer<Locale> getRenderer() {
+        return renderer;
     }
 
     public void read() {

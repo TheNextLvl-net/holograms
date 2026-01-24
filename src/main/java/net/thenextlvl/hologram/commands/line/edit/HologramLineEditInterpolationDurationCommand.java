@@ -38,7 +38,7 @@ final class HologramLineEditInterpolationDurationCommand extends SimpleCommand {
         }).orElse("hologram.type.display");
 
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", lineNumber),
                 Formatter.number("duration", duration));
         return SINGLE_SUCCESS;

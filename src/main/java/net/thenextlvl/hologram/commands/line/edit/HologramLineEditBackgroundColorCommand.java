@@ -51,7 +51,7 @@ final class HologramLineEditBackgroundColorCommand extends SimpleCommand {
         }).orElse("hologram.type.text");
 
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", line));
         return SINGLE_SUCCESS;
     }

@@ -2,6 +2,9 @@ package net.thenextlvl.hologram.models.line;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
@@ -18,7 +21,7 @@ import java.util.Optional;
 @NullMarked
 public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologramLine, TextDisplay> implements TextHologramLine {
     private @Nullable Color backgroundColor;
-    private @Nullable Component text = null;
+    private @Nullable String text = null;
     private TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
     private boolean defaultBackground = false;
     private boolean seeThrough = false;
@@ -36,15 +39,38 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     }
 
     @Override
-    public Optional<Component> getText() {
+    public Optional<Component> getText(final Player player) {
+        return getUnparsedText().map(string -> {
+            final var papiFormatter = getHologram().getPlugin().papiFormatter;
+            return papiFormatter != null ? papiFormatter.format(player, string) : string;
+        }).map(string -> {
+            final var formatter = getHologram().getPlugin().miniFormatter;
+            final var builder = TagResolver.builder();
+
+            builder.resolver(StandardTags.defaults());
+            builder.tag("hologram", Tag.inserting(Component.text(getHologram().getName())));
+            if (formatter != null) builder.resolver(formatter.tagResolver());
+
+            final var component = MiniMessage.miniMessage().deserialize(string, player, builder.build());
+            return getHologram().getPlugin().translations().getRenderer().render(component, player.locale());
+        });
+    }
+
+    @Override
+    public Optional<String> getUnparsedText() {
         return Optional.ofNullable(text);
     }
 
     @Override
     public TextHologramLine setText(@Nullable final Component text) {
+        return setUnparsedText(text != null ? MiniMessage.miniMessage().serialize(text) : null);
+    }
+
+    @Override
+    public TextHologramLine setUnparsedText(@Nullable final String text) {
         if (Objects.equals(this.text, text)) return this;
         this.text = text;
-        getEntities().values().forEach(entity -> entity.text(text));
+        // getEntities().values().forEach(this::updateText);
         getHologram().updateHologram();
         return this;
     }
@@ -135,14 +161,14 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
 
     @Override
     public double getHeight(final Player player) {
-        final var deserialize = text != null ? MiniMessage.miniMessage().serialize(text) : null;
+        final var deserialize = getText(player).map(MiniMessage.miniMessage()::serialize).orElse(null);
         final var lines = deserialize != null ? deserialize.split("\n|<br>|<newline>").length : 1;
         return (0.25 * transformation.getScale().y()) * lines;
     }
 
     @Override
-    protected void preSpawn(final TextDisplay entity) {
-        entity.text(text);
+    protected void preSpawn(final TextDisplay entity, final Player player) {
+        updateText(player, entity);
         entity.setAlignment(alignment);
         entity.setSeeThrough(seeThrough);
         entity.setShadowed(shadowed);
@@ -151,7 +177,14 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
         entity.setLineWidth(lineWidth);
         updateOpacity(entity);
 
-        super.preSpawn(entity);
+        super.preSpawn(entity, player);
+    }
+
+    public void updateText(final Player player, final TextDisplay entity) {
+        getText(player).ifPresentOrElse(component -> {
+            entity.text(Component.empty());
+            entity.text(component);
+        }, () -> entity.text(null));
     }
 
     private void updateOpacity(final TextDisplay entity) {

@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.line;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.jetbrains.annotations.ApiStatus;
@@ -21,11 +22,21 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
     /**
      * Gets the displayed text.
      *
+     * @param player the player for which to get the text
      * @return the displayed text
      * @since 0.3.0
      */
     @Contract(pure = true)
-    Optional<Component> getText();
+    Optional<Component> getText(Player player);
+
+    /**
+     * Gets the displayed text in {@link net.kyori.adventure.text.minimessage.MiniMessage} format.
+     *
+     * @return the displayed text
+     * @since 0.3.0
+     */
+    @Contract(pure = true)
+    Optional<String> getUnparsedText();
 
     /**
      * Sets the displayed text.
@@ -36,6 +47,16 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setText(@Nullable Component text);
+
+    /**
+     * Sets the displayed text in {@link net.kyori.adventure.text.minimessage.MiniMessage} format.
+     *
+     * @param text the new text
+     * @return this
+     * @since 0.3.0
+     */
+    @Contract(value = "_ -> this", mutates = "this")
+    TextHologramLine setUnparsedText(@Nullable String text);
 
     /**
      * Gets the maximum line width before wrapping.

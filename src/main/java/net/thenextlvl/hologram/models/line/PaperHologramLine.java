@@ -91,7 +91,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         final var entity = entities.get(player);
         Preconditions.checkState(entity == null || !entity.isValid(), "Entity is already spawned");
         final var location = mutateSpawnLocation(hologram.getLocation().add(0, offset, 0));
-        final var spawn = location.getWorld().spawn(location, getTypeClass(), false, this::preSpawn);
+        final var spawn = location.getWorld().spawn(location, getTypeClass(), false, e -> this.preSpawn(e, player));
         player.showEntity(hologram.getPlugin(), spawn);
         entities.put(player, spawn);
         return spawn;
@@ -127,7 +127,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
                 ))).toArray(CompletableFuture[]::new));
     }
 
-    protected void preSpawn(final E entity) {
+    protected void preSpawn(final E entity, final Player player) {
         entity.setPersistent(false);
         entity.setVisibleByDefault(false);
 

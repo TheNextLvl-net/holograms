@@ -100,7 +100,7 @@ public class PaperHologramProvider implements HologramProvider {
 
     @Override
     public Stream<Hologram> getHolograms(final Player player) {
-        return getHolograms().filter(hologram -> hologram.canSee(player));
+        return getHolograms().filter(hologram -> hologram.isSpawned(player));
     }
 
     @Override

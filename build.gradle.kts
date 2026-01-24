@@ -1,5 +1,6 @@
 import io.papermc.hangarpublishplugin.model.Platforms
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
     id("java")
@@ -22,12 +23,16 @@ tasks.compileJava {
 
 repositories {
     mavenCentral()
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://repo.thenextlvl.net/releases")
     maven("https://repo.thenextlvl.net/snapshots")
 }
 
 dependencies {
     paperweight.foliaDevBundle("1.21.11-R0.1-SNAPSHOT")
+
+    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.0.1")
+    compileOnly("me.clip:placeholderapi:2.11.7")
 
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
     implementation("net.thenextlvl:i18n:1.2.0")
@@ -53,6 +58,16 @@ paper {
         register("holograms.command.create") { children = listOf("holograms.command") }
         register("holograms.command.delete") { children = listOf("holograms.command") }
         register("holograms.command.list") { children = listOf("holograms.command") }
+    }
+    serverDependencies {
+        register("MiniPlaceholders") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("PlaceholderAPI") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
     }
 }
 

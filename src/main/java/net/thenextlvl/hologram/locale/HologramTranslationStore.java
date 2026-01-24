@@ -47,8 +47,8 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
         }
     }
 
-    public void save() {
-        getAllTranslations().forEach(this::saveLocale);
+    public void save(Locale locale) {
+        saveLocale(locale, getAllTranslations(locale));
     }
 
     private void saveLocale(Locale locale, Map<String, String> translations) {

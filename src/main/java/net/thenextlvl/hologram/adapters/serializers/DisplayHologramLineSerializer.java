@@ -11,19 +11,18 @@ abstract class DisplayHologramLineSerializer<T extends DisplayHologramLine<T, ?>
     @Override
     public CompoundTag serialize(final T line, final TagSerializationContext context) throws ParserException {
         final var builder = CompoundTag.builder();
-        line.getGlowColorOverride().map(context::serialize).ifPresent(tag -> builder.put("glowColorOverride", tag));
         line.getBrightness().map(context::serialize).ifPresent(tag -> builder.put("brightness", tag));
         return builder.putAll(super.serialize(line, context))
+                .put("billboard", context.serialize(line.getBillboard()))
                 .put("height", line.getDisplayHeight())
-                .put("width", line.getDisplayWidth())
-                .put("shadowRadius", line.getShadowRadius())
-                .put("shadowStrength", line.getShadowStrength())
-                .put("viewRange", line.getViewRange())
                 .put("interpolationDelay", line.getInterpolationDelay())
                 .put("interpolationDuration", line.getInterpolationDuration())
+                .put("shadowRadius", line.getShadowRadius())
+                .put("shadowStrength", line.getShadowStrength())
                 .put("teleportDuration", line.getTeleportDuration())
-                .put("billboard", context.serialize(line.getBillboard()))
                 .put("transformation", context.serialize(line.getTransformation()))
+                .put("viewRange", line.getViewRange())
+                .put("width", line.getDisplayWidth())
                 .build();
     }
 }   

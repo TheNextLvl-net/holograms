@@ -19,6 +19,7 @@ public final class EntityHologramLineDeserializer extends HologramLineDeserializ
 
     @Override
     protected void deserialize(final EntityHologramLine<?> line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
+        super.deserialize(line, tag, context);
         tag.optional("scale").map(Tag::getAsDouble).ifPresent(line::setScale);
         tag.optional("offset").map(tag1 -> context.deserialize(tag1, Vector3f.class)).ifPresent(line::setOffset);
     }

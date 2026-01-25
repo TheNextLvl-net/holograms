@@ -7,6 +7,7 @@ import net.thenextlvl.nbt.serialization.TagDeserializationContext;
 import net.thenextlvl.nbt.serialization.TagDeserializer;
 import net.thenextlvl.nbt.tag.CompoundTag;
 import net.thenextlvl.nbt.tag.Tag;
+import org.bukkit.Color;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -17,7 +18,10 @@ abstract class HologramLineDeserializer<T extends HologramLine<?>> implements Ta
         this.hologram = hologram;
     }
 
-    protected abstract void deserialize(T line, CompoundTag tag, TagDeserializationContext context) throws ParserException;
+    protected void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
+        tag.optional("glowing").map(Tag::getAsBoolean).ifPresent(line::setGlowing);
+        tag.optional("glowColor").map(tag1 -> context.deserialize(tag1, Color.class)).ifPresent(line::setGlowColor);
+    }
 
     protected abstract T createLine(CompoundTag tag, TagDeserializationContext context);
 

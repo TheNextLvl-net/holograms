@@ -3,15 +3,18 @@ package net.thenextlvl.hologram.models.line;
 import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +25,9 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     private final Class<E> entityClass;
     private final EntityType entityType;
     private final Map<Player, E> entities = new ConcurrentHashMap<>();
+
+    protected volatile @Nullable Color glowColor = null;
+    protected volatile boolean glowing = false;
 
     public PaperHologramLine(final PaperHologram hologram, final Class<E> entityClass) {
         this.hologram = hologram;
@@ -65,6 +71,34 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     @Override
     public World getWorld() {
         return hologram.getWorld();
+    }
+
+    @Override
+    public Optional<Color> getGlowColor() {
+        return Optional.ofNullable(glowColor);
+    }
+
+    @Override
+    public HologramLine<E> setGlowColor(@Nullable final Color color) {
+        if (Objects.equals(this.glowColor, color)) return this;
+        this.glowColor = color;
+        updateGlowColor(color);
+        return this;
+    }
+
+    protected abstract void updateGlowColor(@Nullable final Color color);
+
+    @Override
+    public boolean isGlowing() {
+        return glowing;
+    }
+
+    @Override
+    public HologramLine<E> setGlowing(final boolean glowing) {
+        if (glowing == this.glowing) return this;
+        this.glowing = glowing;
+        getEntities().values().forEach(entity -> entity.setGlowing(glowing));
+        return this;
     }
 
     public void despawn() {
@@ -116,6 +150,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     protected void preSpawn(final E entity, final Player player) {
+        entity.setGlowing(glowing);
         entity.setPersistent(false);
         entity.setVisibleByDefault(false);
 

@@ -1,12 +1,14 @@
 package net.thenextlvl.hologram.line;
 
 import net.thenextlvl.hologram.Hologram;
+import org.bukkit.Color;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -85,4 +87,38 @@ public interface HologramLine<E extends Entity> {
      */
     @Contract(pure = true)
     World getWorld();
+
+    /**
+     * Gets whether this line is glowing.
+     *
+     * @return true if this line is glowing
+     * @since 0.3.0
+     */
+    @Contract(pure = true)
+    boolean isGlowing();
+
+    /**
+     * Sets whether this line is glowing.
+     *
+     * @param glowing true if this line should glow
+     * @since 0.3.0
+     */
+    HologramLine<E> setGlowing(boolean glowing);
+
+    /**
+     * Gets the glow color of this line.
+     *
+     * @return glow color
+     * @since 0.3.0
+     */
+    @Contract(pure = true)
+    Optional<Color> getGlowColor();
+
+    /**
+     * Sets the glow color of this line.
+     *
+     * @param color new color
+     * @since 0.3.0
+     */
+    HologramLine<E> setGlowColor(@Nullable Color color);
 }

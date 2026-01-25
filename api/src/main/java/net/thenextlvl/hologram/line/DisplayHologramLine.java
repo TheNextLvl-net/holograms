@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.line;
 
-import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.ApiStatus;
@@ -229,25 +228,6 @@ public interface DisplayHologramLine<T extends DisplayHologramLine<T, E>, E exte
      */
     @Contract(value = "_ -> this", mutates = "this")
     T setBillboard(Display.Billboard billboard);
-
-    /**
-     * Gets the scoreboard team overridden glow color of this display.
-     *
-     * @return glow color
-     * @since 0.3.0
-     */
-    @Contract(pure = true)
-    Optional<Color> getGlowColorOverride();
-
-    /**
-     * Sets the scoreboard team overridden glow color of this display.
-     *
-     * @param color new color
-     * @return this
-     * @since 0.3.0
-     */
-    @Contract(value = "_ -> this", mutates = "this")
-    T setGlowColorOverride(@Nullable Color color);
 
     /**
      * Gets the brightness override of the entity.

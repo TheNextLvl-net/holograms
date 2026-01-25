@@ -5,6 +5,7 @@ import net.kyori.adventure.util.TriState;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.models.PaperHologram;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
@@ -18,6 +19,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.EquipmentSlot;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine<E> implements EntityHologramLine<E> {
@@ -26,6 +28,11 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
 
     public PaperEntityHologramLine(final PaperHologram hologram, final Class<E> entityClass) throws IllegalArgumentException {
         super(hologram, entityClass);
+    }
+
+    @Override
+    protected void updateGlowColor(@Nullable final Color color) {
+        // todo: implement
     }
 
     @Override
@@ -87,6 +94,8 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
 
     @Override
     protected void preSpawn(final E entity, final Player player) {
+        updateGlowColor(glowColor);
+
         entity.setSilent(true);
         entity.setInvulnerable(true);
         entity.setGravity(false);

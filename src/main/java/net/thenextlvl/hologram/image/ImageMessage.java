@@ -23,55 +23,55 @@ public class ImageMessage {
     }
 
     private Color[][] toChatColorArray(final BufferedImage image, final int height) {
-         final var ratio = (double) image.getHeight() / image.getWidth();
-         final var resized = resizeImage(image, (int) (height / ratio), height);
-    
-         final var chatImg = new Color[resized.getWidth()][resized.getHeight()];
-         for (var x = 0; x < resized.getWidth(); x++) {
-             for (var y = 0; y < resized.getHeight(); y++) {
-                 final var argb = resized.getRGB(x, y);
-                 chatImg[x][y] = Color.fromARGB(argb);
-             }
-         }
-         return chatImg;
-     }
+        final var ratio = (double) image.getHeight() / image.getWidth();
+        final var resized = resizeImage(image, (int) (height / ratio), height);
+
+        final var chatImg = new Color[resized.getWidth()][resized.getHeight()];
+        for (var x = 0; x < resized.getWidth(); x++) {
+            for (var y = 0; y < resized.getHeight(); y++) {
+                final var argb = resized.getRGB(x, y);
+                chatImg[x][y] = Color.fromARGB(argb);
+            }
+        }
+        return chatImg;
+    }
 
     private TextComponent[] toImgMessage(final Color[][] colors) {
-         final var lines = new TextComponent[colors[0].length];
-         for (var y = 0; y < colors[0].length; y++) {
-             final var line = Component.text();
-             for (final var colorData : colors) {
-                 final var data = colorData[y];
-                 final var character = getCharByAlpha(data.getAlpha());
-                 line.append(Component.text(character, TextColor.color(data.asRGB())));
-             }
-             lines[y] = line.build();
-         }
-         return lines;
-     }
+        final var lines = new TextComponent[colors[0].length];
+        for (var y = 0; y < colors[0].length; y++) {
+            final var line = Component.text();
+            for (final var colorData : colors) {
+                final var data = colorData[y];
+                final var character = getCharByAlpha(data.getAlpha());
+                line.append(Component.text(character, TextColor.color(data.asRGB())));
+            }
+            lines[y] = line.build();
+        }
+        return lines;
+    }
 
     private TextComponent[] toImgMessage(final TextColor[][] colors, final char imgChar) {
-         final var lines = new TextComponent[colors[0].length];
-         for (var y = 0; y < colors[0].length; y++) {
-             final var line = Component.text();
-             for (final var textColors : colors) {
-                 final var color = textColors[y];
-                 line.append(Component.text(color != null ? imgChar : ' ', textColors[y]));
-             }
-             lines[y] = line.build();
-         }
-         return lines;
-     }
+        final var lines = new TextComponent[colors[0].length];
+        for (var y = 0; y < colors[0].length; y++) {
+            final var line = Component.text();
+            for (final var textColors : colors) {
+                final var color = textColors[y];
+                line.append(Component.text(color != null ? imgChar : ' ', textColors[y]));
+            }
+            lines[y] = line.build();
+        }
+        return lines;
+    }
 
     private char getCharByAlpha(final int alpha) {
-         if (alpha == 255) return ' '; // Full alpha = whitespace
-         return switch ((alpha * 4) / 256) { // Map 0-255 to 0-3
-             case 3 -> ImageChar.BLOCK;
-             case 2 -> ImageChar.DARK_SHADE;
-             case 1 -> ImageChar.MEDIUM_SHADE;
-             default -> ImageChar.LIGHT_SHADE;
-         };
-     }
+        if (alpha == 0) return ' ';
+        return switch ((alpha * 4) / 256) {
+            case 0 -> ImageChar.LIGHT_SHADE;
+            case 1 -> ImageChar.MEDIUM_SHADE;
+            case 2 -> ImageChar.DARK_SHADE;
+            default -> ImageChar.BLOCK;
+        };
+    }
 
     private BufferedImage resizeImage(final BufferedImage originalImage, final int width, final int height) {
         final var af = new AffineTransform();

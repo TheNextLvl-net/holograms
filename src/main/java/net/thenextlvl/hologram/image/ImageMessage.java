@@ -5,26 +5,18 @@ import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Color;
 
-import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public final class ImageMessage {
-    public static final char BLOCK = '█';
-    public static final char DARK_SHADE = '▓';
-    public static final char MEDIUM_SHADE = '▒';
-    public static final char LIGHT_SHADE = '░';
+    public static final String BLOCK = "█";
+    public static final String DARK_SHADE = "▓";
+    public static final String MEDIUM_SHADE = "▒";
+    public static final String LIGHT_SHADE = "░";
 
     public static Component read(final BufferedImage image, final int height) {
         return toComponent(image, height);
-    }
-
-    public static Component read(final Path path, final int height) throws IOException {
-        return toComponent(ImageIO.read(Files.newInputStream(path)), height);
     }
 
     private static Component toComponent(final BufferedImage image, final int height) {
@@ -55,8 +47,8 @@ public final class ImageMessage {
         return matrix;
     }
 
-    private static char getCharByAlpha(final int alpha) {
-        if (alpha == 0) return ' ';
+    private static String getCharByAlpha(final int alpha) {
+        if (alpha == 0) return "  ";
         return switch ((alpha * 4) / 256) {
             case 0 -> LIGHT_SHADE;
             case 1 -> MEDIUM_SHADE;

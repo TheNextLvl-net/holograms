@@ -5,6 +5,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
+import net.thenextlvl.hologram.image.ImageTagResolver;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
@@ -50,6 +51,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
             final var builder = TagResolver.builder();
 
             builder.resolver(StandardTags.defaults());
+            builder.resolver(ImageTagResolver.INSTANCE);
             builder.tag("hologram", Tag.inserting(Component.text(getHologram().getName())));
             builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(this))));
             if (formatter != null) builder.resolver(formatter.tagResolver());

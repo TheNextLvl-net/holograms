@@ -2,7 +2,6 @@ package net.thenextlvl.hologram.image;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Color;
 
@@ -11,7 +10,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
 public class ImageMessage {
-    private final TextComponent[] lines;
+    private final Component lines;
 
     public ImageMessage(final BufferedImage image, final int height, final char imgChar) {
         final var chatColors = toChatColorArray(image, height);
@@ -36,8 +35,8 @@ public class ImageMessage {
         return chatImg;
     }
 
-    private TextComponent[] toImgMessage(final Color[][] colors) {
-        final var lines = new TextComponent[colors[0].length];
+    private Component toImgMessage(final Color[][] colors) {
+        final var lines = new Component[colors[0].length];
         for (var y = 0; y < colors[0].length; y++) {
             final var line = Component.text();
             for (final var colorData : colors) {
@@ -47,20 +46,20 @@ public class ImageMessage {
             }
             lines[y] = line.build();
         }
-        return lines;
+        return Component.join(JoinConfiguration.newlines(), lines);
     }
 
-    private TextComponent[] toImgMessage(final TextColor[][] colors, final char imgChar) {
-        final var lines = new TextComponent[colors[0].length];
+    private Component toImgMessage(final TextColor[][] colors, final char imgChar) {
+        final var lines = new Component[colors[0].length];
         for (var y = 0; y < colors[0].length; y++) {
             final var line = Component.text();
             for (final var textColors : colors) {
                 final var color = textColors[y];
-                line.append(Component.text(color != null ? imgChar : ' ', textColors[y]));
+                line.append(Component.text(color != null ? imgChar : ' ', color));
             }
             lines[y] = line.build();
         }
-        return lines;
+        return Component.join(JoinConfiguration.newlines(), lines);
     }
 
     private char getCharByAlpha(final int alpha) {
@@ -84,7 +83,6 @@ public class ImageMessage {
     }
 
     public Component getComponent() {
-        final var config = JoinConfiguration.newlines();
-        return Component.join(config, lines);
+        return lines;
     }
 }

@@ -13,13 +13,13 @@ import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-final class HologramLineEditGlowCommand extends SimpleCommand {
-    private HologramLineEditGlowCommand(final HologramPlugin plugin) {
-        super(plugin, "glow", "holograms.command.line.edit.glow");
+final class HologramLineEditGlowingCommand extends SimpleCommand {
+    private HologramLineEditGlowingCommand(final HologramPlugin plugin) {
+        super(plugin, "glowing", "holograms.command.line.edit.glowing");
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
-        final var command = new HologramLineEditGlowCommand(plugin);
+        final var command = new HologramLineEditGlowingCommand(plugin);
         final var glowing = Commands.argument("glowing", BoolArgumentType.bool());
         return command.create().then(glowing.executes(command));
     }

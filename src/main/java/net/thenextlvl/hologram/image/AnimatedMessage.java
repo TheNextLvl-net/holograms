@@ -1,5 +1,7 @@
 package net.thenextlvl.hologram.image;
 
+import net.kyori.adventure.text.Component;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -8,52 +10,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class AnimatedMessage {
-    private final ImageMessage[] images;
+    private final Component[] images;
     private int index = 0;
 
-    public AnimatedMessage(final ImageMessage... images) {
+    private AnimatedMessage(final Component... images) {
         this.images = images;
     }
 
-    public AnimatedMessage(final File gifFile, final int height, final char imgChar) {
-        final List<BufferedImage> frames = getFrames(gifFile);
-        images = new ImageMessage[frames.size()];
-        for (int i = 0; i < frames.size(); i++) {
-            images[i] = new ImageMessage(frames.get(i), height, imgChar);
+    public static AnimatedMessage readGif(final File gifFile, final int height) throws IOException {
+        final var frames = getFrames(gifFile);
+        final var images = new Component[frames.size()];
+        for (var i = 0; i < frames.size(); i++) {
+            images[i] = ImageMessage.read(frames.get(i), height);
         }
+        return new AnimatedMessage(images);
     }
 
-    public List<BufferedImage> getFrames(final File input) {
+    private static List<BufferedImage> getFrames(final File input) throws IOException {
         final var images = new ArrayList<BufferedImage>();
-        try {
-            final var reader = ImageIO.getImageReadersBySuffix("GIF").next();
-            final var in = ImageIO.createImageInputStream(input);
-            reader.setInput(in);
-            for (int i = 0, count = reader.getNumImages(true); i < count; i++) {
-                final var image = reader.read(i);
-                images.add(image);
-            }
-        } catch (final IOException ex) {
-            ex.printStackTrace();
+        final var reader = ImageIO.getImageReadersBySuffix("GIF").next();
+        final var in = ImageIO.createImageInputStream(input);
+        reader.setInput(in);
+        for (int i = 0, count = reader.getNumImages(true); i < count; i++) {
+            final var image = reader.read(i);
+            images.add(image);
         }
         return images;
     }
 
-    public ImageMessage current() {
+    public Component current() {
         return images[index];
     }
 
-    public ImageMessage next() {
+    public Component next() {
         if (++index >= images.length) index = 0;
         return images[index];
     }
 
-    public ImageMessage previous() {
+    public Component previous() {
         if (--index <= 0) index = images.length - 1;
         return images[index];
     }
 
-    public ImageMessage getIndex(final int index) {
+    public Component getIndex(final int index) {
         return images[index];
     }
 }

@@ -94,6 +94,8 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
 
     @Override
     protected void preSpawn(final E entity, final Player player) {
+        updateGlowColor(glowColor);
+
         entity.setSilent(true);
         entity.setInvulnerable(true);
         entity.setGravity(false);

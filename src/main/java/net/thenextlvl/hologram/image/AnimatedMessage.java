@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnimatedMessage {
+public final class AnimatedMessage {
     private final ImageMessage[] images;
     private int index = 0;
 

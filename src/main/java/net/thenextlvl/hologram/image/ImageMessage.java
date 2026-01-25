@@ -9,7 +9,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
-public class ImageMessage {
+public final class ImageMessage {
     private final Component lines;
 
     public ImageMessage(final BufferedImage image, final int height, final char imgChar) {

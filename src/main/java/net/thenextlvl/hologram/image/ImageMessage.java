@@ -1,10 +1,10 @@
 package net.thenextlvl.hologram.image;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Color;
-import org.bukkit.entity.Player;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -83,13 +83,8 @@ public class ImageMessage {
         return operation.filter(originalImage, null);
     }
 
-    public TextComponent[] getLines() {
-        return lines;
-    }
-
-    public void sendToPlayer(final Player player) {
-        for (final TextComponent line : lines) {
-            player.sendMessage(line);
-        }
+    public Component getComponent() {
+        final var config = JoinConfiguration.newlines();
+        return Component.join(config, lines);
     }
 }

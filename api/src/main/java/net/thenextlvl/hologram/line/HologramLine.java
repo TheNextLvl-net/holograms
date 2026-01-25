@@ -1,7 +1,7 @@
 package net.thenextlvl.hologram.line;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.Hologram;
-import org.bukkit.Color;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -112,7 +112,7 @@ public interface HologramLine<E extends Entity> {
      * @since 0.3.0
      */
     @Contract(pure = true)
-    Optional<Color> getGlowColor();
+    Optional<TextColor> getGlowColor();
 
     /**
      * Sets the glow color of this line.
@@ -120,5 +120,5 @@ public interface HologramLine<E extends Entity> {
      * @param color new color
      * @since 0.3.0
      */
-    HologramLine<E> setGlowColor(@Nullable Color color);
+    HologramLine<E> setGlowColor(@Nullable TextColor color);
 }

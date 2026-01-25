@@ -1,11 +1,11 @@
 package net.thenextlvl.hologram.models.line;
 
 import com.destroystokyo.paper.entity.Pathfinder;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.util.TriState;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.models.PaperHologram;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
@@ -31,8 +31,8 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    protected void updateGlowColor(@Nullable final Color color) {
-        // todo: implement
+    protected void updateGlowColor(@Nullable final TextColor color) {
+        getEntities().forEach(this::updateTeamOptions);
     }
 
     @Override

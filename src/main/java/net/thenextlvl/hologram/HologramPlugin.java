@@ -7,6 +7,7 @@ import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.adapters.BlockDataAdapter;
 import net.thenextlvl.hologram.adapters.BrightnessAdapter;
@@ -16,6 +17,7 @@ import net.thenextlvl.hologram.adapters.ItemStackAdapter;
 import net.thenextlvl.hologram.adapters.Matrix4fAdapter;
 import net.thenextlvl.hologram.adapters.PositionAdapter;
 import net.thenextlvl.hologram.adapters.QuaternionfAdapter;
+import net.thenextlvl.hologram.adapters.TextColorAdapter;
 import net.thenextlvl.hologram.adapters.TransformationAdapter;
 import net.thenextlvl.hologram.adapters.Vector3fAdapter;
 import net.thenextlvl.hologram.adapters.deserializers.BlockHologramLineDeserializer;
@@ -176,6 +178,7 @@ public class HologramPlugin extends JavaPlugin {
                 .registerTypeHierarchyAdapter(Position.class, new PositionAdapter())
                 .registerTypeHierarchyAdapter(Quaternionf.class, new QuaternionfAdapter())
                 .registerTypeHierarchyAdapter(TextAlignment.class, new EnumAdapter<>(TextAlignment.class))
+                .registerTypeHierarchyAdapter(TextColor.class, new TextColorAdapter())
                 .registerTypeHierarchyAdapter(Transformation.class, new TransformationAdapter())
                 .registerTypeHierarchyAdapter(Vector3f.class, new Vector3fAdapter());
     }

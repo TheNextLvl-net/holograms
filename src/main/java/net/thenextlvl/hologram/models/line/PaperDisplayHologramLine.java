@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.models.line;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.DisplayHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
@@ -190,8 +191,9 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    protected void updateGlowColor(@Nullable final Color color) {
-        getEntities().values().forEach(entity -> entity.setGlowColorOverride(color));
+    protected void updateGlowColor(@Nullable final TextColor color) {
+        final var override = color != null ? Color.fromRGB(color.value()) : null;
+        getEntities().values().forEach(entity -> entity.setGlowColorOverride(override));
     }
 
     @Override
@@ -214,6 +216,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     protected void preSpawn(final E entity, final Player player) {
+        final var glowColor = getGlowColor()
+                .map(TextColor::value)
+                .map(Color::fromRGB)
+                .orElse(null);
+
         entity.setBillboard(billboard);
         entity.setBrightness(brightness);
         entity.setDisplayHeight(displayHeight);

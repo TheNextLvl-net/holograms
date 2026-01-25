@@ -1,9 +1,10 @@
 package net.thenextlvl.hologram.models.line;
 
 import com.google.common.base.Preconditions;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -26,7 +27,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     private final EntityType entityType;
     private final Map<Player, E> entities = new ConcurrentHashMap<>();
 
-    protected volatile @Nullable Color glowColor = null;
+    protected volatile @Nullable TextColor glowColor = null;
     protected volatile boolean glowing = false;
 
     public PaperHologramLine(final PaperHologram hologram, final Class<E> entityClass) {
@@ -74,19 +75,19 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     @Override
-    public Optional<Color> getGlowColor() {
+    public Optional<TextColor> getGlowColor() {
         return Optional.ofNullable(glowColor);
     }
 
     @Override
-    public HologramLine<E> setGlowColor(@Nullable final Color color) {
+    public HologramLine<E> setGlowColor(@Nullable final TextColor color) {
         if (Objects.equals(this.glowColor, color)) return this;
         this.glowColor = color;
         updateGlowColor(color);
         return this;
     }
 
-    protected abstract void updateGlowColor(@Nullable final Color color);
+    protected abstract void updateGlowColor(@Nullable final TextColor color);
 
     @Override
     public boolean isGlowing() {

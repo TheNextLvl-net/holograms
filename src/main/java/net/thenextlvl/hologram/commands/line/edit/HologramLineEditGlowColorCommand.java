@@ -11,9 +11,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.commands.arguments.ColorArgumentType;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
-import org.bukkit.Color;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Objects;
@@ -27,7 +25,7 @@ final class HologramLineEditGlowColorCommand extends SimpleCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramLineEditGlowColorCommand(plugin);
         final var named = Commands.argument("color", ArgumentTypes.namedColor());
-        final var hex = Commands.argument("hex", new ColorArgumentType());
+        final var hex = Commands.argument("hex", ArgumentTypes.hexColor());
         return command.create()
                 .then(named.executes(command))
                 .then(hex.executes(command))
@@ -38,9 +36,8 @@ final class HologramLineEditGlowColorCommand extends SimpleCommand {
     public int run(final CommandContext<CommandSourceStack> context) {
         final var hologram = context.getArgument("hologram", Hologram.class);
         final var line = context.getArgument("line", int.class);
-        final var color = tryGetArgument(context, "hex", Color.class)
-                .or(() -> tryGetArgument(context, "color", NamedTextColor.class)
-                        .map(TextColor::value).map(Color::fromRGB))
+        final var color = tryGetArgument(context, "hex", TextColor.class)
+                .or(() -> tryGetArgument(context, "color", NamedTextColor.class))
                 .orElse(null);
 
         final var message = hologram.getLine(line - 1).map(hologramLine -> {

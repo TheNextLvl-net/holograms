@@ -41,6 +41,8 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     @Override
     public Optional<Component> getText(final Player player) {
         return getUnparsedText().map(string -> {
+            return getHologram().getPlugin().translations().translate(player, string, 0);
+        }).map(string -> {
             final var papiFormatter = getHologram().getPlugin().papiFormatter;
             return papiFormatter != null ? papiFormatter.format(player, string) : string;
         }).map(string -> {
@@ -49,10 +51,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
 
             builder.resolver(StandardTags.defaults());
             builder.tag("hologram", Tag.inserting(Component.text(getHologram().getName())));
+            builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(this))));
             if (formatter != null) builder.resolver(formatter.tagResolver());
 
-            final var component = MiniMessage.miniMessage().deserialize(string, player, builder.build());
-            return getHologram().getPlugin().translations().getRenderer().render(component, player.locale());
+            return MiniMessage.miniMessage().deserialize(string, player, builder.build());
         });
     }
 

@@ -45,7 +45,7 @@ final class HologramCreateCommand extends SimpleCommand {
         }
 
         plugin.hologramProvider().spawnHologram(name, location, hologram -> {
-            hologram.addTextLine().setUnparsedText("<lang:hologram.default>"); // todo: move translation from bundle to store
+            hologram.addTextLine().setUnparsedText("<lang:hologram.default>");
         });
 
         plugin.bundle().sendMessage(sender, "hologram.created", placeholder);

@@ -106,7 +106,6 @@ public class HologramPlugin extends JavaPlugin {
 
     public HologramPlugin() {
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
-        translations.read();
     }
 
     @Override

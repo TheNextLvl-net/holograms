@@ -39,6 +39,7 @@ public final class HologramLineEditCommand extends BrigadierCommand {
                 .then(HologramLineEditScaleCommand.create(plugin))
                 .then(HologramLineEditSeeThroughCommand.create(plugin))
                 .then(HologramLineEditSetCommand.create(plugin))
+                .then(HologramLineEditShadowedCommand.create(plugin))
                 .then(HologramLineEditTeleportDurationCommand.create(plugin))
                 .then(HologramLineEditTransformationCommand.create(plugin))));
     }

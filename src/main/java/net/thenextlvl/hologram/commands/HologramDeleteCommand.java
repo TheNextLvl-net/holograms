@@ -28,7 +28,7 @@ final class HologramDeleteCommand extends SimpleCommand {
         final var success = plugin.hologramProvider().deleteHologram(hologram);
         final var message = success ? "hologram.delete" : "hologram.delete.failed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
-                Placeholder.parsed("hologram", hologram.getName()));
+                Placeholder.unparsed("hologram", hologram.getName()));
         return SINGLE_SUCCESS;
     }
 }

@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.commands;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,8 +12,6 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.bukkit.World;
 import org.jspecify.annotations.NullMarked;
-
-import java.util.Locale;
 
 import static net.thenextlvl.hologram.commands.HologramCommand.nameArgument;
 
@@ -48,9 +45,7 @@ final class HologramCreateCommand extends SimpleCommand {
         }
 
         plugin.hologramProvider().spawnHologram(name, location, hologram -> {
-            final var text = plugin.bundle().component("hologram.default", Locale.US,
-                    Placeholder.parsed("hologram", StringArgumentType.escapeIfRequired(name)));
-            hologram.addTextLine().setText(text);
+            hologram.addTextLine().setUnparsedText("<lang:hologram.default>");
         });
 
         plugin.bundle().sendMessage(sender, "hologram.created", placeholder);

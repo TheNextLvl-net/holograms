@@ -1,11 +1,11 @@
 package net.thenextlvl.hologram.listeners;
 
-import net.thenextlvl.hologram.Hologram;
+import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
+import io.papermc.paper.event.packet.PlayerChunkUnloadEvent;
 import net.thenextlvl.hologram.HologramPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -17,8 +17,14 @@ public final class ChunkListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onChunkLoad(final ChunkLoadEvent event) {
+    public void onChunkLoad(final PlayerChunkLoadEvent event) {
         plugin.hologramProvider().getHolograms(event.getChunk())
-                .forEach(Hologram::spawn);
+                .forEach(hologram -> hologram.spawn(event.getPlayer()));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChunkUnload(final PlayerChunkUnloadEvent event) {
+        plugin.hologramProvider().getHolograms(event.getChunk())
+                .forEach(hologram -> hologram.despawn(event.getPlayer()));
     }
 }

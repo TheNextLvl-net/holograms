@@ -1,13 +1,14 @@
 package net.thenextlvl.hologram.line;
 
 import net.thenextlvl.hologram.Hologram;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -33,7 +34,10 @@ public interface HologramLine<E extends Entity> {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<E> getEntity();
+    Optional<E> getEntity(Player player);
+    
+    @Contract(pure = true)
+    Map<Player, E> getEntities();
 
     /**
      * Gets the entity representing this line, if it is of the given type.
@@ -44,7 +48,7 @@ public interface HologramLine<E extends Entity> {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    <T> Optional<T> getEntity(Class<T> type);
+    <T> Optional<T> getEntity(Player player, Class<T> type);
 
     /**
      * Gets the class of the entity representing this line.
@@ -72,15 +76,6 @@ public interface HologramLine<E extends Entity> {
      */
     @Contract(pure = true)
     LineType getType();
-
-    /**
-     * Gets the location of this line.
-     *
-     * @return an optional containing the exact line location
-     * @since 0.3.0
-     */
-    @Contract(value = " -> new", pure = true)
-    Optional<Location> getLocation();
 
     /**
      * Gets the world of this line.

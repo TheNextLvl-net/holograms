@@ -66,6 +66,10 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
         this.defaultLocale = locale;
     }
 
+    public void unregisterAll() {
+        this.translations.clear();
+    }
+
     public void unregister(final String key, final Locale locale) {
         this.translations.computeIfPresent(key, (k, translation) -> {
             translation.translations.remove(locale);
@@ -168,7 +172,6 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
             if (t != null) map.put(translation.key, t);
         });
         return map;
-        
     }
 
     public final class Translation implements Examinable {

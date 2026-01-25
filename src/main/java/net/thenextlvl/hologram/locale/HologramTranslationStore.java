@@ -2,9 +2,11 @@ package net.thenextlvl.hologram.locale;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 import net.kyori.adventure.translation.Translator;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.locale.store.MutableMiniMessageTranslationStore;
+import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
@@ -13,9 +15,12 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @NullMarked
 public final class HologramTranslationStore extends MutableMiniMessageTranslationStore {
+    private final TranslatableComponentRenderer<Locale> renderer = TranslatableComponentRenderer.usingTranslationSource(this);
     private final HologramPlugin plugin;
     private final Path path;
 
@@ -23,13 +28,62 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
         super(Key.key("holograms", "translations"), MiniMessage.miniMessage());
         this.path = plugin.getTranslationsPath().resolve("custom");
         this.plugin = plugin;
+
+        read();
+        registerDefaults();
     }
 
-    public void read() {
+    public String translate(final Player player, final String string, final int depth) {
+        if (depth > 10) {
+            plugin.getComponentLogger().warn("Too many recursive translations for {}", string);
+            return string;
+        }
+        final var allTranslations = plugin.translations().getAllTranslations(player.locale());
+        var translated = string;
+        for (final var entry : allTranslations.entrySet()) {
+            final var key = Pattern.quote(entry.getKey());
+            final var value = Matcher.quoteReplacement(entry.getValue());
+            translated = translated.replaceAll("(?<!\\\\)<lang:" + key + ">", value);
+            translated = translated.replaceAll("(?<!\\\\)<translate:" + key + ">", value);
+            translated = translated.replaceAll("(?<!\\\\)<tr:" + key + ">", value);
+        }
+        if (translated.equals(string)) return string;
+        return translate(player, translated, depth + 1);
+    }
+
+    public void registerDefaults() {
+        registerIfMissing("hologram.default", Locale.US, """
+                <hologram>
+                Use <gray>/hologram line add <hologram> <type> <value></gray>
+                to add a new line
+                Use <gray>/hologram delete <hologram></gray>
+                to remove the hologram""");
+        registerIfMissing("hologram.default", Locale.GERMANY, """
+                <hologram>
+                Verwende <gray>/hologram line add <hologram> <type> <value></gray>
+                um eine neue Zeile hinzuzufügen
+                Verwende <gray>/hologram delete <hologram></gray>
+                um das Hologramm zu entfernen""");
+    }
+
+    private void registerIfMissing(final String key, final Locale locale, final String value) {
+        if (contains(key, locale)) return;
+        register(key, locale, value);
+        save(locale);
+    }
+
+    public TranslatableComponentRenderer<Locale> getRenderer() {
+        return renderer;
+    }
+
+    public boolean read() {
         try (final var files = Files.list(this.path)) {
+            unregisterAll();
             files.filter(path -> path.getFileName().toString().endsWith(".properties")).forEach(this::readLocale);
+            return true;
         } catch (final IOException e) {
             plugin.getComponentLogger().warn("Failed to read custom translations", e);
+            return false;
         }
     }
 

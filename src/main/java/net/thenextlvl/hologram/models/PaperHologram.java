@@ -35,15 +35,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -51,22 +52,22 @@ import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
 
 @NullMarked
 public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
-    private final List<HologramLine<?>> lines = new LinkedList<>();
-    private final Set<UUID> viewers = new HashSet<>();
+    private final List<HologramLine<?>> lines = new CopyOnWriteArrayList<>();
+    private final Set<UUID> viewers = new ConcurrentSkipListSet<>();
+    private final Set<Player> spawned = ConcurrentHashMap.newKeySet();
 
     private final HologramPlugin plugin;
 
-    private String name;
+    private volatile String name;
 
-    private Path dataFile;
-    private Path backupFile;
+    private volatile Path dataFile;
+    private volatile Path backupFile;
 
-    private Location location;
-    private @Nullable String viewPermission;
+    private volatile Location location;
+    private volatile @Nullable String viewPermission;
 
-    private boolean persistent = true;
-    private boolean visibleByDefault = true;
-    private boolean spawned = false;
+    private volatile boolean persistent = true;
+    private volatile boolean visibleByDefault = true;
 
     public PaperHologram(final HologramPlugin plugin, final String name, final Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
@@ -88,9 +89,9 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return plugin;
     }
 
-    public Stream<? extends Entity> getEntities() {
+    public Stream<? extends Entity> getEntities(final Player player) {
         return lines.stream()
-                .map(hologramLine -> hologramLine.getEntity().orElse(null))
+                .map(hologramLine -> hologramLine.getEntity(player).orElse(null))
                 .filter(Objects::nonNull);
     }
 
@@ -107,6 +108,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (!updatePaths(getWorld(), name)) return false;
 
         this.name = name;
+        updateText();
         return true;
     }
 
@@ -203,7 +205,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public boolean removeLine(final HologramLine<?> line) {
         final var removed = lines.remove(line);
-        if (removed) line.getEntity().ifPresent(Entity::remove);
+        if (removed) line.getEntities().forEach((player, entity) -> entity.remove());
         updateHologram();
         return removed;
     }
@@ -212,7 +214,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean removeLine(final int index) {
         if (index < 0 || index >= lines.size()) return false;
         final var removed = lines.remove(index);
-        removed.getEntity().ifPresent(Entity::remove);
+        removed.getEntities().forEach((player, entity) -> entity.remove());
         updateHologram();
         return true;
     }
@@ -227,7 +229,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public void clearLines() {
         if (lines.isEmpty()) return;
-        getEntities().forEach(Entity::remove);
+        lines.forEach(hologramLine -> hologramLine.getEntities().forEach((player, entity) -> entity.remove()));
         lines.clear();
         updateHologram();
     }
@@ -374,8 +376,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean setViewPermission(@Nullable final String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
-        lines.forEach(hologramLine -> plugin.getServer().getOnlinePlayers()
-                .forEach(player -> ((PaperHologramLine<?>) hologramLine).updateVisibility(player)));
+        updateVisibility();
         return true;
     }
 
@@ -389,7 +390,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (!viewers.add(player)) return false;
         if (lines.isEmpty() || isVisibleByDefault()) return true;
         final var online = plugin.getServer().getPlayer(player);
-        if (online != null) getEntities().forEach(entity -> online.showEntity(plugin, entity));
+        if (online != null) spawn(online);
         return true;
     }
 
@@ -403,7 +404,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (!viewers.remove(player)) return false;
         if (lines.isEmpty() || isVisibleByDefault()) return true;
         final var online = plugin.getServer().getPlayer(player);
-        if (online != null) getEntities().forEach(entity -> online.hideEntity(plugin, entity));
+        if (online != null) despawn(online);
         return true;
     }
 
@@ -419,15 +420,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public boolean canSee(final Player player) {
-        if (lines.isEmpty() || !isSpawned()) return false;
+        if (lines.isEmpty()) return false;
         if (!player.getWorld().equals(location.getWorld())) return false;
-        if (viewPermission != null && !player.hasPermission(viewPermission)) return false;
-        return isVisibleByDefault() || isViewer(player.getUniqueId());
-    }
-
-    @Override
-    public boolean isTrackedBy(final Player player) {
-        return getEntities().anyMatch(entity -> entity.getTrackedBy().contains(player));
+        if (!isVisibleByDefault() && !isViewer(player.getUniqueId())) return false;
+        return getViewPermission().map(player::hasPermission).orElse(true);
     }
 
     @Override
@@ -491,18 +487,42 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public boolean spawn() {
-        if (isSpawned() || !location.isChunkLoaded()) return false;
+    public void spawn() {
+        plugin.getServer().getOnlinePlayers().forEach(this::spawn);
+    }
+
+    @Override
+    public boolean spawn(final Player player) {
+        if (!canSee(player)) return false;
+        if (!location.isChunkLoaded()) return false;
+        if (!spawned.add(player)) return false;
+
         var offset = 0d;
         // Start from the bottom line, going up
         for (var index = lines.size() - 1; index >= 0; index--) {
             final var line = lines.get(index);
             final var hologramLine = (PaperHologramLine<?>) line;
-            final var spawn = hologramLine.spawn(offset + hologramLine.getOffsetBefore());
-            offset += 0.05 + hologramLine.getHeight() + hologramLine.getOffsetAfter();
+            final var spawn = hologramLine.spawn(player, offset + hologramLine.getOffsetBefore(player));
+            offset += 0.05 + hologramLine.getHeight(player) + hologramLine.getOffsetAfter();
         }
-        this.spawned = true;
         return true;
+    }
+
+    @Override
+    public void despawn() {
+        spawned.forEach(this::despawn);
+    }
+
+    @Override
+    public boolean despawn(final Player player) {
+        if (!spawned.remove(player)) return false;
+        lines.forEach(hologramLine -> ((PaperHologramLine<?>) hologramLine).despawn(player));
+        return true;
+    }
+
+    @Override
+    public boolean isSpawned(final Player player) {
+        return spawned.contains(player);
     }
 
     @Override
@@ -510,24 +530,38 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return lines.iterator();
     }
 
-    @Override
-    public boolean despawn() {
-        if (!isSpawned()) return false;
-        lines.forEach(hologramLine -> ((PaperHologramLine<?>) hologramLine).despawn());
-        this.spawned = false;
-        return true;
-    }
-
     public void updateHologram() {
-        if (!isSpawned()) return;
-        // todo: properly implement this
-        despawn();
-        spawn();
+        spawned.forEach(this::updateHologram);
     }
 
-    @Override
-    public boolean isSpawned() {
-        return spawned;
+    public void updateHologram(final Player player) {
+        if (!isSpawned(player)) return;
+        // todo: properly implement this
+        despawn(player);
+        spawn(player);
+    }
+
+    public void updateVisibility() {
+        spawned.forEach(this::updateVisibility);
+    }
+
+    public void updateVisibility(final Player player) {
+        if (canSee(player)) spawn(player);
+        else despawn(player);
+    }
+
+    public void updateText() {
+        lines.forEach(hologramLine -> {
+            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
+            line.getEntities().forEach(line::updateText);
+        });
+    }
+
+    public void updateText(final Player player) {
+        lines.forEach(hologramLine -> {
+            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
+            line.getEntity(player).ifPresent(textDisplay -> line.updateText(player, textDisplay));
+        });
     }
 
     public void invalidate(final Entity entity) {
@@ -545,7 +579,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
                 .put("pitch", location.getPitch())
                 .build());
         builder.put("visibleByDefault", visibleByDefault);
-        if (viewPermission != null) builder.put("viewPermission", viewPermission);
+        getViewPermission().ifPresent(permission -> builder.put("viewPermission", permission));
 
         final var lines = this.lines.stream().map(nbt::serialize).toList();
         if (!lines.isEmpty()) builder.put("lines", ListTag.of(lines));

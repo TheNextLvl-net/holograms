@@ -10,7 +10,6 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.registry.RegistryKey;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
@@ -64,8 +63,8 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
     }
 
     private int insertTextLine(final CommandContext<CommandSourceStack> context) {
-        final var text = MiniMessage.miniMessage().deserialize(context.getArgument("text", String.class));
-        return insertLine(context, (hologram, line) -> hologram.addTextLine(line).setText(text));
+        final var text = context.getArgument("text", String.class);
+        return insertLine(context, (hologram, line) -> hologram.addTextLine(line).setUnparsedText(text));
     }
 
     private int insertLine(final CommandContext<CommandSourceStack> context, final BiConsumer<Hologram, Integer> consumer) {
@@ -73,7 +72,7 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
         final var line = context.getArgument("line", int.class);
         consumer.accept(hologram, line - 1);
         plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.line.insert",
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", line));
         return SINGLE_SUCCESS;
     }

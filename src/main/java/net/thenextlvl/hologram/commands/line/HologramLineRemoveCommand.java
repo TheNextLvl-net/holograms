@@ -36,7 +36,7 @@ final class HologramLineRemoveCommand extends SimpleCommand {
         final var success = hologram.removeLine(line - 1);
         final var message = success ? "hologram.line.remove" : "hologram.line.invalid";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", line));
         return success ? SINGLE_SUCCESS : 0;
     }

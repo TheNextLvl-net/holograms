@@ -38,7 +38,7 @@ final class HologramLineMoveCommand extends SimpleCommand {
         final var success = hologram.moveLine(from - 1, to - 1);
         final var message = success ? "hologram.line.move" : "hologram.line.move.failed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Placeholder.parsed("from", String.valueOf(from)),
                 Placeholder.parsed("to", String.valueOf(to)));
         return success ? SINGLE_SUCCESS : 0;

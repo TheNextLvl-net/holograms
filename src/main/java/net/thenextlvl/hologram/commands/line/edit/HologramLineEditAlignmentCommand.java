@@ -46,7 +46,7 @@ final class HologramLineEditAlignmentCommand extends SimpleCommand {
         }, sender);
 
         plugin.bundle().sendMessage(sender, message,
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Placeholder.component("alignment", alignmentName),
                 Formatter.number("line", line));
         return SINGLE_SUCCESS;

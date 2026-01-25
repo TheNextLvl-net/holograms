@@ -5,7 +5,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLocaleChangeEvent;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public final class LocaleListener implements Listener {
     private final HologramPlugin plugin;
 
@@ -15,6 +17,8 @@ public final class LocaleListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onLocaleChange(final PlayerLocaleChangeEvent event) {
-        plugin.updateHologramTextLines(event.getPlayer());
+        event.getPlayer().getScheduler().run(plugin, task -> {
+            plugin.updateHologramTextLines(event.getPlayer());
+        }, null);
     }
 }

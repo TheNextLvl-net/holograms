@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -52,7 +51,7 @@ public class PaperHologramProvider implements HologramProvider {
     public Optional<Hologram> getHologram(final Entity entity) {
         return getHolograms(entity.getWorld())
                 .filter(hologram -> hologram.getLines().anyMatch(line ->
-                        line.getEntity().filter(entity::equals).isPresent()))
+                        line.getEntities().containsValue(entity)))
                 .findAny();
     }
 
@@ -61,7 +60,7 @@ public class PaperHologramProvider implements HologramProvider {
     public <E extends Entity> Optional<HologramLine<E>> getHologramLine(final E entity) {
         return getHolograms(entity.getWorld())
                 .filter(hologram -> hologram.getLines().anyMatch(line ->
-                        line.getEntity().filter(entity::equals).isPresent()))
+                        line.getEntities().containsValue(entity)))
                 .map(hologram -> (HologramLine<E>) hologram)
                 .findFirst();
     }
@@ -88,12 +87,6 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    public Optional<HologramLine<?>> getHologramLine(final UUID uuid) {
-        return getHolograms().flatMap(hologram -> hologram.getLines().filter(line ->
-                line.getEntity().map(Entity::getUniqueId).filter(uuid::equals).isPresent())).findAny();
-    }
-
-    @Override
     public Stream<Hologram> getHolograms() {
         return holograms.stream();
     }
@@ -107,7 +100,7 @@ public class PaperHologramProvider implements HologramProvider {
 
     @Override
     public Stream<Hologram> getHolograms(final Player player) {
-        return getHolograms().filter(hologram -> hologram.canSee(player));
+        return getHolograms().filter(hologram -> hologram.isSpawned(player));
     }
 
     @Override
@@ -143,7 +136,7 @@ public class PaperHologramProvider implements HologramProvider {
     @Override
     public boolean isHologramPart(final Entity entity) {
         return getHolograms(entity.getWorld()).anyMatch(hologram -> hologram.getLines().anyMatch(line ->
-                line.getEntity().filter(entity::equals).isPresent()));
+                line.getEntities().containsValue(entity)));
     }
 
     @Override

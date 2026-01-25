@@ -7,7 +7,6 @@ import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.translation.GlobalTranslator;
 import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.adapters.BlockDataAdapter;
 import net.thenextlvl.hologram.adapters.BrightnessAdapter;
@@ -38,10 +37,12 @@ import net.thenextlvl.hologram.listeners.ChunkListener;
 import net.thenextlvl.hologram.listeners.EntityListener;
 import net.thenextlvl.hologram.listeners.HologramListener;
 import net.thenextlvl.hologram.listeners.LocaleListener;
+import net.thenextlvl.hologram.listeners.PluginListener;
 import net.thenextlvl.hologram.listeners.WorldListener;
 import net.thenextlvl.hologram.locale.HologramTranslationStore;
+import net.thenextlvl.hologram.locale.MiniPlaceholdersFormatter;
+import net.thenextlvl.hologram.locale.PlaceholderAPIFormatter;
 import net.thenextlvl.hologram.models.PaperHologram;
-import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import net.thenextlvl.hologram.version.PluginVersionChecker;
 import net.thenextlvl.i18n.ComponentBundle;
 import net.thenextlvl.nbt.NBTInputStream;
@@ -72,7 +73,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 @NullMarked
@@ -100,10 +100,11 @@ public class HologramPlugin extends JavaPlugin {
 
     private final HologramTranslationStore translations = new HologramTranslationStore(this);
 
+    public @Nullable MiniPlaceholdersFormatter miniFormatter = null;
+    public @Nullable PlaceholderAPIFormatter papiFormatter = null;
+
     public HologramPlugin() {
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
-        GlobalTranslator.translator().addSource(translations);
-        translations.read();
     }
 
     @Override
@@ -113,6 +114,11 @@ public class HologramPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getServer().getGlobalRegionScheduler().runAtFixedRate(this, ignored -> {
+            hologramProvider().getHolograms().map(PaperHologram.class::cast).forEach(hologram -> {
+                getServer().getOnlinePlayers().forEach(hologram::updateVisibility);
+            });
+        }, 100L, 100L);
         registerCommands();
         registerListeners();
     }
@@ -128,6 +134,7 @@ public class HologramPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityListener(this), this);
         getServer().getPluginManager().registerEvents(new HologramListener(this), this);
         getServer().getPluginManager().registerEvents(new LocaleListener(this), this);
+        getServer().getPluginManager().registerEvents(new PluginListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
     }
 
@@ -197,9 +204,7 @@ public class HologramPlugin extends JavaPlugin {
         try (final var files = Files.find(dataFolder, 1, (path, attributes) -> {
             return attributes.isRegularFile() && path.getFileName().toString().endsWith(".dat");
         })) {
-            files.map(path -> loadSafe(path, world))
-                    .filter(Objects::nonNull)
-                    .forEach(Hologram::spawn);
+            files.forEach(path -> loadSafe(path, world));
         } catch (final IOException e) {
             getComponentLogger().error("Failed to load all holograms in world {}", world.getName(), e);
             getComponentLogger().error("Please look for similar issues or report this on GitHub: {}", ISSUES);
@@ -251,12 +256,9 @@ public class HologramPlugin extends JavaPlugin {
         final var holograms = player != null
                 ? hologramProvider().getHolograms(player)
                 : hologramProvider().getHolograms();
-        holograms.forEach(hologram -> hologram.getLines().forEach(hologramLine -> {
-            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
-            line.getText().ifPresent(text -> line.getEntity().ifPresent(entity -> {
-                entity.text(Component.empty());
-                entity.text(text);
-            }));
-        }));
+        holograms.map(PaperHologram.class::cast).forEach(hologram -> {
+            if (player == null) hologram.updateText();
+            else hologram.updateText(player);
+        });
     }
 }

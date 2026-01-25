@@ -52,7 +52,7 @@ final class HologramLineEditTransformationCommand extends SimpleCommand {
         }, sender);
 
         plugin.bundle().sendMessage(sender, message,
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Placeholder.component("transformation", transformationName),
                 Formatter.number("line", lineNumber));
         return SINGLE_SUCCESS;

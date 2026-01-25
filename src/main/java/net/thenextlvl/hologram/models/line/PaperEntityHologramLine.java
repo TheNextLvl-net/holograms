@@ -13,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Explosive;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.EquipmentSlot;
 import org.joml.Vector3f;
@@ -20,16 +21,16 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine<E> implements EntityHologramLine<E> {
-    private final Vector3f offset = new Vector3f();
-    private double scale = 1;
+    private volatile Vector3f offset = new Vector3f();
+    private volatile double scale = 1;
 
     public PaperEntityHologramLine(final PaperHologram hologram, final Class<E> entityClass) throws IllegalArgumentException {
         super(hologram, entityClass);
     }
 
     @Override
-    public double getHeight() {
-        return getEntity().map(Entity::getHeight).orElse(0d) * scale;
+    public double getHeight(final Player player) {
+        return getEntity(player).map(Entity::getHeight).orElse(0d) * scale;
     }
 
     @Override
@@ -51,7 +52,10 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     public EntityHologramLine<E> setScale(final double scale) {
         if (this.scale == scale) return this;
         this.scale = scale;
-        getEntity(Attributable.class).ifPresent(this::updateScale);
+        getEntities().values().stream()
+                .filter(Attributable.class::isInstance)
+                .map(Attributable.class::cast)
+                .forEach(this::updateScale);
         getHologram().updateHologram();
         return this;
     }
@@ -62,25 +66,27 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    public EntityHologramLine<E> setOffset(final Vector3f offset) {
-        if (this.offset.equals(offset)) return this;
-        getEntity().ifPresent(entity -> {
+    public EntityHologramLine<E> setOffset(final Vector3f newOffset) {
+        final var oldOffset = this.offset;
+        if (oldOffset.equals(newOffset)) return this;
+        final var copy = new Vector3f(newOffset);
+        this.offset = copy;
+        getEntities().values().forEach(entity -> {
             final var location = entity.getLocation();
-            location.subtract(this.offset.x(), this.offset.y(), this.offset.z());
-            location.add(offset.x(), offset.y(), offset.z());
+            location.subtract(oldOffset.x(), oldOffset.y(), oldOffset.z());
+            location.add(copy.x(), copy.y(), copy.z());
             entity.teleportAsync(location);
         });
-        this.offset.set(offset);
         return this;
     }
 
     @Override
     protected Location mutateSpawnLocation(final Location location) {
-        return location.add(getOffset().x(), getOffset().y(), getOffset().z());
+        return location.add(offset.x(), offset.y(), offset.z());
     }
 
     @Override
-    protected void preSpawn(final E entity) {
+    protected void preSpawn(final E entity, final Player player) {
         entity.setSilent(true);
         entity.setInvulnerable(true);
         entity.setGravity(false);
@@ -123,7 +129,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
             armorStand.setDisabledSlots(EquipmentSlot.values());
         }
 
-        super.preSpawn(entity);
+        super.preSpawn(entity, player);
     }
 
     private void updateScale(final Attributable attributable) {

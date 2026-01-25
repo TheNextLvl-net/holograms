@@ -47,7 +47,7 @@ final class HologramLineEditBillboardCommand extends SimpleCommand {
         }, sender);
 
         plugin.bundle().sendMessage(sender, message,
-                Placeholder.parsed("hologram", hologram.getName()),
+                Placeholder.unparsed("hologram", hologram.getName()),
                 Placeholder.component("billboard", billboardName),
                 Formatter.number("line", line));
         return SINGLE_SUCCESS;

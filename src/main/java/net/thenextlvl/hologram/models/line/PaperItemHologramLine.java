@@ -5,6 +5,7 @@ import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.NullMarked;
@@ -14,8 +15,8 @@ import java.util.Objects;
 
 @NullMarked
 public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologramLine, ItemDisplay> implements ItemHologramLine {
-    private ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
-    private @Nullable ItemStack item = null;
+    private volatile ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
+    private volatile @Nullable ItemStack item = null;
 
     public PaperItemHologramLine(final PaperHologram hologram) {
         super(hologram, ItemDisplay.class);
@@ -34,7 +35,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     @Override
     public ItemHologramLine setItemStack(@Nullable final ItemStack item) {
         this.item = item != null ? item.clone() : null;
-        getEntity().ifPresent(entity -> entity.setItemStack(item));
+        getEntities().values().forEach(entity -> entity.setItemStack(item));
         return this;
     }
 
@@ -47,13 +48,13 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     public ItemHologramLine setItemDisplayTransform(final ItemDisplayTransform display) {
         if (Objects.equals(this.displayTransform, display)) return this;
         this.displayTransform = display;
-        getEntity().ifPresent(entity -> entity.setItemDisplayTransform(display));
+        getEntities().values().forEach(entity -> entity.setItemDisplayTransform(display));
         getHologram().updateHologram();
         return this;
     }
 
     @Override
-    public double getHeight() {
+    public double getHeight(final Player player) {
         return switch (displayTransform) {
             case NONE, HEAD, GUI -> 1;
             case GROUND, THIRDPERSON_LEFTHAND, THIRDPERSON_RIGHTHAND, FIRSTPERSON_LEFTHAND, FIRSTPERSON_RIGHTHAND ->
@@ -63,15 +64,15 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     }
 
     @Override
-    public double getOffsetBefore() {
+    public double getOffsetBefore(final Player player) {
         if (displayTransform == ItemDisplayTransform.GROUND) return 0;
-        return getHeight() / 2;
+        return getHeight(player) / 2;
     }
 
     @Override
-    protected void preSpawn(final ItemDisplay entity) {
+    protected void preSpawn(final ItemDisplay entity, final Player player) {
         entity.setItemStack(item);
         entity.setItemDisplayTransform(displayTransform);
-        super.preSpawn(entity);
+        super.preSpawn(entity, player);
     }
 }

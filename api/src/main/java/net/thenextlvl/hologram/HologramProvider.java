@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Contract;
 
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -110,16 +109,6 @@ public interface HologramProvider {
      */
     @Contract(pure = true)
     Optional<Hologram> getHologram(String name);
-
-    /**
-     * Get a hologram line by its UUID
-     *
-     * @param uuid the UUID of the hologram line
-     * @return the hologram line with the given UUID
-     * @since 0.1.0
-     */
-    @Contract(pure = true)
-    Optional<HologramLine<?>> getHologramLine(UUID uuid);
 
     /**
      * Get all holograms

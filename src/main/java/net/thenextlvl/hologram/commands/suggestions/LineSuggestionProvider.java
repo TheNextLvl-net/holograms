@@ -41,9 +41,8 @@ public final class LineSuggestionProvider implements SuggestionProvider<CommandS
                     .append(Component.translatable(entityLine.getEntityType()));
             case final ItemHologramLine itemLine -> Component.text("Item: ")
                     .append(Component.translatable(itemLine.getItemStack().getType()));
-            case final TextHologramLine textLine -> textLine.getText().map(component -> {
-                final var serialize = MiniMessage.miniMessage().serialize(component);
-                return MiniMessage.miniMessage().deserialize("Text: " + serialize.replace("\n", "\\n"));
+            case final TextHologramLine textLine -> textLine.getUnparsedText().map(component -> {
+                return MiniMessage.miniMessage().deserialize("Text: " + component.replace("\n", "\\n"));
             }).orElse(Component.empty());
             case null -> Component.empty();
             default -> Component.text("Unknown Line " + index);

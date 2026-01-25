@@ -453,23 +453,20 @@ public interface Hologram extends Iterable<HologramLine<?>> {
 
     /**
      * Checks if the given player can see this hologram.
+     * <p>
+     * This method is different to {@link #isSpawned(Player)} in that it checks
+     * if the player has the permission to see the hologram.
      *
      * @param player player
      * @return {@code true} if the given player can see this hologram, {@code false} otherwise
+     * @see #getViewPermission()
+     * @see #isVisibleByDefault()
+     * @see #isViewer(UUID)
+     * @see #isSpawned(Player)
      * @since 0.1.0
      */
     @Contract(pure = true)
     boolean canSee(Player player);
-
-    /**
-     * Checks if the given player is tracking this hologram.
-     *
-     * @param player player
-     * @return {@code true} if the given player is tracking this hologram, {@code false} otherwise
-     * @since 0.1.0
-     */
-    @Contract(pure = true)
-    boolean isTrackedBy(Player player);
 
     /**
      * Checks if this hologram is visible by default.
@@ -537,31 +534,47 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     Path getBackupFile();
 
     /**
-     * Spawns this hologram if possible.
+     * Spawns this hologram for all players.
      *
-     * @return {@code true} if the hologram was spawned, {@code false} otherwise
      * @since 0.1.0
      */
     @Contract(mutates = "this")
     void spawn();
 
+    /**
+     * Spawns this hologram for the given player.
+     *
+     * @param player the player to spawn for
+     * @return {@code true} if the hologram was spawned for the given player, {@code false} otherwise
+     * @since 0.4.0
+     */
+    @Contract(mutates = "this")
     boolean spawn(Player player);
 
     /**
-     * Despawns this hologram if possible.
+     * Despawns this hologram for all players.
      *
      * @since 0.4.0
      */
     @Contract(mutates = "this")
     void despawn();
 
+    /**
+     * Despawns this hologram for the given player.
+     *
+     * @param player the player to despawn for
+     * @return {@code true} if the hologram was despawned for the given player, {@code false} otherwise
+     * @since 0.4.0
+     */
+    @Contract(mutates = "this")
     boolean despawn(Player player);
 
     /**
-     * Checks if this hologram is spawned.
+     * Checks if this hologram is spawned for the given player.
      *
-     * @return {@code true} if this hologram is spawned, {@code false} otherwise
-     * @since 0.1.0
+     * @param player the player to check for
+     * @return {@code true} if this hologram is spawned for the given player, {@code false} otherwise
+     * @since 0.4.0
      */
     @Contract(pure = true)
     boolean isSpawned(Player player);

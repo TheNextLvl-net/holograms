@@ -5,7 +5,6 @@ import dev.faststats.core.ErrorTracker;
 import io.papermc.paper.ServerBuildInfo;
 import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.thenextlvl.binder.StaticBinder;
@@ -115,18 +114,13 @@ public class HologramPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getServer().getGlobalRegionScheduler().runAtFixedRate(this, this::updateVisibility, 100L, 100L);
+        getServer().getGlobalRegionScheduler().runAtFixedRate(this, ignored -> {
+            hologramProvider().getHolograms().map(PaperHologram.class::cast).forEach(hologram -> {
+                getServer().getOnlinePlayers().forEach(hologram::updateVisibility);
+            });
+        }, 100L, 100L);
         registerCommands();
         registerListeners();
-    }
-
-    private void updateVisibility(final ScheduledTask scheduledTask) {
-        hologramProvider().getHolograms().forEach(hologram -> {
-            getServer().getOnlinePlayers().forEach(player -> {
-                if (hologram.canSee(player)) hologram.spawn(player);
-                else hologram.despawn(player);
-            });
-        });
     }
 
     private void registerCommands() {

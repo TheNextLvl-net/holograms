@@ -44,7 +44,6 @@ import net.thenextlvl.hologram.locale.HologramTranslationStore;
 import net.thenextlvl.hologram.locale.MiniPlaceholdersFormatter;
 import net.thenextlvl.hologram.locale.PlaceholderAPIFormatter;
 import net.thenextlvl.hologram.models.PaperHologram;
-import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import net.thenextlvl.hologram.version.PluginVersionChecker;
 import net.thenextlvl.i18n.ComponentBundle;
 import net.thenextlvl.nbt.NBTInputStream;
@@ -263,10 +262,9 @@ public class HologramPlugin extends JavaPlugin {
         final var holograms = player != null
                 ? hologramProvider().getHolograms(player)
                 : hologramProvider().getHolograms();
-        holograms.forEach(hologram -> hologram.getLines().forEach(hologramLine -> {
-            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
-            if (player == null) line.getEntities().forEach(line::updateText);
-            else line.getEntity(player).ifPresent(textDisplay -> line.updateText(player, textDisplay));
-        }));
+        holograms.map(PaperHologram.class::cast).forEach(hologram -> {
+            if (player == null) hologram.updateText();
+            else hologram.updateText(player);
+        });
     }
 }

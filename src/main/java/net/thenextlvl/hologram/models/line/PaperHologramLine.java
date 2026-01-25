@@ -68,8 +68,10 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     public void despawn() {
-        entities.values().forEach(Entity::remove);
-        entities.clear();
+        entities.values().removeIf(entity -> {
+            entity.remove();
+            return true;
+        });
     }
 
     public void despawn(final Player player) {
@@ -88,13 +90,13 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     public E spawn(final Player player, final double offset) throws IllegalStateException {
-        final var entity = entities.get(player);
-        Preconditions.checkState(entity == null || !entity.isValid(), "Entity is already spawned");
-        final var location = mutateSpawnLocation(hologram.getLocation().add(0, offset, 0));
-        final var spawn = location.getWorld().spawn(location, getTypeClass(), false, e -> this.preSpawn(e, player));
-        player.showEntity(hologram.getPlugin(), spawn);
-        entities.put(player, spawn);
-        return spawn;
+        return entities.compute(player, (p, existing) -> {
+            Preconditions.checkState(existing == null || !existing.isValid(), "Entity is already spawned");
+            final var location = mutateSpawnLocation(hologram.getLocation().add(0, offset, 0));
+            final var spawn = location.getWorld().spawn(location, getTypeClass(), false, e -> this.preSpawn(e, player));
+            player.showEntity(hologram.getPlugin(), spawn);
+            return spawn;
+        });
     }
 
     protected Location mutateSpawnLocation(final Location location) {

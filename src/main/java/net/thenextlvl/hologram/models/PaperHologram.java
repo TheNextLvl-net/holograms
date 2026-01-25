@@ -35,15 +35,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -51,22 +52,22 @@ import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
 
 @NullMarked
 public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
-    private final List<HologramLine<?>> lines = new LinkedList<>();
-    private final Set<UUID> viewers = new HashSet<>();
+    private final List<HologramLine<?>> lines = new CopyOnWriteArrayList<>();
+    private final Set<UUID> viewers = new ConcurrentSkipListSet<>();
+    private final Set<Player> spawned = ConcurrentHashMap.newKeySet();
 
     private final HologramPlugin plugin;
 
-    private String name;
+    private volatile String name;
 
-    private Path dataFile;
-    private Path backupFile;
+    private volatile Path dataFile;
+    private volatile Path backupFile;
 
-    private Location location;
-    private @Nullable String viewPermission;
+    private volatile Location location;
+    private volatile @Nullable String viewPermission;
 
-    private boolean persistent = true;
-    private boolean visibleByDefault = true;
-    private final Set<Player> spawned = new HashSet<>(); // fixme: make this safe
+    private volatile boolean persistent = true;
+    private volatile boolean visibleByDefault = true;
 
     public PaperHologram(final HologramPlugin plugin, final String name, final Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
@@ -107,6 +108,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (!updatePaths(getWorld(), name)) return false;
 
         this.name = name;
+        updateText();
         return true;
     }
 
@@ -374,10 +376,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean setViewPermission(@Nullable final String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
-        spawned.forEach(player -> {
-            if (canSee(player)) spawn(player);
-            else despawn(player);
-        });
+        updateVisibility();
         return true;
     }
 
@@ -424,7 +423,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (lines.isEmpty()) return false;
         if (!player.getWorld().equals(location.getWorld())) return false;
         if (!isVisibleByDefault() && !isViewer(player.getUniqueId())) return false;
-        return viewPermission == null || player.hasPermission(viewPermission);
+        return getViewPermission().map(player::hasPermission).orElse(true);
     }
 
     @Override
@@ -532,7 +531,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public void updateHologram() {
-        Set.copyOf(spawned).forEach(this::updateHologram); // fixme: fix concurrency properly
+        spawned.forEach(this::updateHologram);
     }
 
     public void updateHologram(final Player player) {
@@ -540,6 +539,29 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         // todo: properly implement this
         despawn(player);
         spawn(player);
+    }
+
+    public void updateVisibility() {
+        spawned.forEach(this::updateVisibility);
+    }
+
+    public void updateVisibility(final Player player) {
+        if (canSee(player)) spawn(player);
+        else despawn(player);
+    }
+
+    public void updateText() {
+        lines.forEach(hologramLine -> {
+            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
+            line.getEntities().forEach(line::updateText);
+        });
+    }
+
+    public void updateText(final Player player) {
+        lines.forEach(hologramLine -> {
+            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
+            line.getEntity(player).ifPresent(textDisplay -> line.updateText(player, textDisplay));
+        });
     }
 
     public void invalidate(final Entity entity) {
@@ -557,7 +579,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
                 .put("pitch", location.getPitch())
                 .build());
         builder.put("visibleByDefault", visibleByDefault);
-        if (viewPermission != null) builder.put("viewPermission", viewPermission);
+        getViewPermission().ifPresent(permission -> builder.put("viewPermission", permission));
 
         final var lines = this.lines.stream().map(nbt::serialize).toList();
         if (!lines.isEmpty()) builder.put("lines", ListTag.of(lines));

@@ -17,18 +17,18 @@ import java.util.Optional;
 
 @NullMarked
 public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, E>, E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine<T, E> {
-    protected @Nullable Color glowColorOverride = null;
-    protected Display.@Nullable Brightness brightness = null;
-    protected Display.Billboard billboard = Display.Billboard.CENTER;
-    protected final Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
-    protected float displayHeight = 0;
-    protected float displayWidth = 0;
-    protected float shadowRadius = 0;
-    protected float shadowStrength = 1;
-    protected float viewRange = 1;
-    protected int interpolationDelay = 0;
-    protected int interpolationDuration = 0;
-    protected int teleportDuration = 4;
+    protected volatile @Nullable Color glowColorOverride = null;
+    protected volatile Display.@Nullable Brightness brightness = null;
+    protected volatile Display.Billboard billboard = Display.Billboard.CENTER;
+    protected volatile Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
+    protected volatile float displayHeight = 0;
+    protected volatile float displayWidth = 0;
+    protected volatile float shadowRadius = 0;
+    protected volatile float shadowStrength = 1;
+    protected volatile float viewRange = 1;
+    protected volatile int interpolationDelay = 0;
+    protected volatile int interpolationDuration = 0;
+    protected volatile int teleportDuration = 4;
 
     public PaperDisplayHologramLine(final PaperHologram hologram, final Class<E> entityClass) {
         super(hologram, entityClass);
@@ -47,10 +47,12 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     @Override
     public T setTransformation(final Transformation transformation) {
         if (Objects.equals(this.transformation, transformation)) return getSelf();
-        this.transformation.getLeftRotation().set(transformation.getLeftRotation());
-        this.transformation.getRightRotation().set(transformation.getRightRotation());
-        this.transformation.getScale().set(transformation.getScale());
-        this.transformation.getTranslation().set(transformation.getTranslation());
+        this.transformation = new Transformation(
+                new Vector3f(transformation.getTranslation()),
+                new AxisAngle4f(transformation.getLeftRotation()),
+                new Vector3f(transformation.getScale()),
+                new AxisAngle4f(transformation.getRightRotation())
+        );
         getEntities().values().forEach(entity -> entity.setTransformation(transformation));
         getHologram().updateHologram();
         return getSelf();
@@ -58,10 +60,12 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     public T setTransformationMatrix(final Matrix4f transformationMatrix) {
-        this.transformation.getLeftRotation().set(transformationMatrix.getRotation(new AxisAngle4f()));
-        this.transformation.getRightRotation().set(transformationMatrix.getRotation(new AxisAngle4f()));
-        this.transformation.getScale().set(transformationMatrix.getScale(new Vector3f()));
-        this.transformation.getTranslation().set(transformationMatrix.getTranslation(new Vector3f()));
+        this.transformation = new Transformation(
+                transformationMatrix.getTranslation(new Vector3f()),
+                transformationMatrix.getRotation(new AxisAngle4f()),
+                transformationMatrix.getScale(new Vector3f()),
+                transformationMatrix.getRotation(new AxisAngle4f())
+        );
         getEntities().values().forEach(entity -> entity.setTransformationMatrix(transformationMatrix));
         getHologram().updateHologram();
         return getSelf();

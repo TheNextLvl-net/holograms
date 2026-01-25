@@ -20,14 +20,14 @@ import java.util.Optional;
 
 @NullMarked
 public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologramLine, TextDisplay> implements TextHologramLine {
-    private @Nullable Color backgroundColor;
-    private @Nullable String text = null;
-    private TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
-    private boolean defaultBackground = false;
-    private boolean seeThrough = false;
-    private boolean shadowed = false;
-    private float opacity = 0;
-    private int lineWidth = Integer.MAX_VALUE;
+    private volatile @Nullable Color backgroundColor;
+    private volatile @Nullable String text = null;
+    private volatile TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
+    private volatile boolean defaultBackground = false;
+    private volatile boolean seeThrough = false;
+    private volatile boolean shadowed = false;
+    private volatile float opacity = 0;
+    private volatile int lineWidth = Integer.MAX_VALUE;
 
     public PaperTextHologramLine(final PaperHologram hologram) {
         super(hologram, TextDisplay.class);

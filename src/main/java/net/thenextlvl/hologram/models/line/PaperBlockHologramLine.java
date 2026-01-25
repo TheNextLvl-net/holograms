@@ -11,7 +11,7 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologramLine, BlockDisplay> implements BlockHologramLine {
-    private BlockData block = BlockType.AIR.createBlockData();
+    private volatile BlockData block = BlockType.AIR.createBlockData();
 
     public PaperBlockHologramLine(final PaperHologram hologram) {
         super(hologram, BlockDisplay.class);

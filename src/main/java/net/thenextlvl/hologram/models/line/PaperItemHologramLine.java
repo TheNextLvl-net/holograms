@@ -15,8 +15,8 @@ import java.util.Objects;
 
 @NullMarked
 public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologramLine, ItemDisplay> implements ItemHologramLine {
-    private ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
-    private @Nullable ItemStack item = null;
+    private volatile ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
+    private volatile @Nullable ItemStack item = null;
 
     public PaperItemHologramLine(final PaperHologram hologram) {
         super(hologram, ItemDisplay.class);

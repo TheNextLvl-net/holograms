@@ -374,8 +374,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean setViewPermission(@Nullable final String permission) {
         if (Objects.equals(this.viewPermission, permission)) return false;
         this.viewPermission = permission;
-        lines.forEach(hologramLine -> plugin.getServer().getOnlinePlayers()
-                .forEach(player -> ((PaperHologramLine<?>) hologramLine).updateVisibility(player)));
+        spawned.forEach(player -> {
+            if (canSee(player)) spawn(player);
+            else despawn(player);
+        });
         return true;
     }
 
@@ -419,15 +421,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public boolean canSee(final Player player) {
-        if (lines.isEmpty() || !isSpawned(player)) return false;
+        if (lines.isEmpty()) return false;
         if (!player.getWorld().equals(location.getWorld())) return false;
-        if (viewPermission != null && !player.hasPermission(viewPermission)) return false;
-        return isVisibleByDefault() || isViewer(player.getUniqueId());
-    }
-
-    @Override
-    public boolean isTrackedBy(final Player player) {
-        return getEntities(player).anyMatch(entity -> entity.getTrackedBy().contains(player));
+        if (!isVisibleByDefault() && !isViewer(player.getUniqueId())) return false;
+        return viewPermission == null || player.hasPermission(viewPermission);
     }
 
     @Override

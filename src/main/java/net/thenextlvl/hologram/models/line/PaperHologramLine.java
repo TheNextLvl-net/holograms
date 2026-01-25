@@ -101,20 +101,6 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         return location;
     }
 
-    public void updateVisibility(final Player player) {
-        final var entity = entities.get(player);
-        if (entity == null) return;
-        if (canSee(player)) player.showEntity(hologram.getPlugin(), entity);
-        else player.hideEntity(hologram.getPlugin(), entity);
-    }
-
-    public boolean canSee(final Player player) {
-        final var entity = entities.get(player);
-        if (entity == null || !entity.isValid()) return false;
-        if (!player.getWorld().equals(entity.getWorld())) return false;
-        return hologram.canSee(player);
-    }
-
     public CompletableFuture<Void> teleportRelative(final Location previous, final Location location) {
         return CompletableFuture.allOf(getEntities().values().stream()
                 .filter(Entity::isValid)

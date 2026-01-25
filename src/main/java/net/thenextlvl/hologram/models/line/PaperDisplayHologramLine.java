@@ -4,6 +4,7 @@ import net.thenextlvl.hologram.line.DisplayHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Display.Brightness;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
@@ -17,8 +18,7 @@ import java.util.Optional;
 
 @NullMarked
 public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, E>, E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine<T, E> {
-    protected volatile @Nullable Color glowColorOverride = null;
-    protected volatile Display.@Nullable Brightness brightness = null;
+    protected volatile @Nullable Brightness brightness = null;
     protected volatile Display.Billboard billboard = Display.Billboard.CENTER;
     protected volatile Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
     protected volatile float displayHeight = 0;
@@ -190,16 +190,8 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public Optional<Color> getGlowColorOverride() {
-        return Optional.ofNullable(glowColorOverride);
-    }
-
-    @Override
-    public T setGlowColorOverride(@Nullable final Color color) {
-        if (Objects.equals(this.glowColorOverride, color)) return getSelf();
-        this.glowColorOverride = color;
+    protected void updateGlowColor(@Nullable final Color color) {
         getEntities().values().forEach(entity -> entity.setGlowColorOverride(color));
-        return getSelf();
     }
 
     @Override
@@ -222,18 +214,18 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
 
     @Override
     protected void preSpawn(final E entity, final Player player) {
-        entity.setTransformation(transformation);
-        entity.setDisplayWidth(displayWidth);
+        entity.setBillboard(billboard);
+        entity.setBrightness(brightness);
         entity.setDisplayHeight(displayHeight);
+        entity.setDisplayWidth(displayWidth);
+        entity.setGlowColorOverride(glowColor);
+        entity.setInterpolationDelay(interpolationDelay);
+        entity.setInterpolationDuration(interpolationDuration);
         entity.setShadowRadius(shadowRadius);
         entity.setShadowStrength(shadowStrength);
-        entity.setViewRange(viewRange);
-        entity.setInterpolationDuration(interpolationDuration);
-        entity.setInterpolationDelay(interpolationDelay);
         entity.setTeleportDuration(teleportDuration);
-        entity.setBillboard(billboard);
-        entity.setGlowColorOverride(glowColorOverride);
-        entity.setBrightness(brightness);
+        entity.setTransformation(transformation);
+        entity.setViewRange(viewRange);
 
         super.preSpawn(entity, player);
     }

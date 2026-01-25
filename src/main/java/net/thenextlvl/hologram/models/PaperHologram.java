@@ -494,8 +494,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public boolean spawn(final Player player) {
-        if (canSee(player)) return false; // todo: improve this
-        if (!location.isChunkLoaded() || !spawned.add(player)) return false;
+        if (!canSee(player)) return false;
+        if (!location.isChunkLoaded()) return false;
+        if (!spawned.add(player)) return false;
+
         var offset = 0d;
         // Start from the bottom line, going up
         for (var index = lines.size() - 1; index >= 0; index--) {

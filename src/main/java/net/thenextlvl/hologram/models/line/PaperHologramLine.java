@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Team;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -89,6 +90,21 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
 
     protected abstract void updateGlowColor(@Nullable final TextColor color);
 
+    protected void updateTeamOptions(final Player player, final Entity entity) {
+        final var team = getSettingsTeam(player, entity);
+        team.color(getGlowColor().map(NamedTextColor::nearestTo).orElse(null));
+        team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+    }
+
+    private Team getSettingsTeam(final Player player, final Entity entity) {
+        var settings = player.getScoreboard().getTeam(entity.getScoreboardEntryName());
+        if (settings != null) return settings;
+        settings = player.getScoreboard().registerNewTeam(entity.getScoreboardEntryName());
+        settings.addEntry(entity.getScoreboardEntryName());
+        return settings;
+    }
+
     @Override
     public boolean isGlowing() {
         return glowing;
@@ -151,6 +167,8 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     protected void preSpawn(final E entity, final Player player) {
+        updateTeamOptions(player, entity);
+
         entity.setGlowing(glowing);
         entity.setPersistent(false);
         entity.setVisibleByDefault(false);
@@ -159,7 +177,24 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         //     plugin.getServer().getOnlinePlayers().forEach(this::updateVisibility);
     }
 
+    private @Nullable Player remove(final Entity entity) {
+        final var iterator = entities.entrySet().iterator();
+        while (iterator.hasNext()) {
+            final var entry = iterator.next();
+
+            if (entry.getValue().equals(entity)) {
+                iterator.remove();
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     public void invalidate(final Entity entity) {
-        entities.values().removeIf(e -> e.equals(entity));
+        final var owner = remove(entity);
+        if (owner == null) return;
+
+        final var team = owner.getScoreboard().getTeam(entity.getScoreboardEntryName());
+        if (team != null) team.unregister();
     }
 }

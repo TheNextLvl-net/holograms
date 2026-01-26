@@ -84,5 +84,12 @@ public interface HologramLine {
     @Contract(pure = true)
     World getWorld();
 
+    /**
+     * Checks if the given entity is part of this line.
+     *
+     * @param entity the entity to check
+     * @return {@code true} if the entity is part of this line, {@code false} otherwise
+     * @since 0.5.0
+     */
     boolean isPart(Entity entity);
 }

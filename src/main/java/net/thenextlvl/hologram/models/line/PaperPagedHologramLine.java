@@ -267,10 +267,23 @@ public class PaperPagedHologramLine implements PagedHologramLine {
         }
 
         final var newPage = pages.get(newIndex);
-
-        if (oldPage != null) oldPage.despawn(player);
-        newPage.spawn(player, offset);
         currentPageIndex.put(player, newIndex);
+
+        if (oldPage == null) {
+            newPage.spawn(player, offset);
+            return;
+        }
+
+        if (oldPage.getEntityClass().equals(newPage.getEntityClass())) {
+            final var entity = oldPage.removeEntity(player);
+            if (entity != null && entity.isValid()) {
+                newPage.adoptEntity(player, entity);
+                return;
+            }
+        }
+
+        oldPage.despawn(player);
+        newPage.spawn(player, offset);
     }
 
     private void startCycleTask() {

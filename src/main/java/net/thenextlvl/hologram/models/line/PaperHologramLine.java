@@ -96,6 +96,18 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         if (remove != null) remove.remove();
     }
 
+    public @Nullable E removeEntity(final Player player) {
+        return entities.remove(player);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean adoptEntity(final Player player, final Entity entity) {
+        if (!entityClass.isInstance(entity)) return false;
+        entities.put(player, (E) entity);
+        preSpawn((E) entity, player);
+        return true;
+    }
+
     public abstract double getHeight(Player player);
 
     public double getOffsetBefore(final Player player) {

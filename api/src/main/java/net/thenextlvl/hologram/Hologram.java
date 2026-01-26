@@ -536,7 +536,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     /**
      * Spawns this hologram for all players.
      *
-     * @since 0.1.0
+     * @since 0.4.0
      */
     @Contract(mutates = "this")
     void spawn();

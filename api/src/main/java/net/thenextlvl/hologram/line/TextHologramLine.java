@@ -24,7 +24,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param player the player for which to get the text
      * @return the displayed text
-     * @since 0.3.0
+     * @since 0.4.0
      */
     @Contract(pure = true)
     Optional<Component> getText(Player player);
@@ -33,7 +33,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      * Gets the displayed text in {@link net.kyori.adventure.text.minimessage.MiniMessage} format.
      *
      * @return the displayed text
-     * @since 0.3.0
+     * @since 0.4.0
      */
     @Contract(pure = true)
     Optional<String> getUnparsedText();
@@ -53,7 +53,7 @@ public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, 
      *
      * @param text the new text
      * @return this
-     * @since 0.3.0
+     * @since 0.4.0
      */
     @Contract(value = "_ -> this", mutates = "this")
     TextHologramLine setUnparsedText(@Nullable String text);

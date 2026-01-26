@@ -33,7 +33,7 @@ public interface HologramLine<E extends Entity> {
      * Gets the entity representing this line.
      *
      * @return entity
-     * @since 0.1.0
+     * @since 0.4.0
      */
     @Contract(pure = true)
     Optional<E> getEntity(Player player);
@@ -47,7 +47,7 @@ public interface HologramLine<E extends Entity> {
      * @param type entity type
      * @param <T>  entity type
      * @return entity
-     * @since 0.1.0
+     * @since 0.4.0
      */
     @Contract(pure = true)
     <T> Optional<T> getEntity(Player player, Class<T> type);
@@ -92,7 +92,7 @@ public interface HologramLine<E extends Entity> {
      * Gets whether this line is glowing.
      *
      * @return true if this line is glowing
-     * @since 0.3.0
+     * @since 0.4.0
      */
     @Contract(pure = true)
     boolean isGlowing();
@@ -101,7 +101,7 @@ public interface HologramLine<E extends Entity> {
      * Sets whether this line is glowing.
      *
      * @param glowing true if this line should glow
-     * @since 0.3.0
+     * @since 0.4.0
      */
     HologramLine<E> setGlowing(boolean glowing);
 
@@ -109,7 +109,7 @@ public interface HologramLine<E extends Entity> {
      * Gets the glow color of this line.
      *
      * @return glow color
-     * @since 0.3.0
+     * @since 0.4.0
      */
     @Contract(pure = true)
     Optional<TextColor> getGlowColor();
@@ -118,7 +118,7 @@ public interface HologramLine<E extends Entity> {
      * Sets the glow color of this line.
      *
      * @param color new color
-     * @since 0.3.0
+     * @since 0.4.0
      */
     HologramLine<E> setGlowColor(@Nullable TextColor color);
 }

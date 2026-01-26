@@ -3,7 +3,6 @@ package net.thenextlvl.hologram.line;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;

@@ -12,8 +12,9 @@ import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.line.PaperBlockHologramLine;
-import net.thenextlvl.hologram.models.line.PaperEntityHologramLine;
 import net.thenextlvl.hologram.models.line.PaperHologramLine;
+import net.thenextlvl.hologram.models.line.PaperEntityHologramLine;
+import net.thenextlvl.hologram.models.line.PaperStaticHologramLine;
 import net.thenextlvl.hologram.models.line.PaperItemHologramLine;
 import net.thenextlvl.hologram.models.line.PaperPagedHologramLine;
 import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
@@ -161,7 +162,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (!success) return CompletableFuture.completedFuture(false);
         return CompletableFuture.allOf(lines.stream()
                 .map(line -> {
-                    if (line instanceof final PaperHologramLine<?> paperLine)
+                    if (line instanceof final PaperStaticHologramLine<?> paperLine)
                         return paperLine.teleportRelative(previous, location);
                     else if (line instanceof final PaperPagedHologramLine pagedLine)
                         return pagedLine.teleportRelative(previous, location);
@@ -244,7 +245,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     private void despawnLine(final HologramLine line) {
-        if (line instanceof final PaperHologramLine<?> paperLine) {
+        if (line instanceof final PaperStaticHologramLine<?> paperLine) {
             paperLine.getEntities().forEach((player, entity) -> entity.remove());
         } else if (line instanceof final PaperPagedHologramLine pagedLine) {
             pagedLine.despawn();
@@ -537,14 +538,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         var offset = 0d;
         // Start from the bottom line, going up
         for (var index = lines.size() - 1; index >= 0; index--) {
-            final var line = lines.get(index);
-            if (line instanceof final PaperHologramLine<?> hologramLine) {
-                hologramLine.spawn(player, offset + hologramLine.getOffsetBefore(player));
-                offset += 0.05 + hologramLine.getHeight(player) + hologramLine.getOffsetAfter();
-            } else if (line instanceof final PaperPagedHologramLine pagedLine) {
-                final var spawn = pagedLine.spawn(player, offset + pagedLine.getOffsetBefore(player));
-                if (spawn != null) offset += 0.05 + pagedLine.getHeight(player) + pagedLine.getOffsetAfter();
-            }
+            final var line = (PaperHologramLine) lines.get(index);
+            final var spawn = line.spawn(player, offset + line.getOffsetBefore(player));
+            if (spawn == null || index == 0) continue;
+            offset += 0.05 + line.getHeight(player) + line.getOffsetAfter();
         }
         return true;
     }
@@ -558,7 +555,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean despawn(final Player player) {
         if (!spawned.remove(player)) return false;
         lines.forEach(hologramLine -> {
-            if (hologramLine instanceof final PaperHologramLine<?> paperLine) paperLine.despawn(player);
+            if (hologramLine instanceof final PaperStaticHologramLine<?> paperLine) paperLine.despawn(player);
             else if (hologramLine instanceof final PaperPagedHologramLine pagedLine) pagedLine.despawn(player);
         });
         return true;
@@ -615,7 +612,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     public void invalidate(final Entity entity) {
         lines.forEach(line -> {
-            if (line instanceof final PaperHologramLine<?> paperLine) paperLine.invalidate(entity);
+            if (line instanceof final PaperStaticHologramLine<?> paperLine) paperLine.invalidate(entity);
             else if (line instanceof final PaperPagedHologramLine pagedLine) pagedLine.invalidate(entity);
         });
     }

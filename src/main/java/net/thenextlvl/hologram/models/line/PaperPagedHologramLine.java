@@ -10,7 +10,6 @@ import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -27,24 +26,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @NullMarked
-public class PaperPagedHologramLine implements PagedHologramLine {
-    private final PaperHologram hologram;
-    private final List<PaperHologramLine<?>> pages = new CopyOnWriteArrayList<>();
+public class PaperPagedHologramLine extends PaperHologramLine implements PagedHologramLine {
+    private final List<PaperStaticHologramLine<?>> pages = new CopyOnWriteArrayList<>();
     private final Map<Player, Integer> currentPageIndex = new ConcurrentHashMap<>();
     private final Random random = new Random();
 
-    private volatile Duration interval = Duration.ofSeconds(2);
-    private volatile boolean randomOrder = false;
-    private volatile boolean paused = false;
     private volatile @Nullable ScheduledTask cycleTask = null;
+    private volatile Duration interval = Duration.ofSeconds(2);
+    private volatile boolean paused = false;
+    private volatile boolean randomOrder = false;
 
     public PaperPagedHologramLine(final PaperHologram hologram) {
-        this.hologram = hologram;
-    }
-
-    @Override
-    public PaperHologram getHologram() {
-        return hologram;
+        super(hologram);
     }
 
     @Override
@@ -70,11 +63,6 @@ public class PaperPagedHologramLine implements PagedHologramLine {
     @Override
     public LineType getType() {
         return LineType.PAGED;
-    }
-
-    @Override
-    public World getWorld() {
-        return hologram.getWorld();
     }
 
     @Override
@@ -105,21 +93,21 @@ public class PaperPagedHologramLine implements PagedHologramLine {
 
     @Override
     public TextHologramLine addTextPage() {
-        final var page = new PaperTextHologramLine(hologram);
+        final var page = new PaperTextHologramLine(getHologram());
         pages.add(page);
         return page;
     }
 
     @Override
     public ItemHologramLine addItemPage() {
-        final var page = new PaperItemHologramLine(hologram);
+        final var page = new PaperItemHologramLine(getHologram());
         pages.add(page);
         return page;
     }
 
     @Override
     public BlockHologramLine addBlockPage() {
-        final var page = new PaperBlockHologramLine(hologram);
+        final var page = new PaperBlockHologramLine(getHologram());
         pages.add(page);
         return page;
     }
@@ -128,7 +116,7 @@ public class PaperPagedHologramLine implements PagedHologramLine {
     public EntityHologramLine addEntityPage(final EntityType entityType) throws IllegalArgumentException {
         final var entityClass = entityType.getEntityClass();
         if (entityClass == null) throw new IllegalArgumentException("Entity type is not spawnable: " + entityType);
-        final var page = new PaperEntityHologramLine<>(hologram, entityClass);
+        final var page = new PaperEntityHologramLine<>(getHologram(), entityClass);
         pages.add(page);
         return page;
     }
@@ -143,7 +131,7 @@ public class PaperPagedHologramLine implements PagedHologramLine {
 
     @Override
     public boolean removePage(final HologramLine page) {
-        if (!(page instanceof final PaperHologramLine<?> paperPage)) return false;
+        if (!(page instanceof final PaperStaticHologramLine<?> paperPage)) return false;
         final var removed = pages.remove(paperPage);
         if (removed) paperPage.despawn();
         return removed;
@@ -151,7 +139,7 @@ public class PaperPagedHologramLine implements PagedHologramLine {
 
     @Override
     public void clearPages() {
-        pages.forEach(PaperHologramLine::despawn);
+        pages.forEach(PaperStaticHologramLine::despawn);
         pages.clear();
         currentPageIndex.clear();
     }
@@ -201,29 +189,31 @@ public class PaperPagedHologramLine implements PagedHologramLine {
         return currentPageIndex.getOrDefault(player, 0);
     }
 
+    @Override
     public double getHeight(final Player player) {
         return getCurrentPage(player)
-                .filter(PaperHologramLine.class::isInstance)
-                .map(PaperHologramLine.class::cast)
+                .map(PaperStaticHologramLine.class::cast)
                 .map(page -> page.getHeight(player))
                 .orElse(0d);
     }
 
+    @Override
     public double getOffsetBefore(final Player player) {
         return getCurrentPage(player)
-                .filter(PaperHologramLine.class::isInstance)
-                .map(PaperHologramLine.class::cast)
+                .map(PaperStaticHologramLine.class::cast)
                 .map(page -> page.getOffsetBefore(player))
                 .orElse(0d);
     }
 
+    @Override
     public double getOffsetAfter() {
         return pages.stream()
-                .mapToDouble(PaperHologramLine::getOffsetAfter)
+                .mapToDouble(PaperStaticHologramLine::getOffsetAfter)
                 .max()
                 .orElse(0d);
     }
 
+    @Override
     public @Nullable Entity spawn(final Player player, final double offset) {
         if (pages.isEmpty()) return null;
         currentPageIndex.put(player, 0);
@@ -232,12 +222,14 @@ public class PaperPagedHologramLine implements PagedHologramLine {
         return page.spawn(player, offset);
     }
 
+    @Override
     public void despawn() {
         stopCycleTask();
-        pages.forEach(PaperHologramLine::despawn);
+        pages.forEach(PaperStaticHologramLine::despawn);
         currentPageIndex.clear();
     }
 
+    @Override
     public void despawn(final Player player) {
         currentPageIndex.remove(player);
         pages.forEach(page -> page.despawn(player));
@@ -290,8 +282,8 @@ public class PaperPagedHologramLine implements PagedHologramLine {
         if (cycleTask != null || paused || pages.size() <= 1) return;
 
         final var ticks = interval.toMillis() / 50;
-        cycleTask = hologram.getPlugin().getServer().getGlobalRegionScheduler().runAtFixedRate(
-                hologram.getPlugin(),
+        cycleTask = getHologram().getPlugin().getServer().getGlobalRegionScheduler().runAtFixedRate(
+                getHologram().getPlugin(),
                 this::cycleAllPlayers,
                 ticks,
                 ticks
@@ -315,7 +307,7 @@ public class PaperPagedHologramLine implements PagedHologramLine {
 
     private void cycleAllPlayers(final ScheduledTask task) {
         currentPageIndex.keySet().forEach(player -> {
-            if (hologram.isSpawned(player)) {
+            if (getHologram().isSpawned(player)) {
                 cyclePage(player, calculateOffset(player));
             }
         });
@@ -323,18 +315,18 @@ public class PaperPagedHologramLine implements PagedHologramLine {
 
     private double calculateOffset(final Player player) {
         var offset = 0d;
-        final var lines = hologram.getLines().toList();
+        final var lines = getHologram().getLines().toList();
         for (var i = lines.size() - 1; i >= 0; i--) {
             final var line = lines.get(i);
             if (line == this) return offset;
-            if (line instanceof final PaperHologramLine<?> paperLine) {
+            if (line instanceof final PaperStaticHologramLine<?> paperLine) {
                 offset += 0.05 + paperLine.getHeight(player) + paperLine.getOffsetAfter();
             }
         }
         return offset;
     }
 
-    public void addPage(final PaperHologramLine<?> hologramLine) {
+    public void addPage(final PaperStaticHologramLine<?> hologramLine) {
         this.pages.add(hologramLine);
     }
 }

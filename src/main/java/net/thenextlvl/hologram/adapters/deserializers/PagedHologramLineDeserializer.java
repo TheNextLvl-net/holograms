@@ -1,7 +1,7 @@
 package net.thenextlvl.hologram.adapters.deserializers;
 
 import net.thenextlvl.hologram.models.PaperHologram;
-import net.thenextlvl.hologram.models.line.PaperHologramLine;
+import net.thenextlvl.hologram.models.line.PaperStaticHologramLine;
 import net.thenextlvl.hologram.models.line.PaperPagedHologramLine;
 import net.thenextlvl.nbt.serialization.ParserException;
 import net.thenextlvl.nbt.serialization.TagDeserializationContext;
@@ -24,7 +24,7 @@ public final class PagedHologramLineDeserializer extends HologramLineDeserialize
         tag.optional("paused").map(Tag::getAsBoolean).ifPresent(line::setPaused);
         tag.optional("pages").map(Tag::<CompoundTag>getAsList).ifPresent(pages -> {
             pages.stream().map(page -> PaperHologram.deserializeLine(context, page))
-                    .map(PaperHologramLine.class::cast)
+                    .map(PaperStaticHologramLine.class::cast)
                     .forEach(line::addPage);
         });
     }

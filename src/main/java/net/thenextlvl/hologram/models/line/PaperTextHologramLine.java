@@ -22,7 +22,7 @@ import java.util.Optional;
 @NullMarked
 public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay> implements TextHologramLine {
     private volatile @Nullable Color backgroundColor;
-    private volatile @Nullable String text = null;
+    private volatile @Nullable String unparsedText = null;
     private volatile TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
     private volatile boolean defaultBackground = false;
     private volatile boolean seeThrough = false;
@@ -62,7 +62,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public Optional<String> getUnparsedText() {
-        return Optional.ofNullable(text);
+        return Optional.ofNullable(unparsedText);
     }
 
     @Override
@@ -72,9 +72,8 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public TextHologramLine setUnparsedText(@Nullable final String text) {
-        if (Objects.equals(this.text, text)) return this;
-        this.text = text;
-        // getEntities().values().forEach(this::updateText);
+        if (Objects.equals(this.unparsedText, text)) return this;
+        this.unparsedText = text;
         getHologram().updateHologram();
         return this;
     }

@@ -3,56 +3,68 @@ package net.thenextlvl.hologram.image;
 import net.kyori.adventure.text.Component;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Path;
+import java.time.Duration;
 
 public final class AnimatedMessage {
     private final Component[] images;
+    private final Duration frameDelay;
     private int index = 0;
 
-    private AnimatedMessage(final Component... images) {
+    private AnimatedMessage(final Duration frameDelay, final Component... images) {
+        this.frameDelay = frameDelay;
         this.images = images;
     }
 
-    public static AnimatedMessage readGif(final File gifFile, final int height) throws IOException {
-        final var frames = getFrames(gifFile);
-        final var images = new Component[frames.size()];
-        for (var i = 0; i < frames.size(); i++) {
-            images[i] = ImageMessage.read(frames.get(i), height);
-        }
-        return new AnimatedMessage(images);
-    }
-
-    private static List<BufferedImage> getFrames(final File input) throws IOException {
-        final var images = new ArrayList<BufferedImage>();
+    public static AnimatedMessage readGif(final Path gifFile, final int height) throws IOException {
         final var reader = ImageIO.getImageReadersBySuffix("GIF").next();
-        final var in = ImageIO.createImageInputStream(input);
+        final var in = ImageIO.createImageInputStream(gifFile.toFile());
         reader.setInput(in);
-        for (int i = 0, count = reader.getNumImages(true); i < count; i++) {
-            final var image = reader.read(i);
-            images.add(image);
+
+        final var frameCount = reader.getNumImages(true);
+        final var images = new Component[frameCount];
+
+        var totalDelayMs = 0L;
+        for (var i = 0; i < frameCount; i++) {
+            images[i] = ImageMessage.read(reader.read(i), height);
+            totalDelayMs += getFrameDelay(reader, i);
         }
-        return images;
+
+        final var avgDelayMs = frameCount > 0 ? totalDelayMs / frameCount : 100L;
+
+        return new AnimatedMessage(Duration.ofMillis(avgDelayMs), images);
     }
 
-    public Component current() {
-        return images[index];
+    private static int getFrameDelay(final javax.imageio.ImageReader reader, final int frameIndex) throws IOException {
+        final var metadata = reader.getImageMetadata(frameIndex);
+        final var root = metadata.getAsTree("javax_imageio_gif_image_1.0");
+        final var children = root.getChildNodes();
+        for (var i = 0; i < children.getLength(); i++) {
+            final var node = children.item(i);
+            if ("GraphicControlExtension".equals(node.getNodeName())) {
+                final var delayAttr = node.getAttributes().getNamedItem("delayTime");
+                if (delayAttr != null) {
+                    return Integer.parseInt(delayAttr.getNodeValue()) * 10;
+                }
+            }
+        }
+        return 100;
+    }
+
+    public Duration getFrameDelay() {
+        return frameDelay;
+    }
+
+    public boolean hasNext() {
+        return index < images.length;
     }
 
     public Component next() {
-        if (++index >= images.length) index = 0;
-        return images[index];
+        return images[index++];
     }
 
     public Component previous() {
-        if (--index <= 0) index = images.length - 1;
-        return images[index];
-    }
-
-    public Component getIndex(final int index) {
-        return images[index];
+        return images[--index];
     }
 }

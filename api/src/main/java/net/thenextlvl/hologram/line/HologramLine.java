@@ -10,7 +10,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -37,9 +36,6 @@ public interface HologramLine<E extends Entity> {
      */
     @Contract(pure = true)
     Optional<E> getEntity(Player player);
-    
-    @Contract(pure = true)
-    Map<Player, E> getEntities();
 
     /**
      * Gets the entity representing this line, if it is of the given type.

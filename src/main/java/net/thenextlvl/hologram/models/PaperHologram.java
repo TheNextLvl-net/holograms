@@ -205,7 +205,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public boolean removeLine(final HologramLine<?> line) {
         final var removed = lines.remove(line);
-        if (removed) line.getEntities().forEach((player, entity) -> entity.remove());
+        if (removed) ((PaperHologramLine<?>) line).getEntities().forEach((player, entity) -> entity.remove());
         updateHologram();
         return removed;
     }
@@ -214,7 +214,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean removeLine(final int index) {
         if (index < 0 || index >= lines.size()) return false;
         final var removed = lines.remove(index);
-        removed.getEntities().forEach((player, entity) -> entity.remove());
+        ((PaperHologramLine<?>) removed).getEntities().forEach((player, entity) -> entity.remove());
         updateHologram();
         return true;
     }
@@ -229,7 +229,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public void clearLines() {
         if (lines.isEmpty()) return;
-        lines.forEach(hologramLine -> hologramLine.getEntities().forEach((player, entity) -> entity.remove()));
+        lines.forEach(hologramLine -> ((PaperHologramLine<?>) hologramLine).getEntities().forEach((player, entity) -> entity.remove()));
         lines.clear();
         updateHologram();
     }

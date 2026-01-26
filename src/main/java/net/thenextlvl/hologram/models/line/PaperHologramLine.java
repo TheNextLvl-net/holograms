@@ -60,7 +60,6 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         return Optional.ofNullable(getEntities().get(player));
     }
 
-    @Override
     public Map<Player, E> getEntities() {
         return entities;
     }

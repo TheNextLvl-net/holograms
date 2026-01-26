@@ -11,6 +11,7 @@ import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
+import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -51,7 +52,7 @@ public class PaperHologramProvider implements HologramProvider {
     public Optional<Hologram> getHologram(final Entity entity) {
         return getHolograms(entity.getWorld())
                 .filter(hologram -> hologram.getLines().anyMatch(line ->
-                        line.getEntities().containsValue(entity)))
+                        ((PaperHologramLine<?>) line).getEntities().containsValue(entity)))
                 .findAny();
     }
 
@@ -60,7 +61,7 @@ public class PaperHologramProvider implements HologramProvider {
     public <E extends Entity> Optional<HologramLine<E>> getHologramLine(final E entity) {
         return getHolograms(entity.getWorld())
                 .filter(hologram -> hologram.getLines().anyMatch(line ->
-                        line.getEntities().containsValue(entity)))
+                        ((PaperHologramLine<?>) line).getEntities().containsValue(entity)))
                 .map(hologram -> (HologramLine<E>) hologram)
                 .findFirst();
     }
@@ -136,7 +137,7 @@ public class PaperHologramProvider implements HologramProvider {
     @Override
     public boolean isHologramPart(final Entity entity) {
         return getHolograms(entity.getWorld()).anyMatch(hologram -> hologram.getLines().anyMatch(line ->
-                line.getEntities().containsValue(entity)));
+                ((PaperHologramLine<?>) line).getEntities().containsValue(entity)));
     }
 
     @Override

@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.models.line;
 
-import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
@@ -107,9 +106,9 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         return 0;
     }
 
-    public E spawn(final Player player, final double offset) throws IllegalStateException {
+    public E spawn(final Player player, final double offset) {
         return entities.compute(player, (p, existing) -> {
-            Preconditions.checkState(existing == null || !existing.isValid(), "Entity is already spawned");
+            if (existing != null && existing.isValid()) return existing;
             final var location = mutateSpawnLocation(hologram.getLocation().add(0, offset, 0));
             final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
             player.showEntity(hologram.getPlugin(), spawn);

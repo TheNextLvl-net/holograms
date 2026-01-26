@@ -37,7 +37,7 @@ public final class LineSuggestionProvider implements SuggestionProvider<CommandS
         final var tooltip = switch (hologram.getLine(index - 1).orElse(null)) {
             case final BlockHologramLine blockLine -> Component.text("Block: ")
                     .append(Component.translatable(blockLine.getBlock().getMaterial()));
-            case final EntityHologramLine<?> entityLine -> Component.text("Entity: ")
+            case final EntityHologramLine entityLine -> Component.text("Entity: ")
                     .append(Component.translatable(entityLine.getEntityType()));
             case final ItemHologramLine itemLine -> Component.text("Item: ")
                     .append(Component.translatable(itemLine.getItemStack().getType()));

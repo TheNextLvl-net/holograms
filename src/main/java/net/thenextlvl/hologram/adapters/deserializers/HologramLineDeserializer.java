@@ -11,7 +11,7 @@ import net.thenextlvl.nbt.tag.Tag;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-abstract class HologramLineDeserializer<T extends HologramLine<?>> implements TagDeserializer<T> {
+abstract class HologramLineDeserializer<T extends HologramLine> implements TagDeserializer<T> {
     protected final PaperHologram hologram;
 
     protected HologramLineDeserializer(final PaperHologram hologram) {

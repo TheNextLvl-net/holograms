@@ -18,7 +18,7 @@ import java.util.Optional;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface HologramLine<E extends Entity> {
+public interface HologramLine {
     /**
      * Gets the hologram this line belongs to.
      *
@@ -35,7 +35,7 @@ public interface HologramLine<E extends Entity> {
      * @since 0.4.0
      */
     @Contract(pure = true)
-    Optional<E> getEntity(Player player);
+    Optional<Entity> getEntity(Player player);
 
     /**
      * Gets the entity representing this line, if it is of the given type.
@@ -52,10 +52,10 @@ public interface HologramLine<E extends Entity> {
      * Gets the class of the entity representing this line.
      *
      * @return entity class
-     * @since 0.3.0
+     * @since 0.5.0
      */
     @Contract(pure = true)
-    Class<E> getTypeClass();
+    Class<? extends Entity> getEntityClass();
 
     /**
      * Gets the entity type of the entity representing this line.
@@ -99,7 +99,7 @@ public interface HologramLine<E extends Entity> {
      * @param glowing true if this line should glow
      * @since 0.4.0
      */
-    HologramLine<E> setGlowing(boolean glowing);
+    HologramLine setGlowing(boolean glowing);
 
     /**
      * Gets the glow color of this line.
@@ -116,5 +116,5 @@ public interface HologramLine<E extends Entity> {
      * @param color new color
      * @since 0.4.0
      */
-    HologramLine<E> setGlowColor(@Nullable TextColor color);
+    HologramLine setGlowColor(@Nullable TextColor color);
 }

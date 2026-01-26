@@ -44,12 +44,12 @@ final class HologramLineEditScaleCommand extends SimpleCommand {
         });
 
         final var message = hologram.getLine(lineNumber - 1).map(line -> {
-            if (line instanceof final DisplayHologramLine<?, ?> displayLine) {
+            if (line instanceof final DisplayHologramLine displayLine) {
                 final var transformation = displayLine.getTransformation();
                 if (transformation.getScale().equals(scale)) return "nothing.changed";
                 transformation.getScale().set(scale);
                 displayLine.setTransformation(transformation);
-            } else if (line instanceof final EntityHologramLine<?> entityLine) {
+            } else if (line instanceof final EntityHologramLine entityLine) {
                 if (entityLine.getScale() == scale.y()) return "nothing.changed";
                 entityLine.setScale(scale.y());
             } else return "hologram.type.display";

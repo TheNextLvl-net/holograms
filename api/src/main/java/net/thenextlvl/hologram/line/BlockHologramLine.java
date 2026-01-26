@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Contract;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface BlockHologramLine extends DisplayHologramLine<BlockHologramLine, BlockDisplay> {
+public interface BlockHologramLine extends DisplayHologramLine {
     /**
      * Gets the displayed block.
      *

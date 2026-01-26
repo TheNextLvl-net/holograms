@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 @NullMarked
-public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologramLine, ItemDisplay> implements ItemHologramLine {
+public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay> implements ItemHologramLine {
     private volatile ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
     private volatile @Nullable ItemStack item = null;
 

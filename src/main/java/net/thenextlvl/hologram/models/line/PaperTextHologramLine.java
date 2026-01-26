@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
-public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologramLine, TextDisplay> implements TextHologramLine {
+public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay> implements TextHologramLine {
     private volatile @Nullable Color backgroundColor;
     private volatile @Nullable String text = null;
     private volatile TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;

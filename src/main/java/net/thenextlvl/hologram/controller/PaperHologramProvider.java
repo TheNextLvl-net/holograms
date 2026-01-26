@@ -57,12 +57,10 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <E extends Entity> Optional<HologramLine<E>> getHologramLine(final E entity) {
+    public Optional<HologramLine> getHologramLine(final Entity entity) {
         return getHolograms(entity.getWorld())
-                .filter(hologram -> hologram.getLines().anyMatch(line ->
-                        ((PaperHologramLine<?>) line).getEntities().containsValue(entity)))
-                .map(hologram -> (HologramLine<E>) hologram)
+                .flatMap(Hologram::getLines)
+                .filter(line -> ((PaperHologramLine<?>) line).getEntities().containsValue(entity))
                 .findFirst();
     }
 

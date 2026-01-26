@@ -42,12 +42,12 @@ final class HologramLineEditOffsetCommand extends SimpleCommand {
         }).orElseGet(Vector3f::new);
 
         final var message = hologram.getLine(lineNumber - 1).map(line -> {
-            if (line instanceof final DisplayHologramLine<?, ?> displayLine) {
+            if (line instanceof final DisplayHologramLine displayLine) {
                 final var transformation = displayLine.getTransformation();
                 if (transformation.getTranslation().equals(offset)) return "nothing.changed";
                 transformation.getTranslation().set(offset);
                 displayLine.setTransformation(transformation);
-            } else if (line instanceof final EntityHologramLine<?> entityLine) {
+            } else if (line instanceof final EntityHologramLine entityLine) {
                 if (entityLine.getOffset().equals(offset)) return "nothing.changed";
                 entityLine.setOffset(offset);
             }

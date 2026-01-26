@@ -8,7 +8,7 @@ import net.thenextlvl.nbt.tag.CompoundTag;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-abstract class HologramLineSerializer<T extends HologramLine<?>> implements TagSerializer<T> {
+abstract class HologramLineSerializer<T extends HologramLine> implements TagSerializer<T> {
     @Override
     public CompoundTag serialize(final T line, final TagSerializationContext context) throws ParserException {
         final var builder = CompoundTag.builder()

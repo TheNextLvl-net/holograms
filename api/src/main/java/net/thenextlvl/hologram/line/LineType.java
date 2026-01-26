@@ -30,5 +30,12 @@ public enum LineType {
      *
      * @since 0.1.0
      */
-    TEXT
+    TEXT,
+    /**
+     * Represents a line type within a hologram that cycles through multiple pages.
+     * Each page can be of any line type (text, item, block, entity).
+     *
+     * @since 0.5.0
+     */
+    PAGED
 }

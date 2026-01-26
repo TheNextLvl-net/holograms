@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
-public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, E>, E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine<T, E> {
+public abstract class PaperDisplayHologramLine<E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine {
     protected volatile @Nullable Brightness brightness = null;
     protected volatile Display.Billboard billboard = Display.Billboard.CENTER;
     protected volatile Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
@@ -46,8 +46,8 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setTransformation(final Transformation transformation) {
-        if (Objects.equals(this.transformation, transformation)) return getSelf();
+    public DisplayHologramLine setTransformation(final Transformation transformation) {
+        if (Objects.equals(this.transformation, transformation)) return this;
         this.transformation = new Transformation(
                 new Vector3f(transformation.getTranslation()),
                 new AxisAngle4f(transformation.getLeftRotation()),
@@ -56,11 +56,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
         );
         getEntities().values().forEach(entity -> entity.setTransformation(transformation));
         getHologram().updateHologram();
-        return getSelf();
+        return this;
     }
 
     @Override
-    public T setTransformationMatrix(final Matrix4f transformationMatrix) {
+    public DisplayHologramLine setTransformationMatrix(final Matrix4f transformationMatrix) {
         this.transformation = new Transformation(
                 transformationMatrix.getTranslation(new Vector3f()),
                 transformationMatrix.getRotation(new AxisAngle4f()),
@@ -69,7 +69,7 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
         );
         getEntities().values().forEach(entity -> entity.setTransformationMatrix(transformationMatrix));
         getHologram().updateHologram();
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -78,11 +78,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setInterpolationDuration(final int duration) {
-        if (duration == this.interpolationDuration) return getSelf();
+    public DisplayHologramLine setInterpolationDuration(final int duration) {
+        if (duration == this.interpolationDuration) return this;
         this.interpolationDuration = duration;
         getEntities().values().forEach(entity -> entity.setInterpolationDuration(duration));
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -91,11 +91,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setTeleportDuration(final int duration) {
-        if (duration == this.teleportDuration) return getSelf();
+    public DisplayHologramLine setTeleportDuration(final int duration) {
+        if (duration == this.teleportDuration) return this;
         this.teleportDuration = duration;
         getEntities().values().forEach(entity -> entity.setTeleportDuration(duration));
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -104,11 +104,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setViewRange(final float range) {
-        if (range == this.viewRange) return getSelf();
+    public DisplayHologramLine setViewRange(final float range) {
+        if (range == this.viewRange) return this;
         this.viewRange = range;
         getEntities().values().forEach(entity -> entity.setViewRange(range));
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -117,11 +117,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setShadowRadius(final float radius) {
-        if (radius == this.shadowRadius) return getSelf();
+    public DisplayHologramLine setShadowRadius(final float radius) {
+        if (radius == this.shadowRadius) return this;
         this.shadowRadius = radius;
         getEntities().values().forEach(entity -> entity.setShadowRadius(radius));
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -130,11 +130,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setShadowStrength(final float strength) {
-        if (strength == this.shadowStrength) return getSelf();
+    public DisplayHologramLine setShadowStrength(final float strength) {
+        if (strength == this.shadowStrength) return this;
         this.shadowStrength = strength;
         getEntities().values().forEach(entity -> entity.setShadowStrength(strength));
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -143,11 +143,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setDisplayWidth(final float width) {
-        if (width == this.displayWidth) return getSelf();
+    public DisplayHologramLine setDisplayWidth(final float width) {
+        if (width == this.displayWidth) return this;
         this.displayWidth = width;
         getEntities().values().forEach(entity -> entity.setDisplayWidth(width));
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -156,12 +156,12 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setDisplayHeight(final float height) {
-        if (height == this.displayHeight) return getSelf();
+    public DisplayHologramLine setDisplayHeight(final float height) {
+        if (height == this.displayHeight) return this;
         this.displayHeight = height;
         getEntities().values().forEach(entity -> entity.setDisplayHeight(height));
         getHologram().updateHologram();
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -170,11 +170,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setInterpolationDelay(final int ticks) {
-        if (ticks == this.interpolationDelay) return getSelf();
+    public DisplayHologramLine setInterpolationDelay(final int ticks) {
+        if (ticks == this.interpolationDelay) return this;
         this.interpolationDelay = ticks;
         getEntities().values().forEach(entity -> entity.setInterpolationDelay(ticks));
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -183,11 +183,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setBillboard(final Display.Billboard billboard) {
-        if (Objects.equals(this.billboard, billboard)) return getSelf();
+    public DisplayHologramLine setBillboard(final Display.Billboard billboard) {
+        if (Objects.equals(this.billboard, billboard)) return this;
         this.billboard = billboard;
         getEntities().values().forEach(entity -> entity.setBillboard(billboard));
-        return getSelf();
+        return this;
     }
 
     @Override
@@ -202,16 +202,11 @@ public abstract class PaperDisplayHologramLine<T extends DisplayHologramLine<T, 
     }
 
     @Override
-    public T setBrightness(final Display.@Nullable Brightness brightness) {
-        if (Objects.equals(this.brightness, brightness)) return getSelf();
+    public DisplayHologramLine setBrightness(final Display.@Nullable Brightness brightness) {
+        if (Objects.equals(this.brightness, brightness)) return this;
         this.brightness = brightness;
         getEntities().values().forEach(entity -> entity.setBrightness(brightness));
-        return getSelf();
-    }
-
-    @SuppressWarnings("unchecked")
-    private T getSelf() {
-        return (T) this;
+        return this;
     }
 
     @Override

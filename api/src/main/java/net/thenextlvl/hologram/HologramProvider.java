@@ -63,12 +63,11 @@ public interface HologramProvider {
      * Get a hologram line by its entity
      *
      * @param entity the entity of the hologram line
-     * @param <E>    the type of the entity
      * @return the hologram line with the given entity
      * @since 0.1.0
      */
     @Contract(pure = true)
-    <E extends Entity> Optional<HologramLine<E>> getHologramLine(E entity);
+    Optional<HologramLine> getHologramLine(Entity entity);
 
     /**
      * Get a block hologram line by its block display

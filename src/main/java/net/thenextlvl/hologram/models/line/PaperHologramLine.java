@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
-public abstract class PaperHologramLine<E extends Entity> implements HologramLine<E> {
+public abstract class PaperHologramLine<E extends Entity> implements HologramLine {
     private final PaperHologram hologram;
     private final Class<E> entityClass;
     private final EntityType entityType;
@@ -41,7 +41,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     @Override
-    public Class<E> getTypeClass() {
+    public Class<? extends Entity> getEntityClass() {
         return entityClass;
     }
 
@@ -56,7 +56,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     @Override
-    public Optional<E> getEntity(final Player player) {
+    public Optional<Entity> getEntity(final Player player) {
         return Optional.ofNullable(getEntities().get(player));
     }
 
@@ -80,7 +80,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     @Override
-    public HologramLine<E> setGlowColor(@Nullable final TextColor color) {
+    public HologramLine setGlowColor(@Nullable final TextColor color) {
         if (Objects.equals(this.glowColor, color)) return this;
         this.glowColor = color;
         updateGlowColor(color);
@@ -110,7 +110,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     }
 
     @Override
-    public HologramLine<E> setGlowing(final boolean glowing) {
+    public HologramLine setGlowing(final boolean glowing) {
         if (glowing == this.glowing) return this;
         this.glowing = glowing;
         getEntities().values().forEach(entity -> entity.setGlowing(glowing));
@@ -143,7 +143,7 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         return entities.compute(player, (p, existing) -> {
             Preconditions.checkState(existing == null || !existing.isValid(), "Entity is already spawned");
             final var location = mutateSpawnLocation(hologram.getLocation().add(0, offset, 0));
-            final var spawn = location.getWorld().spawn(location, getTypeClass(), false, e -> this.preSpawn(e, player));
+            final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
             player.showEntity(hologram.getPlugin(), spawn);
             return spawn;
         });

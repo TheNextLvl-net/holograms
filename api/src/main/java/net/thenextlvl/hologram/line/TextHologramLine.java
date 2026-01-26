@@ -18,7 +18,7 @@ import java.util.Optional;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface TextHologramLine extends DisplayHologramLine<TextHologramLine, TextDisplay> {
+public interface TextHologramLine extends DisplayHologramLine {
     /**
      * Gets the displayed text.
      *

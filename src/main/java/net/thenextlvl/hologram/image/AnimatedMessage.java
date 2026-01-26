@@ -9,11 +9,11 @@ import java.time.Duration;
 
 public final class AnimatedMessage {
     private final Component[] images;
-    private final Duration frameDelay;
+    private final Duration duration;
     private int index = 0;
 
-    private AnimatedMessage(final Duration frameDelay, final Component... images) {
-        this.frameDelay = frameDelay;
+    private AnimatedMessage(final Duration duration, final Component... images) {
+        this.duration = duration;
         this.images = images;
     }
 
@@ -25,18 +25,16 @@ public final class AnimatedMessage {
         final var frameCount = reader.getNumImages(true);
         final var images = new Component[frameCount];
 
-        var totalDelayMs = 0L;
+        var totalDurationMs = 0L;
         for (var i = 0; i < frameCount; i++) {
             images[i] = ImageMessage.read(reader.read(i), height);
-            totalDelayMs += getFrameDelay(reader, i);
+            totalDurationMs += getFrameDuration(reader, i);
         }
 
-        final var avgDelayMs = frameCount > 0 ? totalDelayMs / frameCount : 100L;
-
-        return new AnimatedMessage(Duration.ofMillis(avgDelayMs), images);
+        return new AnimatedMessage(Duration.ofMillis(totalDurationMs), images);
     }
 
-    private static int getFrameDelay(final javax.imageio.ImageReader reader, final int frameIndex) throws IOException {
+    private static int getFrameDuration(final javax.imageio.ImageReader reader, final int frameIndex) throws IOException {
         final var metadata = reader.getImageMetadata(frameIndex);
         final var root = metadata.getAsTree("javax_imageio_gif_image_1.0");
         final var children = root.getChildNodes();
@@ -52,8 +50,8 @@ public final class AnimatedMessage {
         return 100;
     }
 
-    public Duration getFrameDelay() {
-        return frameDelay;
+    public Duration getDuration() {
+        return duration;
     }
 
     public boolean hasNext() {

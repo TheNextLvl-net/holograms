@@ -29,7 +29,8 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay>
 
     @Override
     public ItemStack getItemStack() {
-        return item != null ? item.clone() : ItemType.AIR.createItemStack();
+        final var itemStack = item;
+        return itemStack != null ? itemStack.clone() : ItemType.AIR.createItemStack();
     }
 
     @Override

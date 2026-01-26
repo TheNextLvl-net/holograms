@@ -9,9 +9,9 @@ Perfect for server information, instructions, or decorative messages, This plugi
 **Edit In-Game** – Create and modify holograms directly in-game, no config files needed  
 **Customizable Appearance** – Change text color, formatting, size, and position with simple commands  
 **Developer API** – Integrate holograms into your own plugins with a straightforward API  
-**Multi-Line Support** – Display multiple lines in a single hologram
-**Fully Translatable** – Translate your holograms into every language
-**Placeholders** – Display data with PlaceholderAPI and MiniPlaceholders integration
+**Multi-Line Support** – Display multiple lines in a single hologram  
+**Fully Translatable** – Translate your holograms into every language  
+**Placeholders** – Display data with PlaceholderAPI and MiniPlaceholders integration  
 **Images** – Display images in-game
 
 ### What's Next?

@@ -167,9 +167,6 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
         entity.setGlowing(glowing);
         updateGlowColor(glowColor);
-
-        // if (hologram.getViewPermission() != null || !hologram.isVisibleByDefault())
-        //     plugin.getServer().getOnlinePlayers().forEach(this::updateVisibility);
     }
 
     private @Nullable Player remove(final Entity entity) {

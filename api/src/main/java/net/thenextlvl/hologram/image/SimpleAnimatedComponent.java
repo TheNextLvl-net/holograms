@@ -7,20 +7,21 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public final class AnimatedMessage {
+final class SimpleAnimatedComponent implements ImageComponent.Animated {
     private final Component[] images;
     private final Duration frameDelay;
-    private int index = 0;
 
-    private AnimatedMessage(final Duration frameDelay, final Component... images) {
+    private SimpleAnimatedComponent(final Duration frameDelay, final Component... images) {
         this.frameDelay = frameDelay;
         this.images = images;
     }
 
-    public static AnimatedMessage readGif(final Path gifFile, final int height) throws IOException {
+    public static SimpleAnimatedComponent read(final Path file, final int height) throws IOException, NoSuchElementException {
         final var reader = ImageIO.getImageReadersBySuffix("GIF").next();
-        final var in = ImageIO.createImageInputStream(gifFile.toFile());
+        final var in = ImageIO.createImageInputStream(file.toFile());
         reader.setInput(in);
 
         final var frameCount = reader.getNumImages(true);
@@ -41,12 +42,12 @@ public final class AnimatedMessage {
             final var snapshot = new BufferedImage(gifWidth, gifHeight, BufferedImage.TYPE_INT_ARGB);
             snapshot.createGraphics().drawImage(canvas, 0, 0, null);
 
-            images[i] = ImageMessage.read(snapshot, height);
+            images[i] = SimpleImageComponent.read(snapshot, height);
             totalDurationMs += getFrameDuration(reader, i);
         }
 
         final var avgFrameDelay = frameCount > 0 ? totalDurationMs / frameCount : 100;
-        return new AnimatedMessage(Duration.ofMillis(avgFrameDelay), images);
+        return new SimpleAnimatedComponent(Duration.ofMillis(avgFrameDelay), images);
     }
 
     private static int[] getFrameOffset(final javax.imageio.ImageReader reader, final int frameIndex) throws IOException {
@@ -81,19 +82,29 @@ public final class AnimatedMessage {
         return 100;
     }
 
+    @Override
+    public Component[] getFrames() {
+        return images.clone();
+    }
+
     public Duration getFrameDelay() {
         return frameDelay;
     }
 
-    public boolean hasNext() {
-        return index < images.length;
-    }
+    @Override
+    public Iterator<Component> iterator() {
+        return new Iterator<>() {
+            private int i = 0;
 
-    public Component next() {
-        return images[index++];
-    }
+            @Override
+            public boolean hasNext() {
+                return i < images.length;
+            }
 
-    public Component previous() {
-        return images[--index];
+            @Override
+            public Component next() {
+                return images[i++];
+            }
+        };
     }
 }

@@ -59,10 +59,10 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologr
     public EntityHologramLine setScale(final double scale) {
         if (this.scale == scale) return this;
         this.scale = scale;
-        getEntities().values().stream()
-                .filter(Attributable.class::isInstance)
-                .map(Attributable.class::cast)
-                .forEach(this::updateScale);
+        forEachEntity(entity -> {
+            if (!(entity instanceof final Attributable attributable)) return;
+            updateScale(attributable);
+        });
         getHologram().updateHologram();
         return this;
     }
@@ -78,7 +78,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologr
         if (oldOffset.equals(newOffset)) return this;
         final var copy = new Vector3f(newOffset);
         this.offset = copy;
-        getEntities().values().forEach(entity -> {
+        forEachEntity(entity -> {
             final var location = entity.getLocation();
             location.subtract(oldOffset.x(), oldOffset.y(), oldOffset.z());
             location.add(copy.x(), copy.y(), copy.z());

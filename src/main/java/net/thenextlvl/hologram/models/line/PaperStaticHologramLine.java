@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 @NullMarked
 public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHologramLine implements StaticHologramLine {
@@ -60,7 +61,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     public StaticHologramLine setGlowing(final boolean glowing) {
         if (glowing == this.glowing) return this;
         this.glowing = glowing;
-        getEntities().values().forEach(entity -> entity.setGlowing(glowing));
+        forEachEntity(entity -> entity.setGlowing(glowing));
         return this;
     }
 
@@ -78,11 +79,15 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public Optional<Entity> getEntity(final Player player) {
-        return Optional.ofNullable(getEntities().get(player));
+        return Optional.ofNullable(entities.get(player));
     }
 
     public Map<Player, E> getEntities() {
         return entities;
+    }
+
+    public void forEachEntity(final Consumer<E> consumer) {
+        entities.values().forEach(consumer);
     }
 
     @Override
@@ -193,6 +198,6 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public boolean isPart(final Entity entity) {
-        return getEntities().containsValue(entity); // todo: fix this inspection
+        return entityClass.isInstance(entity) && entities.containsValue(entityClass.cast(entity));
     }
 }

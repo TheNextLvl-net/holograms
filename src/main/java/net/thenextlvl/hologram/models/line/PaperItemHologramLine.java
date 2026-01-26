@@ -35,7 +35,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay>
     @Override
     public ItemHologramLine setItemStack(@Nullable final ItemStack item) {
         this.item = item != null ? item.clone() : null;
-        getEntities().values().forEach(entity -> entity.setItemStack(item));
+        forEachEntity(entity -> entity.setItemStack(item));
         return this;
     }
 
@@ -48,7 +48,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay>
     public ItemHologramLine setItemDisplayTransform(final ItemDisplayTransform display) {
         if (Objects.equals(this.displayTransform, display)) return this;
         this.displayTransform = display;
-        getEntities().values().forEach(entity -> entity.setItemDisplayTransform(display));
+        forEachEntity(entity -> entity.setItemDisplayTransform(display));
         getHologram().updateHologram();
         return this;
     }

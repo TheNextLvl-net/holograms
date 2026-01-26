@@ -12,9 +12,8 @@ import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.line.PaperBlockHologramLine;
-import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import net.thenextlvl.hologram.models.line.PaperEntityHologramLine;
-import net.thenextlvl.hologram.models.line.PaperStaticHologramLine;
+import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import net.thenextlvl.hologram.models.line.PaperItemHologramLine;
 import net.thenextlvl.hologram.models.line.PaperPagedHologramLine;
 import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
@@ -161,13 +160,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         final var success = setLocation(location.clone());
         if (!success) return CompletableFuture.completedFuture(false);
         return CompletableFuture.allOf(lines.stream()
-                .map(line -> {
-                    if (line instanceof final PaperStaticHologramLine<?> paperLine)
-                        return paperLine.teleportRelative(previous, location);
-                    else if (line instanceof final PaperPagedHologramLine pagedLine)
-                        return pagedLine.teleportRelative(previous, location);
-                    return CompletableFuture.<Void>completedFuture(null);
-                })
+                .map(PaperHologramLine.class::cast)
+                .map(line -> line.teleportRelative(previous, location))
                 .toArray(CompletableFuture[]::new)
         ).thenApply(v -> true);
     }
@@ -245,11 +239,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     private void despawnLine(final HologramLine line) {
-        if (line instanceof final PaperStaticHologramLine<?> paperLine) {
-            paperLine.getEntities().forEach((player, entity) -> entity.remove());
-        } else if (line instanceof final PaperPagedHologramLine pagedLine) {
-            pagedLine.despawn();
-        }
+        ((PaperHologramLine) line).despawn();
     }
 
     @Override
@@ -554,10 +544,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public boolean despawn(final Player player) {
         if (!spawned.remove(player)) return false;
-        lines.forEach(hologramLine -> {
-            if (hologramLine instanceof final PaperStaticHologramLine<?> paperLine) paperLine.despawn(player);
-            else if (hologramLine instanceof final PaperPagedHologramLine pagedLine) pagedLine.despawn(player);
-        });
+        lines.forEach(hologramLine -> ((PaperHologramLine) hologramLine).despawn(player));
         return true;
     }
 
@@ -611,10 +598,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public void invalidate(final Entity entity) {
-        lines.forEach(line -> {
-            if (line instanceof final PaperStaticHologramLine<?> paperLine) paperLine.invalidate(entity);
-            else if (line instanceof final PaperPagedHologramLine pagedLine) pagedLine.invalidate(entity);
-        });
+        lines.forEach(line -> ((PaperHologramLine) line).invalidate(entity));
     }
 
     @Override

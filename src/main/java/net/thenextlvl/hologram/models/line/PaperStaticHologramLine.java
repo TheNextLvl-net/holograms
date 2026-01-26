@@ -145,6 +145,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         return location;
     }
 
+    @Override
     public CompletableFuture<Void> teleportRelative(final Location previous, final Location location) {
         return CompletableFuture.allOf(getEntities().values().stream()
                 .filter(Entity::isValid)
@@ -183,6 +184,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         return null;
     }
 
+    @Override
     public void invalidate(final Entity entity) {
         final var owner = remove(entity);
         if (owner == null) return;

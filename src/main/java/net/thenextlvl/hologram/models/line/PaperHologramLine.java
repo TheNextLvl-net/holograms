@@ -2,11 +2,14 @@ package net.thenextlvl.hologram.models.line;
 
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+
+import java.util.concurrent.CompletableFuture;
 
 @NullMarked
 public abstract class PaperHologramLine implements HologramLine {
@@ -41,4 +44,8 @@ public abstract class PaperHologramLine implements HologramLine {
     public abstract void despawn();
 
     public abstract void despawn(final Player player);
+
+    public abstract void invalidate(final Entity entity);
+    
+    public abstract CompletableFuture<Void> teleportRelative(final Location previous, final Location location);
 }

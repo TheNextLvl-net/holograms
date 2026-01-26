@@ -235,12 +235,14 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
         pages.forEach(page -> page.despawn(player));
     }
 
+    @Override
     public CompletableFuture<Void> teleportRelative(final Location previous, final Location location) {
         return CompletableFuture.allOf(pages.stream()
                 .map(page -> page.teleportRelative(previous, location))
                 .toArray(CompletableFuture[]::new));
     }
 
+    @Override
     public void invalidate(final Entity entity) {
         pages.forEach(page -> page.invalidate(entity));
     }

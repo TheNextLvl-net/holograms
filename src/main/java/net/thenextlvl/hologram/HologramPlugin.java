@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram;
 
+import ca.spottedleaf.moonrise.common.util.TickThread;
 import dev.faststats.bukkit.BukkitMetrics;
 import dev.faststats.core.ErrorTracker;
 import io.papermc.paper.ServerBuildInfo;
@@ -63,8 +64,10 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Color;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Display.Brightness;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
 import org.bukkit.entity.Player;
@@ -273,5 +276,11 @@ public class HologramPlugin extends JavaPlugin {
             if (player == null) hologram.updateText();
             else hologram.updateText(player);
         });
+    }
+
+    public void supplySync(final Entity entity, final Runnable runnable) {
+        final var raw = ((CraftEntity) entity).getHandleRaw();
+        if (TickThread.isTickThreadFor(raw)) runnable.run();
+        else entity.getScheduler().run(this, scheduledTask -> runnable.run(), null);
     }
 }

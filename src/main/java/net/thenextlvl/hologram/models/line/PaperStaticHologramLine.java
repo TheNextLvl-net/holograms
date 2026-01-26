@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.models.line;
 
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.StaticHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
@@ -90,10 +91,10 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     }
 
     protected final void updateTeamOptions(final Player player, final Entity entity) {
+        if (HologramPlugin.RUNNING_FOLIA) return;
         final var team = getSettingsTeam(player, entity);
         team.color(getGlowColor().map(NamedTextColor::nearestTo).orElse(null));
         team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
-        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
     }
 
     private Team getSettingsTeam(final Player player, final Entity entity) {
@@ -126,7 +127,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     public boolean adoptEntity(final Player player, final Entity entity) {
         if (!entityClass.isInstance(entity)) return false;
         entities.put(player, (E) entity);
-        preSpawn((E) entity, player);
+        getHologram().getPlugin().supplySync(entity, () -> preSpawn((E) entity, player));
         return true;
     }
 

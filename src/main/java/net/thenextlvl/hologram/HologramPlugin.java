@@ -41,7 +41,6 @@ import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.listeners.ChunkListener;
 import net.thenextlvl.hologram.listeners.EntityListener;
-import net.thenextlvl.hologram.listeners.HologramListener;
 import net.thenextlvl.hologram.listeners.LocaleListener;
 import net.thenextlvl.hologram.listeners.PluginListener;
 import net.thenextlvl.hologram.listeners.WorldListener;
@@ -145,7 +144,6 @@ public class HologramPlugin extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new ChunkListener(this), this);
         getServer().getPluginManager().registerEvents(new EntityListener(this), this);
-        getServer().getPluginManager().registerEvents(new HologramListener(this), this);
         getServer().getPluginManager().registerEvents(new LocaleListener(this), this);
         getServer().getPluginManager().registerEvents(new PluginListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);

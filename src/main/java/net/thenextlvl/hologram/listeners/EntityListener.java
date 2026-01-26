@@ -4,14 +4,12 @@ import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import io.papermc.paper.event.player.PlayerPickEntityEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -23,15 +21,6 @@ public final class EntityListener implements Listener {
 
     public EntityListener(final HologramPlugin plugin) {
         this.plugin = plugin;
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityRemove(final EntityRemoveEvent event) {
-        plugin.hologramProvider().getHologram(event.getEntity()).ifPresent(hologram -> {
-            hologram.persist();
-            ((PaperHologram) hologram).invalidate(event.getEntity());
-            hologram.despawn();
-        });
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

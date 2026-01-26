@@ -1,8 +1,6 @@
 package net.thenextlvl.hologram.models.line;
 
 import com.google.common.base.Preconditions;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
@@ -16,7 +14,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,9 +24,6 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     private final Class<E> entityClass;
     private final EntityType entityType;
     private final Map<Player, E> entities = new ConcurrentHashMap<>();
-
-    protected volatile @Nullable TextColor glowColor = null;
-    protected volatile boolean glowing = false;
 
     public PaperHologramLine(final PaperHologram hologram, final Class<E> entityClass) {
         this.hologram = hologram;
@@ -74,27 +68,14 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         return hologram.getWorld();
     }
 
-    @Override
-    public Optional<TextColor> getGlowColor() {
-        return Optional.ofNullable(glowColor);
-    }
-
-    @Override
-    public HologramLine setGlowColor(@Nullable final TextColor color) {
-        if (Objects.equals(this.glowColor, color)) return this;
-        this.glowColor = color;
-        updateGlowColor(color);
-        return this;
-    }
-
-    protected abstract void updateGlowColor(@Nullable final TextColor color);
-
-    protected void updateTeamOptions(final Player player, final Entity entity) {
+    protected final void updateTeamOptions(final Player player, final Entity entity) {
         final var team = getSettingsTeam(player, entity);
-        team.color(getGlowColor().map(NamedTextColor::nearestTo).orElse(null));
         team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
         team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+        updateTeamOptions(team);
     }
+
+    protected abstract void updateTeamOptions(final Team team);
 
     private Team getSettingsTeam(final Player player, final Entity entity) {
         var settings = player.getScoreboard().getTeam(entity.getScoreboardEntryName());
@@ -102,19 +83,6 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
         settings = player.getScoreboard().registerNewTeam(entity.getScoreboardEntryName());
         settings.addEntry(entity.getScoreboardEntryName());
         return settings;
-    }
-
-    @Override
-    public boolean isGlowing() {
-        return glowing;
-    }
-
-    @Override
-    public HologramLine setGlowing(final boolean glowing) {
-        if (glowing == this.glowing) return this;
-        this.glowing = glowing;
-        getEntities().values().forEach(entity -> entity.setGlowing(glowing));
-        return this;
     }
 
     public void despawn() {
@@ -168,7 +136,6 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
     protected void preSpawn(final E entity, final Player player) {
         updateTeamOptions(player, entity);
 
-        entity.setGlowing(glowing);
         entity.setPersistent(false);
         entity.setVisibleByDefault(false);
 
@@ -195,5 +162,10 @@ public abstract class PaperHologramLine<E extends Entity> implements HologramLin
 
         final var team = owner.getScoreboard().getTeam(entity.getScoreboardEntryName());
         if (team != null) team.unregister();
+    }
+
+    @Override
+    public boolean isPart(final Entity entity) {
+        return getEntities().containsValue(entity); // todo: fix this inspection
     }
 }

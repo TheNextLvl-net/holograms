@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.adapters.deserializers;
 
-import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import net.thenextlvl.nbt.serialization.ParserException;
@@ -12,13 +11,13 @@ import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class TextHologramLineDeserializer extends DisplayHologramLineDeserializer<TextHologramLine> {
+public final class TextHologramLineDeserializer extends DisplayHologramLineDeserializer<PaperTextHologramLine> {
     public TextHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }
 
     @Override
-    protected void deserialize(final TextHologramLine line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
+    protected void deserialize(final PaperTextHologramLine line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
         tag.optional("text").map(Tag::getAsString).ifPresent(line::setUnparsedText);
         tag.optional("lineWidth").map(Tag::getAsInt).ifPresent(line::setLineWidth);
         tag.optional("backgroundColor").map(tag1 -> context.deserialize(tag1, Color.class)).ifPresent(line::setBackgroundColor);
@@ -31,7 +30,7 @@ public final class TextHologramLineDeserializer extends DisplayHologramLineDeser
     }
 
     @Override
-    protected TextHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
+    protected PaperTextHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
         return new PaperTextHologramLine(hologram);
     }
 }

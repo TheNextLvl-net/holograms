@@ -22,7 +22,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine<E> implements EntityHologramLine {
+public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologramLine<E> implements EntityHologramLine {
     private volatile Vector3f offset = new Vector3f();
     private volatile double scale = 1;
 

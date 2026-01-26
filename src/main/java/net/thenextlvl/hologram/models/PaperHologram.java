@@ -19,6 +19,7 @@ import net.thenextlvl.hologram.models.line.PaperPagedHologramLine;
 import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import net.thenextlvl.nbt.NBTOutputStream;
 import net.thenextlvl.nbt.serialization.ParserException;
+import net.thenextlvl.nbt.serialization.TagDeserializationContext;
 import net.thenextlvl.nbt.serialization.TagSerializable;
 import net.thenextlvl.nbt.tag.CompoundTag;
 import net.thenextlvl.nbt.tag.ListTag;
@@ -160,9 +161,9 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (!success) return CompletableFuture.completedFuture(false);
         return CompletableFuture.allOf(lines.stream()
                 .map(line -> {
-                    if (line instanceof final PaperHologramLine<?> paperLine) 
+                    if (line instanceof final PaperHologramLine<?> paperLine)
                         return paperLine.teleportRelative(previous, location);
-                    else if (line instanceof final PaperPagedHologramLine pagedLine) 
+                    else if (line instanceof final PaperPagedHologramLine pagedLine)
                         return pagedLine.teleportRelative(previous, location);
                     return CompletableFuture.<Void>completedFuture(null);
                 })
@@ -541,8 +542,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
                 hologramLine.spawn(player, offset + hologramLine.getOffsetBefore(player));
                 offset += 0.05 + hologramLine.getHeight(player) + hologramLine.getOffsetAfter();
             } else if (line instanceof final PaperPagedHologramLine pagedLine) {
-                pagedLine.spawn(player, offset + pagedLine.getOffsetBefore(player));
-                offset += 0.05 + pagedLine.getHeight(player) + pagedLine.getOffsetAfter();
+                final var spawn = pagedLine.spawn(player, offset + pagedLine.getOffsetBefore(player));
+                if (spawn != null) offset += 0.05 + pagedLine.getHeight(player) + pagedLine.getOffsetAfter();
             }
         }
         return true;
@@ -566,6 +567,11 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public boolean isSpawned(final Player player) {
         return spawned.contains(player);
+    }
+
+    @Override
+    public boolean isPart(final Entity entity) {
+        return lines.stream().anyMatch(line -> line.isPart(entity));
     }
 
     @Override
@@ -651,16 +657,18 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         tag.optional("visibleByDefault").map(Tag::getAsBoolean).ifPresent(this::setVisibleByDefault);
 
         tag.optional("lines").map(Tag::<CompoundTag>getAsList).ifPresent(lines -> {
-            lines.stream().map(line -> {
-                final var type = nbt.deserialize(line.get("lineType"), LineType.class);
-                return nbt.<HologramLine>deserialize(line, switch (type) {
-                    case ENTITY -> EntityHologramLine.class;
-                    case BLOCK -> BlockHologramLine.class;
-                    case ITEM -> ItemHologramLine.class;
-                    case TEXT -> TextHologramLine.class;
-                    case PAGED -> PagedHologramLine.class;
-                });
-            }).forEach(this.lines::add);
+            lines.stream().map(line -> deserializeLine(nbt, line)).forEach(this.lines::add);
+        });
+    }
+
+    public static HologramLine deserializeLine(final TagDeserializationContext context, final CompoundTag line) {
+        final var type = context.deserialize(line.get("lineType"), LineType.class);
+        return context.deserialize(line, switch (type) {
+            case ENTITY -> EntityHologramLine.class;
+            case BLOCK -> BlockHologramLine.class;
+            case ITEM -> ItemHologramLine.class;
+            case TEXT -> TextHologramLine.class;
+            case PAGED -> PaperPagedHologramLine.class;
         });
     }
 }

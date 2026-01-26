@@ -15,7 +15,7 @@ import java.util.Optional;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface DisplayHologramLine extends HologramLine {
+public interface DisplayHologramLine extends StaticHologramLine {
     /**
      * Gets the transformation applied to this display.
      *

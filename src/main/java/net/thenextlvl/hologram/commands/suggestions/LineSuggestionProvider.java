@@ -13,6 +13,7 @@ import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import org.jspecify.annotations.NullMarked;
 
@@ -44,6 +45,8 @@ public final class LineSuggestionProvider implements SuggestionProvider<CommandS
             case final TextHologramLine textLine -> textLine.getUnparsedText().map(component -> {
                 return MiniMessage.miniMessage().deserialize("Text: " + component.replace("\n", "\\n"));
             }).orElse(Component.empty());
+            case final PagedHologramLine pagedLine -> Component.text("Paged: ")
+                    .append(Component.text(pagedLine.getPageCount()));
             case null -> Component.empty();
             default -> Component.text("Unknown Line " + index);
         };

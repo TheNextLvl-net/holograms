@@ -11,10 +11,8 @@ import org.jspecify.annotations.NullMarked;
 abstract class HologramLineSerializer<T extends HologramLine> implements TagSerializer<T> {
     @Override
     public CompoundTag serialize(final T line, final TagSerializationContext context) throws ParserException {
-        final var builder = CompoundTag.builder()
-                .put("glowing", line.isGlowing())
-                .put("lineType", context.serialize(line.getType()));
-        line.getGlowColor().map(context::serialize).ifPresent(tag -> builder.put("glowColor", tag));
-        return builder.build();
+        return CompoundTag.builder()
+                .put("lineType", context.serialize(line.getType()))
+                .build();
     }
 }

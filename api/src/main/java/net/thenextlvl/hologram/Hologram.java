@@ -610,4 +610,14 @@ public interface Hologram extends Iterable<HologramLine> {
      */
     @Contract(pure = true)
     boolean isSpawned(Player player);
+
+    /**
+     * Checks if the given entity is part of this hologram.
+     *
+     * @param entity the entity to check for
+     * @return {@code true} if the given entity is part of this hologram, {@code false} otherwise
+     * @since 0.5.0
+     */
+    @Contract(pure = true)
+    boolean isPart(Entity entity);
 }

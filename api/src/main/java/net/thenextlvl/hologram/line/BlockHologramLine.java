@@ -1,7 +1,6 @@
 package net.thenextlvl.hologram.line;
 
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.BlockDisplay;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 

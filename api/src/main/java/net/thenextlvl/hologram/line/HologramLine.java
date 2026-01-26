@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.line;
 
-import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.Hologram;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -8,13 +7,14 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
 /**
  * Represents a line within a hologram.
  *
+ * @see PagedHologramLine
+ * @see StaticHologramLine
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
@@ -84,37 +84,5 @@ public interface HologramLine {
     @Contract(pure = true)
     World getWorld();
 
-    /**
-     * Gets whether this line is glowing.
-     *
-     * @return true if this line is glowing
-     * @since 0.4.0
-     */
-    @Contract(pure = true)
-    boolean isGlowing();
-
-    /**
-     * Sets whether this line is glowing.
-     *
-     * @param glowing true if this line should glow
-     * @since 0.4.0
-     */
-    HologramLine setGlowing(boolean glowing);
-
-    /**
-     * Gets the glow color of this line.
-     *
-     * @return glow color
-     * @since 0.4.0
-     */
-    @Contract(pure = true)
-    Optional<TextColor> getGlowColor();
-
-    /**
-     * Sets the glow color of this line.
-     *
-     * @param color new color
-     * @since 0.4.0
-     */
-    HologramLine setGlowColor(@Nullable TextColor color);
+    boolean isPart(Entity entity);
 }

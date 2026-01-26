@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
-public abstract class PaperDisplayHologramLine<E extends Display> extends PaperHologramLine<E> implements DisplayHologramLine {
+public abstract class PaperDisplayHologramLine<E extends Display> extends PaperStaticHologramLine<E> implements DisplayHologramLine {
     protected volatile @Nullable Brightness brightness = null;
     protected volatile Display.Billboard billboard = Display.Billboard.CENTER;
     protected volatile Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());

@@ -10,7 +10,7 @@ import org.joml.Vector3f;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface EntityHologramLine extends HologramLine {
+public interface EntityHologramLine extends StaticHologramLine {
     /**
      * Gets the scale of the entity.
      *

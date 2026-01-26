@@ -23,10 +23,12 @@ import net.thenextlvl.hologram.adapters.Vector3fAdapter;
 import net.thenextlvl.hologram.adapters.deserializers.BlockHologramLineDeserializer;
 import net.thenextlvl.hologram.adapters.deserializers.EntityHologramLineDeserializer;
 import net.thenextlvl.hologram.adapters.deserializers.ItemHologramLineDeserializer;
+import net.thenextlvl.hologram.adapters.deserializers.PagedHologramLineDeserializer;
 import net.thenextlvl.hologram.adapters.deserializers.TextHologramLineDeserializer;
 import net.thenextlvl.hologram.adapters.serializers.BlockHologramLineSerializer;
 import net.thenextlvl.hologram.adapters.serializers.EntityHologramLineSerializer;
 import net.thenextlvl.hologram.adapters.serializers.ItemHologramLineSerializer;
+import net.thenextlvl.hologram.adapters.serializers.PagedHologramLineSerializer;
 import net.thenextlvl.hologram.adapters.serializers.TextHologramLineSerializer;
 import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.controller.PaperHologramProvider;
@@ -34,6 +36,7 @@ import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.LineType;
+import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.listeners.ChunkListener;
 import net.thenextlvl.hologram.listeners.EntityListener;
@@ -45,6 +48,11 @@ import net.thenextlvl.hologram.locale.HologramTranslationStore;
 import net.thenextlvl.hologram.locale.MiniPlaceholdersFormatter;
 import net.thenextlvl.hologram.locale.PlaceholderAPIFormatter;
 import net.thenextlvl.hologram.models.PaperHologram;
+import net.thenextlvl.hologram.models.line.PaperBlockHologramLine;
+import net.thenextlvl.hologram.models.line.PaperEntityHologramLine;
+import net.thenextlvl.hologram.models.line.PaperItemHologramLine;
+import net.thenextlvl.hologram.models.line.PaperPagedHologramLine;
+import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import net.thenextlvl.hologram.version.PluginVersionChecker;
 import net.thenextlvl.i18n.ComponentBundle;
 import net.thenextlvl.nbt.NBTInputStream;
@@ -117,7 +125,7 @@ public class HologramPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         getServer().getGlobalRegionScheduler().runAtFixedRate(this, ignored -> {
-            hologramProvider().getHolograms().map(PaperHologram.class::cast).forEach(hologram -> {
+            hologramProvider().getHolograms().map(PaperHologram.class::cast).forEach(hologram -> { // fixme: fix cast
                 getServer().getOnlinePlayers().forEach(hologram::updateVisibility);
             });
         }, 100L, 100L);
@@ -188,16 +196,18 @@ public class HologramPlugin extends JavaPlugin {
                 .registerTypeHierarchyAdapter(BlockHologramLine.class, new BlockHologramLineSerializer())
                 .registerTypeHierarchyAdapter(EntityHologramLine.class, new EntityHologramLineSerializer())
                 .registerTypeHierarchyAdapter(ItemHologramLine.class, new ItemHologramLineSerializer())
+                .registerTypeHierarchyAdapter(PagedHologramLine.class, new PagedHologramLineSerializer())
                 .registerTypeHierarchyAdapter(TextHologramLine.class, new TextHologramLineSerializer())
                 .build();
     }
 
     public NBT deserializer(final PaperHologram hologram) {
         return base(hologram.getWorld())
-                .registerTypeHierarchyAdapter(BlockHologramLine.class, new BlockHologramLineDeserializer(hologram))
-                .registerTypeHierarchyAdapter(EntityHologramLine.class, new EntityHologramLineDeserializer(hologram))
-                .registerTypeHierarchyAdapter(ItemHologramLine.class, new ItemHologramLineDeserializer(hologram))
-                .registerTypeHierarchyAdapter(TextHologramLine.class, new TextHologramLineDeserializer(hologram))
+                .registerTypeHierarchyAdapter(PaperBlockHologramLine.class, new BlockHologramLineDeserializer(hologram))
+                .registerTypeHierarchyAdapter(PaperEntityHologramLine.class, new EntityHologramLineDeserializer(hologram))
+                .registerTypeHierarchyAdapter(PaperItemHologramLine.class, new ItemHologramLineDeserializer(hologram))
+                .registerTypeHierarchyAdapter(PaperPagedHologramLine.class, new PagedHologramLineDeserializer(hologram))
+                .registerTypeHierarchyAdapter(PaperTextHologramLine.class, new TextHologramLineDeserializer(hologram))
                 .build();
     }
 
@@ -259,7 +269,7 @@ public class HologramPlugin extends JavaPlugin {
         final var holograms = player != null
                 ? hologramProvider().getHolograms(player)
                 : hologramProvider().getHolograms();
-        holograms.map(PaperHologram.class::cast).forEach(hologram -> {
+        holograms.map(PaperHologram.class::cast).forEach(hologram -> { // fixme: fix cast
             if (player == null) hologram.updateText();
             else hologram.updateText(player);
         });

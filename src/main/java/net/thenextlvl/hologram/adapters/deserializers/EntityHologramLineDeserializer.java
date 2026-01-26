@@ -12,7 +12,7 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class EntityHologramLineDeserializer extends HologramLineDeserializer<EntityHologramLine> {
+public final class EntityHologramLineDeserializer extends SingleHologramLineDeserializer<EntityHologramLine> {
     public EntityHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }

@@ -1,7 +1,6 @@
 package net.thenextlvl.hologram.models.line;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -37,8 +36,6 @@ public class PaperPagedHologramLine implements PagedHologramLine {
     private volatile Duration interval = Duration.ofSeconds(2);
     private volatile boolean randomOrder = false;
     private volatile boolean paused = false;
-    private volatile boolean glowing = false;
-    private volatile @Nullable TextColor glowColor = null;
     private volatile @Nullable ScheduledTask cycleTask = null;
 
     public PaperPagedHologramLine(final PaperHologram hologram) {
@@ -81,27 +78,8 @@ public class PaperPagedHologramLine implements PagedHologramLine {
     }
 
     @Override
-    public boolean isGlowing() {
-        return glowing;
-    }
-
-    @Override
-    public PagedHologramLine setGlowing(final boolean glowing) {
-        this.glowing = glowing;
-        pages.forEach(page -> page.setGlowing(glowing));
-        return this;
-    }
-
-    @Override
-    public Optional<TextColor> getGlowColor() {
-        return Optional.ofNullable(glowColor);
-    }
-
-    @Override
-    public PagedHologramLine setGlowColor(final @Nullable TextColor color) {
-        this.glowColor = color;
-        pages.forEach(page -> page.setGlowColor(color));
-        return this;
+    public boolean isPart(final Entity entity) {
+        return pages.stream().anyMatch(page -> page.isPart(entity));
     }
 
     @Override
@@ -128,8 +106,6 @@ public class PaperPagedHologramLine implements PagedHologramLine {
     @Override
     public TextHologramLine addTextPage() {
         final var page = new PaperTextHologramLine(hologram);
-        page.setGlowing(glowing);
-        page.setGlowColor(glowColor);
         pages.add(page);
         return page;
     }
@@ -137,8 +113,6 @@ public class PaperPagedHologramLine implements PagedHologramLine {
     @Override
     public ItemHologramLine addItemPage() {
         final var page = new PaperItemHologramLine(hologram);
-        page.setGlowing(glowing);
-        page.setGlowColor(glowColor);
         pages.add(page);
         return page;
     }
@@ -146,8 +120,6 @@ public class PaperPagedHologramLine implements PagedHologramLine {
     @Override
     public BlockHologramLine addBlockPage() {
         final var page = new PaperBlockHologramLine(hologram);
-        page.setGlowing(glowing);
-        page.setGlowColor(glowColor);
         pages.add(page);
         return page;
     }
@@ -157,8 +129,6 @@ public class PaperPagedHologramLine implements PagedHologramLine {
         final var entityClass = entityType.getEntityClass();
         if (entityClass == null) throw new IllegalArgumentException("Entity type is not spawnable: " + entityType);
         final var page = new PaperEntityHologramLine<>(hologram, entityClass);
-        page.setGlowing(glowing);
-        page.setGlowColor(glowColor);
         pages.add(page);
         return page;
     }
@@ -254,8 +224,8 @@ public class PaperPagedHologramLine implements PagedHologramLine {
                 .orElse(0d);
     }
 
-    public Entity spawn(final Player player, final double offset) throws IllegalStateException {
-        if (pages.isEmpty()) throw new IllegalStateException("No pages to spawn");
+    public @Nullable Entity spawn(final Player player, final double offset) {
+        if (pages.isEmpty()) return null;
         currentPageIndex.put(player, 0);
         final var page = pages.getFirst();
         startCycleTask();
@@ -287,7 +257,7 @@ public class PaperPagedHologramLine implements PagedHologramLine {
         if (pages.isEmpty()) return;
 
         final int oldIndex = currentPageIndex.getOrDefault(player, 0);
-        final var oldPage = pages.get(oldIndex);
+        final var oldPage = pages.size() > oldIndex ? pages.get(oldIndex) : null;
 
         final int newIndex;
         if (randomOrder) {
@@ -298,7 +268,7 @@ public class PaperPagedHologramLine implements PagedHologramLine {
 
         final var newPage = pages.get(newIndex);
 
-        oldPage.despawn(player);
+        if (oldPage != null) oldPage.despawn(player);
         newPage.spawn(player, offset);
         currentPageIndex.put(player, newIndex);
     }
@@ -332,7 +302,7 @@ public class PaperPagedHologramLine implements PagedHologramLine {
 
     private void cycleAllPlayers(final ScheduledTask task) {
         currentPageIndex.keySet().forEach(player -> {
-            if (player.isOnline() && hologram.isSpawned(player)) {
+            if (hologram.isSpawned(player)) {
                 cyclePage(player, calculateOffset(player));
             }
         });
@@ -349,5 +319,9 @@ public class PaperPagedHologramLine implements PagedHologramLine {
             }
         }
         return offset;
+    }
+
+    public void addPage(final PaperHologramLine<?> hologramLine) {
+        this.pages.add(hologramLine);
     }
 }

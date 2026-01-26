@@ -1,14 +1,17 @@
 package net.thenextlvl.hologram.commands.page;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -18,6 +21,7 @@ import net.thenextlvl.hologram.line.TextHologramLine;
 import org.jspecify.annotations.NullMarked;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
+import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 public final class HologramPageListCommand extends BrigadierCommand {
@@ -27,7 +31,10 @@ public final class HologramPageListCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageListCommand(plugin);
-        return command.create().executes(command::listPages);
+        final var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                .suggests(LineSuggestionProvider.INSTANCE);
+        return command.create().then(hologramArgument(plugin).then(line
+                .executes(command::listPages)));
     }
 
     private int listPages(final CommandContext<CommandSourceStack> context) {

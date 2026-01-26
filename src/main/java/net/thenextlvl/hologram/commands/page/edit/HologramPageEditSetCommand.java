@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.commands.page.edit;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -13,6 +14,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.PageSuggestionProvider;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
@@ -34,10 +36,12 @@ public final class HologramPageEditSetCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageEditSetCommand(plugin);
-        return command.create()
+        final var page = Commands.argument("page", IntegerArgumentType.integer(1))
+                .suggests(PageSuggestionProvider.INSTANCE);
+        return command.create().then(page
                 .then(command.setPage("block", ArgumentTypes.blockState(), command::setBlockPage))
                 .then(command.setPage("item", ArgumentTypes.itemStack(), command::setItemPage))
-                .then(command.setPage("text", StringArgumentType.greedyString(), command::setTextPage));
+                .then(command.setPage("text", StringArgumentType.greedyString(), command::setTextPage)));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> setPage(final String name, final ArgumentType<?> argumentType, final Command<CommandSourceStack> command) {

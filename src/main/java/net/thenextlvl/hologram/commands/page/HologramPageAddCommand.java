@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.commands.page;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -14,7 +15,10 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import net.thenextlvl.hologram.line.PagedHologramLine;
+
+import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -32,11 +36,13 @@ public final class HologramPageAddCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageAddCommand(plugin);
-        return command.create()
+        final var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                .suggests(LineSuggestionProvider.INSTANCE);
+        return command.create().then(hologramArgument(plugin).then(line
                 .then(command.addPage("block", ArgumentTypes.blockState(), command::addBlockPage))
                 .then(command.addPage("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityPage))
                 .then(command.addPage("item", ArgumentTypes.itemStack(), command::addItemPage))
-                .then(command.addPage("text", StringArgumentType.greedyString(), command::addTextPage));
+                .then(command.addPage("text", StringArgumentType.greedyString(), command::addTextPage))));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> addPage(final String name, final ArgumentType<?> argumentType, final Command<CommandSourceStack> command) {

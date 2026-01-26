@@ -10,11 +10,13 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import net.thenextlvl.hologram.commands.suggestions.PageSuggestionProvider;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.jspecify.annotations.NullMarked;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
+import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 public final class HologramPageRemoveCommand extends BrigadierCommand {
@@ -24,10 +26,12 @@ public final class HologramPageRemoveCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageRemoveCommand(plugin);
-        return command.create()
-                .then(Commands.argument("page", IntegerArgumentType.integer(1))
-                        .suggests(PageSuggestionProvider.INSTANCE)
-                        .executes(command::removePage));
+        final var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                .suggests(LineSuggestionProvider.INSTANCE);
+        final var page = Commands.argument("page", IntegerArgumentType.integer(1))
+                .suggests(PageSuggestionProvider.INSTANCE);
+        return command.create().then(hologramArgument(plugin).then(line.then(page
+                .executes(command::removePage))));
     }
 
     private int removePage(final CommandContext<CommandSourceStack> context) {

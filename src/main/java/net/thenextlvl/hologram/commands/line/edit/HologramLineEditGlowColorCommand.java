@@ -12,6 +12,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.line.StaticHologramLine;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Objects;
@@ -40,11 +41,11 @@ final class HologramLineEditGlowColorCommand extends SimpleCommand {
                 .or(() -> tryGetArgument(context, "color", NamedTextColor.class))
                 .orElse(null);
 
-        final var message = hologram.getLine(line - 1).map(hologramLine -> {
+        final var message = hologram.getLine(line - 1, StaticHologramLine.class).map(hologramLine -> {
             if (Objects.equals(hologramLine.getGlowColor().orElse(null), color)) return "nothing.changed";
             hologramLine.setGlowColor(color);
             return color != null ? "hologram.line.glow-color" : "hologram.line.glow-color.reset";
-        }).orElse("hologram.line.invalid");
+        }).orElse("hologram.type.single");
 
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.unparsed("hologram", hologram.getName()),

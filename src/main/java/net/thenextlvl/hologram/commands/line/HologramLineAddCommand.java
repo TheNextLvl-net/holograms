@@ -36,7 +36,8 @@ public final class HologramLineAddCommand extends BrigadierCommand {
                 .then(command.addLine("block", ArgumentTypes.blockState(), command::addBlockLine))
                 .then(command.addLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityLine))
                 .then(command.addLine("item", ArgumentTypes.itemStack(), command::addItemLine))
-                .then(command.addLine("text", StringArgumentType.greedyString(), command::addTextLine)));
+                .then(command.addLine("text", StringArgumentType.greedyString(), command::addTextLine))
+                .then(Commands.literal("paged").executes(command::addPagedLine)));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> addLine(final String name, final ArgumentType<?> argumentType, final Command<CommandSourceStack> command) {
@@ -61,6 +62,10 @@ public final class HologramLineAddCommand extends BrigadierCommand {
     private int addTextLine(final CommandContext<CommandSourceStack> context) {
         final var text = context.getArgument("text", String.class);
         return addLine(context, hologram -> hologram.addTextLine().setUnparsedText(text));
+    }
+
+    private int addPagedLine(final CommandContext<CommandSourceStack> context) {
+        return addLine(context, Hologram::addPagedLine);
     }
 
     private int addLine(final CommandContext<CommandSourceStack> context, final Consumer<Hologram> consumer) {

@@ -9,7 +9,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
-public final class ImageMessage {
+final class SimpleImageComponent {
     public static final String BLOCK = "█";
     public static final String DARK_SHADE = "▓";
     public static final String MEDIUM_SHADE = "▒";

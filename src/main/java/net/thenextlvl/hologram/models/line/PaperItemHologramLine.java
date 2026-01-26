@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 @NullMarked
-public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologramLine, ItemDisplay> implements ItemHologramLine {
+public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay> implements ItemHologramLine {
     private volatile ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
     private volatile @Nullable ItemStack item = null;
 
@@ -29,13 +29,14 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
 
     @Override
     public ItemStack getItemStack() {
-        return item != null ? item.clone() : ItemType.AIR.createItemStack();
+        final var itemStack = item;
+        return itemStack != null ? itemStack.clone() : ItemType.AIR.createItemStack();
     }
 
     @Override
     public ItemHologramLine setItemStack(@Nullable final ItemStack item) {
         this.item = item != null ? item.clone() : null;
-        getEntities().values().forEach(entity -> entity.setItemStack(item));
+        forEachEntity(entity -> entity.setItemStack(item));
         return this;
     }
 
@@ -48,7 +49,7 @@ public class PaperItemHologramLine extends PaperDisplayHologramLine<ItemHologram
     public ItemHologramLine setItemDisplayTransform(final ItemDisplayTransform display) {
         if (Objects.equals(this.displayTransform, display)) return this;
         this.displayTransform = display;
-        getEntities().values().forEach(entity -> entity.setItemDisplayTransform(display));
+        forEachEntity(entity -> entity.setItemDisplayTransform(display));
         getHologram().updateHologram();
         return this;
     }

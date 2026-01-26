@@ -4,6 +4,7 @@ import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -29,7 +30,7 @@ import java.util.stream.Stream;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface Hologram extends Iterable<HologramLine<?>> {
+public interface Hologram extends Iterable<HologramLine> {
     /**
      * Returns the name of the hologram.
      *
@@ -89,7 +90,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.4.0
      */
     @Contract(pure = true)
-    Stream<HologramLine<?>> getLines();
+    Stream<HologramLine> getLines();
 
     /**
      * Returns the number of lines in this hologram.
@@ -108,7 +109,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.4.0
      */
     @Contract(pure = true)
-    Optional<HologramLine<?>> getLine(int index);
+    Optional<HologramLine> getLine(int index);
 
     /**
      * Returns the line at the given index if the line is of the given type.
@@ -120,7 +121,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.4.0
      */
     @Contract(pure = true)
-    <T extends HologramLine<?>> Optional<T> getLine(int index, Class<T> type);
+    <T extends HologramLine> Optional<T> getLine(int index, Class<T> type);
 
     /**
      * Returns the index of the given line.
@@ -131,7 +132,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.4.0
      */
     @Contract(pure = true)
-    int getLineIndex(HologramLine<?> line);
+    int getLineIndex(HologramLine line);
 
     /**
      * Removes the given line from this hologram.
@@ -141,7 +142,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.1.0
      */
     @Contract(mutates = "this")
-    boolean removeLine(HologramLine<?> line);
+    boolean removeLine(HologramLine line);
 
     /**
      * Removes the line at the given index from this hologram.
@@ -161,7 +162,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.1.0
      */
     @Contract(mutates = "this")
-    boolean removeLines(Collection<HologramLine<?>> lines);
+    boolean removeLines(Collection<HologramLine> lines);
 
     /**
      * Removes all lines from this hologram.
@@ -179,7 +180,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    boolean hasLine(HologramLine<?> line);
+    boolean hasLine(HologramLine line);
 
     /**
      * Moves the line at the given index to the given index.
@@ -212,7 +213,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.3.0
      */
     @Contract(value = "_ -> new", mutates = "this")
-    EntityHologramLine<?> addEntityLine(EntityType entityType) throws IllegalArgumentException;
+    EntityHologramLine addEntityLine(EntityType entityType) throws IllegalArgumentException;
 
     /**
      * Adds an entity line to this hologram.
@@ -223,7 +224,7 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.1.0
      */
     @Contract(value = "_ -> new", mutates = "this")
-    <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType) throws IllegalArgumentException;
+    EntityHologramLine addEntityLine(Class<? extends Entity> entityType) throws IllegalArgumentException;
 
     /**
      * Adds an entity line to this hologram at the given index.
@@ -236,21 +237,20 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      * @since 0.3.0
      */
     @Contract(value = "_, _ -> new", mutates = "this")
-    EntityHologramLine<?> addEntityLine(EntityType entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+    EntityHologramLine addEntityLine(EntityType entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
 
     /**
      * Adds an entity line to this hologram at the given index.
      *
      * @param entityType entity type
      * @param index      line index
-     * @param <T>        entity type
      * @return a new entity hologram line
      * @throws IllegalArgumentException  if the entity type is not spawnable
      * @throws IndexOutOfBoundsException if the index is out of bounds
      * @since 0.1.0
      */
     @Contract(value = "_, _ -> new", mutates = "this")
-    <T extends Entity> EntityHologramLine<T> addEntityLine(Class<T> entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+    EntityHologramLine addEntityLine(Class<? extends Entity> entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
 
     /**
      * Adds a block line to this hologram.
@@ -313,31 +313,63 @@ public interface Hologram extends Iterable<HologramLine<?>> {
     TextHologramLine addTextLine(int index) throws IndexOutOfBoundsException;
 
     /**
-     * Sets an entity line at the given index.
+     * Adds a paged line to this hologram.
+     * A paged line can contain multiple pages of different line types
+     * that cycle through at a configurable interval.
      *
-     * @param entityType entity type
-     * @param index      line index
-     * @return a new entity hologram line
-     * @throws IllegalArgumentException  if the entity type is not spawnable
-     * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @since 0.3.0
+     * @return a new paged hologram line
+     * @since 0.5.0
      */
-    @Contract(value = "_, _ -> new", mutates = "this")
-    EntityHologramLine<?> setEntityLine(EntityType entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+    @Contract(value = " -> new", mutates = "this")
+    PagedHologramLine addPagedLine();
+
+    /**
+     * Adds a paged line to this hologram at the given index.
+     *
+     * @param index line index
+     * @return a new paged hologram line
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @since 0.5.0
+     */
+    @Contract(value = "_ -> new", mutates = "this")
+    PagedHologramLine addPagedLine(int index) throws IndexOutOfBoundsException;
+
+    /**
+     * Sets a paged line at the given index.
+     *
+     * @param index line index
+     * @return a new paged hologram line
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @since 0.5.0
+     */
+    @Contract(value = "_ -> new", mutates = "this")
+    PagedHologramLine setPagedLine(int index) throws IndexOutOfBoundsException;
 
     /**
      * Sets an entity line at the given index.
      *
      * @param entityType entity type
      * @param index      line index
-     * @param <T>        entity type
      * @return a new entity hologram line
      * @throws IllegalArgumentException  if the entity type is not spawnable
      * @throws IndexOutOfBoundsException if the index is out of bounds
      * @since 0.3.0
      */
     @Contract(value = "_, _ -> new", mutates = "this")
-    <T extends Entity> EntityHologramLine<T> setEntityLine(Class<T> entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+    EntityHologramLine setEntityLine(EntityType entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+
+    /**
+     * Sets an entity line at the given index.
+     *
+     * @param entityType entity type
+     * @param index      line index
+     * @return a new entity hologram line
+     * @throws IllegalArgumentException  if the entity type is not spawnable
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @since 0.3.0
+     */
+    @Contract(value = "_, _ -> new", mutates = "this")
+    EntityHologramLine setEntityLine(Class<? extends Entity> entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
 
     /**
      * Sets a block line at the given index.
@@ -578,4 +610,14 @@ public interface Hologram extends Iterable<HologramLine<?>> {
      */
     @Contract(pure = true)
     boolean isSpawned(Player player);
+
+    /**
+     * Checks if the given entity is part of this hologram.
+     *
+     * @param entity the entity to check for
+     * @return {@code true} if the given entity is part of this hologram, {@code false} otherwise
+     * @since 0.5.0
+     */
+    @Contract(pure = true)
+    boolean isPart(Entity entity);
 }

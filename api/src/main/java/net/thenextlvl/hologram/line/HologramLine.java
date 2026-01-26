@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.line;
 
-import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.Hologram;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -8,17 +7,18 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
 /**
  * Represents a line within a hologram.
  *
+ * @see PagedHologramLine
+ * @see StaticHologramLine
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface HologramLine<E extends Entity> {
+public interface HologramLine {
     /**
      * Gets the hologram this line belongs to.
      *
@@ -35,7 +35,7 @@ public interface HologramLine<E extends Entity> {
      * @since 0.4.0
      */
     @Contract(pure = true)
-    Optional<E> getEntity(Player player);
+    Optional<Entity> getEntity(Player player);
 
     /**
      * Gets the entity representing this line, if it is of the given type.
@@ -52,10 +52,10 @@ public interface HologramLine<E extends Entity> {
      * Gets the class of the entity representing this line.
      *
      * @return entity class
-     * @since 0.3.0
+     * @since 0.5.0
      */
     @Contract(pure = true)
-    Class<E> getTypeClass();
+    Class<? extends Entity> getEntityClass();
 
     /**
      * Gets the entity type of the entity representing this line.
@@ -85,36 +85,11 @@ public interface HologramLine<E extends Entity> {
     World getWorld();
 
     /**
-     * Gets whether this line is glowing.
+     * Checks if the given entity is part of this line.
      *
-     * @return true if this line is glowing
-     * @since 0.4.0
+     * @param entity the entity to check
+     * @return {@code true} if the entity is part of this line, {@code false} otherwise
+     * @since 0.5.0
      */
-    @Contract(pure = true)
-    boolean isGlowing();
-
-    /**
-     * Sets whether this line is glowing.
-     *
-     * @param glowing true if this line should glow
-     * @since 0.4.0
-     */
-    HologramLine<E> setGlowing(boolean glowing);
-
-    /**
-     * Gets the glow color of this line.
-     *
-     * @return glow color
-     * @since 0.4.0
-     */
-    @Contract(pure = true)
-    Optional<TextColor> getGlowColor();
-
-    /**
-     * Sets the glow color of this line.
-     *
-     * @param color new color
-     * @since 0.4.0
-     */
-    HologramLine<E> setGlowColor(@Nullable TextColor color);
+    boolean isPart(Entity entity);
 }

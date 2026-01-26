@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologramLine, BlockDisplay> implements BlockHologramLine {
+public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDisplay> implements BlockHologramLine {
     private volatile BlockData block = BlockType.AIR.createBlockData();
 
     public PaperBlockHologramLine(final PaperHologram hologram) {
@@ -30,7 +30,7 @@ public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockHologr
     @Override
     public BlockHologramLine setBlock(final BlockData block) {
         this.block = block.clone();
-        getEntities().values().forEach(entity -> entity.setBlock(block));
+        forEachEntity(entity -> entity.setBlock(block));
         return this;
     }
 

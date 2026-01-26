@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.adapters.deserializers;
 
-import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import net.thenextlvl.nbt.serialization.ParserException;
@@ -11,17 +10,14 @@ import net.thenextlvl.nbt.tag.Tag;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-abstract class HologramLineDeserializer<T extends HologramLine<?>> implements TagDeserializer<T> {
+abstract class HologramLineDeserializer<T extends HologramLine> implements TagDeserializer<T> {
     protected final PaperHologram hologram;
 
     protected HologramLineDeserializer(final PaperHologram hologram) {
         this.hologram = hologram;
     }
 
-    protected void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
-        tag.optional("glowing").map(Tag::getAsBoolean).ifPresent(line::setGlowing);
-        tag.optional("glowColor").map(tag1 -> context.deserialize(tag1, TextColor.class)).ifPresent(line::setGlowColor);
-    }
+    protected abstract void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException;
 
     protected abstract T createLine(CompoundTag tag, TagDeserializationContext context);
 

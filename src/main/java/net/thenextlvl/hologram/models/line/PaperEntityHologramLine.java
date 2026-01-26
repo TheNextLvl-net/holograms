@@ -22,7 +22,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine<E> implements EntityHologramLine<E> {
+public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologramLine<E> implements EntityHologramLine {
     private volatile Vector3f offset = new Vector3f();
     private volatile double scale = 1;
 
@@ -56,13 +56,13 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    public EntityHologramLine<E> setScale(final double scale) {
+    public EntityHologramLine setScale(final double scale) {
         if (this.scale == scale) return this;
         this.scale = scale;
-        getEntities().values().stream()
-                .filter(Attributable.class::isInstance)
-                .map(Attributable.class::cast)
-                .forEach(this::updateScale);
+        forEachEntity(entity -> {
+            if (!(entity instanceof final Attributable attributable)) return;
+            updateScale(attributable);
+        });
         getHologram().updateHologram();
         return this;
     }
@@ -73,12 +73,12 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperHologramLine
     }
 
     @Override
-    public EntityHologramLine<E> setOffset(final Vector3f newOffset) {
+    public EntityHologramLine setOffset(final Vector3f newOffset) {
         final var oldOffset = this.offset;
         if (oldOffset.equals(newOffset)) return this;
         final var copy = new Vector3f(newOffset);
         this.offset = copy;
-        getEntities().values().forEach(entity -> {
+        forEachEntity(entity -> {
             final var location = entity.getLocation();
             location.subtract(oldOffset.x(), oldOffset.y(), oldOffset.z());
             location.add(copy.x(), copy.y(), copy.z());

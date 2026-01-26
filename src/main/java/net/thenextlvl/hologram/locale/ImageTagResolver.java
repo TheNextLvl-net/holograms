@@ -1,10 +1,11 @@
-package net.thenextlvl.hologram.image;
+package net.thenextlvl.hologram.locale;
 
 import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.ParsingException;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.thenextlvl.hologram.image.ImageComponent;
 import org.jspecify.annotations.NullMarked;
 
 import javax.imageio.ImageIO;
@@ -48,13 +49,13 @@ public final class ImageTagResolver implements TagResolver {
 
         final var cached = cache.get(cacheKey);
         if (cached != null && !cached.isExpired()) {
-            return Tag.inserting(ImageMessage.read(cached.image(), height));
+            return Tag.inserting(ImageComponent.read(cached.image(), height));
         }
 
         try {
             final var image = resolveImage(source, height);
             cache.put(cacheKey, new CacheEntry(image, Instant.now().plus(CACHE_TTL)));
-            return Tag.inserting(ImageMessage.read(image, height));
+            return Tag.inserting(ImageComponent.read(image, height));
         } catch (final IOException e) {
             throw ctx.newException("Failed to load image: " + e.getMessage());
         }

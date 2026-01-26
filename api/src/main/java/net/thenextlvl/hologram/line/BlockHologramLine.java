@@ -1,7 +1,6 @@
 package net.thenextlvl.hologram.line;
 
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.BlockDisplay;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
@@ -11,7 +10,7 @@ import org.jetbrains.annotations.Contract;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface BlockHologramLine extends DisplayHologramLine<BlockHologramLine, BlockDisplay> {
+public interface BlockHologramLine extends DisplayHologramLine {
     /**
      * Gets the displayed block.
      *

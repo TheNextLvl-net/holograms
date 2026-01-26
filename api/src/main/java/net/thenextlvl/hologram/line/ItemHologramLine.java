@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface ItemHologramLine extends DisplayHologramLine<ItemHologramLine, ItemDisplay> {
+public interface ItemHologramLine extends DisplayHologramLine {
     /**
      * Gets the displayed item stack.
      *

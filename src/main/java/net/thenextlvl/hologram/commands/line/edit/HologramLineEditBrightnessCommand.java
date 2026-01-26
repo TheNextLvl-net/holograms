@@ -33,7 +33,6 @@ final class HologramLineEditBrightnessCommand extends SimpleCommand {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public int run(final CommandContext<CommandSourceStack> context) {
         final var hologram = context.getArgument("hologram", Hologram.class);
         final var line = context.getArgument("line", int.class);

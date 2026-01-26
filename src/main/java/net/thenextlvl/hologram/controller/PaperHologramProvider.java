@@ -11,7 +11,6 @@ import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
-import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -51,34 +50,37 @@ public class PaperHologramProvider implements HologramProvider {
     @Override
     public Optional<Hologram> getHologram(final Entity entity) {
         return getHolograms(entity.getWorld())
-                .filter(hologram -> hologram.getLines().anyMatch(line ->
-                        ((PaperHologramLine<?>) line).getEntities().containsValue(entity)))
+                .filter(hologram -> hologram.isPart(entity))
                 .findAny();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <E extends Entity> Optional<HologramLine<E>> getHologramLine(final E entity) {
+    public Optional<HologramLine> getHologramLine(final Entity entity) {
         return getHolograms(entity.getWorld())
-                .filter(hologram -> hologram.getLines().anyMatch(line ->
-                        ((PaperHologramLine<?>) line).getEntities().containsValue(entity)))
-                .map(hologram -> (HologramLine<E>) hologram)
+                .flatMap(Hologram::getLines)
+                .filter(line -> line.isPart(entity))
                 .findFirst();
     }
 
     @Override
     public Optional<BlockHologramLine> getHologramLine(final BlockDisplay display) {
-        return getHologramLine((Entity) display).map(BlockHologramLine.class::cast);
+        return getHologramLine((Entity) display)
+                .filter(BlockHologramLine.class::isInstance)
+                .map(BlockHologramLine.class::cast);
     }
 
     @Override
     public Optional<ItemHologramLine> getHologramLine(final ItemDisplay display) {
-        return getHologramLine((Entity) display).map(ItemHologramLine.class::cast);
+        return getHologramLine((Entity) display)
+                .filter(ItemHologramLine.class::isInstance)
+                .map(ItemHologramLine.class::cast);
     }
 
     @Override
     public Optional<TextHologramLine> getHologramLine(final TextDisplay display) {
-        return getHologramLine((Entity) display).map(TextHologramLine.class::cast);
+        return getHologramLine((Entity) display)
+                .filter(TextHologramLine.class::isInstance)
+                .map(TextHologramLine.class::cast);
     }
 
     @Override
@@ -136,8 +138,7 @@ public class PaperHologramProvider implements HologramProvider {
 
     @Override
     public boolean isHologramPart(final Entity entity) {
-        return getHolograms(entity.getWorld()).anyMatch(hologram -> hologram.getLines().anyMatch(line ->
-                ((PaperHologramLine<?>) line).getEntities().containsValue(entity)));
+        return getHolograms(entity.getWorld()).anyMatch(hologram -> hologram.isPart(entity));
     }
 
     @Override

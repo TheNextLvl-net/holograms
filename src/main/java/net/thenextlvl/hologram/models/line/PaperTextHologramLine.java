@@ -5,9 +5,9 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
-import net.thenextlvl.hologram.image.ImageTagResolver;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.TextHologramLine;
+import net.thenextlvl.hologram.locale.ImageTagResolver;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -20,9 +20,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
-public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologramLine, TextDisplay> implements TextHologramLine {
+public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay> implements TextHologramLine {
     private volatile @Nullable Color backgroundColor;
-    private volatile @Nullable String text = null;
+    private volatile @Nullable String unparsedText = null;
     private volatile TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
     private volatile boolean defaultBackground = false;
     private volatile boolean seeThrough = false;
@@ -62,7 +62,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
 
     @Override
     public Optional<String> getUnparsedText() {
-        return Optional.ofNullable(text);
+        return Optional.ofNullable(unparsedText);
     }
 
     @Override
@@ -72,9 +72,8 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
 
     @Override
     public TextHologramLine setUnparsedText(@Nullable final String text) {
-        if (Objects.equals(this.text, text)) return this;
-        this.text = text;
-        // getEntities().values().forEach(this::updateText);
+        if (Objects.equals(this.unparsedText, text)) return this;
+        this.unparsedText = text;
         getHologram().updateHologram();
         return this;
     }
@@ -87,7 +86,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     @Override
     public TextHologramLine setLineWidth(final int width) {
         this.lineWidth = width;
-        getEntities().values().forEach(entity -> entity.setLineWidth(width));
+        forEachEntity(entity -> entity.setLineWidth(width));
         return this;
     }
 
@@ -99,7 +98,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     @Override
     public TextHologramLine setBackgroundColor(@Nullable final Color color) {
         this.backgroundColor = color;
-        getEntities().values().forEach(entity -> entity.setBackgroundColor(color));
+        forEachEntity(entity -> entity.setBackgroundColor(color));
         return this;
     }
 
@@ -111,7 +110,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     @Override
     public TextHologramLine setTextOpacity(@Range(from = 0, to = 100) final float opacity) {
         this.opacity = opacity;
-        getEntities().values().forEach(this::updateOpacity);
+        forEachEntity(this::updateOpacity);
         return this;
     }
 
@@ -123,7 +122,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     @Override
     public TextHologramLine setShadowed(final boolean shadow) {
         this.shadowed = shadow;
-        getEntities().values().forEach(entity -> entity.setShadowed(shadow));
+        forEachEntity(entity -> entity.setShadowed(shadow));
         return this;
     }
 
@@ -135,7 +134,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     @Override
     public TextHologramLine setSeeThrough(final boolean seeThrough) {
         this.seeThrough = seeThrough;
-        getEntities().values().forEach(entity -> entity.setSeeThrough(seeThrough));
+        forEachEntity(entity -> entity.setSeeThrough(seeThrough));
         return this;
     }
 
@@ -147,7 +146,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     @Override
     public TextHologramLine setDefaultBackground(final boolean defaultBackground) {
         this.defaultBackground = defaultBackground;
-        getEntities().values().forEach(entity -> entity.setDefaultBackground(defaultBackground));
+        forEachEntity(entity -> entity.setDefaultBackground(defaultBackground));
         return this;
     }
 
@@ -159,7 +158,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
     @Override
     public TextHologramLine setAlignment(final TextDisplay.TextAlignment alignment) {
         this.alignment = alignment;
-        getEntities().values().forEach(entity -> entity.setAlignment(alignment));
+        forEachEntity(entity -> entity.setAlignment(alignment));
         return this;
     }
 
@@ -187,9 +186,11 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextHologram
 
     public void updateText(final Player player, final TextDisplay entity) {
         getText(player).ifPresentOrElse(component -> {
-            entity.text(Component.empty());
-            entity.text(component);
-        }, () -> entity.text(null));
+            getHologram().getPlugin().supplySync(entity, () -> {
+                entity.text(Component.empty());
+                entity.text(component);
+            });
+        }, () -> getHologram().getPlugin().supplySync(entity, () -> entity.text(null)));
     }
 
     private void updateOpacity(final TextDisplay entity) {

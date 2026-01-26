@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.line;
 
-import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.joml.Vector3f;
@@ -11,7 +10,7 @@ import org.joml.Vector3f;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface EntityHologramLine<E extends Entity> extends HologramLine<E> {
+public interface EntityHologramLine extends StaticHologramLine {
     /**
      * Gets the scale of the entity.
      *
@@ -29,7 +28,7 @@ public interface EntityHologramLine<E extends Entity> extends HologramLine<E> {
      * @since 0.3.0
      */
     @Contract(value = "_ -> this", mutates = "this")
-    EntityHologramLine<E> setScale(double scale);
+    EntityHologramLine setScale(double scale);
 
     /**
      * Gets the offset of the entity.
@@ -48,5 +47,5 @@ public interface EntityHologramLine<E extends Entity> extends HologramLine<E> {
      * @since 0.4.0
      */
     @Contract(value = "_ -> this", mutates = "this")
-    EntityHologramLine<E> setOffset(Vector3f offset);
+    EntityHologramLine setOffset(Vector3f offset);
 }

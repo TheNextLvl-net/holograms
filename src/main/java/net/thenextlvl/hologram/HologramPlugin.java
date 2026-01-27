@@ -32,6 +32,7 @@ import net.thenextlvl.hologram.adapters.serializers.PagedHologramLineSerializer;
 import net.thenextlvl.hologram.adapters.serializers.TextHologramLineSerializer;
 import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.controller.PaperHologramProvider;
+import net.thenextlvl.hologram.event.HologramLoadEvent;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
@@ -264,6 +265,7 @@ public class HologramPlugin extends JavaPlugin {
         final var hologram = new PaperHologram(this, name, world);
         hologram.deserialize(entry.getValue());
         hologramProvider().holograms.add(hologram);
+        new HologramLoadEvent(hologram).callEvent();
         return hologram;
     }
 

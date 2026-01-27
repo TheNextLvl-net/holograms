@@ -203,10 +203,11 @@ public interface PagedHologramLine extends HologramLine {
      *
      * @param interval the new interval duration
      * @return this
+     * @throws IllegalArgumentException if the interval is not bigger than zero
      * @since 0.5.0
      */
     @Contract(value = "_ -> this", mutates = "this")
-    PagedHologramLine setInterval(Duration interval);
+    PagedHologramLine setInterval(Duration interval) throws IllegalArgumentException;
 
     /**
      * Gets whether pages are cycled in random order.

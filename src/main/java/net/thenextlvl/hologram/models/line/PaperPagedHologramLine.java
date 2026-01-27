@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.models.line;
 
+import com.google.common.base.Preconditions;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
@@ -215,6 +216,7 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
 
     @Override
     public PagedHologramLine setInterval(final Duration interval) {
+        Preconditions.checkArgument(interval.isPositive(), "Interval must be bigger than zero");
         this.interval = interval;
         restartCycleTask();
         return this;

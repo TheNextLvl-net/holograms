@@ -568,38 +568,42 @@ public interface Hologram extends Iterable<HologramLine> {
     /**
      * Spawns this hologram for all players.
      *
+     * @return a {@link CompletableFuture} that completes when the hologram is spawned
      * @since 0.4.0
      */
     @Contract(mutates = "this")
-    void spawn();
+    CompletableFuture<Void> spawn();
 
     /**
      * Spawns this hologram for the given player.
      *
      * @param player the player to spawn for
-     * @return {@code true} if the hologram was spawned for the given player, {@code false} otherwise
+     * @return a {@link CompletableFuture} that completes with {@code true}
+     * if the hologram was spawned for the given player, {@code false} otherwise
      * @since 0.4.0
      */
     @Contract(mutates = "this")
-    boolean spawn(Player player);
+    CompletableFuture<Boolean> spawn(Player player);
 
     /**
      * Despawns this hologram for all players.
      *
+     * @return a {@link CompletableFuture} that completes when the hologram is despawned
      * @since 0.4.0
      */
     @Contract(mutates = "this")
-    void despawn();
+    CompletableFuture<Void> despawn();
 
     /**
      * Despawns this hologram for the given player.
      *
      * @param player the player to despawn for
-     * @return {@code true} if the hologram was despawned for the given player, {@code false} otherwise
+     * @return a {@link CompletableFuture} that completes with {@code true}
+     * if the hologram was despawned for the given player, {@code false} otherwise
      * @since 0.4.0
      */
     @Contract(mutates = "this")
-    boolean despawn(Player player);
+    CompletableFuture<Boolean> despawn(Player player);
 
     /**
      * Checks if this hologram is spawned for the given player.

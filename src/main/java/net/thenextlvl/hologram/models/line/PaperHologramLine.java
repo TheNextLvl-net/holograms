@@ -41,9 +41,9 @@ public abstract class PaperHologramLine implements HologramLine {
 
     public abstract @Nullable Entity spawn(final Player player, final double offset);
 
-    public abstract void despawn();
+    public abstract CompletableFuture<Void> despawn();
 
-    public abstract void despawn(final Player player);
+    public abstract CompletableFuture<Void> despawn(final Player player);
 
     public abstract void invalidate(final Entity entity);
     

@@ -1,12 +1,14 @@
 package net.thenextlvl.hologram.line;
 
 import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.action.ClickAction;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -92,4 +94,21 @@ public interface HologramLine {
      * @since 0.5.0
      */
     boolean isPart(Entity entity);
+
+    /**
+     * Gets the click action for this line.
+     *
+     * @return click action
+     * @since 0.6.0
+     */
+    Optional<ClickAction<?>> getClickAction();
+
+    /**
+     * Sets the click action for this line.
+     *
+     * @param clickAction click action
+     * @return this line
+     * @since 0.6.0
+     */
+    HologramLine setClickAction(@Nullable ClickAction<?> clickAction);
 }

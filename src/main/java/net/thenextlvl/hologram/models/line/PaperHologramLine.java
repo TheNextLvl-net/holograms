@@ -39,7 +39,7 @@ public abstract class PaperHologramLine implements HologramLine {
         return 0;
     }
 
-    public abstract @Nullable Entity spawn(final Player player, final double offset);
+    public abstract CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset);
 
     public abstract CompletableFuture<Void> despawn();
 

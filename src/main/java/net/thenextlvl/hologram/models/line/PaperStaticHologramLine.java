@@ -111,17 +111,19 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     }
 
     @Override
-    public void despawn() {
-        entities.values().removeIf(entity -> {
-            entity.remove();
-            return true;
-        });
+    public CompletableFuture<Void> despawn() {
+        final var futures = entities.values().stream()
+                .map(e -> getHologram().getPlugin().supply(e, e::remove))
+                .toArray(CompletableFuture[]::new);
+        entities.clear();
+        return CompletableFuture.allOf(futures);
     }
 
     @Override
-    public void despawn(final Player player) {
+    public CompletableFuture<Void> despawn(final Player player) {
         final var remove = entities.remove(player);
-        if (remove != null) remove.remove();
+        if (remove != null) getHologram().getPlugin().supply(remove, remove::remove);
+        return CompletableFuture.completedFuture(null);
     }
 
     public @Nullable E removeEntity(final Player player) {
@@ -129,20 +131,22 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     }
 
     @SuppressWarnings("unchecked")
-    public boolean adoptEntity(final Player player, final Entity entity) {
-        if (!entityClass.isInstance(entity)) return false;
+    public void adoptEntity(final Player player, final Entity entity) {
+        if (!entityClass.isInstance(entity)) return;
         entities.put(player, (E) entity);
-        getHologram().getPlugin().supplySync(entity, () -> preSpawn((E) entity, player));
-        return true;
+        getHologram().getPlugin().supply(entity, () -> preSpawn((E) entity, player));
     }
 
     @Override
-    public Entity spawn(final Player player, final double offset) {
-        return entities.compute(player, (p, existing) -> {
-            if (existing != null && existing.isValid()) return existing;
-            final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
+    public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
+        final var existing = entities.get(player);
+        if (existing != null && existing.isValid()) return CompletableFuture.completedFuture(existing);
+
+        final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
+        return getHologram().getPlugin().supply(location, () -> {
             final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
-            player.showEntity(getHologram().getPlugin(), spawn);
+            getHologram().getPlugin().supply(player, () -> player.showEntity(getHologram().getPlugin(), spawn));
+            entities.put(player, spawn);
             return spawn;
         });
     }

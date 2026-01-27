@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram;
 
-import ca.spottedleaf.moonrise.common.util.TickThread;
 import dev.faststats.bukkit.BukkitMetrics;
 import dev.faststats.core.ErrorTracker;
 import io.papermc.paper.ServerBuildInfo;
@@ -61,9 +60,9 @@ import net.thenextlvl.nbt.serialization.ParserException;
 import net.thenextlvl.nbt.serialization.adapters.EnumAdapter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Display.Brightness;
 import org.bukkit.entity.Entity;
@@ -86,6 +85,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 @NullMarked
 public class HologramPlugin extends JavaPlugin {
@@ -276,9 +277,44 @@ public class HologramPlugin extends JavaPlugin {
         });
     }
 
-    public void supplySync(final Entity entity, final Runnable runnable) {
-        final var raw = ((CraftEntity) entity).getHandleRaw();
-        if (TickThread.isTickThreadFor(raw)) runnable.run();
-        else entity.getScheduler().run(this, scheduledTask -> runnable.run(), null);
+    public <T> CompletableFuture<@Nullable T> supply(final Location location, final Supplier<@Nullable T> supplier) {
+        if (getServer().isOwnedByCurrentRegion(location)) {
+            return CompletableFuture.completedFuture(supplier.get());
+        }
+
+        if (!isEnabled()) {
+            getComponentLogger().warn("Cannot supply for location because plugin is disabled");
+            return CompletableFuture.failedFuture(new IllegalStateException("Plugin is disabled"));
+        }
+
+        final var future = new CompletableFuture<@Nullable T>();
+        getServer().getRegionScheduler().run(this, location, scheduledTask -> {
+            future.complete(supplier.get());
+        });
+        return future;
+    }
+
+    public CompletableFuture<@Nullable Void> supply(final Entity entity, final Runnable runnable) {
+        return this.supply(entity, () -> {
+            runnable.run();
+            return null;
+        });
+    }
+
+    public <T> CompletableFuture<@Nullable T> supply(final Entity entity, final Supplier<@Nullable T> supplier) {
+        if (getServer().isOwnedByCurrentRegion(entity)) {
+            return CompletableFuture.completedFuture(supplier.get());
+        }
+
+        if (!isEnabled()) {
+            getComponentLogger().warn("Cannot supply for entity because plugin is disabled");
+            return CompletableFuture.failedFuture(new IllegalStateException("Plugin is disabled"));
+        }
+
+        final var future = new CompletableFuture<@Nullable T>();
+        entity.getScheduler().run(this, scheduledTask -> {
+            future.complete(supplier.get());
+        }, null);
+        return future;
     }
 }

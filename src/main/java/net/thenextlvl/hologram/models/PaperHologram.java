@@ -515,37 +515,46 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public void spawn() {
-        plugin.getServer().getOnlinePlayers().forEach(this::spawn);
+    public CompletableFuture<Void> spawn() {
+        final var futures = plugin.getServer().getOnlinePlayers().stream()
+                .map(this::spawn)
+                .toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(futures);
     }
 
     @Override
-    public boolean spawn(final Player player) {
-        if (!canSee(player)) return false;
-        if (!location.isChunkLoaded()) return false;
-        if (!spawned.add(player)) return false;
+    public CompletableFuture<Boolean> spawn(final Player player) {
+        if (!canSee(player) || !location.isChunkLoaded() || !spawned.add(player))
+            return CompletableFuture.completedFuture(false);
 
         var offset = 0d;
         // Start from the bottom line, going up
         for (var index = lines.size() - 1; index >= 0; index--) {
             final var line = (PaperHologramLine) lines.get(index);
             final var spawn = line.spawn(player, offset + line.getOffsetBefore(player));
-            if (spawn == null || index == 0) continue;
+            if (spawn.isCancelled() || spawn.isCompletedExceptionally()) continue;
+            if (spawn.isDone() && spawn.getNow(null) == null || index == 0) continue;
             offset += 0.05 + line.getHeight(player) + line.getOffsetAfter();
         }
-        return true;
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
-    public void despawn() {
-        spawned.forEach(this::despawn);
+    public CompletableFuture<Void> despawn() {
+        final var futures = spawned.stream()
+                .map(this::despawn)
+                .toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(futures);
     }
 
     @Override
-    public boolean despawn(final Player player) {
-        if (!spawned.remove(player)) return false;
-        lines.forEach(hologramLine -> ((PaperHologramLine) hologramLine).despawn(player));
-        return true;
+    public CompletableFuture<Boolean> despawn(final Player player) {
+        if (!spawned.remove(player)) return CompletableFuture.completedFuture(false);
+        final var futures = lines.stream()
+                .map(PaperHologramLine.class::cast)
+                .map(line -> line.despawn(player))
+                .toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(futures).thenApply(v -> true);
     }
 
     @Override

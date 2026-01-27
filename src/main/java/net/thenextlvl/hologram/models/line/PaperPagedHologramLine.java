@@ -280,8 +280,8 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
     }
 
     @Override
-    public @Nullable Entity spawn(final Player player, final double offset) {
-        if (pages.isEmpty()) return null;
+    public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
+        if (pages.isEmpty()) return CompletableFuture.completedFuture(null);
         currentPageIndex.put(player, 0);
         final var page = pages.getFirst();
         startCycleTask();

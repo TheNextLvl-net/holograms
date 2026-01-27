@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Contract;
 /**
  * Called when a hologram is deleted.
  *
- * @since 0.5.0
+ * @since 0.3.1
  */
 public class HologramDeleteEvent extends HologramEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();

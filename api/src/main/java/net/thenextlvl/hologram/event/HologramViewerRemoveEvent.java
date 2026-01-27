@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * Called when a viewer is removed from a hologram.
  *
- * @since 0.5.0
+ * @since 0.6.0
  */
 public class HologramViewerRemoveEvent extends HologramEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
@@ -28,7 +28,7 @@ public class HologramViewerRemoveEvent extends HologramEvent implements Cancella
      * Returns the viewer being removed.
      *
      * @return the viewer UUID
-     * @since 0.5.0
+     * @since 0.6.0
      */
     @Contract(pure = true)
     public UUID getViewer() {

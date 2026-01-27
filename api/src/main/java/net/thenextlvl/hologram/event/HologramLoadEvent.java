@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Contract;
 /**
  * Called when a hologram is loaded from disk.
  *
- * @since 0.5.0
+ * @since 0.6.0
  */
 public class HologramLoadEvent extends HologramEvent {
     private static final HandlerList handlers = new HandlerList();

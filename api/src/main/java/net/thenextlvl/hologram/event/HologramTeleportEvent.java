@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Contract;
 /**
  * Called when a hologram is teleported.
  *
- * @since 0.5.0
+ * @since 0.6.0
  */
 public class HologramTeleportEvent extends HologramEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
@@ -29,7 +29,7 @@ public class HologramTeleportEvent extends HologramEvent implements Cancellable 
      * Returns the location the hologram is teleporting from.
      *
      * @return the origin location
-     * @since 0.5.0
+     * @since 0.6.0
      */
     @Contract(value = " -> new", pure = true)
     public Location getFrom() {
@@ -40,7 +40,7 @@ public class HologramTeleportEvent extends HologramEvent implements Cancellable 
      * Returns the location the hologram is teleporting to.
      *
      * @return the destination location
-     * @since 0.5.0
+     * @since 0.6.0
      */
     @Contract(value = " -> new", pure = true)
     public Location getTo() {
@@ -51,7 +51,7 @@ public class HologramTeleportEvent extends HologramEvent implements Cancellable 
      * Sets the location the hologram will teleport to.
      *
      * @param to the destination location
-     * @since 0.5.0
+     * @since 0.6.0
      */
     @Contract(mutates = "this")
     public void setTo(final Location to) {

@@ -126,6 +126,70 @@ public interface PagedHologramLine extends HologramLine {
     void clearPages();
 
     /**
+     * Swaps the pages at the given indices.
+     *
+     * @param first  the index of the first page
+     * @param second the index of the second page
+     * @return {@code true} if the pages were swapped, {@code false} otherwise
+     * @since 0.6.0
+     */
+    @Contract(mutates = "this")
+    boolean swapPages(int first, int second);
+
+    /**
+     * Moves a page from one index to another.
+     *
+     * @param from the current index of the page
+     * @param to   the target index for the page
+     * @return {@code true} if the page was moved, {@code false} otherwise
+     * @since 0.6.0
+     */
+    @Contract(mutates = "this")
+    boolean movePage(int from, int to);
+
+    /**
+     * Inserts a text page at the specified index.
+     *
+     * @param index the index at which to insert the page
+     * @return the newly created text page
+     * @since 0.6.0
+     */
+    @Contract(value = "_ -> new", mutates = "this")
+    TextHologramLine insertTextPage(int index);
+
+    /**
+     * Inserts an item page at the specified index.
+     *
+     * @param index the index at which to insert the page
+     * @return the newly created item page
+     * @since 0.6.0
+     */
+    @Contract(value = "_ -> new", mutates = "this")
+    ItemHologramLine insertItemPage(int index);
+
+    /**
+     * Inserts a block page at the specified index.
+     *
+     * @param index the index at which to insert the page
+     * @return the newly created block page
+     * @since 0.6.0
+     */
+    @Contract(value = "_ -> new", mutates = "this")
+    BlockHologramLine insertBlockPage(int index);
+
+    /**
+     * Inserts an entity page at the specified index.
+     *
+     * @param index      the index at which to insert the page
+     * @param entityType the type of entity to display
+     * @return the newly created entity page
+     * @throws IllegalArgumentException if the entity type is not spawnable
+     * @since 0.6.0
+     */
+    @Contract(value = "_, _ -> new", mutates = "this")
+    EntityHologramLine insertEntityPage(int index, EntityType entityType) throws IllegalArgumentException;
+
+    /**
      * Gets the interval between page changes.
      *
      * @return the interval duration

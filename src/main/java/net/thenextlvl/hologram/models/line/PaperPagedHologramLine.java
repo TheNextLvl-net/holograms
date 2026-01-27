@@ -150,6 +150,64 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
         stopCycleTask();
     }
 
+    public boolean swapPages(final int first, final int second) {
+        if (first < 0 || first >= pages.size() || second < 0 || second >= pages.size()) return false;
+        java.util.Collections.swap(pages, first, second);
+        getHologram().updateHologram();
+        return true;
+    }
+
+    @Override
+    public boolean movePage(final int from, final int to) {
+        if (from < 0 || from >= pages.size() || to < 0 || to >= pages.size()) return false;
+        final var page = pages.remove(from);
+        pages.add(to, page);
+        getHologram().updateHologram();
+        return true;
+    }
+
+    @Override
+    public TextHologramLine insertTextPage(final int index) {
+        if (index < 0 || index > pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+        final var page = new PaperTextHologramLine(getHologram());
+        pages.add(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public ItemHologramLine insertItemPage(final int index) {
+        if (index < 0 || index > pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+        final var page = new PaperItemHologramLine(getHologram());
+        pages.add(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public BlockHologramLine insertBlockPage(final int index) {
+        if (index < 0 || index > pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+        final var page = new PaperBlockHologramLine(getHologram());
+        pages.add(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public EntityHologramLine insertEntityPage(final int index, final EntityType entityType) throws IllegalArgumentException {
+        if (index < 0 || index > pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+        final var entityClass = entityType.getEntityClass();
+        if (entityClass == null) throw new IllegalArgumentException("Entity type is not spawnable: " + entityType);
+        final var page = new PaperEntityHologramLine<>(getHologram(), entityClass);
+        pages.add(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
     @Override
     public Duration getInterval() {
         return interval;

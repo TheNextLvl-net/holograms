@@ -186,11 +186,11 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     public void updateText(final Player player, final TextDisplay entity) {
         getText(player).ifPresentOrElse(component -> {
-            getHologram().getPlugin().supplySync(entity, () -> {
+            getHologram().getPlugin().supply(entity, () -> {
                 entity.text(Component.empty());
                 entity.text(component);
             });
-        }, () -> getHologram().getPlugin().supplySync(entity, () -> entity.text(null)));
+        }, () -> getHologram().getPlugin().supply(entity, () -> entity.text(null)));
     }
 
     private void updateOpacity(final TextDisplay entity) {

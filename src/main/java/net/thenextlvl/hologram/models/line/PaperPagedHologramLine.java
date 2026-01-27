@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.models.line;
 
+import com.google.common.base.Preconditions;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
@@ -150,6 +151,64 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
         stopCycleTask();
     }
 
+    public boolean swapPages(final int first, final int second) {
+        if (first < 0 || first >= pages.size() || second < 0 || second >= pages.size()) return false;
+        java.util.Collections.swap(pages, first, second);
+        getHologram().updateHologram();
+        return true;
+    }
+
+    @Override
+    public boolean movePage(final int from, final int to) {
+        if (from < 0 || from >= pages.size() || to < 0 || to >= pages.size()) return false;
+        final var page = pages.remove(from);
+        pages.add(to, page);
+        getHologram().updateHologram();
+        return true;
+    }
+
+    @Override
+    public TextHologramLine insertTextPage(final int index) {
+        if (index < 0 || index > pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+        final var page = new PaperTextHologramLine(getHologram());
+        pages.add(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public ItemHologramLine insertItemPage(final int index) {
+        if (index < 0 || index > pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+        final var page = new PaperItemHologramLine(getHologram());
+        pages.add(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public BlockHologramLine insertBlockPage(final int index) {
+        if (index < 0 || index > pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+        final var page = new PaperBlockHologramLine(getHologram());
+        pages.add(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public EntityHologramLine insertEntityPage(final int index, final EntityType entityType) throws IllegalArgumentException {
+        if (index < 0 || index > pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+        final var entityClass = entityType.getEntityClass();
+        if (entityClass == null) throw new IllegalArgumentException("Entity type is not spawnable: " + entityType);
+        final var page = new PaperEntityHologramLine<>(getHologram(), entityClass);
+        pages.add(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
     @Override
     public Duration getInterval() {
         return interval;
@@ -157,6 +216,7 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
 
     @Override
     public PagedHologramLine setInterval(final Duration interval) {
+        Preconditions.checkArgument(interval.isPositive(), "Interval must be bigger than zero");
         this.interval = interval;
         restartCycleTask();
         return this;
@@ -220,8 +280,8 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
     }
 
     @Override
-    public @Nullable Entity spawn(final Player player, final double offset) {
-        if (pages.isEmpty()) return null;
+    public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
+        if (pages.isEmpty()) return CompletableFuture.completedFuture(null);
         currentPageIndex.put(player, 0);
         final var page = pages.getFirst();
         startCycleTask();
@@ -229,16 +289,23 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
     }
 
     @Override
-    public void despawn() {
+    public CompletableFuture<Void> despawn() {
         stopCycleTask();
-        pages.forEach(PaperStaticHologramLine::despawn);
         currentPageIndex.clear();
+        final var futures = pages.stream()
+                .map(PaperStaticHologramLine::despawn)
+                .toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(futures);
     }
 
     @Override
-    public void despawn(final Player player) {
+    public CompletableFuture<Void> despawn(final Player player) {
         currentPageIndex.remove(player);
-        pages.forEach(page -> page.despawn(player));
+        if (currentPageIndex.isEmpty()) stopCycleTask();
+        final var futures = pages.stream()
+                .map(page -> page.despawn(player))
+                .toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(futures);
     }
 
     @Override

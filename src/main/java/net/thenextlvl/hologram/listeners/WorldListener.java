@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.listeners;
 
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.event.HologramUnloadEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -32,6 +33,7 @@ public final class WorldListener implements Listener {
     public void onWorldUnload(final WorldUnloadEvent event) {
         plugin.hologramProvider().holograms.removeIf(hologram -> {
             if (hologram.getWorld().equals(event.getWorld())) {
+                new HologramUnloadEvent(hologram).callEvent();
                 hologram.persist();
                 return true;
             } else return false;

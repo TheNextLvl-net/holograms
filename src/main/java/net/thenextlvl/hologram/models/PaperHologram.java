@@ -4,6 +4,9 @@ import com.google.common.base.Preconditions;
 import io.papermc.paper.math.Position;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.event.HologramTeleportEvent;
+import net.thenextlvl.hologram.event.HologramViewerAddEvent;
+import net.thenextlvl.hologram.event.HologramViewerRemoveEvent;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -157,11 +160,14 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public CompletableFuture<Boolean> teleportAsync(final Location location) {
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
         final var previous = this.location;
-        final var success = setLocation(location.clone());
+        final var event = new HologramTeleportEvent(this, previous, location);
+        if (!event.callEvent()) return CompletableFuture.completedFuture(false);
+        final var destination = event.getTo();
+        final var success = setLocation(destination);
         if (!success) return CompletableFuture.completedFuture(false);
         return CompletableFuture.allOf(lines.stream()
                 .map(PaperHologramLine.class::cast)
-                .map(line -> line.teleportRelative(previous, location))
+                .map(line -> line.teleportRelative(previous, destination))
                 .toArray(CompletableFuture[]::new)
         ).thenApply(v -> true);
     }
@@ -415,6 +421,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public boolean addViewer(final UUID player) {
+        final var event = new HologramViewerAddEvent(this, player);
+        if (!event.callEvent()) return false;
         if (!viewers.add(player)) return false;
         if (lines.isEmpty() || isVisibleByDefault()) return true;
         final var online = plugin.getServer().getPlayer(player);
@@ -429,6 +437,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public boolean removeViewer(final UUID player) {
+        final var event = new HologramViewerRemoveEvent(this, player);
+        if (!event.callEvent()) return false;
         if (!viewers.remove(player)) return false;
         if (lines.isEmpty() || isVisibleByDefault()) return true;
         final var online = plugin.getServer().getPlayer(player);

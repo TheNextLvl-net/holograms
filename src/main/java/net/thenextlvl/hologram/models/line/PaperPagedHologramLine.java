@@ -289,16 +289,23 @@ public class PaperPagedHologramLine extends PaperHologramLine implements PagedHo
     }
 
     @Override
-    public void despawn() {
+    public CompletableFuture<Void> despawn() {
         stopCycleTask();
-        pages.forEach(PaperStaticHologramLine::despawn);
         currentPageIndex.clear();
+        final var futures = pages.stream()
+                .map(PaperStaticHologramLine::despawn)
+                .toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(futures);
     }
 
     @Override
-    public void despawn(final Player player) {
+    public CompletableFuture<Void> despawn(final Player player) {
         currentPageIndex.remove(player);
-        pages.forEach(page -> page.despawn(player));
+        if (currentPageIndex.isEmpty()) stopCycleTask();
+        final var futures = pages.stream()
+                .map(page -> page.despawn(player))
+                .toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(futures);
     }
 
     @Override

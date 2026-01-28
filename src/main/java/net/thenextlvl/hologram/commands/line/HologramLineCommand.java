@@ -4,7 +4,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
-import net.thenextlvl.hologram.commands.line.edit.HologramLineEditCommand;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

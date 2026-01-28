@@ -23,9 +23,9 @@ final class HologramLineSwapCommand extends SimpleCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramLineSwapCommand(plugin);
         final var first = Commands.argument("first", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.ANY_LINE);
         final var second = Commands.argument("second", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.ANY_LINE);
         return command.create().then(hologramArgument(plugin)
                 .then(first.then(second.executes(command))));
     }

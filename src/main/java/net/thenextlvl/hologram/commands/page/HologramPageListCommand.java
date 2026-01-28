@@ -32,8 +32,8 @@ public final class HologramPageListCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageListCommand(plugin);
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
-        return command.create().then(hologramArgument(plugin).then(line
+                .suggests(LineSuggestionProvider.PAGED_ONLY);
+        return command.create().then(hologramArgument(plugin, true).then(line
                 .executes(command::listPages)));
     }
 

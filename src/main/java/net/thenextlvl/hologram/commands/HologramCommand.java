@@ -39,6 +39,10 @@ public final class HologramCommand extends BrigadierCommand {
     }
 
     public static RequiredArgumentBuilder<CommandSourceStack, ?> hologramArgument(final HologramPlugin plugin) {
-        return Commands.argument("hologram", new HologramArgumentType(plugin));
+        return hologramArgument(plugin, false);
+    }
+
+    public static RequiredArgumentBuilder<CommandSourceStack, ?> hologramArgument(final HologramPlugin plugin, final boolean pagedOnly) {
+        return Commands.argument("hologram", new HologramArgumentType(plugin, pagedOnly));
     }
 }

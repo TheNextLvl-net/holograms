@@ -35,12 +35,13 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramLineInsertCommand(plugin);
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.ANY_LINE);
         return command.create().then(hologramArgument(plugin).then(line
                 .then(command.createLine("block", ArgumentTypes.blockState(), command::insertBlockLine))
                 .then(command.createLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::insertEntityLine))
                 .then(command.createLine("item", ArgumentTypes.itemStack(), command::insertItemLine))
-                .then(command.createLine("text", StringArgumentType.greedyString(), command::insertTextLine))));
+                .then(command.createLine("text", StringArgumentType.greedyString(), command::insertTextLine))
+                .then(command.createLine("paged", StringArgumentType.greedyString(), command::insertPagedLine))));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> createLine(final String name, final ArgumentType<?> argumentType, final Command<CommandSourceStack> command) {
@@ -54,7 +55,7 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
 
     private int insertEntityLine(final CommandContext<CommandSourceStack> context) {
         final var entity = context.getArgument("entity", EntityType.class);
-        return insertLine(context, (hologram, line) -> hologram.addEntityLine(entity, line));
+        return insertLine(context, (hologram, line) -> hologram.addEntityLine(line, entity));
     }
 
     private int insertItemLine(final CommandContext<CommandSourceStack> context) {
@@ -65,6 +66,11 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
     private int insertTextLine(final CommandContext<CommandSourceStack> context) {
         final var text = context.getArgument("text", String.class);
         return insertLine(context, (hologram, line) -> hologram.addTextLine(line).setUnparsedText(text));
+    }
+
+    private int insertPagedLine(final CommandContext<CommandSourceStack> context) {
+        final var text = context.getArgument("text", String.class);
+        return insertLine(context, Hologram::addPagedLine);
     }
 
     private int insertLine(final CommandContext<CommandSourceStack> context, final BiConsumer<Hologram, Integer> consumer) {

@@ -23,9 +23,9 @@ public final class HologramPageSettingsCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageSettingsCommand(plugin);
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.PAGED_ONLY);
 
-        return command.create().then(hologramArgument(plugin).then(line
+        return command.create().then(hologramArgument(plugin, true).then(line
                 .then(HologramPageSettingsIntervalCommand.create(plugin))
                 .then(HologramPageSettingsPauseCommand.create(plugin))
                 .then(HologramPageSettingsRandomCommand.create(plugin))));

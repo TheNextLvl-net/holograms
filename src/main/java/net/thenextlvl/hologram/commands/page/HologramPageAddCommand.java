@@ -17,8 +17,6 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import net.thenextlvl.hologram.line.PagedHologramLine;
-
-import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -27,6 +25,7 @@ import org.jspecify.annotations.NullMarked;
 import java.util.function.Consumer;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
+import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 public final class HologramPageAddCommand extends BrigadierCommand {
@@ -37,8 +36,8 @@ public final class HologramPageAddCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageAddCommand(plugin);
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
-        return command.create().then(hologramArgument(plugin).then(line
+                .suggests(LineSuggestionProvider.PAGED_ONLY);
+        return command.create().then(hologramArgument(plugin, true).then(line
                 .then(command.addPage("block", ArgumentTypes.blockState(), command::addBlockPage))
                 .then(command.addPage("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityPage))
                 .then(command.addPage("item", ArgumentTypes.itemStack(), command::addItemPage))

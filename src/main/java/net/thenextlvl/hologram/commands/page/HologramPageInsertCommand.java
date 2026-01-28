@@ -36,10 +36,10 @@ public final class HologramPageInsertCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageInsertCommand(plugin);
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.PAGED_ONLY);
         final var page = Commands.argument("page", IntegerArgumentType.integer(1))
                 .suggests(PageSuggestionProvider.INSTANCE);
-        return command.create().then(hologramArgument(plugin).then(line.then(page
+        return command.create().then(hologramArgument(plugin, true).then(line.then(page
                 .then(command.insertPage("block", ArgumentTypes.blockState(), command::insertBlockPage, plugin))
                 .then(command.insertPage("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::insertEntityPage, plugin))
                 .then(command.insertPage("item", ArgumentTypes.itemStack(), command::insertItemPage, plugin))

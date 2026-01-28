@@ -52,45 +52,53 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 @NullMarked
 public final class EditCommands {
+    private final HologramPlugin plugin;
+    private final LineTargetResolver resolver;
 
-    public static LiteralArgumentBuilder<CommandSourceStack> alignment(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("alignment", plugin, resolver)
+    public EditCommands(final HologramPlugin plugin, final LineTargetResolver resolver) {
+        this.plugin = plugin;
+        this.resolver = resolver;
+    }
+
+
+    public LiteralArgumentBuilder<CommandSourceStack> alignment() {
+        return create("alignment")
                 .textType()
                 .enumArg(TextAlignment.class, TextHologramLine::setAlignment)
                 .successMessage("hologram.text-alignment")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> append(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("append", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> append() {
+        return create("append")
                 .textType()
                 .textArg((line, text) -> line.getUnparsedText().map(s -> s.concat(text)).ifPresent(line::setUnparsedText))
                 .successMessage("hologram.text.set")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> prepend(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("prepend", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> prepend() {
+        return create("prepend")
                 .textType()
                 .textArg((line, text) -> line.getUnparsedText().map(text::concat).ifPresent(line::setUnparsedText))
                 .successMessage("hologram.text.set")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> replace(final HologramPlugin plugin, final LineTargetResolver resolver) {
+    public LiteralArgumentBuilder<CommandSourceStack> replace() {
+        final var matchArg = Commands.argument("match", StringArgumentType.string());
+        final var replacementArg = Commands.argument("replacement", StringArgumentType.greedyString());
         return Commands.literal("replace")
                 .requires(requiresPermission("replace"))
-                .then(Commands.argument("match", StringArgumentType.string())
-                        .then(Commands.argument("replacement", StringArgumentType.greedyString())
-                                .executes(context -> editTyped(context, plugin, resolver, TextHologramLine.class, "hologram.type.text", line -> {
-                                    final var match = context.getArgument("match", String.class);
-                                    final var replacement = context.getArgument("replacement", String.class);
-                                    line.getUnparsedText().map(s -> s.replace(match, replacement)).ifPresent(line::setUnparsedText);
-                                }, "hologram.text.set"))));
+                .then(matchArg.then(replacementArg.executes(context -> editTyped(context, TextHologramLine.class, "hologram.type.text", line -> {
+                    final var match = context.getArgument("match", String.class);
+                    final var replacement = context.getArgument("replacement", String.class);
+                    line.getUnparsedText().map(s -> s.replace(match, replacement)).ifPresent(line::setUnparsedText);
+                }, "hologram.text.set"))));
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> backgroundColor(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("background-color", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> backgroundColor() {
+        return create("background-color")
                 .textType()
                 .reset(line -> line.setBackgroundColor(null), "hologram.background-color.reset")
                 .arg("color", new ColorArgumentType(), Color.class, TextHologramLine::setBackgroundColor)
@@ -98,43 +106,43 @@ public final class EditCommands {
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> billboard(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("billboard", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> billboard() {
+        return create("billboard")
                 .displayType()
                 .enumArg(Billboard.class, DisplayHologramLine::setBillboard)
                 .successMessage("hologram.billboard")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> brightness(final HologramPlugin plugin, final LineTargetResolver resolver) {
+    public LiteralArgumentBuilder<CommandSourceStack> brightness() {
         final var brightnessArg = Commands.argument("brightness", IntegerArgumentType.integer(0, 15));
         final var blockArg = Commands.argument("block", IntegerArgumentType.integer(0, 15));
         final var skyArg = Commands.argument("sky", IntegerArgumentType.integer(0, 15));
         return Commands.literal("brightness")
                 .requires(requiresPermission("brightness"))
-                .then(Commands.literal("reset").executes(context -> editTyped(context, plugin, resolver, DisplayHologramLine.class, "hologram.type.display",
+                .then(Commands.literal("reset").executes(context -> editTyped(context, DisplayHologramLine.class, "hologram.type.display",
                         line -> line.setBrightness(null), "hologram.brightness.reset")))
-                .then(brightnessArg.executes(context -> editTyped(context, plugin, resolver, DisplayHologramLine.class, "hologram.type.display", line -> {
+                .then(brightnessArg.executes(context -> editTyped(context, DisplayHologramLine.class, "hologram.type.display", line -> {
                     final var brightness = context.getArgument("brightness", int.class);
                     line.setBrightness(new Display.Brightness(brightness, brightness));
                 }, "hologram.brightness")))
-                .then(blockArg.then(skyArg.executes(context -> editTyped(context, plugin, resolver, DisplayHologramLine.class, "hologram.type.display", line -> {
+                .then(blockArg.then(skyArg.executes(context -> editTyped(context, DisplayHologramLine.class, "hologram.type.display", line -> {
                     final var block = context.getArgument("block", int.class);
                     final var sky = context.getArgument("sky", int.class);
                     line.setBrightness(new Display.Brightness(block, sky));
                 }, "hologram.brightness"))));
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> defaultBackground(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("default-background", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> defaultBackground() {
+        return create("default-background")
                 .textType()
                 .boolArg(TextHologramLine::setDefaultBackground)
                 .successMessage("hologram.default-background")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> glowColor(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("glow-color", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> glowColor() {
+        return create("glow-color")
                 .typed(StaticHologramLine.class, "hologram.type.single")
                 .reset(line -> line.setGlowColor(null), "hologram.line.glow-color.reset")
                 .arg("color", ArgumentTypes.namedColor(), NamedTextColor.class, StaticHologramLine::setGlowColor)
@@ -143,131 +151,126 @@ public final class EditCommands {
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> glowing(final HologramPlugin plugin, final LineTargetResolver resolver) {
+    public LiteralArgumentBuilder<CommandSourceStack> glowing() {
         final var glowingArg = Commands.argument("glowing", BoolArgumentType.bool());
         return Commands.literal("glowing")
                 .requires(requiresPermission("glowing"))
                 .then(glowingArg.executes(context -> {
                     final var glowing = context.getArgument("glowing", boolean.class);
-                    return editTyped(context, plugin, resolver, StaticHologramLine.class, "hologram.type.single",
+                    return editTyped(context, StaticHologramLine.class, "hologram.type.single",
                             line -> line.setGlowing(glowing),
                             glowing ? "hologram.line.glow.enabled" : "hologram.line.glow.disabled");
                 }));
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> interpolationDelay(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("interpolation-delay", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> interpolationDelay() {
+        return create("interpolation-delay")
                 .displayType()
                 .intArg("delay", 0, DisplayHologramLine::setInterpolationDelay)
                 .successMessage("hologram.interpolation-delay")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> interpolationDuration(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("interpolation-duration", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> interpolationDuration() {
+        return create("interpolation-duration")
                 .displayType()
                 .intArg("duration", 0, DisplayHologramLine::setInterpolationDuration)
                 .successMessage("hologram.interpolation-duration")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> offset(final HologramPlugin plugin, final LineTargetResolver resolver) {
+    public LiteralArgumentBuilder<CommandSourceStack> offset() {
         return Commands.literal("offset")
                 .requires(requiresPermission("offset"))
-                .then(Commands.literal("reset")
-                        .executes(context -> editForOffset(context, plugin, resolver, new Vector3f())))
-                .then(vector3fArguments(-16, 16, (context, vector) -> editForOffset(context, plugin, resolver, vector)));
+                .then(Commands.literal("reset").executes(context -> editForOffset(context, new Vector3f())))
+                .then(vector3fArguments(-16, 16, this::editForOffset));
     }
 
-    private static int editForOffset(final CommandContext<CommandSourceStack> context, final HologramPlugin plugin, final LineTargetResolver resolver, final Vector3f offset) {
-        return editDisplayOrEntity(context, plugin, resolver, "hologram.offset",
+    private int editForOffset(final CommandContext<CommandSourceStack> context, final Vector3f offset) {
+        return editDisplayOrEntity(context, "hologram.offset",
                 displayLine -> displayLine.getTransformation().getTranslation().set(offset),
                 entityLine -> entityLine.setOffset(offset));
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> opacity(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("opacity", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> opacity() {
+        return create("opacity")
                 .textType()
                 .arg("opacity", FloatArgumentType.floatArg(0, 100), float.class, TextHologramLine::setTextOpacity)
                 .successMessage("hologram.opacity")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> scale(final HologramPlugin plugin, final LineTargetResolver resolver) {
+    public LiteralArgumentBuilder<CommandSourceStack> scale() {
+        final var scaleArg = Commands.argument("scale", FloatArgumentType.floatArg(0.1f));
         return Commands.literal("scale")
                 .requires(requiresPermission("scale"))
-                .then(Commands.argument("scale", FloatArgumentType.floatArg(0.1f))
-                        .executes(context -> editForScale(context, plugin, resolver)))
-                .then(vector3fArguments(0.1f, 100, (context, vector) -> editForScale(context, plugin, resolver)));
+                .then(scaleArg.executes(this::editForScale))
+                .then(vector3fArguments(0.1f, 100, (context, vector) -> editForScale(context)));
     }
 
-    private static int editForScale(final CommandContext<CommandSourceStack> context, final HologramPlugin plugin, final LineTargetResolver resolver) {
+    private int editForScale(final CommandContext<CommandSourceStack> context) {
         final var scale = tryGetArgument(context, "scale", float.class)
                 .map(Vector3f::new).orElseGet(() -> getVector3f(context));
 
-        return editDisplayOrEntity(context, plugin, resolver, "hologram.scale", displayLine -> {
+        return editDisplayOrEntity(context, "hologram.scale", displayLine -> {
             final var transformation = displayLine.getTransformation();
             transformation.getScale().set(scale);
             displayLine.setTransformation(transformation);
         }, entityLine -> entityLine.setScale(scale.y()));
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> seeThrough(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("see-through", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> seeThrough() {
+        return create("see-through")
                 .textType()
                 .boolArg(TextHologramLine::setSeeThrough)
                 .successMessage("hologram.see-through")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> shadowed(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("shadowed", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> shadowed() {
+        return create("shadowed")
                 .textType()
                 .boolArg(TextHologramLine::setShadowed)
                 .successMessage("hologram.shadowed")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> teleportDuration(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("teleport-duration", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> teleportDuration() {
+        return create("teleport-duration")
                 .displayType()
                 .intArg("duration", 0, DisplayHologramLine::setTeleportDuration)
                 .successMessage("hologram.teleport-duration")
                 .build();
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> transformation(final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return create("transformation", plugin, resolver)
+    public LiteralArgumentBuilder<CommandSourceStack> transformation() {
+        return create("transformation")
                 .typed(ItemHologramLine.class, "hologram.type.item")
                 .enumArg(ItemDisplay.ItemDisplayTransform.class, ItemHologramLine::setItemDisplayTransform)
                 .successMessage("hologram.transformation")
                 .build();
     }
 
-    private static EditBuilder<HologramLine> create(final String name, final HologramPlugin plugin, final LineTargetResolver resolver) {
-        return new EditBuilder<>(name, plugin, resolver, HologramLine.class, "hologram.type.line");
+    private EditBuilder<HologramLine> create(final String name) {
+        return new EditBuilder<>(name, HologramLine.class, "hologram.type.line");
     }
 
-    private static final class EditBuilder<T extends HologramLine> {
+    private final class EditBuilder<T extends HologramLine> {
         private final String name;
-        private final HologramPlugin plugin;
-        private final LineTargetResolver resolver;
         private final Class<T> lineType;
         private final String wrongTypeKey;
         private final LiteralArgumentBuilder<CommandSourceStack> builder;
         private @Nullable String successKey = null;
 
-        private EditBuilder(final String name, final HologramPlugin plugin, final LineTargetResolver resolver, final Class<T> lineType, final String wrongTypeKey) {
+        private EditBuilder(final String name, final Class<T> lineType, final String wrongTypeKey) {
             this.name = name;
-            this.plugin = plugin;
-            this.resolver = resolver;
             this.lineType = lineType;
             this.wrongTypeKey = wrongTypeKey;
             this.builder = Commands.literal(name).requires(requiresPermission(name));
         }
 
         private <U extends HologramLine> EditBuilder<U> typed(final Class<U> type, final String wrongTypeKey) {
-            return new EditBuilder<>(name, plugin, resolver, type, wrongTypeKey);
+            return new EditBuilder<>(name, type, wrongTypeKey);
         }
 
         EditBuilder<TextHologramLine> textType() {
@@ -301,7 +304,7 @@ public final class EditCommands {
 
         <A> EditBuilder<T> arg(final String argName, final ArgumentType<A> argType, final Class<A> valueType, final BiConsumer<T, A> setter) {
             builder.then(Commands.argument(argName, argType).executes(context -> {
-                return editTyped(context, plugin, resolver, lineType, wrongTypeKey, line -> {
+                return editTyped(context, lineType, wrongTypeKey, line -> {
                     setter.accept(line, context.getArgument(argName, valueType));
                 }, Objects.requireNonNull(successKey, "successKey cannot be null"));
             }));
@@ -310,7 +313,7 @@ public final class EditCommands {
 
         EditBuilder<T> reset(final Consumer<T> resetAction, final String resetSuccessKey) {
             builder.then(Commands.literal("reset").executes(context -> {
-                return editTyped(context, plugin, resolver, lineType, wrongTypeKey, resetAction, resetSuccessKey);
+                return editTyped(context, lineType, wrongTypeKey, resetAction, resetSuccessKey);
             }));
             return this;
         }
@@ -324,7 +327,10 @@ public final class EditCommands {
         return source -> source.getSender().hasPermission("holograms.command.edit." + command);
     }
 
-    private static ArgumentBuilder<CommandSourceStack, ?> vector3fArguments(final float min, final float max, final BiFunction<CommandContext<CommandSourceStack>, Vector3f, Integer> handler) {
+    private static ArgumentBuilder<CommandSourceStack, ?> vector3fArguments(
+            final float min, final float max,
+            final BiFunction<CommandContext<CommandSourceStack>, Vector3f, Integer> handler
+    ) {
         final var x = Commands.argument("x", FloatArgumentType.floatArg(min, max));
         final var y = Commands.argument("y", FloatArgumentType.floatArg(min, max));
         final var z = Commands.argument("z", FloatArgumentType.floatArg(min, max));
@@ -338,63 +344,62 @@ public final class EditCommands {
         return new Vector3f(x, y, z);
     }
 
-    private static int editDisplayOrEntity(
-            final CommandContext<CommandSourceStack> context, final HologramPlugin plugin, final LineTargetResolver resolver,
-            final String successKey, final Consumer<DisplayHologramLine> displayAction, final Consumer<EntityHologramLine> entityAction) {
+    private int editDisplayOrEntity(
+            final CommandContext<CommandSourceStack> context,
+            final String successKey,
+            final Consumer<DisplayHologramLine> displayAction,
+            final Consumer<EntityHologramLine> entityAction
+    ) {
         final var target = resolver.resolve(context, plugin);
-        if (target.isEmpty()) return 0;
-
-        final var result = target.get();
-        final var line = result.line();
+        if (target == null) return 0;
+        final var line = target.line();
 
         if (line instanceof final DisplayHologramLine displayLine) {
             displayAction.accept(displayLine);
         } else if (line instanceof final EntityHologramLine entityLine) {
             entityAction.accept(entityLine);
         } else {
-            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.type.display", buildPlaceholders(result));
+            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.type.display", buildPlaceholders(target));
             return 0;
         }
 
-        plugin.bundle().sendMessage(context.getSource().getSender(), successKey, buildPlaceholders(result));
+        plugin.bundle().sendMessage(context.getSource().getSender(), successKey, buildPlaceholders(target));
         return SINGLE_SUCCESS;
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> set(final HologramPlugin plugin, final LineTargetResolver resolver) {
+    public LiteralArgumentBuilder<CommandSourceStack> set() {
         return Commands.literal("set")
                 .requires(source -> source.getSender().hasPermission("holograms.command.edit.set"))
-                .then(setType("block", ArgumentTypes.blockState(), plugin, BlockHologramLine.class, resolver, (context, line) -> {
+                .then(setType("block", ArgumentTypes.blockState(), BlockHologramLine.class, (context, line) -> {
                     final var block = context.getArgument("block", BlockState.class).getBlockData();
                     line.setBlock(block);
                     return true;
                 }))
-                .then(setType("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), plugin, EntityHologramLine.class, resolver, (context, line) -> {
+                .then(setType("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), EntityHologramLine.class, (context, line) -> {
                     final var entity = context.getArgument("entity", EntityType.class);
                     line.setEntityType(entity);
                     return true;
                 }))
-                .then(setType("item", ArgumentTypes.itemStack(), plugin, ItemHologramLine.class, resolver, (context, line) -> {
+                .then(setType("item", ArgumentTypes.itemStack(), ItemHologramLine.class, (context, line) -> {
                     final var item = context.getArgument("item", ItemStack.class);
                     line.setItemStack(item);
                     return true;
                 }))
-                .then(setType("text", StringArgumentType.greedyString(), plugin, TextHologramLine.class, resolver, (context, line) -> {
+                .then(setType("text", StringArgumentType.greedyString(), TextHologramLine.class, (context, line) -> {
                     final var text = context.getArgument("text", String.class);
                     line.setUnparsedText(text);
                     return true;
                 }));
     }
 
-    private static <T extends HologramLine> LiteralArgumentBuilder<CommandSourceStack> setType(
+    private <T extends HologramLine> LiteralArgumentBuilder<CommandSourceStack> setType(
             final String name,
             final ArgumentType<?> argumentType,
-            final HologramPlugin plugin,
             final Class<T> lineType,
-            final LineTargetResolver resolver,
             final SetHandler<T> handler
     ) {
         return Commands.literal(name).then(Commands.argument(name, argumentType).executes(context -> {
-            final var result = resolver.resolve(context, plugin).orElse(null);
+            final var result = resolver.resolve(context, plugin);
             if (result == null) return 0;
 
             var line = result.line();
@@ -430,26 +435,23 @@ public final class EditCommands {
         boolean apply(CommandContext<CommandSourceStack> context, T line);
     }
 
-    private static <T extends HologramLine> int editTyped(
+    private <T extends HologramLine> int editTyped(
             final CommandContext<CommandSourceStack> context,
-            final HologramPlugin plugin,
-            final LineTargetResolver resolver,
             final Class<T> type,
             final String wrongTypeKey,
             final Consumer<T> change,
             final String successKey
     ) {
         final var target = resolver.resolve(context, plugin);
-        if (target.isEmpty()) return 0;
+        if (target == null) return 0;
 
-        final var result = target.get();
-        if (!type.isInstance(result.line())) {
-            plugin.bundle().sendMessage(context.getSource().getSender(), wrongTypeKey, buildPlaceholders(result));
+        if (!type.isInstance(target.line())) {
+            plugin.bundle().sendMessage(context.getSource().getSender(), wrongTypeKey, buildPlaceholders(target));
             return 0;
         }
 
-        change.accept(type.cast(result.line()));
-        plugin.bundle().sendMessage(context.getSource().getSender(), successKey, buildPlaceholders(result));
+        change.accept(type.cast(target.line()));
+        plugin.bundle().sendMessage(context.getSource().getSender(), successKey, buildPlaceholders(target));
         return SINGLE_SUCCESS;
     }
 
@@ -478,26 +480,27 @@ public final class EditCommands {
             final HologramPlugin plugin,
             final LineTargetResolver resolver
     ) {
+        final var command = new EditCommands(plugin, resolver);
         return builder
-                .then(alignment(plugin, resolver))
-                .then(append(plugin, resolver))
-                .then(backgroundColor(plugin, resolver))
-                .then(billboard(plugin, resolver))
-                .then(brightness(plugin, resolver))
-                .then(defaultBackground(plugin, resolver))
-                .then(glowColor(plugin, resolver))
-                .then(glowing(plugin, resolver))
-                .then(interpolationDelay(plugin, resolver))
-                .then(interpolationDuration(plugin, resolver))
-                .then(offset(plugin, resolver))
-                .then(opacity(plugin, resolver))
-                .then(prepend(plugin, resolver))
-                .then(replace(plugin, resolver))
-                .then(scale(plugin, resolver))
-                .then(seeThrough(plugin, resolver))
-                .then(set(plugin, resolver))
-                .then(shadowed(plugin, resolver))
-                .then(teleportDuration(plugin, resolver))
-                .then(transformation(plugin, resolver));
+                .then(command.alignment())
+                .then(command.append())
+                .then(command.backgroundColor())
+                .then(command.billboard())
+                .then(command.brightness())
+                .then(command.defaultBackground())
+                .then(command.glowColor())
+                .then(command.glowing())
+                .then(command.interpolationDelay())
+                .then(command.interpolationDuration())
+                .then(command.offset())
+                .then(command.opacity())
+                .then(command.prepend())
+                .then(command.replace())
+                .then(command.scale())
+                .then(command.seeThrough())
+                .then(command.set())
+                .then(command.shadowed())
+                .then(command.teleportDuration())
+                .then(command.transformation());
     }
 }

@@ -8,28 +8,25 @@ import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.jspecify.annotations.NullMarked;
-
-import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 @FunctionalInterface
 public interface LineTargetResolver {
-    Optional<LineEditTarget> resolve(CommandContext<CommandSourceStack> context, HologramPlugin plugin);
+    @Nullable
+    LineEditTarget resolve(CommandContext<CommandSourceStack> context, HologramPlugin plugin);
 
     LineTargetResolver LINE = (context, plugin) -> {
         var hologram = context.getArgument("hologram", Hologram.class);
         var lineNumber = context.getArgument("line", int.class);
         var lineIndex = lineNumber - 1;
 
-        var line = hologram.getLine(lineIndex);
-        if (line.isEmpty()) {
-            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.line.invalid",
-                    Placeholder.unparsed("hologram", hologram.getName()),
-                    Formatter.number("line", lineNumber));
-            return Optional.empty();
-        }
-
-        return Optional.of(new LineEditTarget(hologram, lineIndex, null, line.get()));
+        var line = hologram.getLine(lineIndex).orElse(null);
+        if (line != null) return new LineEditTarget(hologram, lineIndex, null, line);
+        plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.line.invalid",
+                Placeholder.unparsed("hologram", hologram.getName()),
+                Formatter.number("line", lineNumber));
+        return null;
     };
 
     LineTargetResolver PAGE = (context, plugin) -> {
@@ -46,7 +43,7 @@ public interface LineTargetResolver {
             plugin.bundle().sendMessage(sender, "hologram.type.paged",
                     Placeholder.unparsed("hologram", hologram.getName()),
                     Formatter.number("line", lineNumber));
-            return Optional.empty();
+            return null;
         }
 
         var page = pagedLine.getPage(pageIndex).orElse(null);
@@ -55,9 +52,9 @@ public interface LineTargetResolver {
                     Placeholder.unparsed("hologram", hologram.getName()),
                     Formatter.number("line", lineNumber),
                     Formatter.number("page", pageNumber));
-            return Optional.empty();
+            return null;
         }
 
-        return Optional.of(new LineEditTarget(hologram, lineIndex, pageIndex, page));
+        return new LineEditTarget(hologram, lineIndex, pageIndex, page);
     };
 }

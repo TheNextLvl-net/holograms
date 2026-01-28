@@ -1,16 +1,20 @@
 package net.thenextlvl.hologram.models.line;
 
 import com.destroystokyo.paper.entity.Pathfinder;
+import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.util.TriState;
+import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Explosive;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -22,26 +26,29 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologramLine<E> implements EntityHologramLine {
+public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entity> implements EntityHologramLine {
     private volatile Vector3f offset = new Vector3f();
     private volatile double scale = 1;
 
-    public PaperEntityHologramLine(final PaperHologram hologram, final Class<E> entityClass) throws IllegalArgumentException {
-        super(hologram, entityClass);
+    public PaperEntityHologramLine(final PaperHologram hologram, final EntityType entityType) throws IllegalArgumentException {
+        super(hologram, entityType);
     }
 
     @Override
     protected void updateGlowColor(@Nullable final TextColor color) {
-        getEntities().forEach(this::updateTeamOptions);
+        entities.forEach(this::updateTeamOptions);
     }
 
     @Override
     public double getHeight(final Player player) {
-        return getEntity(player).map(Entity::getHeight).orElse(0d) * scale;
+        return getEntity(player, CraftEntity.class)
+                .map(CraftEntity::getHandleRaw)
+                .map(net.minecraft.world.entity.Entity::getBbHeight)
+                .orElse(0f) * scale;
     }
 
     @Override
-    public double getOffsetAfter() {
+    public double getOffsetAfter(final Player player) {
         return 0.1;
     }
 
@@ -51,20 +58,32 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologr
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public EntityHologramLine setEntityType(final EntityType entityType) throws IllegalArgumentException {
+        return set(this.entityType, entityType, () -> {
+            Preconditions.checkArgument(entityType.getEntityClass() != null, "Entity type %s is not spawnable", entityType);
+            this.entityClass = (Class<Entity>) entityType.getEntityClass();
+            this.entityType = entityType;
+        }, true);
+    }
+
+    @Override
+    public EntityHologramLine setEntityType(final Class<Entity> entityType) throws IllegalArgumentException {
+        return setEntityType(HologramPlugin.getEntityType(entityType));
+    }
+
+
+    @Override
     public double getScale() {
         return scale;
     }
 
     @Override
     public EntityHologramLine setScale(final double scale) {
-        if (this.scale == scale) return this;
-        this.scale = scale;
-        forEachEntity(entity -> {
-            if (!(entity instanceof final Attributable attributable)) return;
-            updateScale(attributable);
-        });
-        getHologram().updateHologram();
-        return this;
+        return set(this.scale, scale, () -> {
+            if (this.scale == scale) return;
+            this.scale = scale;
+        }, true);
     }
 
     @Override
@@ -93,7 +112,7 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologr
     }
 
     @Override
-    protected void preSpawn(final E entity, final Player player) {
+    protected void preSpawn(final Entity entity, final Player player) {
         entity.setSilent(true);
         entity.setInvulnerable(true);
         entity.setGravity(false);
@@ -129,7 +148,8 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologr
         }
 
         if (entity instanceof final Attributable attributable) {
-            updateScale(attributable);
+            final var attribute = attributable.getAttribute(Attribute.SCALE);
+            if (attribute != null) attribute.setBaseValue(scale);
         }
 
         if (entity instanceof final ArmorStand armorStand) {
@@ -137,10 +157,5 @@ public class PaperEntityHologramLine<E extends Entity> extends PaperStaticHologr
         }
 
         super.preSpawn(entity, player);
-    }
-
-    private void updateScale(final Attributable attributable) {
-        final var attribute = attributable.getAttribute(Attribute.SCALE);
-        if (attribute != null) attribute.setBaseValue(scale);
     }
 }

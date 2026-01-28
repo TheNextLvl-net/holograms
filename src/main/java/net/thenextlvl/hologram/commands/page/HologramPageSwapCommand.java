@@ -26,12 +26,12 @@ public final class HologramPageSwapCommand extends SimpleCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageSwapCommand(plugin);
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.PAGED_ONLY);
         final var first = Commands.argument("first", IntegerArgumentType.integer(1))
                 .suggests(PageSuggestionProvider.INSTANCE);
         final var second = Commands.argument("second", IntegerArgumentType.integer(1))
                 .suggests(PageSuggestionProvider.INSTANCE);
-        return command.create().then(hologramArgument(plugin).then(line
+        return command.create().then(hologramArgument(plugin, true).then(line
                 .then(first.then(second.executes(command)))));
     }
 

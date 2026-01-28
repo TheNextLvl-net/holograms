@@ -234,10 +234,10 @@ public interface Hologram extends Iterable<HologramLine> {
      * @return a new entity hologram line
      * @throws IllegalArgumentException  if the entity type is not spawnable
      * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @since 0.3.0
+     * @since 0.6.0
      */
     @Contract(value = "_, _ -> new", mutates = "this")
-    EntityHologramLine addEntityLine(EntityType entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+    EntityHologramLine addEntityLine(int index, EntityType entityType) throws IllegalArgumentException, IndexOutOfBoundsException;
 
     /**
      * Adds an entity line to this hologram at the given index.
@@ -247,10 +247,10 @@ public interface Hologram extends Iterable<HologramLine> {
      * @return a new entity hologram line
      * @throws IllegalArgumentException  if the entity type is not spawnable
      * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @since 0.1.0
+     * @since 0.6.0
      */
     @Contract(value = "_, _ -> new", mutates = "this")
-    EntityHologramLine addEntityLine(Class<? extends Entity> entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+    EntityHologramLine addEntityLine(int index, Class<? extends Entity> entityType) throws IllegalArgumentException, IndexOutOfBoundsException;
 
     /**
      * Adds a block line to this hologram.
@@ -353,10 +353,10 @@ public interface Hologram extends Iterable<HologramLine> {
      * @return a new entity hologram line
      * @throws IllegalArgumentException  if the entity type is not spawnable
      * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @since 0.3.0
+     * @since 0.6.0
      */
     @Contract(value = "_, _ -> new", mutates = "this")
-    EntityHologramLine setEntityLine(EntityType entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+    EntityHologramLine setEntityLine(int index, EntityType entityType) throws IllegalArgumentException, IndexOutOfBoundsException;
 
     /**
      * Sets an entity line at the given index.
@@ -366,10 +366,10 @@ public interface Hologram extends Iterable<HologramLine> {
      * @return a new entity hologram line
      * @throws IllegalArgumentException  if the entity type is not spawnable
      * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @since 0.3.0
+     * @since 0.6.0
      */
     @Contract(value = "_, _ -> new", mutates = "this")
-    EntityHologramLine setEntityLine(Class<? extends Entity> entityType, int index) throws IllegalArgumentException, IndexOutOfBoundsException;
+    EntityHologramLine setEntityLine(int index, Class<? extends Entity> entityType) throws IllegalArgumentException, IndexOutOfBoundsException;
 
     /**
      * Sets a block line at the given index.

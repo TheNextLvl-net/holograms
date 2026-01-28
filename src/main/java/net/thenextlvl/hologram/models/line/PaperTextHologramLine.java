@@ -10,6 +10,7 @@ import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.locale.ImageTagResolver;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.jetbrains.annotations.Range;
@@ -20,7 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
-public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay> implements TextHologramLine {
+public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay> implements TextHologramLine {
     private volatile @Nullable Color backgroundColor;
     private volatile @Nullable String unparsedText = null;
     private volatile TextDisplay.TextAlignment alignment = TextDisplay.TextAlignment.CENTER;
@@ -31,7 +32,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
     private volatile int lineWidth = Integer.MAX_VALUE;
 
     public PaperTextHologramLine(final PaperHologram hologram) {
-        super(hologram, TextDisplay.class);
+        super(hologram, EntityType.TEXT_DISPLAY);
     }
 
     @Override
@@ -85,6 +86,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public TextHologramLine setLineWidth(final int width) {
+        if (Objects.equals(this.lineWidth, width)) return this;
         this.lineWidth = width;
         forEachEntity(entity -> entity.setLineWidth(width));
         return this;
@@ -97,6 +99,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public TextHologramLine setBackgroundColor(@Nullable final Color color) {
+        if (Objects.equals(this.backgroundColor, color)) return this;
         this.backgroundColor = color;
         forEachEntity(entity -> entity.setBackgroundColor(color));
         return this;
@@ -109,6 +112,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public TextHologramLine setTextOpacity(@Range(from = 0, to = 100) final float opacity) {
+        if (Objects.equals(this.opacity, opacity)) return this;
         this.opacity = opacity;
         forEachEntity(this::updateOpacity);
         return this;
@@ -121,6 +125,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public TextHologramLine setShadowed(final boolean shadow) {
+        if (Objects.equals(this.shadowed, shadow)) return this;
         this.shadowed = shadow;
         forEachEntity(entity -> entity.setShadowed(shadow));
         return this;
@@ -133,6 +138,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public TextHologramLine setSeeThrough(final boolean seeThrough) {
+        if (Objects.equals(this.seeThrough, seeThrough)) return this;
         this.seeThrough = seeThrough;
         forEachEntity(entity -> entity.setSeeThrough(seeThrough));
         return this;
@@ -145,6 +151,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public TextHologramLine setDefaultBackground(final boolean defaultBackground) {
+        if (Objects.equals(this.defaultBackground, defaultBackground)) return this;
         this.defaultBackground = defaultBackground;
         forEachEntity(entity -> entity.setDefaultBackground(defaultBackground));
         return this;
@@ -157,6 +164,7 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
 
     @Override
     public TextHologramLine setAlignment(final TextDisplay.TextAlignment alignment) {
+        if (Objects.equals(this.alignment, alignment)) return this;
         this.alignment = alignment;
         forEachEntity(entity -> entity.setAlignment(alignment));
         return this;
@@ -191,6 +199,10 @@ public class PaperTextHologramLine extends PaperDisplayHologramLine<TextDisplay>
                 entity.text(component);
             });
         }, () -> getHologram().getPlugin().supply(entity, () -> entity.text(null)));
+    }
+    
+    public void updateText() {
+        entities.forEach(this::updateText);
     }
 
     private void updateOpacity(final TextDisplay entity) {

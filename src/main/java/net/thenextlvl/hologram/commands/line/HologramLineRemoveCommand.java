@@ -24,7 +24,7 @@ final class HologramLineRemoveCommand extends SimpleCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramLineRemoveCommand(plugin);
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.ANY_LINE);
         return command.create().then(hologramArgument(plugin)
                 .then(line.executes(command)));
     }

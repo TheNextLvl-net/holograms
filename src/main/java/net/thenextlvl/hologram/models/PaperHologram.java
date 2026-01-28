@@ -52,6 +52,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -278,26 +279,25 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public EntityHologramLine addEntityLine(final EntityType entityType) throws IllegalArgumentException {
-        return addEntityLine(entityType, lines.size());
+        return addEntityLine(lines.size(), entityType);
     }
 
     @Override
     public EntityHologramLine addEntityLine(final Class<? extends Entity> entityType) throws IllegalArgumentException {
-        return addEntityLine(entityType, lines.size());
+        return addEntityLine(lines.size(), entityType);
     }
 
     @Override
-    public EntityHologramLine addEntityLine(final EntityType entityType, final int index) throws IllegalArgumentException {
-        Preconditions.checkArgument(entityType.getEntityClass() != null, "Cannot spawn entity of type %s", entityType);
-        return addEntityLine(entityType.getEntityClass(), index);
-    }
-
-    @Override
-    public EntityHologramLine addEntityLine(final Class<? extends Entity> entityType, final int index) throws IllegalArgumentException {
-        final var hologramLine = new PaperEntityHologramLine<>(this, entityType);
+    public EntityHologramLine addEntityLine(final int index, final EntityType entityType) throws IllegalArgumentException {
+        final var hologramLine = new PaperEntityHologramLine(this, entityType);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
+    }
+
+    @Override
+    public EntityHologramLine addEntityLine(final int index, final Class<? extends Entity> entityType) throws IllegalArgumentException {
+        return addEntityLine(index, HologramPlugin.getEntityType(entityType));
     }
 
     @Override
@@ -340,17 +340,16 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public EntityHologramLine setEntityLine(final EntityType entityType, final int index) throws IllegalArgumentException {
-        Preconditions.checkArgument(entityType.getEntityClass() != null, "Cannot spawn entity of type %s", entityType);
-        return setEntityLine(entityType.getEntityClass(), index);
-    }
-
-    @Override
-    public EntityHologramLine setEntityLine(final Class<? extends Entity> entityType, final int index) throws IllegalArgumentException {
-        final var hologramLine = new PaperEntityHologramLine<>(this, entityType);
+    public EntityHologramLine setEntityLine(final int index, final EntityType entityType) throws IllegalArgumentException {
+        final var hologramLine = new PaperEntityHologramLine(this, entityType);
         despawnLine(lines.set(index, hologramLine));
         updateHologram();
         return hologramLine;
+    }
+
+    @Override
+    public EntityHologramLine setEntityLine(final int index, final Class<? extends Entity> entityType) throws IllegalArgumentException {
+        return setEntityLine(index, HologramPlugin.getEntityType(entityType));
     }
 
     @Override
@@ -534,19 +533,27 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public CompletableFuture<Boolean> spawn(final Player player) {
-        if (!canSee(player) || !location.isChunkLoaded() || !spawned.add(player))
-            return CompletableFuture.completedFuture(false);
+        return spawn(player, false);
+    }
 
-        var offset = 0d;
-        // Start from the bottom line, going up
-        for (var index = lines.size() - 1; index >= 0; index--) {
-            final var line = (PaperHologramLine) lines.get(index);
-            final var spawn = line.spawn(player, offset + line.getOffsetBefore(player));
-            if (spawn.isCancelled() || spawn.isCompletedExceptionally()) continue;
-            if (spawn.isDone() && spawn.getNow(null) == null || index == 0) continue;
-            offset += 0.05 + line.getHeight(player) + line.getOffsetAfter();
-        }
-        return CompletableFuture.completedFuture(true);
+    public CompletableFuture<Boolean> spawn(final Player player, final boolean update) {
+        if (!canSee(player) || !location.isChunkLoaded())
+            return CompletableFuture.completedFuture(false);
+        if (!spawned.add(player) && !update)
+            return CompletableFuture.completedFuture(false);
+        return getPlugin().supply(location, () -> spawnLine(player, lines.size() - 1, 0d))
+                .thenCompose(Function.identity());
+    }
+
+    private CompletableFuture<Boolean> spawnLine(final Player player, final int index, final double offset) {
+        if (index < 0) return CompletableFuture.completedFuture(true);
+        final var line = (PaperHologramLine) lines.get(index);
+        final var currentOffset = offset + line.getOffsetBefore(player);
+        return line.spawn(player, currentOffset).thenCompose(entity -> {
+            if (entity == null || index == 0) return CompletableFuture.completedFuture(true);
+            final var nextOffset = currentOffset + 0.05 + line.getHeight(player) + line.getOffsetAfter(player);
+            return spawnLine(player, index - 1, nextOffset);
+        });
     }
 
     @Override
@@ -565,6 +572,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
                 .map(line -> line.despawn(player))
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures).thenApply(v -> true);
+    }
+
+    public Set<Player> getSpawned() {
+        return spawned;
     }
 
     @Override
@@ -587,10 +598,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public void updateHologram(final Player player) {
-        if (!isSpawned(player)) return;
-        // todo: properly implement this
-        despawn(player);
-        spawn(player);
+        if (isSpawned(player)) spawn(player, true);
     }
 
     public void updateVisibility() {
@@ -604,8 +612,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     public void updateText() {
         lines.forEach(hologramLine -> {
-            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
-            line.getEntities().forEach(line::updateText);
+            if (hologramLine instanceof final PaperTextHologramLine line) line.updateText();
         });
     }
 

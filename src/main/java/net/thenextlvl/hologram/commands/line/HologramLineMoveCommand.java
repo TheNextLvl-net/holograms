@@ -23,9 +23,9 @@ final class HologramLineMoveCommand extends SimpleCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramLineMoveCommand(plugin);
         final var from = Commands.argument("from", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.ANY_LINE);
         final var to = Commands.argument("to", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.INSTANCE);
+                .suggests(LineSuggestionProvider.ANY_LINE);
         return command.create().then(hologramArgument(plugin)
                 .then(from.then(to.executes(command))));
     }

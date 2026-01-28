@@ -4,7 +4,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
-import net.thenextlvl.hologram.commands.page.edit.HologramPageEditCommand;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -19,7 +18,11 @@ public final class HologramPageCommand extends BrigadierCommand {
                 .then(HologramPageAddCommand.create(plugin))
                 .then(HologramPageClearCommand.create(plugin))
                 .then(HologramPageEditCommand.create(plugin))
+                .then(HologramPageInsertCommand.create(plugin))
                 .then(HologramPageListCommand.create(plugin))
-                .then(HologramPageRemoveCommand.create(plugin));
+                .then(HologramPageMoveCommand.create(plugin))
+                .then(HologramPageRemoveCommand.create(plugin))
+                .then(HologramPageSettingsCommand.create(plugin))
+                .then(HologramPageSwapCommand.create(plugin));
     }
 }

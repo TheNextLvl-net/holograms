@@ -84,13 +84,14 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 @NullMarked
-public class HologramPlugin extends JavaPlugin {
+public final class HologramPlugin extends JavaPlugin {
     public static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
     public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new?template=bug_report.yml";
     public static final boolean RUNNING_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
@@ -279,14 +280,40 @@ public class HologramPlugin extends JavaPlugin {
         });
     }
 
-    public <T> CompletableFuture<@Nullable T> supply(final Location location, final Supplier<@Nullable T> supplier) {
-        if (getServer().isOwnedByCurrentRegion(location)) {
+    public CompletableFuture<@Nullable Void> supply(final Entity entity, final Runnable runnable) {
+        return this.supply(entity, () -> {
+            runnable.run();
+            return null;
+        });
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    public <T> CompletableFuture<@Nullable T> supply(final Entity entity, final Supplier<@Nullable T> supplier) {
+        if (!isEnabled()) {
+            final var disabled = new IllegalStateException("Plugin is disabled");
+            return CompletableFuture.failedFuture(disabled);
+        }
+
+        if (getServer().isOwnedByCurrentRegion(entity)) {
             return CompletableFuture.completedFuture(supplier.get());
         }
 
+        final var future = new CompletableFuture<@Nullable T>();
+        entity.getScheduler().run(this, scheduledTask -> {
+            future.complete(supplier.get());
+        }, null);
+        return future;
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    public <T> CompletableFuture<@Nullable T> supply(final Location location, final Supplier<@Nullable T> supplier) {
         if (!isEnabled()) {
-            getComponentLogger().warn("Cannot supply for location because plugin is disabled");
-            return CompletableFuture.failedFuture(new IllegalStateException("Plugin is disabled"));
+            final var disabled = new IllegalStateException("Plugin is disabled");
+            return CompletableFuture.failedFuture(disabled);
+        }
+
+        if (getServer().isOwnedByCurrentRegion(location)) {
+            return CompletableFuture.completedFuture(supplier.get());
         }
 
         final var future = new CompletableFuture<@Nullable T>();
@@ -296,27 +323,11 @@ public class HologramPlugin extends JavaPlugin {
         return future;
     }
 
-    public CompletableFuture<@Nullable Void> supply(final Entity entity, final Runnable runnable) {
-        return this.supply(entity, () -> {
-            runnable.run();
-            return null;
-        });
-    }
-
-    public <T> CompletableFuture<@Nullable T> supply(final Entity entity, final Supplier<@Nullable T> supplier) {
-        if (getServer().isOwnedByCurrentRegion(entity)) {
-            return CompletableFuture.completedFuture(supplier.get());
-        }
-
-        if (!isEnabled()) {
-            getComponentLogger().warn("Cannot supply for entity because plugin is disabled");
-            return CompletableFuture.failedFuture(new IllegalStateException("Plugin is disabled"));
-        }
-
-        final var future = new CompletableFuture<@Nullable T>();
-        entity.getScheduler().run(this, scheduledTask -> {
-            future.complete(supplier.get());
-        }, null);
-        return future;
+    public static EntityType getEntityType(final Class<? extends Entity> entityClass) throws IllegalArgumentException {
+        return Arrays.stream(EntityType.values())
+                .filter(type -> type.getEntityClass() != null)
+                .filter(type -> type.getEntityClass().isAssignableFrom(entityClass))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Entity type not found for " + entityClass));
     }
 }

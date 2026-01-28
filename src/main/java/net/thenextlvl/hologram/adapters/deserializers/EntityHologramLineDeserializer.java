@@ -25,9 +25,8 @@ public final class EntityHologramLineDeserializer extends SingleHologramLineDese
     }
 
     @Override
-    @SuppressWarnings("DataFlowIssue")
     protected EntityHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
         final var type = context.deserialize(tag.get("entityType"), EntityType.class);
-        return new PaperEntityHologramLine<>(hologram, type.getEntityClass());
+        return new PaperEntityHologramLine(hologram, type);
     }
 }

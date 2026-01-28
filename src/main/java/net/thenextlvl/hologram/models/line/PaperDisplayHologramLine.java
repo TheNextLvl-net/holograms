@@ -6,6 +6,7 @@ import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Display.Brightness;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
@@ -29,10 +30,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
     protected volatile float viewRange = 1;
     protected volatile int interpolationDelay = 0;
     protected volatile int interpolationDuration = 0;
-    protected volatile int teleportDuration = 4;
+    protected volatile int teleportDuration = 0;
 
-    public PaperDisplayHologramLine(final PaperHologram hologram, final Class<E> entityClass) {
-        super(hologram, entityClass);
+    public PaperDisplayHologramLine(final PaperHologram hologram, final EntityType entityType) {
+        super(hologram, entityType);
     }
 
     @Override
@@ -54,7 +55,6 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
                 new Vector3f(transformation.getScale()),
                 new AxisAngle4f(transformation.getRightRotation())
         );
-        forEachEntity(entity -> entity.setTransformation(transformation));
         getHologram().updateHologram();
         return this;
     }

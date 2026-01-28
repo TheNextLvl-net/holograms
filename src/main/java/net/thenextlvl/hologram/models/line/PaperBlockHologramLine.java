@@ -6,15 +6,16 @@ import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDisplay> implements BlockHologramLine {
+public final class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDisplay> implements BlockHologramLine {
     private volatile BlockData block = BlockType.AIR.createBlockData();
 
     public PaperBlockHologramLine(final PaperHologram hologram) {
-        super(hologram, BlockDisplay.class);
+        super(hologram, EntityType.BLOCK_DISPLAY);
     }
 
     @Override

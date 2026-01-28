@@ -52,7 +52,7 @@ public abstract class PaperHologramLine implements HologramLine {
         return 0;
     }
 
-    public double getOffsetAfter() {
+    public double getOffsetAfter(final Player player) {
         return 0;
     }
 
@@ -60,7 +60,7 @@ public abstract class PaperHologramLine implements HologramLine {
 
     public abstract CompletableFuture<Void> despawn();
 
-    public abstract CompletableFuture<Void> despawn(final Player player);
+    public abstract CompletableFuture<@Nullable Void> despawn(final Player player);
 
     public abstract void invalidate(final Entity entity);
 

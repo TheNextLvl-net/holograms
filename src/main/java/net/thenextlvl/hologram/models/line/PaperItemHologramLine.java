@@ -12,8 +12,6 @@ import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
-
 @NullMarked
 public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay> implements ItemHologramLine {
     private volatile ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
@@ -36,9 +34,10 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
 
     @Override
     public ItemHologramLine setItemStack(@Nullable final ItemStack item) {
-        this.item = item != null ? item.clone() : null;
-        forEachEntity(entity -> entity.setItemStack(item));
-        return this;
+        return set(this.item, item, () -> {
+            this.item = item != null ? item.clone() : null;
+            forEachEntity(entity -> entity.setItemStack(this.item));
+        }, false);
     }
 
     @Override
@@ -48,11 +47,9 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
 
     @Override
     public ItemHologramLine setItemDisplayTransform(final ItemDisplayTransform display) {
-        if (Objects.equals(this.displayTransform, display)) return this;
-        this.displayTransform = display;
-        forEachEntity(entity -> entity.setItemDisplayTransform(display));
-        getHologram().updateHologram();
-        return this;
+        return set(this.displayTransform, display, () -> {
+            this.displayTransform = display;
+        }, true);
     }
 
     @Override

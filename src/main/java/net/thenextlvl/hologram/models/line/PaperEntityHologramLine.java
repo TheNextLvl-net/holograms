@@ -36,7 +36,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
 
     @Override
     protected void updateGlowColor(@Nullable final TextColor color) {
-        getEntities().forEach(this::updateTeamOptions);
+        entities.forEach(this::updateTeamOptions);
     }
 
     @Override
@@ -60,11 +60,11 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
     @Override
     @SuppressWarnings("unchecked")
     public EntityHologramLine setEntityType(final EntityType entityType) throws IllegalArgumentException {
-        Preconditions.checkArgument(entityType.getEntityClass() != null, "Entity type %s is not spawnable", entityType);
-        this.entityClass = (Class<Entity>) entityType.getEntityClass();
-        this.entityType = entityType;
-        getHologram().updateHologram();
-        return this;
+        return set(this.entityType, entityType, () -> {
+            Preconditions.checkArgument(entityType.getEntityClass() != null, "Entity type %s is not spawnable", entityType);
+            this.entityClass = (Class<Entity>) entityType.getEntityClass();
+            this.entityType = entityType;
+        }, true);
     }
 
     @Override
@@ -80,14 +80,10 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
 
     @Override
     public EntityHologramLine setScale(final double scale) {
-        if (this.scale == scale) return this;
-        this.scale = scale;
-        forEachEntity(entity -> {
-            if (!(entity instanceof final Attributable attributable)) return;
-            updateScale(attributable);
-        });
-        getHologram().updateHologram();
-        return this;
+        return set(this.scale, scale, () -> {
+            if (this.scale == scale) return;
+            this.scale = scale;
+        }, true);
     }
 
     @Override
@@ -152,7 +148,8 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
         }
 
         if (entity instanceof final Attributable attributable) {
-            updateScale(attributable);
+            final var attribute = attributable.getAttribute(Attribute.SCALE);
+            if (attribute != null) attribute.setBaseValue(scale);
         }
 
         if (entity instanceof final ArmorStand armorStand) {
@@ -160,10 +157,5 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
         }
 
         super.preSpawn(entity, player);
-    }
-
-    private void updateScale(final Attributable attributable) {
-        final var attribute = attributable.getAttribute(Attribute.SCALE);
-        if (attribute != null) attribute.setBaseValue(scale);
     }
 }

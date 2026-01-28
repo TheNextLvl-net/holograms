@@ -15,7 +15,6 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
@@ -48,28 +47,24 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setTransformation(final Transformation transformation) {
-        if (Objects.equals(this.transformation, transformation)) return this;
-        this.transformation = new Transformation(
-                new Vector3f(transformation.getTranslation()),
-                new AxisAngle4f(transformation.getLeftRotation()),
-                new Vector3f(transformation.getScale()),
-                new AxisAngle4f(transformation.getRightRotation())
-        );
-        getHologram().updateHologram();
-        return this;
+        return set(this.transformation, transformation, () -> {
+            this.transformation = new Transformation(
+                    new Vector3f(transformation.getTranslation()),
+                    new AxisAngle4f(transformation.getLeftRotation()),
+                    new Vector3f(transformation.getScale()),
+                    new AxisAngle4f(transformation.getRightRotation())
+            );
+        }, true);
     }
 
     @Override
     public DisplayHologramLine setTransformationMatrix(final Matrix4f transformationMatrix) {
-        this.transformation = new Transformation(
+        return setTransformation(new Transformation(
                 transformationMatrix.getTranslation(new Vector3f()),
                 transformationMatrix.getRotation(new AxisAngle4f()),
                 transformationMatrix.getScale(new Vector3f()),
                 transformationMatrix.getRotation(new AxisAngle4f())
-        );
-        forEachEntity(entity -> entity.setTransformationMatrix(transformationMatrix));
-        getHologram().updateHologram();
-        return this;
+        ));
     }
 
     @Override
@@ -79,10 +74,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setInterpolationDuration(final int duration) {
-        if (duration == this.interpolationDuration) return this;
-        this.interpolationDuration = duration;
-        forEachEntity(entity -> entity.setInterpolationDuration(duration));
-        return this;
+        return set(this.interpolationDuration, duration, () -> {
+            this.interpolationDuration = duration;
+            forEachEntity(entity -> entity.setInterpolationDuration(duration));
+        }, false);
     }
 
     @Override
@@ -92,10 +87,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setTeleportDuration(final int duration) {
-        if (duration == this.teleportDuration) return this;
-        this.teleportDuration = duration;
-        forEachEntity(entity -> entity.setTeleportDuration(duration));
-        return this;
+        return set(this.teleportDuration, duration, () -> {
+            this.teleportDuration = duration;
+            forEachEntity(entity -> entity.setTeleportDuration(duration));
+        }, false);
     }
 
     @Override
@@ -105,10 +100,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setViewRange(final float range) {
-        if (range == this.viewRange) return this;
-        this.viewRange = range;
-        forEachEntity(entity -> entity.setViewRange(range));
-        return this;
+        return set(this.viewRange, range, () -> {
+            this.viewRange = range;
+            forEachEntity(entity -> entity.setViewRange(range));
+        }, false);
     }
 
     @Override
@@ -118,10 +113,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setShadowRadius(final float radius) {
-        if (radius == this.shadowRadius) return this;
-        this.shadowRadius = radius;
-        forEachEntity(entity -> entity.setShadowRadius(radius));
-        return this;
+        return set(this.shadowRadius, radius, () -> {
+            this.shadowRadius = radius;
+            forEachEntity(entity -> entity.setShadowRadius(radius));
+        }, false);
     }
 
     @Override
@@ -131,10 +126,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setShadowStrength(final float strength) {
-        if (strength == this.shadowStrength) return this;
-        this.shadowStrength = strength;
-        forEachEntity(entity -> entity.setShadowStrength(strength));
-        return this;
+        return set(this.shadowStrength, strength, () -> {
+            this.shadowStrength = strength;
+            forEachEntity(entity -> entity.setShadowStrength(strength));
+        }, false);
     }
 
     @Override
@@ -144,10 +139,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setDisplayWidth(final float width) {
-        if (width == this.displayWidth) return this;
-        this.displayWidth = width;
-        forEachEntity(entity -> entity.setDisplayWidth(width));
-        return this;
+        return set(this.displayWidth, width, () -> {
+            this.displayWidth = width;
+            forEachEntity(entity -> entity.setDisplayWidth(width));
+        }, false);
     }
 
     @Override
@@ -157,11 +152,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setDisplayHeight(final float height) {
-        if (height == this.displayHeight) return this;
-        this.displayHeight = height;
-        forEachEntity(entity -> entity.setDisplayHeight(height));
-        getHologram().updateHologram();
-        return this;
+        return set(this.displayHeight, height, () -> {
+            this.displayHeight = height;
+            forEachEntity(entity -> entity.setDisplayHeight(height));
+        }, true);
     }
 
     @Override
@@ -171,10 +165,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setInterpolationDelay(final int ticks) {
-        if (ticks == this.interpolationDelay) return this;
-        this.interpolationDelay = ticks;
-        forEachEntity(entity -> entity.setInterpolationDelay(ticks));
-        return this;
+        return set(this.interpolationDelay, ticks, () -> {
+            this.interpolationDelay = ticks;
+            forEachEntity(entity -> entity.setInterpolationDelay(ticks));
+        }, false);
     }
 
     @Override
@@ -184,10 +178,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setBillboard(final Display.Billboard billboard) {
-        if (Objects.equals(this.billboard, billboard)) return this;
-        this.billboard = billboard;
-        forEachEntity(entity -> entity.setBillboard(billboard));
-        return this;
+        return set(this.billboard, billboard, () -> {
+            this.billboard = billboard;
+            forEachEntity(entity -> entity.setBillboard(billboard));
+        }, false);
     }
 
     @Override
@@ -203,10 +197,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
 
     @Override
     public DisplayHologramLine setBrightness(final Display.@Nullable Brightness brightness) {
-        if (Objects.equals(this.brightness, brightness)) return this;
-        this.brightness = brightness;
-        forEachEntity(entity -> entity.setBrightness(brightness));
-        return this;
+        return set(this.brightness, brightness, () -> {
+            this.brightness = brightness;
+            forEachEntity(entity -> entity.setBrightness(brightness));
+        }, false);
     }
 
     @Override

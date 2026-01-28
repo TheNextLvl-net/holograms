@@ -200,6 +200,10 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
             });
         }, () -> getHologram().getPlugin().supply(entity, () -> entity.text(null)));
     }
+    
+    public void updateText() {
+        entities.forEach(this::updateText);
+    }
 
     private void updateOpacity(final TextDisplay entity) {
         entity.setTextOpacity((byte) Math.round(25f + ((100f - opacity) * 2.3f)));

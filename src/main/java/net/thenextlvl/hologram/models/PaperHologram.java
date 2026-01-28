@@ -612,8 +612,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     public void updateText() {
         lines.forEach(hologramLine -> {
-            if (!(hologramLine instanceof final PaperTextHologramLine line)) return;
-            line.getEntities().forEach(line::updateText);
+            if (hologramLine instanceof final PaperTextHologramLine line) line.updateText();
         });
     }
 

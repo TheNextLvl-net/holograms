@@ -30,10 +30,10 @@ public abstract class PaperHologramLine implements HologramLine {
 
     @Override
     public HologramLine setClickAction(@Nullable final ClickAction<?> clickAction) {
-        if (Objects.equals(this.clickAction, clickAction)) return this;
-        this.clickAction = clickAction;
-        // todo: update click action entity if required?
-        return this;
+        return set(this.clickAction, clickAction, () -> {
+            this.clickAction = clickAction;
+            // todo: update click action entity if required?
+        }, false);
     }
 
     @Override
@@ -44,6 +44,19 @@ public abstract class PaperHologramLine implements HologramLine {
     @Override
     public World getWorld() {
         return hologram.getWorld();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends HologramLine, V> T set(
+            final @Nullable V currentValue,
+            final @Nullable V newValue,
+            final Runnable setter,
+            final boolean update
+    ) {
+        if (Objects.equals(currentValue, newValue)) return (T) this;
+        setter.run();
+        if (update) hologram.updateHologram();
+        return (T) this;
     }
 
     public abstract double getHeight(Player player);

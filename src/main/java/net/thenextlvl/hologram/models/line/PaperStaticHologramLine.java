@@ -15,7 +15,6 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +22,7 @@ import java.util.function.Consumer;
 
 @NullMarked
 public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHologramLine implements StaticHologramLine {
-    private final Map<Player, E> entities = new ConcurrentHashMap<>();
+    protected final Map<Player, E> entities = new ConcurrentHashMap<>();
 
     protected volatile @Nullable TextColor glowColor = null;
     protected volatile Class<E> entityClass;
@@ -45,10 +44,10 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public StaticHologramLine setGlowColor(@Nullable final TextColor color) {
-        if (Objects.equals(this.glowColor, color)) return this;
-        this.glowColor = color;
-        updateGlowColor(color);
-        return this;
+        return set(this.glowColor, color, () -> {
+            this.glowColor = color;
+            updateGlowColor(color);
+        }, false);
     }
 
     @Override
@@ -58,10 +57,10 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public StaticHologramLine setGlowing(final boolean glowing) {
-        if (glowing == this.glowing) return this;
-        this.glowing = glowing;
-        forEachEntity(entity -> entity.setGlowing(glowing));
-        return this;
+        return set(this.glowing, glowing, () -> {
+            this.glowing = glowing;
+            forEachEntity(entity -> entity.setGlowing(glowing));
+        }, false);
     }
 
     protected abstract void updateGlowColor(@Nullable final TextColor color);
@@ -81,32 +80,9 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         return Optional.ofNullable(entities.get(player));
     }
 
-    public Map<Player, E> getEntities() {
-        return entities;
-    }
-
-    public void forEachEntity(final Consumer<E> consumer) {
-        entities.values().forEach(consumer);
-    }
-
     @Override
     public <T> Optional<T> getEntity(final Player player, final Class<T> type) {
         return getEntity(player).filter(type::isInstance).map(type::cast);
-    }
-
-    protected final void updateTeamOptions(final Player player, final Entity entity) {
-        if (HologramPlugin.RUNNING_FOLIA) return;
-        final var team = getSettingsTeam(player, entity);
-        team.color(getGlowColor().map(NamedTextColor::nearestTo).orElse(null));
-        team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
-    }
-
-    private Team getSettingsTeam(final Player player, final Entity entity) {
-        var settings = player.getScoreboard().getTeam(entity.getScoreboardEntryName());
-        if (settings != null) return settings;
-        settings = player.getScoreboard().registerNewTeam(entity.getScoreboardEntryName());
-        settings.addEntry(entity.getScoreboardEntryName());
-        return settings;
     }
 
     @Override
@@ -125,24 +101,11 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         return CompletableFuture.completedFuture(null);
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean adoptEntity(final PaperStaticHologramLine<?> oldPage, final Player player, final double offset) {
-        final var entity = oldPage.entities.get(player);
-        if (!entityClass.isInstance(entity)) return false;
-        oldPage.entities.remove(player);
-        entities.put(player, (E) entity);
-        getHologram().getPlugin().supply(entity, () -> {
-            entity.teleportAsync(mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0)));
-            preSpawn((E) entity, player);
-        });
-        return true;
-    }
-
     @Override
     public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
         final var existing = entities.get(player);
         final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
-        
+
         if (existing != null && existing.isValid()) {
             return getHologram().getPlugin().supply(existing, () -> {
                 existing.teleportAsync(location);
@@ -163,9 +126,19 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         return location;
     }
 
+    protected void preSpawn(final E entity, final Player player) {
+        updateTeamOptions(player, entity);
+
+        entity.setPersistent(false);
+        entity.setVisibleByDefault(false);
+
+        entity.setGlowing(glowing);
+        updateGlowColor(glowColor);
+    }
+
     @Override
     public CompletableFuture<Void> teleportRelative(final Location previous, final Location location) {
-        return CompletableFuture.allOf(getEntities().values().stream()
+        return CompletableFuture.allOf(entities.values().stream()
                 .filter(Entity::isValid)
                 .map(entity -> entity.teleportAsync(new Location(
                         location.getWorld(),
@@ -176,14 +149,18 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
                 ))).toArray(CompletableFuture[]::new));
     }
 
-    protected void preSpawn(final E entity, final Player player) {
-        updateTeamOptions(player, entity);
+    @Override
+    public boolean isPart(final Entity entity) {
+        return entityClass.isInstance(entity) && entities.containsValue(entityClass.cast(entity));
+    }
 
-        entity.setPersistent(false);
-        entity.setVisibleByDefault(false);
+    @Override
+    public void invalidate(final Entity entity) {
+        final var owner = remove(entity);
+        if (owner == null) return;
 
-        entity.setGlowing(glowing);
-        updateGlowColor(glowColor);
+        final var team = owner.getScoreboard().getTeam(entity.getScoreboardEntryName());
+        if (team != null) team.unregister();
     }
 
     private @Nullable Player remove(final Entity entity) {
@@ -199,17 +176,39 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         return null;
     }
 
-    @Override
-    public void invalidate(final Entity entity) {
-        final var owner = remove(entity);
-        if (owner == null) return;
-
-        final var team = owner.getScoreboard().getTeam(entity.getScoreboardEntryName());
-        if (team != null) team.unregister();
+    @SuppressWarnings("unchecked")
+    public boolean adoptEntity(final PaperStaticHologramLine<?> oldPage, final Player player, final double offset) {
+        final var entity = oldPage.entities.get(player);
+        if (!entityClass.isInstance(entity)) return false;
+        oldPage.entities.remove(player);
+        entities.put(player, (E) entity);
+        getHologram().getPlugin().supply(entity, () -> {
+            entity.teleportAsync(mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0)));
+            preSpawn((E) entity, player);
+        });
+        return true;
     }
 
-    @Override
-    public boolean isPart(final Entity entity) {
-        return entityClass.isInstance(entity) && entities.containsValue(entityClass.cast(entity));
+    protected final void updateTeamOptions(final Player player, final Entity entity) {
+        if (HologramPlugin.RUNNING_FOLIA) return;
+        final var team = getSettingsTeam(player, entity);
+        team.color(getGlowColor().map(NamedTextColor::nearestTo).orElse(null));
+        team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
+    }
+
+    private Team getSettingsTeam(final Player player, final Entity entity) {
+        var settings = player.getScoreboard().getTeam(entity.getScoreboardEntryName());
+        if (settings != null) return settings;
+        settings = player.getScoreboard().registerNewTeam(entity.getScoreboardEntryName());
+        settings.addEntry(entity.getScoreboardEntryName());
+        return settings;
+    }
+
+    public Map<Player, E> getEntities() {
+        return entities;
+    }
+
+    public void forEachEntity(final Consumer<E> consumer) {
+        entities.values().forEach(consumer);
     }
 }

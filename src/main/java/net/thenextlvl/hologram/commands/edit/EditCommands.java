@@ -205,9 +205,11 @@ public final class EditCommands {
         final var scale = tryGetArgument(context, "scale", float.class)
                 .map(Vector3f::new).orElseGet(() -> getVector3f(context));
 
-        return editDisplayOrEntity(context, plugin, resolver, "hologram.scale",
-                displayLine -> displayLine.getTransformation().getScale().set(scale),
-                entityLine -> entityLine.setScale(scale.y()));
+        return editDisplayOrEntity(context, plugin, resolver, "hologram.scale", displayLine -> {
+            final var transformation = displayLine.getTransformation();
+            transformation.getScale().set(scale);
+            displayLine.setTransformation(transformation);
+        }, entityLine -> entityLine.setScale(scale.y()));
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> seeThrough(final HologramPlugin plugin, final LineTargetResolver resolver) {
@@ -347,7 +349,6 @@ public final class EditCommands {
 
         if (line instanceof final DisplayHologramLine displayLine) {
             displayAction.accept(displayLine);
-            displayLine.setTransformation(displayLine.getTransformation());
         } else if (line instanceof final EntityHologramLine entityLine) {
             entityAction.accept(entityLine);
         } else {

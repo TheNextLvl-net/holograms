@@ -38,12 +38,15 @@ import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
@@ -132,7 +135,7 @@ public final class EditCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> glowColor(final HologramPlugin plugin, final LineTargetResolver resolver) {
         return create("glow-color", plugin, resolver)
-                .staticType()
+                .typed(StaticHologramLine.class, "hologram.type.single")
                 .reset(line -> line.setGlowColor(null), "hologram.line.glow-color.reset")
                 .arg("color", ArgumentTypes.namedColor(), NamedTextColor.class, StaticHologramLine::setGlowColor)
                 .arg("hex", ArgumentTypes.hexColor(), TextColor.class, StaticHologramLine::setGlowColor)
@@ -173,7 +176,7 @@ public final class EditCommands {
                 .requires(requiresPermission("offset"))
                 .then(Commands.literal("reset")
                         .executes(context -> editForOffset(context, plugin, resolver, new Vector3f())))
-                .then(vector3fArguments((context, vector) -> editForOffset(context, plugin, resolver, vector)));
+                .then(vector3fArguments(-16, 16, (context, vector) -> editForOffset(context, plugin, resolver, vector)));
     }
 
     private static int editForOffset(final CommandContext<CommandSourceStack> context, final HologramPlugin plugin, final LineTargetResolver resolver, final Vector3f offset) {
@@ -185,7 +188,7 @@ public final class EditCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> opacity(final HologramPlugin plugin, final LineTargetResolver resolver) {
         return create("opacity", plugin, resolver)
                 .textType()
-                .floatArg(0, 100, TextHologramLine::setTextOpacity)
+                .arg("opacity", FloatArgumentType.floatArg(0, 100), float.class, TextHologramLine::setTextOpacity)
                 .successMessage("hologram.opacity")
                 .build();
     }
@@ -195,7 +198,7 @@ public final class EditCommands {
                 .requires(requiresPermission("scale"))
                 .then(Commands.argument("scale", FloatArgumentType.floatArg(0.1f))
                         .executes(context -> editForScale(context, plugin, resolver)))
-                .then(vector3fArguments(0.1f, (context, vector) -> editForScale(context, plugin, resolver)));
+                .then(vector3fArguments(0.1f, 100, (context, vector) -> editForScale(context, plugin, resolver)));
     }
 
     private static int editForScale(final CommandContext<CommandSourceStack> context, final HologramPlugin plugin, final LineTargetResolver resolver) {
@@ -233,7 +236,7 @@ public final class EditCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> transformation(final HologramPlugin plugin, final LineTargetResolver resolver) {
         return create("transformation", plugin, resolver)
-                .itemType()
+                .typed(ItemHologramLine.class, "hologram.type.item")
                 .enumArg(ItemDisplay.ItemDisplayTransform.class, ItemHologramLine::setItemDisplayTransform)
                 .successMessage("hologram.transformation")
                 .build();
@@ -250,7 +253,7 @@ public final class EditCommands {
         private final Class<T> lineType;
         private final String wrongTypeKey;
         private final LiteralArgumentBuilder<CommandSourceStack> builder;
-        private String successKey = "";
+        private @Nullable String successKey = null;
 
         private EditBuilder(final String name, final HologramPlugin plugin, final LineTargetResolver resolver, final Class<T> lineType, final String wrongTypeKey) {
             this.name = name;
@@ -273,14 +276,6 @@ public final class EditCommands {
             return typed(DisplayHologramLine.class, "hologram.type.display");
         }
 
-        EditBuilder<StaticHologramLine> staticType() {
-            return typed(StaticHologramLine.class, "hologram.type.single");
-        }
-
-        EditBuilder<ItemHologramLine> itemType() {
-            return typed(ItemHologramLine.class, "hologram.type.item");
-        }
-
         EditBuilder<T> successMessage(final String key) {
             this.successKey = key;
             return this;
@@ -298,24 +293,23 @@ public final class EditCommands {
             return arg(argName, IntegerArgumentType.integer(min), int.class, setter);
         }
 
-        EditBuilder<T> floatArg(final float min, final float max, final BiConsumer<T, Float> setter) {
-            return arg(name, FloatArgumentType.floatArg(min, max), float.class, setter);
-        }
-
         EditBuilder<T> textArg(final BiConsumer<T, String> action) {
             return arg("text", StringArgumentType.greedyString(), String.class, action);
         }
 
         <A> EditBuilder<T> arg(final String argName, final ArgumentType<A> argType, final Class<A> valueType, final BiConsumer<T, A> setter) {
-            builder.then(Commands.argument(argName, argType)
-                    .executes(context -> editTyped(context, plugin, resolver, lineType, wrongTypeKey,
-                            line -> setter.accept(line, context.getArgument(argName, valueType)), successKey)));
+            builder.then(Commands.argument(argName, argType).executes(context -> {
+                return editTyped(context, plugin, resolver, lineType, wrongTypeKey, line -> {
+                    setter.accept(line, context.getArgument(argName, valueType));
+                }, Objects.requireNonNull(successKey, "successKey cannot be null"));
+            }));
             return this;
         }
 
         EditBuilder<T> reset(final Consumer<T> resetAction, final String resetSuccessKey) {
-            builder.then(Commands.literal("reset")
-                    .executes(context -> editTyped(context, plugin, resolver, lineType, wrongTypeKey, resetAction, resetSuccessKey)));
+            builder.then(Commands.literal("reset").executes(context -> {
+                return editTyped(context, plugin, resolver, lineType, wrongTypeKey, resetAction, resetSuccessKey);
+            }));
             return this;
         }
 
@@ -324,18 +318,14 @@ public final class EditCommands {
         }
     }
 
-    private static java.util.function.Predicate<CommandSourceStack> requiresPermission(final String command) {
+    private static Predicate<CommandSourceStack> requiresPermission(final String command) {
         return source -> source.getSender().hasPermission("holograms.command.edit." + command);
     }
 
-    private static ArgumentBuilder<CommandSourceStack, ?> vector3fArguments(final BiFunction<CommandContext<CommandSourceStack>, Vector3f, Integer> handler) {
-        return vector3fArguments(Float.NEGATIVE_INFINITY, handler);
-    }
-
-    private static ArgumentBuilder<CommandSourceStack, ?> vector3fArguments(final float min, final BiFunction<CommandContext<CommandSourceStack>, Vector3f, Integer> handler) {
-        final var x = Commands.argument("x", FloatArgumentType.floatArg(min));
-        final var y = Commands.argument("y", FloatArgumentType.floatArg(min));
-        final var z = Commands.argument("z", FloatArgumentType.floatArg(min));
+    private static ArgumentBuilder<CommandSourceStack, ?> vector3fArguments(final float min, final float max, final BiFunction<CommandContext<CommandSourceStack>, Vector3f, Integer> handler) {
+        final var x = Commands.argument("x", FloatArgumentType.floatArg(min, max));
+        final var y = Commands.argument("y", FloatArgumentType.floatArg(min, max));
+        final var z = Commands.argument("z", FloatArgumentType.floatArg(min, max));
         return x.then(y.then(z.executes(context -> handler.apply(context, getVector3f(context)))));
     }
 

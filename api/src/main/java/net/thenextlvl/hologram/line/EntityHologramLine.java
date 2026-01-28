@@ -1,5 +1,7 @@
 package net.thenextlvl.hologram.line;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.joml.Vector3f;
@@ -11,6 +13,28 @@ import org.joml.Vector3f;
  */
 @ApiStatus.NonExtendable
 public interface EntityHologramLine extends StaticHologramLine {
+    /**
+     * Sets the entity type of the hologram line.
+     *
+     * @param entityType new entity type
+     * @return this
+     * @throws IllegalArgumentException if the entity type is not valid
+     * @since 0.6.0
+     */
+    @Contract(value = "_ -> this", mutates = "this")
+    EntityHologramLine setEntityType(EntityType entityType) throws IllegalArgumentException;
+
+    /**
+     * Sets the entity type of the hologram line.
+     *
+     * @param entityType new entity type
+     * @return this
+     * @throws IllegalArgumentException if the entity type is not valid
+     * @since 0.6.0
+     */
+    @Contract(value = "_ -> this", mutates = "this")
+    EntityHologramLine setEntityType(Class<Entity> entityType) throws IllegalArgumentException;
+
     /**
      * Gets the scale of the entity.
      *

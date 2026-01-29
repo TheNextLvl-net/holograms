@@ -96,23 +96,23 @@ public interface TextHologramLine extends DisplayHologramLine {
     TextHologramLine setBackgroundColor(@Nullable Color color);
 
     /**
-     * Gets the text opacity.
+     * Gets the text opacity in percent.
      *
-     * @return opacity or -1 if not set
-     * @since 0.1.0
+     * @return opacity
+     * @since 0.7.0
      */
     @Contract(pure = true)
-    float getTextOpacity();
+    int getTextOpacity();
 
     /**
-     * Sets the text opacity.
+     * Sets the text opacity in percent.
      *
-     * @param opacity new opacity or -1 if default
+     * @param opacity the new opacity
      * @return this
-     * @since 0.3.0
+     * @since 0.7.0
      */
     @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setTextOpacity(@Range(from = 0, to = 100) float opacity);
+    TextHologramLine setTextOpacity(@Range(from = 0, to = 100) int opacity);
 
     /**
      * Gets if the text is shadowed.

@@ -28,7 +28,7 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     private volatile boolean defaultBackground = false;
     private volatile boolean seeThrough = false;
     private volatile boolean shadowed = false;
-    private volatile float opacity = 0;
+    private volatile int opacity = 0;
     private volatile int lineWidth = Integer.MAX_VALUE;
 
     public PaperTextHologramLine(final PaperHologram hologram) {
@@ -106,12 +106,12 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public float getTextOpacity() {
+    public int getTextOpacity() {
         return opacity;
     }
 
     @Override
-    public TextHologramLine setTextOpacity(@Range(from = 0, to = 100) final float opacity) {
+    public TextHologramLine setTextOpacity(@Range(from = 0, to = 100) final int opacity) {
         if (Objects.equals(this.opacity, opacity)) return this;
         this.opacity = opacity;
         forEachEntity(this::updateOpacity);

@@ -171,6 +171,50 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
+    public TextHologramLine setTextPage(final int index) throws IndexOutOfBoundsException {
+        if (index < 0 || index >= pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+
+        final var page = new PaperTextHologramLine(getHologram(), this);
+        pages.set(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public ItemHologramLine setItemPage(final int index) throws IndexOutOfBoundsException {
+        if (index < 0 || index >= pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+
+        final var page = new PaperItemHologramLine(getHologram(), this);
+        pages.set(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public BlockHologramLine setBlockPage(final int index) throws IndexOutOfBoundsException {
+        if (index < 0 || index >= pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+
+        final var page = new PaperBlockHologramLine(getHologram(), this);
+        pages.set(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
+    public EntityHologramLine setEntityPage(final int index, final EntityType entityType) throws IllegalArgumentException, IndexOutOfBoundsException {
+        if (index < 0 || index >= pages.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
+
+        final var page = new PaperEntityHologramLine(getHologram(), this, entityType);
+        pages.set(index, page);
+        getHologram().updateHologram();
+        return page;
+    }
+
+    @Override
     public TextHologramLine insertTextPage(final int index) {
         if (index < 0 || index > pages.size())
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());

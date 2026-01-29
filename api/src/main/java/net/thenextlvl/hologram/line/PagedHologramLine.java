@@ -158,6 +158,52 @@ public interface PagedHologramLine extends HologramLine {
     boolean movePage(int from, int to);
 
     /**
+     * Sets the text page at the specified index.
+     *
+     * @param index the index at which to set the page
+     * @return the newly created text page
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @since 0.7.0
+     */
+    @Contract(value = "_ -> new", mutates = "this")
+    TextHologramLine setTextPage(int index) throws IndexOutOfBoundsException;
+
+    /**
+     * Sets the item page at the specified index.
+     *
+     * @param index the index at which to set the page
+     * @return the newly created item page
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @since 0.7.0
+     */
+    @Contract(value = "_ -> new", mutates = "this")
+    ItemHologramLine setItemPage(int index) throws IndexOutOfBoundsException;
+
+    /**
+     * Sets the block page at the specified index.
+     *
+     * @param index the index at which to set the page
+     * @return the newly created block page
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @since 0.7.0
+     */
+    @Contract(value = "_ -> new", mutates = "this")
+    BlockHologramLine setBlockPage(int index) throws IndexOutOfBoundsException;
+
+    /**
+     * Sets the entity page at the specified index.
+     *
+     * @param index      the index at which to set the page
+     * @param entityType the type of entity to display
+     * @return the newly created entity page
+     * @throws IllegalArgumentException  if the entity type is not spawnable
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @since 0.7.0
+     */
+    @Contract(value = "_, _ -> new", mutates = "this")
+    EntityHologramLine setEntityPage(int index, EntityType entityType) throws IllegalArgumentException, IndexOutOfBoundsException;
+
+    /**
      * Inserts a text page at the specified index.
      *
      * @param index the index at which to insert the page
@@ -165,7 +211,7 @@ public interface PagedHologramLine extends HologramLine {
      * @since 0.6.0
      */
     @Contract(value = "_ -> new", mutates = "this")
-    TextHologramLine insertTextPage(int index);
+    TextHologramLine insertTextPage(int index) throws IndexOutOfBoundsException;
 
     /**
      * Inserts an item page at the specified index.
@@ -175,7 +221,7 @@ public interface PagedHologramLine extends HologramLine {
      * @since 0.6.0
      */
     @Contract(value = "_ -> new", mutates = "this")
-    ItemHologramLine insertItemPage(int index);
+    ItemHologramLine insertItemPage(int index) throws IndexOutOfBoundsException;
 
     /**
      * Inserts a block page at the specified index.
@@ -185,7 +231,7 @@ public interface PagedHologramLine extends HologramLine {
      * @since 0.6.0
      */
     @Contract(value = "_ -> new", mutates = "this")
-    BlockHologramLine insertBlockPage(int index);
+    BlockHologramLine insertBlockPage(int index) throws IndexOutOfBoundsException;
 
     /**
      * Inserts an entity page at the specified index.
@@ -197,7 +243,7 @@ public interface PagedHologramLine extends HologramLine {
      * @since 0.6.0
      */
     @Contract(value = "_, _ -> new", mutates = "this")
-    EntityHologramLine insertEntityPage(int index, EntityType entityType) throws IllegalArgumentException;
+    EntityHologramLine insertEntityPage(int index, EntityType entityType) throws IllegalArgumentException, IndexOutOfBoundsException;
 
     /**
      * Gets the interval between page changes.

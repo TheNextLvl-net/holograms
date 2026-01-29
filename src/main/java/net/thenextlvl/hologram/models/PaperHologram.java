@@ -289,7 +289,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public EntityHologramLine addEntityLine(final int index, final EntityType entityType) throws IllegalArgumentException {
-        final var hologramLine = new PaperEntityHologramLine(this, entityType);
+        final var hologramLine = new PaperEntityHologramLine(this, null, entityType);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
@@ -307,7 +307,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public BlockHologramLine addBlockLine(final int index) {
-        final var hologramLine = new PaperBlockHologramLine(this);
+        final var hologramLine = new PaperBlockHologramLine(this, null);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
@@ -320,7 +320,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public ItemHologramLine addItemLine(final int index) {
-        final var hologramLine = new PaperItemHologramLine(this);
+        final var hologramLine = new PaperItemHologramLine(this, null);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
@@ -333,7 +333,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public TextHologramLine addTextLine(final int index) {
-        final var hologramLine = new PaperTextHologramLine(this);
+        final var hologramLine = new PaperTextHologramLine(this, null);
         lines.add(index, hologramLine);
         updateHologram();
         return hologramLine;
@@ -341,7 +341,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public EntityHologramLine setEntityLine(final int index, final EntityType entityType) throws IllegalArgumentException {
-        final var hologramLine = new PaperEntityHologramLine(this, entityType);
+        final var hologramLine = new PaperEntityHologramLine(this, null, entityType);
         despawnLine(lines.set(index, hologramLine));
         updateHologram();
         return hologramLine;
@@ -354,7 +354,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public BlockHologramLine setBlockLine(final int index) {
-        final var hologramLine = new PaperBlockHologramLine(this);
+        final var hologramLine = new PaperBlockHologramLine(this, null);
         despawnLine(lines.set(index, hologramLine));
         updateHologram();
         return hologramLine;
@@ -362,7 +362,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public ItemHologramLine setItemLine(final int index) {
-        final var hologramLine = new PaperItemHologramLine(this);
+        final var hologramLine = new PaperItemHologramLine(this, null);
         despawnLine(lines.set(index, hologramLine));
         updateHologram();
         return hologramLine;
@@ -370,7 +370,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public TextHologramLine setTextLine(final int index) {
-        final var hologramLine = new PaperTextHologramLine(this);
+        final var hologramLine = new PaperTextHologramLine(this, null);
         despawnLine(lines.set(index, hologramLine));
         updateHologram();
         return hologramLine;

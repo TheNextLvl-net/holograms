@@ -94,6 +94,11 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
+    public int getPageIndex(final HologramLine line) {
+        return line instanceof final PaperStaticHologramLine<?> page ? pages.indexOf(page) : -1;
+    }
+
+    @Override
     public TextHologramLine addTextPage() {
         final var page = new PaperTextHologramLine(getHologram(), this);
         pages.add(page);

@@ -60,6 +60,16 @@ public interface PagedHologramLine extends HologramLine {
     int getPageCount();
 
     /**
+     * Gets the index of the given page.
+     *
+     * @param line the page to find the index of
+     * @return the index of the page, or -1 if not found
+     * @since 0.7.0
+     */
+    @Contract(pure = true)
+    int getPageIndex(HologramLine line);
+
+    /**
      * Adds a text page to this paged line.
      *
      * @return the newly created text page

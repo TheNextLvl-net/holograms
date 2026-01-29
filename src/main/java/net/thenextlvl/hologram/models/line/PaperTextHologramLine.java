@@ -54,7 +54,13 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
             builder.resolver(StandardTags.defaults());
             builder.resolver(ImageTagResolver.INSTANCE);
             builder.tag("hologram", Tag.inserting(Component.text(getHologram().getName())));
-            builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(this))));
+            builder.tag("lines", Tag.inserting(Component.text(getHologram().getLineCount())));
+            getParentLine().ifPresentOrElse((line) -> {
+                builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(line) + 1)));
+                builder.tag("page", Tag.inserting(Component.text(line.getPageIndex(this) + 1)));
+                builder.tag("pages", Tag.inserting(Component.text(line.getPageCount())));
+            }, () -> builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(this) + 1))));
+            builder.tag("player", Tag.inserting(player.name()));
             if (formatter != null) builder.resolver(formatter.tagResolver());
 
             return MiniMessage.miniMessage().deserialize(string, player, builder.build());

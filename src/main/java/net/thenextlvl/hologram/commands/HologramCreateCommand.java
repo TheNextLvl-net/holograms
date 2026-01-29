@@ -10,8 +10,11 @@ import io.papermc.paper.command.brigadier.argument.resolvers.FinePositionResolve
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.locale.Tips;
 import org.bukkit.World;
 import org.jspecify.annotations.NullMarked;
+
+import java.time.Duration;
 
 import static net.thenextlvl.hologram.commands.HologramCommand.nameArgument;
 
@@ -45,7 +48,13 @@ final class HologramCreateCommand extends SimpleCommand {
         }
 
         plugin.hologramProvider().spawnHologram(name, location, hologram -> {
-            hologram.addTextLine().setUnparsedText("<lang:hologram.default>");
+            final var line = hologram.addPagedLine();
+            line.setInterval(Duration.ofSeconds(10));
+
+            for (var i = 1; i <= Tips.TIPS_ENGLISH.size(); ++i) {
+                final String text = "<lang:hologram.tip." + i + "><br><lang:hologram.tip.page>";
+                line.addTextPage().setUnparsedText(text);
+            }
         });
 
         plugin.bundle().sendMessage(sender, "hologram.created", placeholder);

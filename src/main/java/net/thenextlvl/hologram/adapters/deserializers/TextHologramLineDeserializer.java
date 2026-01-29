@@ -21,7 +21,7 @@ public final class TextHologramLineDeserializer extends DisplayHologramLineDeser
         tag.optional("text").map(Tag::getAsString).ifPresent(line::setUnparsedText);
         tag.optional("lineWidth").map(Tag::getAsInt).ifPresent(line::setLineWidth);
         tag.optional("backgroundColor").map(tag1 -> context.deserialize(tag1, Color.class)).ifPresent(line::setBackgroundColor);
-        tag.optional("textOpacity").map(Tag::getAsFloat).ifPresent(line::setTextOpacity);
+        tag.optional("textOpacity").map(Tag::getAsInt).ifPresent(line::setTextOpacity);
         tag.optional("shadowed").map(Tag::getAsBoolean).ifPresent(line::setShadowed);
         tag.optional("seeThrough").map(Tag::getAsBoolean).ifPresent(line::setSeeThrough);
         tag.optional("defaultBackground").map(Tag::getAsBoolean).ifPresent(line::setDefaultBackground);

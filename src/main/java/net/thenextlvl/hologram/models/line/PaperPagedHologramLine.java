@@ -379,9 +379,10 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         currentPageIndex.put(player, newIndex);
 
         if (oldPage != null && newPage.adoptEntity(oldPage, player, offset)) return;
-        if (oldPage != null) oldPage.despawn(player);
+        if (oldPage != null) oldPage.despawn(player).join();
 
-        newPage.spawn(player, offset);
+        newPage.spawn(player, offset).join();
+        // fixme: join
     }
 
     private void startCycleTask() {

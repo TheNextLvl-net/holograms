@@ -5,13 +5,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
-import net.thenextlvl.hologram.commands.edit.EditCommands;
+import net.thenextlvl.hologram.commands.edit.HologramEditCommand;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver;
 import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import org.jspecify.annotations.NullMarked;
-
-import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
 
 @NullMarked
 public final class HologramLineEditCommand extends BrigadierCommand {
@@ -23,7 +22,7 @@ public final class HologramLineEditCommand extends BrigadierCommand {
         final var command = new HologramLineEditCommand(plugin);
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.ANY_LINE);
-        return command.create().then(hologramArgument(plugin)
-                .then(EditCommands.addAllEditCommands(line, plugin, LineTargetResolver.LINE)));
+        return command.create().then(HologramCommand.hologramArgument(plugin)
+                .then(HologramEditCommand.create(plugin, line, LineTargetResolver.LINE)));
     }
 }

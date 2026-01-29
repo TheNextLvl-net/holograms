@@ -6,6 +6,7 @@ import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.thenextlvl.hologram.line.LineType;
+import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.locale.ImageTagResolver;
 import net.thenextlvl.hologram.models.PaperHologram;
@@ -31,8 +32,8 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     private volatile int opacity = 0;
     private volatile int lineWidth = Integer.MAX_VALUE;
 
-    public PaperTextHologramLine(final PaperHologram hologram) {
-        super(hologram, EntityType.TEXT_DISPLAY);
+    public PaperTextHologramLine(final PaperHologram hologram, @Nullable final PagedHologramLine parentLine) {
+        super(hologram, parentLine, EntityType.TEXT_DISPLAY);
     }
 
     @Override
@@ -206,7 +207,7 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
             });
         }, () -> getHologram().getPlugin().supply(entity, () -> entity.text(null)));
     }
-    
+
     public void updateText() {
         entities.forEach(this::updateText);
     }

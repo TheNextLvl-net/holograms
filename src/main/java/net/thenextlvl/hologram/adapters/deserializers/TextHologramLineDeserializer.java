@@ -31,6 +31,6 @@ public final class TextHologramLineDeserializer extends DisplayHologramLineDeser
 
     @Override
     protected PaperTextHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
-        return new PaperTextHologramLine(hologram);
+        return new PaperTextHologramLine(hologram, null);
     }
 }

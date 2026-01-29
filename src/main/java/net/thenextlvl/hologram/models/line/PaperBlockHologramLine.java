@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.models.line;
 
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.LineType;
+import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
@@ -9,13 +10,14 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public final class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDisplay> implements BlockHologramLine {
     private volatile BlockData block = BlockType.AIR.createBlockData();
 
-    public PaperBlockHologramLine(final PaperHologram hologram) {
-        super(hologram, EntityType.BLOCK_DISPLAY);
+    public PaperBlockHologramLine(final PaperHologram hologram, @Nullable final PagedHologramLine parentLine) {
+        super(hologram, parentLine, EntityType.BLOCK_DISPLAY);
     }
 
     @Override

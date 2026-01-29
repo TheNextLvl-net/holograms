@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.models.line;
 
 import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.DisplayHologramLine;
+import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
@@ -31,8 +32,8 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
     protected volatile int interpolationDuration = 0;
     protected volatile int teleportDuration = 0;
 
-    public PaperDisplayHologramLine(final PaperHologram hologram, final EntityType entityType) {
-        super(hologram, entityType);
+    public PaperDisplayHologramLine(final PaperHologram hologram, @Nullable final PagedHologramLine parentLine, final EntityType entityType) {
+        super(hologram, parentLine, entityType);
     }
 
     @Override

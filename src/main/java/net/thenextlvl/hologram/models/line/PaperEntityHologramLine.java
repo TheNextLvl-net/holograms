@@ -7,6 +7,7 @@ import net.kyori.adventure.util.TriState;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.LineType;
+import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
@@ -30,8 +31,8 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
     private volatile Vector3f offset = new Vector3f();
     private volatile double scale = 1;
 
-    public PaperEntityHologramLine(final PaperHologram hologram, final EntityType entityType) throws IllegalArgumentException {
-        super(hologram, entityType);
+    public PaperEntityHologramLine(final PaperHologram hologram, @Nullable final PagedHologramLine parentLine, final EntityType entityType) throws IllegalArgumentException {
+        super(hologram, parentLine, entityType);
     }
 
     @Override

@@ -95,7 +95,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public TextHologramLine addTextPage() {
-        final var page = new PaperTextHologramLine(getHologram());
+        final var page = new PaperTextHologramLine(getHologram(), this);
         pages.add(page);
         getHologram().updateHologram();
         return page;
@@ -103,7 +103,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public ItemHologramLine addItemPage() {
-        final var page = new PaperItemHologramLine(getHologram());
+        final var page = new PaperItemHologramLine(getHologram(), this);
         pages.add(page);
         getHologram().updateHologram();
         return page;
@@ -111,7 +111,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public BlockHologramLine addBlockPage() {
-        final var page = new PaperBlockHologramLine(getHologram());
+        final var page = new PaperBlockHologramLine(getHologram(), this);
         pages.add(page);
         getHologram().updateHologram();
         return page;
@@ -119,7 +119,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public EntityHologramLine addEntityPage(final EntityType entityType) throws IllegalArgumentException {
-        final var page = new PaperEntityHologramLine(getHologram(), entityType);
+        final var page = new PaperEntityHologramLine(getHologram(), this, entityType);
         pages.add(page);
         getHologram().updateHologram();
         return page;
@@ -169,7 +169,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public TextHologramLine insertTextPage(final int index) {
         if (index < 0 || index > pages.size())
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-        final var page = new PaperTextHologramLine(getHologram());
+        final var page = new PaperTextHologramLine(getHologram(), this);
         pages.add(index, page);
         getHologram().updateHologram();
         return page;
@@ -179,7 +179,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public ItemHologramLine insertItemPage(final int index) {
         if (index < 0 || index > pages.size())
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-        final var page = new PaperItemHologramLine(getHologram());
+        final var page = new PaperItemHologramLine(getHologram(), this);
         pages.add(index, page);
         getHologram().updateHologram();
         return page;
@@ -189,7 +189,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public BlockHologramLine insertBlockPage(final int index) {
         if (index < 0 || index > pages.size())
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-        final var page = new PaperBlockHologramLine(getHologram());
+        final var page = new PaperBlockHologramLine(getHologram(), this);
         pages.add(index, page);
         getHologram().updateHologram();
         return page;
@@ -199,7 +199,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public EntityHologramLine insertEntityPage(final int index, final EntityType entityType) throws IllegalArgumentException {
         if (index < 0 || index > pages.size())
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-        final var page = new PaperEntityHologramLine(getHologram(), entityType);
+        final var page = new PaperEntityHologramLine(getHologram(), this, entityType);
         pages.add(index, page);
         getHologram().updateHologram();
         return page;
@@ -383,6 +383,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     public void addPage(final PaperStaticHologramLine<?> hologramLine) {
+        hologramLine.parentLine = this;
         this.pages.add(hologramLine);
     }
 }

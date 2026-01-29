@@ -23,6 +23,6 @@ public final class BlockHologramLineDeserializer extends DisplayHologramLineDese
 
     @Override
     protected BlockHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
-        return new PaperBlockHologramLine(hologram);
+        return new PaperBlockHologramLine(hologram, null);
     }
 }

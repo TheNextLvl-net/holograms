@@ -25,6 +25,6 @@ public final class ItemHologramLineDeserializer extends DisplayHologramLineDeser
 
     @Override
     protected ItemHologramLine createLine(final CompoundTag tag, final TagDeserializationContext context) {
-        return new PaperItemHologramLine(hologram);
+        return new PaperItemHologramLine(hologram, null);
     }
 }

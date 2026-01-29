@@ -17,8 +17,8 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
     private volatile ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
     private volatile @Nullable ItemStack item = null;
 
-    public PaperItemHologramLine(final PaperHologram hologram) {
-        super(hologram, EntityType.ITEM_DISPLAY);
+    public PaperItemHologramLine(final PaperHologram hologram, @Nullable final PaperPagedHologramLine parent) {
+        super(hologram, parent, EntityType.ITEM_DISPLAY);
     }
 
     @Override

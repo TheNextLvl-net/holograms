@@ -51,4 +51,13 @@ public interface StaticHologramLine extends HologramLine {
      */
     @Contract(value = "_ -> this", mutates = "this")
     StaticHologramLine setGlowColor(@Nullable TextColor color);
+
+    /**
+     * Gets the parent of this line if it is part of a paged line.
+     *
+     * @return parent paged line
+     * @since 0.7.0
+     */
+    @Contract(pure = true)
+    Optional<PagedHologramLine> getParentLine();
 }

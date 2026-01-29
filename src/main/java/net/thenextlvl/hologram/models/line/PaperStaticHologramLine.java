@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.StaticHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
@@ -24,17 +25,19 @@ import java.util.function.Consumer;
 public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHologramLine implements StaticHologramLine {
     protected final Map<Player, E> entities = new ConcurrentHashMap<>();
 
+    protected volatile @Nullable PagedHologramLine parentLine;
     protected volatile @Nullable TextColor glowColor = null;
     protected volatile Class<E> entityClass;
     protected volatile EntityType entityType;
     protected volatile boolean glowing = false;
 
     @SuppressWarnings("unchecked")
-    public PaperStaticHologramLine(final PaperHologram hologram, final EntityType entityType) throws IllegalArgumentException {
+    public PaperStaticHologramLine(final PaperHologram hologram, @Nullable final PagedHologramLine parentLine, final EntityType entityType) throws IllegalArgumentException {
         super(hologram);
         Preconditions.checkArgument(entityType.getEntityClass() != null, "Entity type %s is not spawnable", entityType);
         this.entityType = entityType;
         this.entityClass = (Class<E>) entityType.getEntityClass();
+        this.parentLine = parentLine;
     }
 
     @Override
@@ -83,6 +86,11 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @Override
     public <T> Optional<T> getEntity(final Player player, final Class<T> type) {
         return getEntity(player).filter(type::isInstance).map(type::cast);
+    }
+
+    @Override
+    public Optional<PagedHologramLine> getParentLine() {
+        return Optional.ofNullable(parentLine);
     }
 
     @Override

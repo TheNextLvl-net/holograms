@@ -52,18 +52,16 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
     }
 
     public void registerDefaults() {
-        registerIfMissing("hologram.default", Locale.US, """
-                <hologram>
-                Use <gray>/hologram line add <hologram> <type> <value></gray>
-                to add a new line
-                Use <gray>/hologram delete <hologram></gray>
-                to remove the hologram""");
-        registerIfMissing("hologram.default", Locale.GERMANY, """
-                <hologram>
-                Verwende <gray>/hologram line add <hologram> <type> <value></gray>
-                um eine neue Zeile hinzuzufügen
-                Verwende <gray>/hologram delete <hologram></gray>
-                um das Hologramm zu entfernen""");
+        for (var i = 0; i < Tips.TIPS_ENGLISH.size(); ++i) {
+            registerIfMissing("hologram.tip." + (i + 1), Locale.US, Tips.TIPS_ENGLISH.get(i));
+        }
+
+        for (var i = 0; i < Tips.TIPS_GERMAN.size(); ++i) {
+            registerIfMissing("hologram.tip." + (i + 1), Locale.GERMANY, Tips.TIPS_GERMAN.get(i));
+        }
+
+        registerIfMissing("hologram.tip.page", Locale.US, "<italic><gray>Tip <page>/<pages></gray></italic>");
+        registerIfMissing("hologram.tip.page", Locale.GERMANY, "<italic><gray>Tipp <page>/<pages></gray></italic>");
     }
 
     private void registerIfMissing(final String key, final Locale locale, final String value) {

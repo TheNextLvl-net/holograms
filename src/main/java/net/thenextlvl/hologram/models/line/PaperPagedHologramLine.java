@@ -1,7 +1,6 @@
 package net.thenextlvl.hologram.models.line;
 
 import com.google.common.base.Preconditions;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -25,7 +24,6 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 
 @NullMarked
 public final class PaperPagedHologramLine extends PaperHologramLine implements PagedHologramLine {
@@ -33,10 +31,11 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     private final Map<Player, Integer> currentPageIndex = new ConcurrentHashMap<>();
     private final Random random = new Random();
 
-    private volatile @Nullable ScheduledTask cycleTask = null;
     private volatile Duration interval = Duration.ofSeconds(2);
     private volatile boolean paused = false;
     private volatile boolean randomOrder = false;
+    private volatile boolean cycling = false;
+    private volatile long nextCycleTime = 0;
 
     public PaperPagedHologramLine(final PaperHologram hologram) {
         super(hologram);
@@ -263,7 +262,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public PagedHologramLine setInterval(final Duration interval) {
         Preconditions.checkArgument(interval.isPositive(), "Interval must be bigger than zero");
         this.interval = interval;
-        restartCycleTask();
+        nextCycleTime = System.currentTimeMillis() + interval.toMillis();
         return this;
     }
 
@@ -287,7 +286,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public PagedHologramLine setPaused(final boolean paused) {
         this.paused = paused;
         if (paused) stopCycleTask();
-        else restartCycleTask();
+        else startCycleTask();
         return this;
     }
 
@@ -362,8 +361,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         pages.forEach(page -> page.invalidate(entity));
     }
 
-    private void cyclePage(final Player player, final double offset) {
-        if (pages.isEmpty()) return;
+    private CompletableFuture<Void> cyclePage(final Player player, final double offset) {
+        if (pages.isEmpty()) return CompletableFuture.completedFuture(null);
 
         final int oldIndex = currentPageIndex.getOrDefault(player, 0);
         final var oldPage = pages.size() > oldIndex ? pages.get(oldIndex) : null;
@@ -378,47 +377,41 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         final var newPage = pages.get(newIndex);
         currentPageIndex.put(player, newIndex);
 
-        if (oldPage != null && newPage.adoptEntity(oldPage, player, offset)) return;
-        if (oldPage != null) oldPage.despawn(player).join();
+        if (oldPage != null && newPage.adoptEntity(oldPage, player, offset))
+            return CompletableFuture.completedFuture(null);
 
-        newPage.spawn(player, offset).join();
-        // fixme: join
+        final var despawn = oldPage != null ? oldPage.despawn(player) : CompletableFuture.<Void>completedFuture(null);
+        return despawn.thenCompose(v -> newPage.spawn(player, offset).thenAccept(e -> {
+        }));
     }
 
     private void startCycleTask() {
-        if (cycleTask != null || paused || pages.size() <= 1) return;
-
-        cycleTask = getHologram().getPlugin().getServer().getAsyncScheduler().runAtFixedRate(
-                getHologram().getPlugin(),
-                scheduledTask -> cycleAllPlayers(),
-                interval.toMillis(),
-                interval.toMillis(),
-                TimeUnit.MILLISECONDS
-        );
+        if (paused || pages.size() <= 1) return;
+        nextCycleTime = System.currentTimeMillis() + interval.toMillis();
+        getHologram().getPlugin().hologramTickPool().register(this);
     }
 
     private void stopCycleTask() {
-        final var task = cycleTask;
-        if (task != null) {
-            task.cancel();
-            cycleTask = null;
-        }
+        getHologram().getPlugin().hologramTickPool().unregister(this);
     }
 
-    private void restartCycleTask() {
-        stopCycleTask();
-        if (!paused && pages.size() > 1) {
-            startCycleTask();
-        }
-    }
-
-    private void cycleAllPlayers() {
-        currentPageIndex.keySet().forEach(player -> {
-            if (getHologram().isSpawned(player)) {
-                cyclePage(player, calculateOffset(player));
-            }
+    public void tickCycle(long now) {
+        if (cycling || now < nextCycleTime) return;
+        cycling = true;
+        final long start = System.currentTimeMillis();
+        cycleAllPlayers().whenComplete((v, t) -> {
+            final long elapsed = System.currentTimeMillis() - start;
+            nextCycleTime = System.currentTimeMillis() + Math.max(0, interval.toMillis() - elapsed);
+            cycling = false;
         });
-        getHologram().updateHologram();
+    }
+
+    private CompletableFuture<Void> cycleAllPlayers() {
+        final var futures = currentPageIndex.keySet().stream()
+                .filter(player -> getHologram().isSpawned(player))
+                .map(player -> cyclePage(player, calculateOffset(player)))
+                .toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(futures).thenRun(() -> getHologram().updateHologram());
     }
 
     private double calculateOffset(final Player player) {

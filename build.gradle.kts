@@ -32,7 +32,7 @@ dependencies {
     paperweight.foliaDevBundle("1.21.11-R0.1-SNAPSHOT")
 
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
-    compileOnly("me.clip:placeholderapi:2.11.7")
+    compileOnly("me.clip:placeholderapi:2.12.0")
 
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
     implementation("net.thenextlvl:i18n:1.2.0")

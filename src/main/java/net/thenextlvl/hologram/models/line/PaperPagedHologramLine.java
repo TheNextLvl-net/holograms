@@ -395,7 +395,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         getHologram().getPlugin().hologramTickPool().unregister(this);
     }
 
-    public void tickCycle(long now) {
+    public void tickCycle(final long now) {
         if (cycling || now < nextCycleTime) return;
         cycling = true;
         final long start = System.currentTimeMillis();
@@ -408,7 +408,6 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     private CompletableFuture<Void> cycleAllPlayers() {
         final var futures = currentPageIndex.keySet().stream()
-                .filter(player -> getHologram().isSpawned(player))
                 .map(player -> cyclePage(player, calculateOffset(player)))
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures).thenRun(() -> getHologram().updateHologram());

@@ -24,6 +24,8 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 @NullMarked
 public final class PaperPagedHologramLine extends PaperHologramLine implements PagedHologramLine {
@@ -31,11 +33,12 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     private final Map<Player, Integer> currentPageIndex = new ConcurrentHashMap<>();
     private final Random random = new Random();
 
+    private final AtomicBoolean cycling = new AtomicBoolean(false);
+    private final AtomicLong nextCycleTime = new AtomicLong(0);
+
     private volatile Duration interval = Duration.ofSeconds(2);
     private volatile boolean paused = false;
     private volatile boolean randomOrder = false;
-    private volatile boolean cycling = false;
-    private volatile long nextCycleTime = 0;
 
     public PaperPagedHologramLine(final PaperHologram hologram) {
         super(hologram);
@@ -262,7 +265,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public PagedHologramLine setInterval(final Duration interval) {
         Preconditions.checkArgument(interval.isPositive(), "Interval must be bigger than zero");
         this.interval = interval;
-        nextCycleTime = System.currentTimeMillis() + interval.toMillis();
+        nextCycleTime.set(System.currentTimeMillis() + interval.toMillis());
         return this;
     }
 
@@ -387,7 +390,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     private void startCycleTask() {
         if (paused || pages.size() <= 1) return;
-        nextCycleTime = System.currentTimeMillis() + interval.toMillis();
+        nextCycleTime.set(System.currentTimeMillis() + interval.toMillis());
         getHologram().getPlugin().hologramTickPool().register(this);
     }
 
@@ -396,13 +399,14 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     public void tickCycle(final long now) {
-        if (cycling || now < nextCycleTime) return;
-        cycling = true;
+        if (now < nextCycleTime.get()) return;
+        if (!cycling.compareAndSet(false, true)) return;
+
         final long start = System.currentTimeMillis();
         cycleAllPlayers().whenComplete((v, t) -> {
             final long elapsed = System.currentTimeMillis() - start;
-            nextCycleTime = System.currentTimeMillis() + Math.max(0, interval.toMillis() - elapsed);
-            cycling = false;
+            nextCycleTime.set(System.currentTimeMillis() + Math.max(0, interval.toMillis() - elapsed));
+            cycling.set(false);
         });
     }
 

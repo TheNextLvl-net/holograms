@@ -10,20 +10,24 @@ import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 @NullMarked
 public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHologramLine implements StaticHologramLine {
     protected final Map<Player, E> entities = new ConcurrentHashMap<>();
+    protected final Map<Player, Interaction> interactions = new ConcurrentHashMap<>();
 
     protected volatile @Nullable PagedHologramLine parentLine;
     protected volatile @Nullable TextColor glowColor = null;
@@ -95,18 +99,22 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public CompletableFuture<Void> despawn() {
-        final var futures = entities.values().stream()
+        final var futures = Stream.concat(entities.values().stream(), interactions.values().stream())
                 .map(e -> getHologram().getPlugin().supply(e, e::remove))
                 .toArray(CompletableFuture[]::new);
         entities.clear();
+        interactions.clear();
         return CompletableFuture.allOf(futures);
     }
 
     @Override
     public CompletableFuture<@Nullable Void> despawn(final Player player) {
+        final var futures = new ArrayList<CompletableFuture<Void>>(2);
         final var entity = entities.remove(player);
-        if (entity != null) return getHologram().getPlugin().supply(entity, entity::remove);
-        return CompletableFuture.completedFuture(null);
+        if (entity != null) futures.add(getHologram().getPlugin().supply(entity, entity::remove));
+        final var interaction = interactions.remove(player);
+        if (interaction != null) futures.add(getHologram().getPlugin().supply(interaction, interaction::remove));
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     @Override
@@ -116,6 +124,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
         final var existing = entities.get(player);
         final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
+        // todo: update interaction?
 
         if (existing != null && existing.isValid()) {
             return getHologram().getPlugin().supply(existing, () -> {
@@ -127,11 +136,19 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
         return getHologram().getPlugin().supply(location, () -> {
             final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
+            // fixme: spawning of the normal entity is behaving strangely now
+            final var interaction = location.getWorld().spawn(location.clone().subtract(0, getOffsetBefore(player), 0), Interaction.class, false, entity -> {
+                entity.setInteractionHeight((float) getHeight(player));
+                entity.setInteractionWidth((float) Math.max(1, spawn.getWidth()));
+                entity.setResponsive(true);
+                entity.setPersistent(false);
+            });
             getHologram().getPlugin().supply(player, () -> {
                 if (!player.getServer().isOwnedByCurrentRegion(spawn)) return;
                 player.showEntity(getHologram().getPlugin(), spawn);
             });
             entities.put(player, spawn);
+            interactions.put(player, interaction);
             return spawn;
         });
     }
@@ -152,8 +169,8 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public CompletableFuture<Void> teleportRelative(final Location previous, final Location location) {
-        return CompletableFuture.allOf(entities.values().stream()
-                .filter(Entity::isValid)
+        final var entities = Stream.concat(this.entities.values().stream(), interactions.values().stream());
+        return CompletableFuture.allOf(entities.filter(Entity::isValid)
                 .map(entity -> entity.teleportAsync(new Location(
                         location.getWorld(),
                         location.getX() + entity.getX() - previous.getX(),
@@ -165,7 +182,8 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public boolean isPart(final Entity entity) {
-        return entityClass.isInstance(entity) && entities.containsValue(entityClass.cast(entity));
+        return (entityClass.isInstance(entity) && entities.containsValue(entityClass.cast(entity)))
+                || entity instanceof final Interaction interaction && interactions.containsValue(interaction);
     }
 
     @Override
@@ -200,6 +218,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
             entity.teleportAsync(mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0)));
             preSpawn((E) entity, player);
         });
+        // todo: adopt interaction?
         return true;
     }
 

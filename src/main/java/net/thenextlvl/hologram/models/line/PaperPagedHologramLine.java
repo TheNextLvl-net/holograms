@@ -402,9 +402,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         if (now < nextCycleTime.get()) return;
         if (!cycling.compareAndSet(false, true)) return;
 
-        final long start = System.currentTimeMillis();
         cycleAllPlayers().whenComplete((v, t) -> {
-            final long elapsed = System.currentTimeMillis() - start;
+            final long elapsed = System.currentTimeMillis() - now;
             nextCycleTime.set(System.currentTimeMillis() + Math.max(0, interval.toMillis() - elapsed));
             cycling.set(false);
         });

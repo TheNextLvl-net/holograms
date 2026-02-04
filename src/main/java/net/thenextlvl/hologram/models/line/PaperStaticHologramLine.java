@@ -111,6 +111,9 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
+        if (!getHologram().getWorld().equals(player.getWorld()))
+            return CompletableFuture.completedFuture(null);
+
         final var existing = entities.get(player);
         final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
 
@@ -124,7 +127,10 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
         return getHologram().getPlugin().supply(location, () -> {
             final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
-            getHologram().getPlugin().supply(player, () -> player.showEntity(getHologram().getPlugin(), spawn));
+            getHologram().getPlugin().supply(player, () -> {
+                if (!player.getServer().isOwnedByCurrentRegion(spawn)) return;
+                player.showEntity(getHologram().getPlugin(), spawn);
+            });
             entities.put(player, spawn);
             return spawn;
         });

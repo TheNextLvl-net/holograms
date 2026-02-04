@@ -31,6 +31,7 @@ import net.thenextlvl.hologram.adapters.serializers.ItemHologramLineSerializer;
 import net.thenextlvl.hologram.adapters.serializers.PagedHologramLineSerializer;
 import net.thenextlvl.hologram.adapters.serializers.TextHologramLineSerializer;
 import net.thenextlvl.hologram.commands.HologramCommand;
+import net.thenextlvl.hologram.controller.HologramTickPool;
 import net.thenextlvl.hologram.controller.PaperHologramProvider;
 import net.thenextlvl.hologram.event.HologramLoadEvent;
 import net.thenextlvl.hologram.line.BlockHologramLine;
@@ -97,6 +98,7 @@ public final class HologramPlugin extends JavaPlugin {
     public static final boolean RUNNING_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
 
     private final PaperHologramProvider provider = new PaperHologramProvider(this);
+    private final HologramTickPool hologramTickPool = new HologramTickPool(this);
     private final Metrics metrics = new Metrics(this, 25817);
     private final dev.faststats.core.Metrics fastStats = BukkitMetrics.factory()
             .token("27b63937a461e94208f25b105af290cf")
@@ -154,6 +156,7 @@ public final class HologramPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        hologramTickPool.shutdown();
         provider.forEachHologram(Hologram::persist);
         fastStats.shutdown();
         metrics.shutdown();
@@ -161,6 +164,10 @@ public final class HologramPlugin extends JavaPlugin {
 
     public PaperHologramProvider hologramProvider() {
         return provider;
+    }
+
+    public HologramTickPool hologramTickPool() {
+        return hologramTickPool;
     }
 
     public ComponentBundle bundle() {

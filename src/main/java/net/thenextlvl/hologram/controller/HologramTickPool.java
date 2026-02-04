@@ -17,16 +17,20 @@ public final class HologramTickPool {
 
     private volatile @Nullable ScheduledTask cycleTask = null;
 
-    public HologramTickPool(HologramPlugin plugin) {
+    public HologramTickPool(final HologramPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void register(PaperPagedHologramLine line) {
-        if (registeredLines.add(line)) startTaskIfNeeded();
+    public boolean register(final PaperPagedHologramLine line) {
+        if (!registeredLines.add(line)) return false;
+        startTaskIfNeeded();
+        return true;
     }
 
-    public void unregister(PaperPagedHologramLine line) {
-        if (registeredLines.remove(line)) stopTaskIfEmpty();
+    public boolean unregister(final PaperPagedHologramLine line) {
+        if (!registeredLines.remove(line)) return false;
+        stopTaskIfEmpty();
+        return true;
     }
 
     private void startTaskIfNeeded() {
@@ -45,7 +49,7 @@ public final class HologramTickPool {
         }
     }
 
-    private void tick(ScheduledTask task) {
+    private void tick(final ScheduledTask task) {
         final long now = System.currentTimeMillis();
         registeredLines.forEach(line -> line.tickCycle(now));
     }

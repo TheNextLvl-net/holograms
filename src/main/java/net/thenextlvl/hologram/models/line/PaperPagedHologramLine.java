@@ -390,12 +390,12 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     private void startCycleTask() {
         if (paused || pages.size() <= 1) return;
+        if (!getHologram().getPlugin().hologramTickPool().register(this)) return;
         nextCycleTime.set(System.currentTimeMillis() + interval.toMillis());
-        getHologram().getPlugin().hologramTickPool().register(this);
     }
 
     private void stopCycleTask() {
-        getHologram().getPlugin().hologramTickPool().unregister(this);
+        if (getHologram().getPlugin().hologramTickPool().unregister(this)) nextCycleTime.set(0);
     }
 
     public void tickCycle(final long now) {

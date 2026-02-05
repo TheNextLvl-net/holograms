@@ -537,7 +537,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public CompletableFuture<Boolean> spawn(final Player player, final boolean update) {
-        if (!canSee(player) || !location.isChunkLoaded())
+        if (!canSee(player) || !location.isChunkLoaded() || !player.isConnected()) 
             return CompletableFuture.completedFuture(false);
         if (!spawned.add(player.getUniqueId()) && !update)
             return CompletableFuture.completedFuture(false);
@@ -546,7 +546,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     private CompletableFuture<Boolean> spawnLine(final Player player, final int index, final double offset) {
-        if (index < 0) return CompletableFuture.completedFuture(false);
+        if (index < 0 || !player.isConnected()) return CompletableFuture.completedFuture(false);
         final var line = (PaperHologramLine) lines.get(index);
         final var currentOffset = offset + line.getOffsetBefore(player);
         return line.spawn(player, currentOffset).thenCompose(entity -> {

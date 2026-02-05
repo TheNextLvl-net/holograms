@@ -327,7 +327,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
-        if (pages.isEmpty()) return CompletableFuture.completedFuture(null);
+        if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(null);
         currentPageIndex.compute(player.getUniqueId(), (ignored, index) ->
                 index == null || index >= pages.size() ? 0 : index);
         final var page = getCurrentPage(player).orElseGet(pages::getFirst);
@@ -368,7 +368,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     private CompletableFuture<Void> cyclePage(final Player player, final double offset) {
-        if (pages.isEmpty()) return CompletableFuture.completedFuture(null);
+        if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(null);
 
         final int oldIndex = currentPageIndex.getOrDefault(player.getUniqueId(), 0);
         final var oldPage = pages.size() > oldIndex ? pages.get(oldIndex) : null;
@@ -403,7 +403,6 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     public void tickCycle(final long now) {
-        System.out.println("ticking " + getHologram().getName());
         if (now < nextCycleTime.get()) return;
         if (!cycling.compareAndSet(false, true)) return;
 

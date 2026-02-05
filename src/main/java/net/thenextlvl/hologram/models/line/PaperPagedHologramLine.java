@@ -419,7 +419,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
                 .filter(Objects::nonNull)
                 .map(player -> cyclePage(player, calculateOffset(player)))
                 .toArray(CompletableFuture[]::new);
-        return CompletableFuture.allOf(futures).thenRun(() -> getHologram().updateHologram());
+        return CompletableFuture.allOf(futures); // todo: add proper realigning
     }
 
     private double calculateOffset(final Player player) {

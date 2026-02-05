@@ -209,7 +209,10 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     public void updateText() {
-        entities.forEach(this::updateText);
+        entities.forEach((uuid, entity) -> {
+            final var player = getHologram().getPlugin().getServer().getPlayer(uuid);
+            if (player != null) updateText(player, entity);
+        });
     }
 
     private void updateOpacity(final TextDisplay entity) {

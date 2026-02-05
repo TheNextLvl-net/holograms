@@ -19,6 +19,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -26,8 +27,8 @@ import java.util.stream.Stream;
 
 @NullMarked
 public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHologramLine implements StaticHologramLine {
-    protected final Map<Player, E> entities = new ConcurrentHashMap<>();
-    protected final Map<Player, Interaction> interactions = new ConcurrentHashMap<>();
+    protected final Map<UUID, E> entities = new ConcurrentHashMap<>();
+    protected final Map<UUID, Interaction> interactions = new ConcurrentHashMap<>();
 
     protected volatile @Nullable PagedHologramLine parentLine;
     protected volatile @Nullable TextColor glowColor = null;
@@ -84,7 +85,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @Override
     public Optional<Entity> getEntity(final Player player) {
-        return Optional.ofNullable(entities.get(player));
+        return Optional.ofNullable(entities.get(player.getUniqueId()));
     }
 
     @Override
@@ -110,9 +111,9 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @Override
     public CompletableFuture<@Nullable Void> despawn(final Player player) {
         final var futures = new ArrayList<CompletableFuture<Void>>(2);
-        final var entity = entities.remove(player);
+        final var entity = entities.remove(player.getUniqueId());
         if (entity != null) futures.add(getHologram().getPlugin().supply(entity, entity::remove));
-        final var interaction = interactions.remove(player);
+        final var interaction = interactions.remove(player.getUniqueId());
         if (interaction != null) futures.add(getHologram().getPlugin().supply(interaction, interaction::remove));
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
@@ -122,7 +123,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         if (!getHologram().getWorld().equals(player.getWorld()))
             return CompletableFuture.completedFuture(null);
 
-        final var existing = entities.get(player);
+        final var existing = entities.get(player.getUniqueId());
         final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
         // todo: update interaction?
 
@@ -147,8 +148,8 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
                 if (!player.getServer().isOwnedByCurrentRegion(spawn)) return;
                 player.showEntity(getHologram().getPlugin(), spawn);
             });
-            entities.put(player, spawn);
-            interactions.put(player, interaction);
+            entities.put(player.getUniqueId(), spawn);
+            interactions.put(player.getUniqueId(), interaction);
             return spawn;
         });
     }
@@ -202,7 +203,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
             if (entry.getValue().equals(entity)) {
                 iterator.remove();
-                return entry.getKey();
+                return getHologram().getPlugin().getServer().getPlayer(entry.getKey());
             }
         }
         return null;
@@ -210,10 +211,10 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     @SuppressWarnings("unchecked")
     public boolean adoptEntity(final PaperStaticHologramLine<?> oldPage, final Player player, final double offset) {
-        final var entity = oldPage.entities.get(player);
+        final var entity = oldPage.entities.get(player.getUniqueId());
         if (!entityClass.isInstance(entity)) return false;
-        oldPage.entities.remove(player);
-        entities.put(player, (E) entity);
+        oldPage.entities.remove(player.getUniqueId());
+        entities.put(player.getUniqueId(), (E) entity);
         getHologram().getPlugin().supply(entity, () -> {
             entity.teleportAsync(mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0)));
             preSpawn((E) entity, player);
@@ -235,10 +236,6 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         settings = player.getScoreboard().registerNewTeam(entity.getScoreboardEntryName());
         settings.addEntry(entity.getScoreboardEntryName());
         return settings;
-    }
-
-    public Map<Player, E> getEntities() {
-        return entities;
     }
 
     public void forEachEntity(final Consumer<E> consumer) {

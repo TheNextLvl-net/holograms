@@ -62,7 +62,7 @@ import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
 public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     private final List<HologramLine> lines = new CopyOnWriteArrayList<>();
     private final Set<UUID> viewers = new ConcurrentSkipListSet<>();
-    private final Set<Player> spawned = ConcurrentHashMap.newKeySet();
+    private final Set<UUID> spawned = ConcurrentHashMap.newKeySet();
 
     private final HologramPlugin plugin;
 
@@ -539,7 +539,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public CompletableFuture<Boolean> spawn(final Player player, final boolean update) {
         if (!canSee(player) || !location.isChunkLoaded())
             return CompletableFuture.completedFuture(false);
-        if (!spawned.add(player) && !update)
+        if (!spawned.add(player.getUniqueId()) && !update)
             return CompletableFuture.completedFuture(false);
         return getPlugin().supply(location, () -> spawnLine(player, lines.size() - 1, 0d))
                 .thenCompose(Function.identity());
@@ -558,7 +558,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public CompletableFuture<Void> despawn() {
-        final var futures = spawned.stream()
+        final var futures = getSpawned()
                 .map(this::despawn)
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures);
@@ -566,7 +566,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public CompletableFuture<Boolean> despawn(final Player player) {
-        if (!spawned.remove(player)) return CompletableFuture.completedFuture(false);
+        if (!spawned.remove(player.getUniqueId())) return CompletableFuture.completedFuture(false);
         final var futures = lines.stream()
                 .map(PaperHologramLine.class::cast)
                 .map(line -> line.despawn(player))
@@ -574,13 +574,15 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return CompletableFuture.allOf(futures).thenApply(v -> true);
     }
 
-    public Set<Player> getSpawned() {
-        return spawned;
+    public Stream<Player> getSpawned() {
+        return spawned.stream()
+                .map(plugin.getServer()::getPlayer)
+                .filter(Objects::nonNull);
     }
 
     @Override
     public boolean isSpawned(final Player player) {
-        return spawned.contains(player);
+        return spawned.contains(player.getUniqueId());
     }
 
     @Override
@@ -594,7 +596,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public void updateHologram() {
-        spawned.forEach(this::updateHologram);
+        getSpawned().forEach(this::updateHologram);
     }
 
     public void updateHologram(final Player player) {
@@ -602,7 +604,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public void updateVisibility() {
-        spawned.forEach(this::updateVisibility);
+        getSpawned().forEach(this::updateVisibility);
     }
 
     public void updateVisibility(final Player player) {

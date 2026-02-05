@@ -19,8 +19,10 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @NullMarked
 public final class PaperPagedHologramLine extends PaperHologramLine implements PagedHologramLine {
     private final List<PaperStaticHologramLine<?>> pages = new CopyOnWriteArrayList<>();
-    private final Map<Player, Integer> currentPageIndex = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> currentPageIndex = new ConcurrentHashMap<>();
     private final Random random = new Random();
 
     private final AtomicBoolean cycling = new AtomicBoolean(false);
@@ -294,12 +296,12 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     public Optional<PaperStaticHologramLine<?>> getCurrentPage(final Player player) {
-        final var index = currentPageIndex.getOrDefault(player, 0);
+        final var index = currentPageIndex.getOrDefault(player.getUniqueId(), 0);
         return getPage(index).map(hologramLine -> (PaperStaticHologramLine<?>) hologramLine);
     }
 
     public int getCurrentPageIndex(final Player player) {
-        return currentPageIndex.getOrDefault(player, 0);
+        return currentPageIndex.getOrDefault(player.getUniqueId(), 0);
     }
 
     @Override
@@ -326,7 +328,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     @Override
     public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
         if (pages.isEmpty()) return CompletableFuture.completedFuture(null);
-        currentPageIndex.compute(player, (ignored, index) -> index == null || index >= pages.size() ? 0 : index);
+        currentPageIndex.compute(player.getUniqueId(), (ignored, index) -> 
+                index == null || index >= pages.size() ? 0 : index);
         final var page = getCurrentPage(player).orElseGet(pages::getFirst);
         startCycleTask();
         return page.spawn(player, offset);
@@ -344,7 +347,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public CompletableFuture<Void> despawn(final Player player) {
-        currentPageIndex.remove(player);
+        currentPageIndex.remove(player.getUniqueId());
         if (currentPageIndex.isEmpty()) stopCycleTask();
         final var futures = pages.stream()
                 .map(page -> page.despawn(player))
@@ -367,7 +370,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     private CompletableFuture<Void> cyclePage(final Player player, final double offset) {
         if (pages.isEmpty()) return CompletableFuture.completedFuture(null);
 
-        final int oldIndex = currentPageIndex.getOrDefault(player, 0);
+        final int oldIndex = currentPageIndex.getOrDefault(player.getUniqueId(), 0);
         final var oldPage = pages.size() > oldIndex ? pages.get(oldIndex) : null;
 
         final int newIndex;
@@ -378,7 +381,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         }
 
         final var newPage = pages.get(newIndex);
-        currentPageIndex.put(player, newIndex);
+        currentPageIndex.put(player.getUniqueId(), newIndex);
 
         if (oldPage != null && newPage.adoptEntity(oldPage, player, offset))
             return CompletableFuture.completedFuture(null);
@@ -399,6 +402,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     public void tickCycle(final long now) {
+        System.out.println("ticking " + getHologram().getName());
         if (now < nextCycleTime.get()) return;
         if (!cycling.compareAndSet(false, true)) return;
 
@@ -411,6 +415,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     private CompletableFuture<Void> cycleAllPlayers() {
         final var futures = currentPageIndex.keySet().stream()
+                .map(getHologram().getPlugin().getServer()::getPlayer)
+                .filter(Objects::nonNull)
                 .map(player -> cyclePage(player, calculateOffset(player)))
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures).thenRun(() -> getHologram().updateHologram());

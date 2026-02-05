@@ -37,7 +37,10 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
 
     @Override
     protected void updateGlowColor(@Nullable final TextColor color) {
-        entities.forEach(this::updateTeamOptions);
+        entities.forEach((uuid, entity) -> {
+            final var player = getHologram().getPlugin().getServer().getPlayer(uuid);
+            if (player != null) updateTeamOptions(player, entity);
+        });
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @NullMarked
@@ -73,7 +74,7 @@ public abstract class PaperHologramLine implements HologramLine {
 
     public abstract CompletableFuture<Void> despawn();
 
-    public abstract CompletableFuture<@Nullable Void> despawn(final Player player);
+    public abstract CompletableFuture<@Nullable Void> despawn(final UUID player);
 
     public abstract void invalidate(final Entity entity);
 

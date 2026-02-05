@@ -109,11 +109,11 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     }
 
     @Override
-    public CompletableFuture<@Nullable Void> despawn(final Player player) {
+    public CompletableFuture<@Nullable Void> despawn(final UUID player) {
         final var futures = new ArrayList<CompletableFuture<Void>>(2);
-        final var entity = entities.remove(player.getUniqueId());
+        final var entity = entities.remove(player);
         if (entity != null) futures.add(getHologram().getPlugin().supply(entity, entity::remove));
-        final var interaction = interactions.remove(player.getUniqueId());
+        final var interaction = interactions.remove(player);
         if (interaction != null) futures.add(getHologram().getPlugin().supply(interaction, interaction::remove));
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }

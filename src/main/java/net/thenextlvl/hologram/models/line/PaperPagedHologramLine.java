@@ -328,7 +328,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     @Override
     public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
         if (pages.isEmpty()) return CompletableFuture.completedFuture(null);
-        currentPageIndex.compute(player.getUniqueId(), (ignored, index) -> 
+        currentPageIndex.compute(player.getUniqueId(), (ignored, index) ->
                 index == null || index >= pages.size() ? 0 : index);
         final var page = getCurrentPage(player).orElseGet(pages::getFirst);
         startCycleTask();
@@ -346,8 +346,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
-    public CompletableFuture<Void> despawn(final Player player) {
-        currentPageIndex.remove(player.getUniqueId());
+    public CompletableFuture<Void> despawn(final UUID player) {
+        currentPageIndex.remove(player);
         if (currentPageIndex.isEmpty()) stopCycleTask();
         final var futures = pages.stream()
                 .map(page -> page.despawn(player))
@@ -386,7 +386,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         if (oldPage != null && newPage.adoptEntity(oldPage, player, offset))
             return CompletableFuture.completedFuture(null);
 
-        final var despawn = oldPage != null ? oldPage.despawn(player) : CompletableFuture.<Void>completedFuture(null);
+        final var despawn = oldPage != null ? oldPage.despawn(player.getUniqueId())
+                : CompletableFuture.<Void>completedFuture(null);
         return despawn.thenCompose(v -> newPage.spawn(player, offset).thenAccept(e -> {
         }));
     }

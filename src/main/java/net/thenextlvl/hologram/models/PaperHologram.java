@@ -569,7 +569,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (!spawned.remove(player.getUniqueId())) return CompletableFuture.completedFuture(false);
         final var futures = lines.stream()
                 .map(PaperHologramLine.class::cast)
-                .map(line -> line.despawn(player))
+                .map(line -> line.despawn(player.getUniqueId()))
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures).thenApply(v -> true);
     }

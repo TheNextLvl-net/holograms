@@ -550,8 +550,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         final var line = (PaperHologramLine) lines.get(index);
         final var currentOffset = offset + line.getOffsetBefore(player);
         return line.spawn(player, currentOffset).thenCompose(entity -> {
-            if (entity == null || index == 0) return CompletableFuture.completedFuture(false);
-            final var nextOffset = currentOffset + 0.05 + line.getHeight(player) + line.getOffsetAfter(player);
+            if (index == 0) return CompletableFuture.completedFuture(entity != null);
+            final var nextOffset = entity != null
+                    ? currentOffset + 0.05 + line.getHeight(player) + line.getOffsetAfter(player)
+                    : offset;
             return spawnLine(player, index - 1, nextOffset);
         });
     }

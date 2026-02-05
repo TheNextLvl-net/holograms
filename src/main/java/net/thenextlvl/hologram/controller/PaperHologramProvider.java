@@ -25,9 +25,9 @@ import org.jspecify.annotations.NullMarked;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -36,7 +36,7 @@ import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
 @NullMarked
 public class PaperHologramProvider implements HologramProvider {
     private final HologramPlugin plugin;
-    public final Set<Hologram> holograms = new HashSet<>();
+    public final Set<Hologram> holograms = new CopyOnWriteArraySet<>();
 
     public PaperHologramProvider(final HologramPlugin plugin) {
         this.plugin = plugin;

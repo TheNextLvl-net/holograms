@@ -138,15 +138,13 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         return getHologram().getPlugin().supply(location, () -> {
             final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
             // fixme: spawning of the normal entity is behaving strangely now
-            final var interaction = location.getWorld().spawn(location.clone().subtract(0, getOffsetBefore(player), 0), Interaction.class, false, entity -> {
-                entity.setInteractionHeight((float) getHeight(player));
-                entity.setInteractionWidth((float) Math.max(1, spawn.getWidth()));
-                entity.setResponsive(true);
-                entity.setPersistent(false);
-            });
+            final var subtracted = location.clone().subtract(0, getOffsetBefore(player), 0);
+            final var interaction = location.getWorld().spawn(subtracted, Interaction.class, false, e -> this.preSpawnInteraction(e, player, spawn));
             getHologram().getPlugin().supply(player, () -> {
-                if (!player.getServer().isOwnedByCurrentRegion(spawn)) return;
-                player.showEntity(getHologram().getPlugin(), spawn);
+                if (player.getServer().isOwnedByCurrentRegion(spawn))
+                    player.showEntity(getHologram().getPlugin(), spawn);
+                if (player.getServer().isOwnedByCurrentRegion(interaction))
+                    player.showEntity(getHologram().getPlugin(), interaction);
             });
             entities.put(player.getUniqueId(), spawn);
             interactions.put(player.getUniqueId(), interaction);
@@ -156,6 +154,14 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     protected Location mutateSpawnLocation(final Location location) {
         return location;
+    }
+
+    protected void preSpawnInteraction(final Interaction interaction, final Player player, final E entity) {
+        interaction.setInteractionHeight((float) getHeight(player));
+        interaction.setInteractionWidth((float) Math.max(1, entity.getWidth()));
+        interaction.setResponsive(true);
+        interaction.setPersistent(false);
+        interaction.setVisibleByDefault(false);
     }
 
     protected void preSpawn(final E entity, final Player player) {
@@ -213,13 +219,20 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     public boolean adoptEntity(final PaperStaticHologramLine<?> oldPage, final Player player, final double offset) {
         final var entity = oldPage.entities.get(player.getUniqueId());
         if (!entityClass.isInstance(entity)) return false;
+        final var interaction = oldPage.interactions.get(player.getUniqueId());
         oldPage.entities.remove(player.getUniqueId());
+        oldPage.interactions.remove(player.getUniqueId());
         entities.put(player.getUniqueId(), (E) entity);
+        interactions.put(player.getUniqueId(), interaction);
+        final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
         getHologram().getPlugin().supply(entity, () -> {
-            entity.teleportAsync(mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0)));
+            entity.teleportAsync(location);
             preSpawn((E) entity, player);
         });
-        // todo: adopt interaction?
+        getHologram().getPlugin().supply(interaction, () -> {
+            interaction.teleportAsync(location);
+            preSpawnInteraction(interaction, player, (E) entity);
+        });
         return true;
     }
 

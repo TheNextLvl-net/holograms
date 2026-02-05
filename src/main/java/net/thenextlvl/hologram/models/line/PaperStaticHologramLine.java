@@ -137,7 +137,6 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
         return getHologram().getPlugin().supply(location, () -> {
             final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
-            // fixme: spawning of the normal entity is behaving strangely now
             final var subtracted = location.clone().subtract(0, getOffsetBefore(player), 0);
             final var interaction = location.getWorld().spawn(subtracted, Interaction.class, false, e -> this.preSpawnInteraction(e, player, spawn));
             getHologram().getPlugin().supply(player, () -> {

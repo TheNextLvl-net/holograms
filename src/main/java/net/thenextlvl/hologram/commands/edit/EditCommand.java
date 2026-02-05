@@ -32,7 +32,7 @@ public abstract class EditCommand extends SimpleCommand {
     protected abstract int run(CommandContext<CommandSourceStack> var1, LineTargetResolver var2) throws CommandSyntaxException;
 
     protected final TagResolver[] concat(final TagResolver[] placeholders, final TagResolver... resolvers) {
-        return Stream.concat(Arrays.stream(placeholders), Arrays.stream(resolvers)).toArray((x$0) -> new TagResolver[x$0]);
+        return Stream.concat(Arrays.stream(placeholders), Arrays.stream(resolvers)).toArray(TagResolver[]::new);
     }
 
     protected final <V> String set(final V currentValue, final V newValue, final Consumer<V> setter, final String successKey) {

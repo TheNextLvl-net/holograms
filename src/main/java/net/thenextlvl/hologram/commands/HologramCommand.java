@@ -10,6 +10,7 @@ import net.thenextlvl.hologram.commands.arguments.HologramArgumentType;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.line.HologramLineCommand;
 import net.thenextlvl.hologram.commands.page.HologramPageCommand;
+import net.thenextlvl.hologram.commands.suggestions.PermissionSuggestionProvider;
 import net.thenextlvl.hologram.commands.translation.HologramTranslationCommand;
 import org.jspecify.annotations.NullMarked;
 
@@ -44,5 +45,10 @@ public final class HologramCommand extends BrigadierCommand {
 
     public static RequiredArgumentBuilder<CommandSourceStack, ?> hologramArgument(final HologramPlugin plugin, final boolean pagedOnly) {
         return Commands.argument("hologram", new HologramArgumentType(plugin, pagedOnly));
+    }
+
+    public static RequiredArgumentBuilder<CommandSourceStack, String> permissionArgument(final HologramPlugin plugin) {
+        return Commands.argument("permission", StringArgumentType.string())
+                .suggests(new PermissionSuggestionProvider<>(plugin));
     }
 }

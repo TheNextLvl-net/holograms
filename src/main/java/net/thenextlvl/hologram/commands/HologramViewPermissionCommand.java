@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.commands;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -9,10 +8,10 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
-import net.thenextlvl.hologram.commands.suggestions.PermissionSuggestionProvider;
 import org.jspecify.annotations.NullMarked;
 
 import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
+import static net.thenextlvl.hologram.commands.HologramCommand.permissionArgument;
 
 @NullMarked
 final class HologramViewPermissionCommand extends SimpleCommand {
@@ -22,11 +21,9 @@ final class HologramViewPermissionCommand extends SimpleCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramViewPermissionCommand(plugin);
-        final var permission = Commands.argument("permission", StringArgumentType.string())
-                .suggests(new PermissionSuggestionProvider<>(plugin));
         return command.create().then(hologramArgument(plugin)
                 .then(Commands.literal("remove").executes(command::set))
-                .then(permission.executes(command::set))
+                .then(permissionArgument(plugin).executes(command::set))
                 .executes(command));
     }
 

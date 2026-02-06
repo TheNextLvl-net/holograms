@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.models.line;
 
 import com.google.common.base.Preconditions;
+import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -13,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -74,6 +76,26 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     @Override
     public boolean isPart(final Entity entity) {
         return pages.stream().anyMatch(page -> page.isPart(entity));
+    }
+
+    @Override
+    public @Unmodifiable Map<String, ClickAction<?>> getActions() {
+        return Map.of();
+    }
+
+    @Override
+    public boolean hasAction(final ClickAction<?> action) {
+        return false;
+    }
+
+    @Override
+    public boolean hasAction(final String name) {
+        return false;
+    }
+
+    @Override
+    public boolean removeAction(final String name) {
+        return false;
     }
 
     @Override

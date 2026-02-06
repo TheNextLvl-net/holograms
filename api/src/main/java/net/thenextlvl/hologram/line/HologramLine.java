@@ -8,8 +8,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -96,19 +97,61 @@ public interface HologramLine {
     boolean isPart(Entity entity);
 
     /**
-     * Gets the click action for this line.
+     * Gets the click actions for this line.
      *
-     * @return click action
-     * @since 0.6.0
+     * @return click actions
+     * @since 0.8.0
      */
-    Optional<ClickAction<?>> getClickAction();
+    @Unmodifiable
+    @Contract(pure = true)
+    Map<String, ClickAction<?>> getActions();
 
     /**
-     * Sets the click action for this line.
+     * Gets the click action for this line.
      *
-     * @param clickAction click action
-     * @return this line
-     * @since 0.6.0
+     * @param name action name
+     * @return click action
+     * @since 0.8.0
      */
-    HologramLine setClickAction(@Nullable ClickAction<?> clickAction);
+    Optional<ClickAction<?>> getAction(String name);
+
+    /**
+     * Checks if this line has the given click action.
+     *
+     * @param action click action
+     * @return {@code true} if this line has the given click action, {@code false} otherwise
+     * @since 0.8.0
+     */
+    @Contract(pure = true)
+    boolean hasAction(ClickAction<?> action);
+
+    /**
+     * Checks if this line has a click action with the given name.
+     *
+     * @param name action name
+     * @return {@code true} if this line has a click action with the given name, {@code false} otherwise
+     * @since 0.8.0
+     */
+    @Contract(pure = true)
+    boolean hasAction(String name);
+
+    /**
+     * Adds a click action for this line.
+     *
+     * @param name   action name
+     * @param action click action
+     * @return {@code true} if the action was added, {@code false} otherwise
+     * @since 0.8.0
+     */
+    boolean addAction(String name, ClickAction<?> action);
+
+    /**
+     * Removes a click action for this line.
+     *
+     * @param name action name
+     * @return {@code true} if the action was removed, {@code false} otherwise
+     * @since 0.8.0
+     */
+    @Contract(mutates = "this")
+    boolean removeAction(String name);
 }

@@ -7,17 +7,20 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
 public abstract class PaperHologramLine implements HologramLine {
-    protected volatile @Nullable ClickAction<?> clickAction = null;
+    protected final Map<String, ClickAction<?>> clickActions = new ConcurrentHashMap<>(); // todo: validate map is good for its use case
     private final PaperHologram hologram;
 
     public PaperHologramLine(final PaperHologram hologram) {
@@ -25,16 +28,33 @@ public abstract class PaperHologramLine implements HologramLine {
     }
 
     @Override
-    public Optional<ClickAction<?>> getClickAction() {
-        return Optional.ofNullable(clickAction);
+    public Optional<ClickAction<?>> getAction(final String name) {
+        return Optional.ofNullable(clickActions.get(name));
     }
 
     @Override
-    public HologramLine setClickAction(@Nullable final ClickAction<?> clickAction) {
-        return set(this.clickAction, clickAction, () -> {
-            this.clickAction = clickAction;
-            // todo: update click action entity if required?
-        }, false);
+    public boolean addAction(final String name, final ClickAction<?> action) {
+        return clickActions.putIfAbsent(name, action) == null;
+    }
+    
+    @Override
+    public @Unmodifiable Map<String, ClickAction<?>> getActions() {
+        return Map.copyOf(clickActions);
+    }
+
+    @Override
+    public boolean hasAction(final ClickAction<?> action) {
+        return clickActions.containsValue(action);
+    }
+
+    @Override
+    public boolean hasAction(final String name) {
+        return clickActions.containsKey(name);
+    }
+
+    @Override
+    public boolean removeAction(final String name) {
+        return clickActions.remove(name) != null;
     }
 
     @Override

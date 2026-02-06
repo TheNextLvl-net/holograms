@@ -4,6 +4,7 @@ import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import io.papermc.paper.event.player.PlayerPickEntityEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.action.ClickType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -50,7 +51,14 @@ public final class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerInteractEntity(final PlayerInteractEntityEvent event) {
-        event.setCancelled(plugin.hologramProvider().isHologramPart(event.getRightClicked()));
+        plugin.hologramProvider().getHologramLine(event.getRightClicked()).ifPresent(hologramLine -> {
+            // todo: add custom hologram interact event
+            final var type = event.getPlayer().isSneaking() ? ClickType.SHIFT_RIGHT : ClickType.RIGHT;
+            hologramLine.getActions().values().stream()
+                    .filter(action -> action.isSupportedClickType(type))
+                    .forEach(action -> action.invoke(event.getPlayer()));
+            event.setCancelled(true);
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

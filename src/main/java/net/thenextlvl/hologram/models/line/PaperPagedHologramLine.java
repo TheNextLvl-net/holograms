@@ -14,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -79,27 +78,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
-    public @Unmodifiable Map<String, ClickAction<?>> getActions() {
-        return Map.of();
-    }
-
-    @Override
-    public boolean hasAction(final ClickAction<?> action) {
-        return false;
-    }
-
-    @Override
-    public boolean hasAction(final String name) {
-        return false;
-    }
-
-    @Override
-    public boolean removeAction(final String name) {
-        return false;
-    }
-
-    @Override
-    public List<HologramLine> getPages() {
+    public List<StaticHologramLine> getPages() {
         return List.copyOf(pages);
     }
 

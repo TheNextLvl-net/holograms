@@ -304,14 +304,14 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public void cyclePage(final Player player, final int amount) {
-        setPage(player, Math.floorMod(getCurrentPageIndex(player).orElse(0) + amount, pages.size()));
+        cyclePage(player, calculateOffset(player), amount);
     }
 
     @Override
     public void setPage(final Player player, final int page) throws IndexOutOfBoundsException {
         if (page < 0 || page >= pages.size())
             throw new IndexOutOfBoundsException("Index: " + page + ", Size: " + pages.size());
-        currentPageIndex.put(player.getUniqueId(), page);
+        cyclePage(player, calculateOffset(player), page - getCurrentPageIndex(player).orElse(0));
     }
 
     @Override
@@ -391,17 +391,17 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         pages.forEach(page -> page.invalidate(entity));
     }
 
-    private CompletableFuture<Void> cyclePage(final Player player, final double offset) {
+    private CompletableFuture<Void> cyclePage(final Player player, final double offset, final @Nullable Integer amount) {
         if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(null);
 
         final int oldIndex = currentPageIndex.getOrDefault(player.getUniqueId(), 0);
         final var oldPage = pages.size() > oldIndex ? pages.get(oldIndex) : null;
 
         final int newIndex;
-        if (randomOrder) {
+        if (randomOrder && amount == null) {
             newIndex = random.nextInt(pages.size());
         } else {
-            newIndex = (oldIndex + 1) % pages.size();
+            newIndex = Math.floorMod(oldIndex + (amount != null ? amount : 1), pages.size());
         }
 
         final var newPage = pages.get(newIndex);
@@ -441,7 +441,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         final var futures = currentPageIndex.keySet().stream()
                 .map(getHologram().getPlugin().getServer()::getPlayer)
                 .filter(Objects::nonNull)
-                .map(player -> cyclePage(player, calculateOffset(player)))
+                .map(player -> cyclePage(player, calculateOffset(player), null))
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures); // todo: add proper realigning
     }

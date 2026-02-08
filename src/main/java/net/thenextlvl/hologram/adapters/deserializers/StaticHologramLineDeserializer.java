@@ -10,13 +10,14 @@ import net.thenextlvl.nbt.tag.Tag;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-abstract class SingleHologramLineDeserializer<T extends StaticHologramLine> extends HologramLineDeserializer<T> {
-    protected SingleHologramLineDeserializer(final PaperHologram hologram) {
+abstract class StaticHologramLineDeserializer<T extends StaticHologramLine> extends HologramLineDeserializer<T> {
+    protected StaticHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }
 
     @Override
     protected void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
+        super.deserialize(line, tag, context);
         tag.optional("glowing").map(Tag::getAsBoolean).ifPresent(line::setGlowing);
         tag.optional("glowColor").map(tag1 -> context.deserialize(tag1, TextColor.class)).ifPresent(line::setGlowColor);
     }

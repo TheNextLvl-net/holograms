@@ -13,7 +13,7 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-abstract class DisplayHologramLineDeserializer<T extends DisplayHologramLine> extends SingleHologramLineDeserializer<T> {
+abstract class DisplayHologramLineDeserializer<T extends DisplayHologramLine> extends StaticHologramLineDeserializer<T> {
     protected DisplayHologramLineDeserializer(final PaperHologram hologram) {
         super(hologram);
     }

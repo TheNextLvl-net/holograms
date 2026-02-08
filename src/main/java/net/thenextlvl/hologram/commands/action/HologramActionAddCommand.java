@@ -6,12 +6,14 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.action.argument.ConnectCommand;
+import net.thenextlvl.hologram.commands.action.argument.CyclePageCommand;
 import net.thenextlvl.hologram.commands.action.argument.PlaySoundCommand;
 import net.thenextlvl.hologram.commands.action.argument.RunConsoleCommand;
 import net.thenextlvl.hologram.commands.action.argument.RunPlayerCommand;
 import net.thenextlvl.hologram.commands.action.argument.SendActionbarCommand;
 import net.thenextlvl.hologram.commands.action.argument.SendMessageCommand;
 import net.thenextlvl.hologram.commands.action.argument.SendTitleCommand;
+import net.thenextlvl.hologram.commands.action.argument.SetPageCommand;
 import net.thenextlvl.hologram.commands.action.argument.TeleportCommand;
 import net.thenextlvl.hologram.commands.action.argument.TransferCommand;
 import net.thenextlvl.hologram.commands.arguments.EnumArgumentType;
@@ -31,12 +33,14 @@ public final class HologramActionAddCommand extends BrigadierCommand {
         final var command = new HologramActionAddCommand(plugin);
         final var commands = clickTypesArgument()
                 .then(ConnectCommand.create(plugin, resolver))
+                .then(CyclePageCommand.create(plugin, resolver))
                 .then(PlaySoundCommand.create(plugin, resolver))
                 .then(RunConsoleCommand.create(plugin, resolver))
                 .then(RunPlayerCommand.create(plugin, resolver))
                 .then(SendActionbarCommand.create(plugin, resolver))
                 .then(SendMessageCommand.create(plugin, resolver))
                 .then(SendTitleCommand.create(plugin, resolver))
+                .then(SetPageCommand.create(plugin, resolver))
                 .then(TeleportCommand.create(plugin, resolver))
                 .then(TransferCommand.create(plugin, resolver));
         return command.create().then(actionArgument(plugin).then(commands));

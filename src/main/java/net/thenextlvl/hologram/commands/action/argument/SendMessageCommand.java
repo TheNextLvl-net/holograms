@@ -4,15 +4,16 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ActionTypes;
+import net.thenextlvl.hologram.commands.action.ActionTargetResolver;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class SendMessageCommand extends HologramStringActionCommand {
-    private SendMessageCommand(final HologramPlugin plugin) {
-        super(plugin, ActionTypes.types().sendMessage(), "send-message", "message");
+    private SendMessageCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+        super(plugin, ActionTypes.types().sendMessage(), "send-message", "message", resolver);
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
-        return new SendMessageCommand(plugin).create();
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+        return new SendMessageCommand(plugin, resolver).create();
     }
 }

@@ -19,8 +19,7 @@ import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.models.ClickTypes;
 import org.jspecify.annotations.NullMarked;
 
-import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
-import static net.thenextlvl.hologram.commands.action.HologramActionCommand.actionArgument;
+import static net.thenextlvl.hologram.commands.action.ActionCommand.actionArgument;
 
 @NullMarked
 public final class HologramActionAddCommand extends BrigadierCommand {
@@ -28,23 +27,22 @@ public final class HologramActionAddCommand extends BrigadierCommand {
         super(plugin, "add", "holograms.command.action.add");
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+    static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
         final var command = new HologramActionAddCommand(plugin);
         final var commands = clickTypesArgument()
-                .then(ConnectCommand.create(plugin))
-                .then(PlaySoundCommand.create(plugin))
-                .then(RunConsoleCommand.create(plugin))
-                .then(RunPlayerCommand.create(plugin))
-                .then(SendActionbarCommand.create(plugin))
-                .then(SendMessageCommand.create(plugin))
-                .then(SendTitleCommand.create(plugin))
-                .then(TeleportCommand.create(plugin))
-                .then(TransferCommand.create(plugin));
-        return command.create().then(hologramArgument(plugin)
-                .then(actionArgument(plugin).then(commands)));
+                .then(ConnectCommand.create(plugin, resolver))
+                .then(PlaySoundCommand.create(plugin, resolver))
+                .then(RunConsoleCommand.create(plugin, resolver))
+                .then(RunPlayerCommand.create(plugin, resolver))
+                .then(SendActionbarCommand.create(plugin, resolver))
+                .then(SendMessageCommand.create(plugin, resolver))
+                .then(SendTitleCommand.create(plugin, resolver))
+                .then(TeleportCommand.create(plugin, resolver))
+                .then(TransferCommand.create(plugin, resolver));
+        return command.create().then(actionArgument(plugin).then(commands));
     }
 
-    private static ArgumentBuilder<CommandSourceStack, ?> clickTypesArgument() {
+    static ArgumentBuilder<CommandSourceStack, ?> clickTypesArgument() {
         return Commands.argument("click-types", new EnumArgumentType<>(ClickTypes.class));
     }
 }

@@ -13,17 +13,18 @@ import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.sound.Sound;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ActionTypes;
+import net.thenextlvl.hologram.commands.action.ActionTargetResolver;
 import net.thenextlvl.hologram.commands.arguments.EnumArgumentType;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class PlaySoundCommand extends HologramActionCommand<Sound> {
-    private PlaySoundCommand(final HologramPlugin plugin) {
-        super(plugin, ActionTypes.types().playSound(), "play-sound");
+    private PlaySoundCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+        super(plugin, ActionTypes.types().playSound(), "play-sound", resolver);
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
-        final var command = new PlaySoundCommand(plugin);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+        final var command = new PlaySoundCommand(plugin, resolver);
         final var sound = soundArgument().executes(command);
         final var soundSource = soundSourceArgument().executes(command);
         final var volume = Commands.argument("volume", FloatArgumentType.floatArg(0)).executes(command);
@@ -41,10 +42,12 @@ public final class PlaySoundCommand extends HologramActionCommand<Sound> {
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        final var source = tryGetArgument(context, "source", Sound.Source.class).orElse(Sound.Source.MASTER);
-        final var volume = tryGetArgument(context, "volume", float.class).orElse(1f);
-        final var pitch = tryGetArgument(context, "pitch", float.class).orElse(1f);
-        final var sound = RegistryArgumentExtractor.getTypedKey(context, RegistryKey.SOUND_EVENT, "sound");
-        return addAction(context, Sound.sound(sound, source, volume, pitch));
+        return resolverBuilder.build(context, plugin).resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
+            final var source = tryGetArgument(context, "source", Sound.Source.class).orElse(Sound.Source.MASTER);
+            final var volume = tryGetArgument(context, "volume", float.class).orElse(1f);
+            final var pitch = tryGetArgument(context, "pitch", float.class).orElse(1f);
+            final var sound = RegistryArgumentExtractor.getTypedKey(context, RegistryKey.SOUND_EVENT, "sound");
+            return addAction(context, hologram, line, Sound.sound(sound, source, volume, pitch));
+        });
     }
 }

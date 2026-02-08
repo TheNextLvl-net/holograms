@@ -11,18 +11,19 @@ import io.papermc.paper.command.brigadier.argument.resolvers.RotationResolver;
 import io.papermc.paper.math.Rotation;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ActionTypes;
+import net.thenextlvl.hologram.commands.action.ActionTargetResolver;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class TeleportCommand extends HologramActionCommand<Location> {
-    private TeleportCommand(final HologramPlugin plugin) {
-        super(plugin, ActionTypes.types().teleport(), "teleport");
+    private TeleportCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+        super(plugin, ActionTypes.types().teleport(), "teleport", resolver);
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
-        final var command = new TeleportCommand(plugin);
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+        final var command = new TeleportCommand(plugin, resolver);
         final var position = Commands.argument("position", ArgumentTypes.finePosition()).executes(command);
         final var rotation = Commands.argument("rotation", ArgumentTypes.rotation()).executes(command);
         final var world = Commands.argument("world", ArgumentTypes.world()).executes(command);
@@ -31,13 +32,15 @@ public final class TeleportCommand extends HologramActionCommand<Location> {
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        final var position = context.getArgument("position", FinePositionResolver.class).resolve(context.getSource());
-        final var rotationResolver = tryGetArgument(context, "rotation", RotationResolver.class).orElse(null);
+        return resolverBuilder.build(context, plugin).resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
+            final var position = context.getArgument("position", FinePositionResolver.class).resolve(context.getSource());
+            final var rotationResolver = tryGetArgument(context, "rotation", RotationResolver.class).orElse(null);
 
-        final var world = tryGetArgument(context, "world", World.class).orElseGet(() -> context.getSource().getLocation().getWorld());
-        final var rotation = rotationResolver != null ? rotationResolver.resolve(context.getSource()) : Rotation.rotation(0, 0);
+            final var world = tryGetArgument(context, "world", World.class).orElseGet(() -> context.getSource().getLocation().getWorld());
+            final var rotation = rotationResolver != null ? rotationResolver.resolve(context.getSource()) : Rotation.rotation(0, 0);
 
-        final var location = position.toLocation(world).setRotation(rotation);
-        return addAction(context, location);
+            final var location = position.toLocation(world).setRotation(rotation);
+            return addAction(context, hologram, line, location);
+        });
     }
 }

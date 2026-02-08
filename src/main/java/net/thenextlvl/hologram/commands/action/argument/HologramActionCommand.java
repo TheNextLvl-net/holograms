@@ -8,7 +8,9 @@ import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ActionType;
 import net.thenextlvl.hologram.action.ClickAction;
+import net.thenextlvl.hologram.commands.action.ActionTargetResolver;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.ClickTypes;
 import org.jspecify.annotations.NullMarked;
 
@@ -17,16 +19,16 @@ import java.time.Duration;
 @NullMarked
 abstract class HologramActionCommand<T> extends SimpleCommand {
     private final ActionType<T> actionType;
+    protected final ActionTargetResolver.Builder resolverBuilder;
 
-    protected HologramActionCommand(final HologramPlugin plugin, final ActionType<T> actionType, final String name) {
+    protected HologramActionCommand(final HologramPlugin plugin, final ActionType<T> actionType, final String name, final ActionTargetResolver.Builder resolver) {
         super(plugin, name, null);
         this.actionType = actionType;
+        this.resolverBuilder = resolver;
     }
 
-    protected int addAction(final CommandContext<CommandSourceStack> context, final T input) {
+    protected int addAction(final CommandContext<CommandSourceStack> context, final Hologram hologram, final HologramLine line, final T input) {
         final var sender = context.getSource().getSender();
-        final var hologram = context.getArgument("hologram", Hologram.class);
-        final var line = hologram.getLine(context.getArgument("line", int.class)).orElseThrow(); // todo: fixme properly
         final var actionName = context.getArgument("action", String.class);
         final var clickTypes = context.getArgument("click-types", ClickTypes.class);
 

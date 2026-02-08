@@ -4,6 +4,7 @@ import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import io.papermc.paper.event.player.PlayerPickEntityEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.action.ClickType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.bukkit.entity.Entity;
@@ -21,7 +22,7 @@ import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.jspecify.annotations.NullMarked;
 
-import java.util.stream.Stream;
+import java.util.function.BiConsumer;
 
 @NullMarked
 public final class EntityListener implements Listener {
@@ -94,12 +95,12 @@ public final class EntityListener implements Listener {
             final var type = player.isSneaking()
                     ? (isRight ? ClickType.SHIFT_RIGHT : ClickType.SHIFT_LEFT)
                     : (isRight ? ClickType.RIGHT : ClickType.LEFT);
-            var actions = hologramLine.getActions().values().stream();
-            if (hologramLine instanceof final PagedHologramLine paged)
-                actions = Stream.concat(actions, paged.getPages().stream()
-                        .flatMap(page -> page.getActions().values().stream()));
-            actions.filter(action -> action.isSupportedClickType(type))
-                    .forEach(action -> action.invoke(hologramLine, player));
+            final var consumer = (BiConsumer<String, ClickAction<?>>) (name, action) -> {
+                if (action.isSupportedClickType(type)) action.invoke(hologramLine, player);
+            };
+            if (!(hologramLine instanceof final PagedHologramLine paged))
+                hologramLine.forEachAction(consumer);
+            else paged.forEachPage(page -> page.forEachAction(consumer));
             cancellable.setCancelled(true);
         });
     }

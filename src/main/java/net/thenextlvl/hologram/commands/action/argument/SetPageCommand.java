@@ -9,6 +9,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ActionTypes;
 import net.thenextlvl.hologram.commands.action.ActionTargetResolver;
+import net.thenextlvl.hologram.commands.suggestions.PageSuggestionProvider;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -19,7 +20,8 @@ public final class SetPageCommand extends HologramActionCommand<Integer> {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
         final var command = new SetPageCommand(plugin, resolver);
-        final var page = Commands.argument("target-page", IntegerArgumentType.integer(1));
+        final var page = Commands.argument("target-page", IntegerArgumentType.integer(1))
+                .suggests(new PageSuggestionProvider());
         return command.create().then(page.executes(command));
     }
 

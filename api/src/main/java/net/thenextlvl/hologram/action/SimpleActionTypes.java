@@ -49,8 +49,11 @@ final class SimpleActionTypes implements ActionTypes {
         player.performCommand(command.replace("<player>", player.getName()));
     });
 
-    private final ActionType<Title> sendTitle = ActionType.create("send_title", Title.class, (line, player, title) -> {
-        player.showTitle(title);
+    private final ActionType<UnparsedTitle> sendTitle = ActionType.create("send_title", UnparsedTitle.class, (line, player, title) -> {
+        var miniMessage = MiniMessage.miniMessage();
+        var titleComponent = miniMessage.deserialize(title.title());
+        var subtitleComponent = miniMessage.deserialize(title.subtitle());
+        player.showTitle(Title.title(titleComponent, subtitleComponent, title.times()));
     });
 
     private final ActionType<String> connect = ActionType.create("connect", String.class, (line, player, server) -> {
@@ -107,7 +110,7 @@ final class SimpleActionTypes implements ActionTypes {
     }
 
     @Override
-    public ActionType<Title> sendTitle() {
+    public ActionType<UnparsedTitle> sendTitle() {
         return sendTitle;
     }
 

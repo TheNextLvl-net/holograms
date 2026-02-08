@@ -1,7 +1,6 @@
 package net.thenextlvl.hologram.action;
 
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Contract;
 
@@ -39,7 +38,7 @@ public sealed interface ActionTypes permits SimpleActionTypes {
     ActionType<String> runCommand();
 
     @Contract(pure = true)
-    ActionType<Title> sendTitle();
+    ActionType<UnparsedTitle> sendTitle();
 
     @Contract(pure = true)
     ActionType<String> connect();

@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.action;
 
 import net.kyori.adventure.key.KeyPattern;
+import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 
@@ -20,7 +21,7 @@ public sealed interface ActionType<T> permits SimpleActionType {
 
     @FunctionalInterface
     interface Action<T> {
-        void invoke(Player player, T input);
+        void invoke(HologramLine line, Player player, T input);
     }
 
     @Contract(value = "_, _, _ -> new", pure = true)

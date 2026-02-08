@@ -43,4 +43,10 @@ public sealed interface ActionTypes permits SimpleActionTypes {
 
     @Contract(pure = true)
     ActionType<String> connect();
+    
+    @Contract(pure = true)
+    ActionType<Integer> cyclePage();
+    
+    @Contract(pure = true)
+    ActionType<Integer> setPage();
 }

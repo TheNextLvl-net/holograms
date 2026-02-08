@@ -17,6 +17,7 @@ module net.thenextlvl.holograms {
     requires net.thenextlvl.binder;
     requires org.bukkit;
     requires org.joml;
+    requires org.slf4j;
 
     requires static org.jetbrains.annotations;
     requires static org.jspecify;

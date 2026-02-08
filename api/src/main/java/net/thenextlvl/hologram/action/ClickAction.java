@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.action;
 
+import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Range;
@@ -60,7 +61,7 @@ public sealed interface ClickAction<T> permits SimpleClickAction {
     @Contract(pure = true)
     boolean canInvoke(Player player);
 
-    boolean invoke(Player player);
+    boolean invoke(HologramLine line, Player player);
 
     @Contract(value = "_, _, _ -> new", pure = true)
     static <T> ClickAction<T> create(final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {

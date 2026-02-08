@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.action;
 
+import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.Nullable;
@@ -118,11 +119,11 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     }
 
     @Override
-    public boolean invoke(final Player player) {
+    public boolean invoke(final HologramLine line, final Player player) {
         if (!canInvoke(player)) return false;
         if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
         if (ThreadLocalRandom.current().nextInt(100) > chance) return false;
-        actionType.action().invoke(player, input);
+        actionType.action().invoke(line, player, input);
         return true;
     }
 }

@@ -126,4 +126,21 @@ final class SimpleClickAction<T> implements ClickAction<T> {
         actionType.action().invoke(line, player, input);
         return true;
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        final SimpleClickAction<?> that = (SimpleClickAction<?>) o;
+        return chance == that.chance
+                && Objects.equals(actionType, that.actionType)
+                && Objects.equals(clickTypes, that.clickTypes)
+                && Objects.equals(input, that.input)
+                && Objects.equals(cooldown, that.cooldown)
+                && Objects.equals(permission, that.permission);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actionType, clickTypes, input, chance, cooldown, permission);
+    }
 }

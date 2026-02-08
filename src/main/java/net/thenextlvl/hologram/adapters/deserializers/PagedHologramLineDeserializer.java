@@ -19,6 +19,7 @@ public final class PagedHologramLineDeserializer extends HologramLineDeserialize
 
     @Override
     protected void deserialize(final PaperPagedHologramLine line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
+        super.deserialize(line, tag, context);
         tag.optional("interval").map(tag1 -> context.deserialize(tag1, Duration.class)).ifPresent(line::setInterval);
         tag.optional("randomOrder").map(Tag::getAsBoolean).ifPresent(line::setRandomOrder);
         tag.optional("paused").map(Tag::getAsBoolean).ifPresent(line::setPaused);

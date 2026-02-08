@@ -9,6 +9,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.binder.StaticBinder;
+import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.adapters.BlockDataAdapter;
 import net.thenextlvl.hologram.adapters.BrightnessAdapter;
 import net.thenextlvl.hologram.adapters.ColorAdapter;
@@ -20,6 +21,7 @@ import net.thenextlvl.hologram.adapters.QuaternionfAdapter;
 import net.thenextlvl.hologram.adapters.TextColorAdapter;
 import net.thenextlvl.hologram.adapters.TransformationAdapter;
 import net.thenextlvl.hologram.adapters.Vector3fAdapter;
+import net.thenextlvl.hologram.adapters.action.ClickActionAdapter;
 import net.thenextlvl.hologram.adapters.deserializers.BlockHologramLineDeserializer;
 import net.thenextlvl.hologram.adapters.deserializers.EntityHologramLineDeserializer;
 import net.thenextlvl.hologram.adapters.deserializers.ItemHologramLineDeserializer;
@@ -189,6 +191,7 @@ public final class HologramPlugin extends JavaPlugin {
                 .registerTypeHierarchyAdapter(Billboard.class, new EnumAdapter<>(Billboard.class))
                 .registerTypeHierarchyAdapter(BlockData.class, new BlockDataAdapter(getServer()))
                 .registerTypeHierarchyAdapter(Brightness.class, new BrightnessAdapter())
+                .registerTypeHierarchyAdapter(ClickAction.class, new ClickActionAdapter())
                 .registerTypeHierarchyAdapter(Color.class, new ColorAdapter())
                 .registerTypeHierarchyAdapter(Component.class, new ComponentAdapter())
                 .registerTypeHierarchyAdapter(EntityType.class, new EnumAdapter<>(EntityType.class))

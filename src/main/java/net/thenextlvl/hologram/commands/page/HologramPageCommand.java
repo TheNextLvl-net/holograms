@@ -15,6 +15,7 @@ public final class HologramPageCommand extends BrigadierCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageCommand(plugin);
         return command.create()
+                .then(HologramPageActionCommand.create(plugin))
                 .then(HologramPageAddCommand.create(plugin))
                 .then(HologramPageClearCommand.create(plugin))
                 .then(HologramPageEditCommand.create(plugin))

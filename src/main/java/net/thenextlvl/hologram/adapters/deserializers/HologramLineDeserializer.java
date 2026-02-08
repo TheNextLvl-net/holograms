@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.adapters.deserializers;
 
+import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import net.thenextlvl.nbt.serialization.ParserException;
@@ -17,7 +18,10 @@ abstract class HologramLineDeserializer<T extends HologramLine> implements TagDe
         this.hologram = hologram;
     }
 
-    protected abstract void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException;
+    protected void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
+        tag.optional("clickActions").map(Tag::getAsCompound).ifPresent(actions -> actions.forEach((name, action) ->
+                line.addAction(name, context.deserialize(action, ClickAction.class))));
+    }
 
     protected abstract T createLine(CompoundTag tag, TagDeserializationContext context);
 

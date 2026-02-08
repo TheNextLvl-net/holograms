@@ -181,6 +181,7 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     public double getHeight(final Player player) {
         return (0.25 * transformation.getScale().y()) * getText(player)
                 .map(MiniMessage.miniMessage()::serialize)
+                .map(s -> s.replaceAll("<br>|<newline>", "\n"))
                 .map(s -> s.chars().filter(c -> c == '\n').count() + 1)
                 .orElse(1L);
     }

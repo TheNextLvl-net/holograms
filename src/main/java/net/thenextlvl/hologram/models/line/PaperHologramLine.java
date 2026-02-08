@@ -34,7 +34,9 @@ public abstract class PaperHologramLine implements HologramLine {
 
     @Override
     public boolean addAction(final String name, final ClickAction<?> action) {
-        return clickActions.putIfAbsent(name, action) == null;
+        if (clickActions.putIfAbsent(name, action) != null) return false;
+        hologram.updateHologram();
+        return true;
     }
     
     @Override
@@ -54,7 +56,9 @@ public abstract class PaperHologramLine implements HologramLine {
 
     @Override
     public boolean removeAction(final String name) {
-        return clickActions.remove(name) != null;
+        if (clickActions.remove(name) == null) return false;
+        hologram.updateHologram();
+        return true;
     }
 
     @Override

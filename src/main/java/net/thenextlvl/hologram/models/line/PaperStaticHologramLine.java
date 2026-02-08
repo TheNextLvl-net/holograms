@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.StaticHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
@@ -154,7 +155,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     public CompletableFuture<@Nullable Interaction> spawnInteraction(final Player player, final E entity) {
         final var existingInteraction = interactions.get(player.getUniqueId());
         final var location = entity.getLocation().subtract(0, getOffsetBefore(player), 0);
-        if (!clickActions.isEmpty()) {
+        if (hasActions() || getParentLine().map(HologramLine::hasActions).orElse(false)) {
             if (existingInteraction != null) return existingInteraction.teleportAsync(location).thenApply(ignored -> {
                 this.preSpawnInteraction(existingInteraction, player, entity);
                 return existingInteraction;
@@ -242,7 +243,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     private CompletableFuture<@Nullable Void> adoptInteraction(final PaperStaticHologramLine<?> oldPage, final Player player) {
         final var interaction = oldPage.interactions.remove(player.getUniqueId());
-        if (interaction != null && clickActions.isEmpty())
+        if (interaction != null && !hasActions() && !getParentLine().map(HologramLine::hasActions).orElse(false))
             return getHologram().getPlugin().supply(interaction, interaction::remove);
         if (interaction != null) interactions.put(player.getUniqueId(), interaction);
         return CompletableFuture.completedFuture(null);

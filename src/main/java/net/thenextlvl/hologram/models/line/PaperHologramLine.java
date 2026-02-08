@@ -56,6 +56,11 @@ public abstract class PaperHologramLine implements HologramLine {
     }
 
     @Override
+    public boolean hasActions() {
+        return !clickActions.isEmpty();
+    }
+
+    @Override
     public boolean removeAction(final String name) {
         if (clickActions.remove(name) == null) return false;
         hologram.updateHologram();

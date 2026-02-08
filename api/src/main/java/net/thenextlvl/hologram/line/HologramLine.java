@@ -139,6 +139,14 @@ public interface HologramLine {
     boolean hasAction(String name);
 
     /**
+     * Checks if this line has any click actions.
+     *
+     * @return {@code true} if this line has any click actions, {@code false} otherwise
+     * @since 0.8.0
+     */
+    boolean hasActions();
+
+    /**
      * Adds a click action for this line.
      *
      * @param name   action name

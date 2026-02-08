@@ -26,7 +26,7 @@ final class EditOpacityCommand extends EditCommand {
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
             final var opacity = context.getArgument("opacity", int.class);
-            final var message = set(line.getTextOpacity(), opacity, line::setTextOpacity, "hologram.opacity");
+            final var message = set(line.getTextOpacity(), opacity, line::setTextOpacity, "hologram.line.opacity");
             plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
             return SINGLE_SUCCESS;
         }, LineType.TEXT);

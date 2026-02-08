@@ -26,7 +26,8 @@ final class EditSeeThroughCommand extends EditCommand {
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
             final var seeThrough = context.getArgument("see-through", boolean.class);
-            final var message = set(line.isSeeThrough(), seeThrough, line::setSeeThrough, "hologram.see-through");
+            final var successKey = seeThrough ? "hologram.line.see-through.enabled" : "hologram.line.see-through.disabled";
+            final var message = set(line.isSeeThrough(), seeThrough, line::setSeeThrough, successKey);
             plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
             return SINGLE_SUCCESS;
         }, LineType.TEXT);

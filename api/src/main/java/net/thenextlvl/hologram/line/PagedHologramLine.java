@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a hologram line that cycles through multiple pages.
@@ -312,10 +313,11 @@ public interface PagedHologramLine extends HologramLine {
      * This is equivalent to calling {@link #cyclePage(Player, int)} with an amount of one.
      *
      * @param player player
+     * @return a future that completes when the page has been cycled
      * @see #cyclePage(Player, int)
      * @since 0.8.0
      */
-    void cyclePage(Player player);
+    CompletableFuture<Boolean> cyclePage(Player player);
 
     /**
      * Cycles the page of this line for the given player by the given amount.
@@ -324,21 +326,23 @@ public interface PagedHologramLine extends HologramLine {
      *
      * @param player player
      * @param amount amount
+     * @return a future that completes when the page has been cycled
      * @apiNote Negative amounts will cycle backwards.
      * @since 0.8.0
      */
-    void cyclePage(Player player, int amount);
+    CompletableFuture<Boolean> cyclePage(Player player, int amount);
 
     /**
      * Sets the page of this line for the given player.
      *
      * @param player player
      * @param page   page
+     * @return a future that completes when the page has been set
      * @throws IndexOutOfBoundsException if the page index is out of bounds
      * @see #getPageCount()
      * @since 0.8.0
      */
-    void setPage(Player player, int page) throws IndexOutOfBoundsException;
+    CompletableFuture<Boolean> setPage(Player player, int page) throws IndexOutOfBoundsException;
 
     /**
      * Gets the current page index of this line for the given player.

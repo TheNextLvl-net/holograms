@@ -298,20 +298,20 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
-    public void cyclePage(final Player player) {
-        cyclePage(player, 1);
+    public CompletableFuture<Boolean> cyclePage(final Player player) {
+        return cyclePage(player, 1);
     }
 
     @Override
-    public void cyclePage(final Player player, final int amount) {
-        cyclePage(player, calculateOffset(player), amount);
+    public CompletableFuture<Boolean> cyclePage(final Player player, final int amount) {
+        return cyclePage(player, calculateOffset(player), amount);
     }
 
     @Override
-    public void setPage(final Player player, final int page) throws IndexOutOfBoundsException {
+    public CompletableFuture<Boolean> setPage(final Player player, final int page) throws IndexOutOfBoundsException {
         if (page < 0 || page >= pages.size())
             throw new IndexOutOfBoundsException("Index: " + page + ", Size: " + pages.size());
-        cyclePage(player, calculateOffset(player), page - getCurrentPageIndex(player).orElse(0));
+        return cyclePage(player, calculateOffset(player), page - getCurrentPageIndex(player).orElse(0));
     }
 
     @Override
@@ -391,8 +391,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         pages.forEach(page -> page.invalidate(entity));
     }
 
-    private CompletableFuture<Void> cyclePage(final Player player, final double offset, final @Nullable Integer amount) {
-        if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(null);
+    private CompletableFuture<Boolean> cyclePage(final Player player, final double offset, final @Nullable Integer amount) {
+        if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(false);
 
         final int oldIndex = currentPageIndex.getOrDefault(player.getUniqueId(), 0);
         final var oldPage = pages.size() > oldIndex ? pages.get(oldIndex) : null;

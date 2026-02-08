@@ -94,6 +94,7 @@ public interface HologramLine {
      * @return {@code true} if the entity is part of this line, {@code false} otherwise
      * @since 0.5.0
      */
+    @Contract(pure = true)
     boolean isPart(Entity entity);
 
     /**
@@ -113,6 +114,7 @@ public interface HologramLine {
      * @return click action
      * @since 0.8.0
      */
+    @Contract(pure = true)
     Optional<ClickAction<?>> getAction(String name);
 
     /**
@@ -143,6 +145,7 @@ public interface HologramLine {
      * @return {@code true} if the action was added, {@code false} otherwise
      * @since 0.8.0
      */
+    @Contract(mutates = "this")
     boolean addAction(String name, ClickAction<?> action);
 
     /**

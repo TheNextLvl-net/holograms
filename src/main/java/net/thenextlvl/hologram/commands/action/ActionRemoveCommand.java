@@ -12,16 +12,16 @@ import org.jspecify.annotations.NullMarked;
 import static net.thenextlvl.hologram.commands.action.ActionCommand.actionArgument;
 
 @NullMarked
-final class HologramActionRemoveCommand extends SimpleCommand {
+final class ActionRemoveCommand extends SimpleCommand {
     private final ActionTargetResolver.Builder resolverBuilder;
 
-    private HologramActionRemoveCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+    private ActionRemoveCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
         super(plugin, "remove", "holograms.command.action.remove");
         this.resolverBuilder = resolver;
     }
 
     static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
-        final var command = new HologramActionRemoveCommand(plugin, resolver);
+        final var command = new ActionRemoveCommand(plugin, resolver);
         return command.create().then(actionArgument(plugin).executes(command));
     }
 

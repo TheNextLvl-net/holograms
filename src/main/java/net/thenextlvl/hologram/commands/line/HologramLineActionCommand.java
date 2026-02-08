@@ -7,7 +7,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.commands.action.ActionTargetResolver;
-import net.thenextlvl.hologram.commands.action.HologramActionEditCommand;
+import net.thenextlvl.hologram.commands.action.HologramActionCommand;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import org.jspecify.annotations.NullMarked;
@@ -23,6 +23,6 @@ public final class HologramLineActionCommand extends BrigadierCommand {
         final var line = Commands.argument("line", IntegerArgumentType.integer(1))
                 .suggests(LineSuggestionProvider.ANY_LINE);
         return command.create().then(HologramCommand.hologramArgument(plugin)
-                .then(HologramActionEditCommand.create(plugin, line, ActionTargetResolver.LINE)));
+                .then(HologramActionCommand.create(plugin, line, ActionTargetResolver.LINE)));
     }
 }

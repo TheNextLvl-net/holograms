@@ -6,17 +6,17 @@ import net.thenextlvl.hologram.HologramPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class HologramActionEditCommand {
+public final class HologramActionCommand {
     public static RequiredArgumentBuilder<CommandSourceStack, Integer> create(
             final HologramPlugin plugin,
             final RequiredArgumentBuilder<CommandSourceStack, Integer> line,
             final ActionTargetResolver.Builder resolver
     ) {
-        return line.then(HologramActionAddCommand.create(plugin, resolver))
-                .then(HologramActionChanceCommand.create(plugin, resolver))
-                .then(HologramActionCooldownCommand.create(plugin, resolver))
-                .then(HologramActionListCommand.create(plugin, resolver))
-                .then(HologramActionPermissionCommand.create(plugin, resolver))
-                .then(HologramActionRemoveCommand.create(plugin, resolver));
+        return line.then(ActionAddCommand.create(plugin, resolver))
+                .then(ActionChanceCommand.create(plugin, resolver))
+                .then(ActionCooldownCommand.create(plugin, resolver))
+                .then(ActionListCommand.create(plugin, resolver))
+                .then(ActionPermissionCommand.create(plugin, resolver))
+                .then(ActionRemoveCommand.create(plugin, resolver));
     }
 }

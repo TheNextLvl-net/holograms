@@ -10,16 +10,16 @@ import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-final class HologramActionListCommand extends SimpleCommand {
+final class ActionListCommand extends SimpleCommand {
     private final ActionTargetResolver.Builder resolverBuilder;
 
-    private HologramActionListCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+    private ActionListCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
         super(plugin, "list", "holograms.command.action.list");
         this.resolverBuilder = resolver;
     }
 
     static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
-        final var command = new HologramActionListCommand(plugin, resolver);
+        final var command = new ActionListCommand(plugin, resolver);
         return command.create().executes(command);
     }
 

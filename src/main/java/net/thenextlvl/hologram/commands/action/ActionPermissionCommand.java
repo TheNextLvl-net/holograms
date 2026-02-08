@@ -16,13 +16,13 @@ import org.jspecify.annotations.NullMarked;
 import static net.thenextlvl.hologram.commands.HologramCommand.permissionArgument;
 
 @NullMarked
-final class HologramActionPermissionCommand extends ActionCommand {
-    private HologramActionPermissionCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+final class ActionPermissionCommand extends ActionCommand {
+    private ActionPermissionCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
         super(plugin, "permission", "holograms.command.action.permission", resolver);
     }
 
     static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
-        final var command = new HologramActionPermissionCommand(plugin, resolver);
+        final var command = new ActionPermissionCommand(plugin, resolver);
         return command.create().then(actionArgument(plugin)
                 .then(Commands.literal("remove").executes(command::set))
                 .then(permissionArgument(plugin).executes(command::set))

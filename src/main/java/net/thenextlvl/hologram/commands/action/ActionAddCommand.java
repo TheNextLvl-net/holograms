@@ -24,13 +24,13 @@ import org.jspecify.annotations.NullMarked;
 import static net.thenextlvl.hologram.commands.action.ActionCommand.actionArgument;
 
 @NullMarked
-public final class HologramActionAddCommand extends BrigadierCommand {
-    private HologramActionAddCommand(final HologramPlugin plugin) {
+public final class ActionAddCommand extends BrigadierCommand {
+    private ActionAddCommand(final HologramPlugin plugin) {
         super(plugin, "add", "holograms.command.action.add");
     }
 
     static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
-        final var command = new HologramActionAddCommand(plugin);
+        final var command = new ActionAddCommand(plugin);
         final var commands = clickTypesArgument()
                 .then(ConnectCommand.create(plugin, resolver))
                 .then(CyclePageCommand.create(plugin, resolver))

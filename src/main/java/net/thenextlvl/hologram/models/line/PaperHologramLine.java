@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
 public abstract class PaperHologramLine implements HologramLine {
-    protected final Map<String, ClickAction<?>> clickActions = new ConcurrentHashMap<>(); // todo: validate map is good for its use case
+    protected final Map<String, ClickAction<?>> clickActions = new ConcurrentHashMap<>();
     private final PaperHologram hologram;
 
     public PaperHologramLine(final PaperHologram hologram) {

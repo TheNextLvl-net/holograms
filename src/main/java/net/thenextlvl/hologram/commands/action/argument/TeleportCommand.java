@@ -12,6 +12,7 @@ import io.papermc.paper.math.Rotation;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ActionTypes;
 import net.thenextlvl.hologram.commands.action.ActionTargetResolver;
+import net.thenextlvl.hologram.models.LazyLocation;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jspecify.annotations.NullMarked;
@@ -40,7 +41,7 @@ public final class TeleportCommand extends HologramActionCommand<Location> {
             final var rotation = rotationResolver != null ? rotationResolver.resolve(context.getSource()) : Rotation.rotation(0, 0);
 
             final var location = position.toLocation(world).setRotation(rotation);
-            return addAction(context, hologram, line, location);
+            return addAction(context, hologram, line, new LazyLocation(location));
         });
     }
 }

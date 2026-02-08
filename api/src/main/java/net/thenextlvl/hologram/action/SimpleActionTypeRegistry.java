@@ -10,15 +10,17 @@ final class SimpleActionTypeRegistry implements ActionTypeRegistry {
     public static final ActionTypeRegistry INSTANCE = new SimpleActionTypeRegistry();
 
     private final Set<ActionType<?>> actionTypes = new HashSet<>(Set.of(
+            ActionTypes.types().connect(),
+            ActionTypes.types().cyclePage(),
+            ActionTypes.types().playSound(),
+            ActionTypes.types().runCommand(),
+            ActionTypes.types().runConsoleCommand(),
             ActionTypes.types().sendActionbar(),
             ActionTypes.types().sendMessage(),
-            ActionTypes.types().transfer(),
-            ActionTypes.types().teleport(),
-            ActionTypes.types().playSound(),
-            ActionTypes.types().runConsoleCommand(),
-            ActionTypes.types().runCommand(),
             ActionTypes.types().sendTitle(),
-            ActionTypes.types().connect()
+            ActionTypes.types().setPage(),
+            ActionTypes.types().teleport(),
+            ActionTypes.types().transfer()
     ));
 
     @Override

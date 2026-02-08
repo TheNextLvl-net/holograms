@@ -48,7 +48,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
         return getEntity(player, CraftEntity.class)
                 .map(CraftEntity::getHandleRaw)
                 .map(net.minecraft.world.entity.Entity::getBbHeight)
-                .orElse(0f) * scale;
+                .orElse(1f);
     }
 
     @Override
@@ -154,6 +154,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
         if (entity instanceof final Attributable attributable) {
             final var attribute = attributable.getAttribute(Attribute.SCALE);
             if (attribute != null) attribute.setBaseValue(scale);
+            ((CraftEntity) entity).getHandle().refreshDimensions();
         }
 
         if (entity instanceof final ArmorStand armorStand) {

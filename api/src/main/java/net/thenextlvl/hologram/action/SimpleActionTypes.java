@@ -33,7 +33,9 @@ final class SimpleActionTypes implements ActionTypes {
     });
 
     private final ActionType<Location> teleport = ActionType.create("teleport", Location.class, (line, player, location) -> {
-        player.teleportAsync(location, PLUGIN);
+        if (location.isWorldLoaded()) player.teleportAsync(location, PLUGIN);
+        else plugin.getComponentLogger().warn("Invalid target world for teleport for hologram {} ({})",
+                line.getHologram().getName(), location);
     });
 
     private final ActionType<Sound> playSound = ActionType.create("play_sound", Sound.class, (line, player, input) -> {

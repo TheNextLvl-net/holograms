@@ -407,13 +407,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         final var newPage = pages.get(newIndex);
         currentPageIndex.put(player.getUniqueId(), newIndex);
 
-        if (oldPage != null && newPage.adoptEntity(oldPage, player, offset))
-            return CompletableFuture.completedFuture(null);
-
-        final var despawn = oldPage != null ? oldPage.despawn(player.getUniqueId())
-                : CompletableFuture.<Void>completedFuture(null);
-        return despawn.thenCompose(v -> newPage.spawn(player, offset).thenAccept(e -> {
-        }));
+        final var adopt = oldPage != null ? newPage.adoptEntities(oldPage, player) : CompletableFuture.<Void>completedFuture(null);
+        return adopt.thenCompose(v -> getHologram().updateHologram(player));
     }
 
     private void startCycleTask() {
@@ -441,10 +436,9 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         final var futures = currentPageIndex.keySet().stream()
                 .map(getHologram().getPlugin().getServer()::getPlayer)
                 .filter(Objects::nonNull)
-                .map(player -> cyclePage(player, calculateOffset(player), null)
-                        .thenCombine(getHologram().updateHologram(player), (v, ignored) -> v))
+                .map(player -> cyclePage(player, calculateOffset(player), null))
                 .toArray(CompletableFuture[]::new);
-        return CompletableFuture.allOf(futures); // todo: add proper realigning?
+        return CompletableFuture.allOf(futures);
     }
 
     private double calculateOffset(final Player player) {

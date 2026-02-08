@@ -123,32 +123,52 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         if (!getHologram().getWorld().equals(player.getWorld()))
             return CompletableFuture.completedFuture(null);
 
+        return spawnEntity(player, offset).thenCompose(entity -> {
+            return spawnInteraction(player, entity).thenCompose(interaction -> {
+                return getHologram().getPlugin().supply(player, () -> {
+                    if (player.getServer().isOwnedByCurrentRegion(entity))
+                        player.showEntity(getHologram().getPlugin(), entity);
+                    if (interaction != null && player.getServer().isOwnedByCurrentRegion(interaction))
+                        player.showEntity(getHologram().getPlugin(), interaction);
+                }).thenApply(v -> entity);
+            });
+        });
+    }
+
+    @SuppressWarnings("NullableProblems")
+    public CompletableFuture<E> spawnEntity(final Player player, final double offset) {
         final var existing = entities.get(player.getUniqueId());
         final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
-        // todo: update interaction?
 
-        if (existing != null && existing.isValid()) {
-            return getHologram().getPlugin().supply(existing, () -> {
-                existing.teleportAsync(location);
-                this.preSpawn(existing, player);
-                return existing;
-            });
-        }
-
+        if (existing != null) return existing.teleportAsync(location).thenApply(ignored -> {
+            this.preSpawn(existing, player);
+            return existing;
+        });
         return getHologram().getPlugin().supply(location, () -> {
             final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
-            final var subtracted = location.clone().subtract(0, getOffsetBefore(player), 0);
-            final var interaction = location.getWorld().spawn(subtracted, Interaction.class, false, e -> this.preSpawnInteraction(e, player, spawn));
-            getHologram().getPlugin().supply(player, () -> {
-                if (player.getServer().isOwnedByCurrentRegion(spawn))
-                    player.showEntity(getHologram().getPlugin(), spawn);
-                if (player.getServer().isOwnedByCurrentRegion(interaction))
-                    player.showEntity(getHologram().getPlugin(), interaction);
-            });
             entities.put(player.getUniqueId(), spawn);
-            interactions.put(player.getUniqueId(), interaction);
             return spawn;
         });
+    }
+
+    public CompletableFuture<@Nullable Interaction> spawnInteraction(final Player player, final E entity) {
+        final var existingInteraction = interactions.get(player.getUniqueId());
+        final var location = entity.getLocation().subtract(0, getOffsetBefore(player), 0);
+        if (!clickActions.isEmpty()) {
+            if (existingInteraction != null) return existingInteraction.teleportAsync(location).thenApply(ignored -> {
+                this.preSpawnInteraction(existingInteraction, player, entity);
+                return existingInteraction;
+            });
+            return getHologram().getPlugin().supply(location, () -> {
+                final var interaction = location.getWorld().spawn(location, Interaction.class, false, e -> this.preSpawnInteraction(e, player, entity));
+                interactions.put(player.getUniqueId(), interaction);
+                return interaction;
+            });
+        } else if (existingInteraction != null) {
+            return getHologram().getPlugin().supply(existingInteraction, existingInteraction::remove).thenApply(v -> null);
+        } else {
+            return CompletableFuture.completedFuture(null);
+        }
     }
 
     protected Location mutateSpawnLocation(final Location location) {
@@ -214,25 +234,27 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         return null;
     }
 
+    public CompletableFuture<@Nullable Void> adoptEntities(final PaperStaticHologramLine<?> oldPage, final Player player) {
+        return adoptInteraction(oldPage, player).thenCompose(ignored -> {
+            return adoptEntity(oldPage, player);
+        });
+    }
+
+    private CompletableFuture<@Nullable Void> adoptInteraction(final PaperStaticHologramLine<?> oldPage, final Player player) {
+        final var interaction = oldPage.interactions.remove(player.getUniqueId());
+        if (interaction != null && clickActions.isEmpty())
+            return getHologram().getPlugin().supply(interaction, interaction::remove);
+        if (interaction != null) interactions.put(player.getUniqueId(), interaction);
+        return CompletableFuture.completedFuture(null);
+    }
+
     @SuppressWarnings("unchecked")
-    public boolean adoptEntity(final PaperStaticHologramLine<?> oldPage, final Player player, final double offset) {
-        final var entity = oldPage.entities.get(player.getUniqueId());
-        if (!entityClass.isInstance(entity)) return false;
-        final var interaction = oldPage.interactions.get(player.getUniqueId());
-        oldPage.entities.remove(player.getUniqueId());
-        oldPage.interactions.remove(player.getUniqueId());
+    private CompletableFuture<@Nullable Void> adoptEntity(final PaperStaticHologramLine<?> oldPage, final Player player) {
+        final var entity = oldPage.entities.remove(player.getUniqueId());
+        if (entity == null) return CompletableFuture.completedFuture(null);
+        if (!entityClass.isInstance(entity)) return getHologram().getPlugin().supply(entity, entity::remove);
         entities.put(player.getUniqueId(), (E) entity);
-        interactions.put(player.getUniqueId(), interaction);
-        final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
-        getHologram().getPlugin().supply(entity, () -> {
-            entity.teleportAsync(location);
-            preSpawn((E) entity, player);
-        });
-        getHologram().getPlugin().supply(interaction, () -> {
-            interaction.teleportAsync(location);
-            preSpawnInteraction(interaction, player, (E) entity);
-        });
-        return true;
+        return CompletableFuture.completedFuture(null);
     }
 
     protected final void updateTeamOptions(final Player player, final Entity entity) {

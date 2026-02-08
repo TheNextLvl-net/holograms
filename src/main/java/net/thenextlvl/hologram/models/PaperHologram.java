@@ -601,8 +601,9 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         getSpawned().forEach(this::updateHologram);
     }
 
-    public void updateHologram(final Player player) {
-        if (isSpawned(player)) spawn(player, true);
+    public CompletableFuture<Boolean> updateHologram(final Player player) {
+        if (isSpawned(player)) return spawn(player, true);
+        return CompletableFuture.completedFuture(false);
     }
 
     public void updateVisibility() {

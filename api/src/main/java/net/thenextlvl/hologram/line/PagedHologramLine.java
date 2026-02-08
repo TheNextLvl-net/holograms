@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.line;
 
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * Represents a hologram line that cycles through multiple pages.
@@ -26,7 +28,7 @@ public interface PagedHologramLine extends HologramLine {
      */
     @Contract(pure = true)
     @Unmodifiable
-    List<HologramLine> getPages();
+    List<StaticHologramLine> getPages();
 
     /**
      * Gets the page at the given index.
@@ -36,7 +38,7 @@ public interface PagedHologramLine extends HologramLine {
      * @since 0.5.0
      */
     @Contract(pure = true)
-    Optional<HologramLine> getPage(int index);
+    Optional<StaticHologramLine> getPage(int index);
 
     /**
      * Gets the page at the given index if it is of the given type.
@@ -48,7 +50,7 @@ public interface PagedHologramLine extends HologramLine {
      * @since 0.5.0
      */
     @Contract(pure = true)
-    <T extends HologramLine> Optional<T> getPage(int index, Class<T> type);
+    <T extends StaticHologramLine> Optional<T> getPage(int index, Class<T> type);
 
     /**
      * Gets the number of pages in this paged line.
@@ -303,4 +305,56 @@ public interface PagedHologramLine extends HologramLine {
      */
     @Contract(value = "_ -> this", mutates = "this")
     PagedHologramLine setPaused(boolean paused);
+
+    /**
+     * Cycles the page of this line for the given player.
+     * <p>
+     * This is equivalent to calling {@link #cyclePage(Player, int)} with an amount of one.
+     *
+     * @param player player
+     * @see #cyclePage(Player, int)
+     * @since 0.8.0
+     */
+    void cyclePage(Player player);
+
+    /**
+     * Cycles the page of this line for the given player by the given amount.
+     * <p>
+     * Opposed to {@link #setPage(Player, int)}, this method will not throw an exception if the page index is out of bounds and will instead wrap around.
+     *
+     * @param player player
+     * @param amount amount
+     * @apiNote Negative amounts will cycle backwards.
+     * @since 0.8.0
+     */
+    void cyclePage(Player player, int amount);
+
+    /**
+     * Sets the page of this line for the given player.
+     *
+     * @param player player
+     * @param page   page
+     * @throws IndexOutOfBoundsException if the page index is out of bounds
+     * @see #getPageCount()
+     * @since 0.8.0
+     */
+    void setPage(Player player, int page) throws IndexOutOfBoundsException;
+
+    /**
+     * Gets the current page index of this line for the given player.
+     *
+     * @param player player
+     * @return current page index
+     * @since 0.8.0
+     */
+    OptionalInt getCurrentPageIndex(Player player);
+
+    /**
+     * Gets the current page of this line for the given player.
+     *
+     * @param player player
+     * @return current page
+     * @since 0.8.0
+     */
+    Optional<StaticHologramLine> getCurrentPage(Player player);
 }

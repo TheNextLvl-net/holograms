@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * Represents a hologram line that cycles through multiple pages.
@@ -361,4 +362,12 @@ public interface PagedHologramLine extends HologramLine {
      * @since 0.8.0
      */
     Optional<StaticHologramLine> getCurrentPage(Player player);
+
+    /**
+     * Iterates over all pages of this line.
+     *
+     * @param action action consumer
+     * @since 0.8.0
+     */
+    void forEachPage(Consumer<StaticHologramLine> action);
 }

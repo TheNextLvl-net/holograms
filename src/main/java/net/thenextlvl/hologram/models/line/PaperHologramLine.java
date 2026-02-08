@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 @NullMarked
 public abstract class PaperHologramLine implements HologramLine {
@@ -43,7 +44,7 @@ public abstract class PaperHologramLine implements HologramLine {
     public @Unmodifiable Map<String, ClickAction<?>> getActions() {
         return Map.copyOf(clickActions);
     }
-
+    
     @Override
     public boolean hasAction(final ClickAction<?> action) {
         return clickActions.containsValue(action);
@@ -59,6 +60,11 @@ public abstract class PaperHologramLine implements HologramLine {
         if (clickActions.remove(name) == null) return false;
         hologram.updateHologram();
         return true;
+    }
+
+    @Override
+    public void forEachAction(final BiConsumer<String, ? super ClickAction<?>> action) {
+        clickActions.forEach(action);
     }
 
     @Override

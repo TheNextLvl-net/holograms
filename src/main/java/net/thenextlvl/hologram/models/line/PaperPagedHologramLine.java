@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 @NullMarked
 public final class PaperPagedHologramLine extends PaperHologramLine implements PagedHologramLine {
@@ -323,6 +324,11 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     @Override
     public Optional<StaticHologramLine> getCurrentPage(final Player player) {
         return getPage(getCurrentPageIndex(player).orElse(0));
+    }
+
+    @Override
+    public void forEachPage(final Consumer<StaticHologramLine> action) {
+        pages.forEach(action);
     }
 
     @Override

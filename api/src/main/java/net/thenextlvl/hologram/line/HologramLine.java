@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 /**
  * Represents a line within a hologram.
@@ -157,4 +158,12 @@ public interface HologramLine {
      */
     @Contract(mutates = "this")
     boolean removeAction(String name);
+
+    /**
+     * Iterates over all click actions for this line.
+     *
+     * @param action action consumer
+     * @since 0.8.0
+     */
+    void forEachAction(BiConsumer<String, ? super ClickAction<?>> action);
 }

@@ -35,20 +35,24 @@ public final class HologramPageRemoveCommand extends BrigadierCommand {
     }
 
     private int removePage(final CommandContext<CommandSourceStack> context) {
+        final var sender = context.getSource().getSender();
         final var hologram = context.getArgument("hologram", Hologram.class);
         final var lineIndex = context.getArgument("line", int.class) - 1;
         final var pageIndex = context.getArgument("page", int.class) - 1;
-        final var line = hologram.getLine(lineIndex, PagedHologramLine.class);
+        final var line = hologram.getLine(lineIndex).orElse(null);
 
-        if (line.isEmpty()) {
-            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.type.paged");
+        if (line == null) {
+            plugin.bundle().sendMessage(sender, "hologram.line.invalid");
+            return 0;
+        }
+        if (!(line instanceof final PagedHologramLine pagedLine)) {
+            plugin.bundle().sendMessage(sender, "hologram.type.paged");
             return 0;
         }
 
-        final var pagedLine = line.get();
         final var removed = pagedLine.removePage(pageIndex);
 
-        plugin.bundle().sendMessage(context.getSource().getSender(),
+        plugin.bundle().sendMessage(sender,
                 removed ? "hologram.page.remove" : "hologram.line.invalid",
                 Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", lineIndex + 1),

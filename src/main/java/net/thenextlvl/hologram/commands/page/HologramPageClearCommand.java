@@ -32,17 +32,22 @@ public final class HologramPageClearCommand extends BrigadierCommand {
     }
 
     private int clearPages(final CommandContext<CommandSourceStack> context) {
+        final var sender = context.getSource().getSender();
         final var hologram = context.getArgument("hologram", Hologram.class);
         final var lineIndex = context.getArgument("line", int.class) - 1;
-        final var line = hologram.getLine(lineIndex, PagedHologramLine.class);
+        final var line = hologram.getLine(lineIndex).orElse(null);
 
-        if (line.isEmpty()) {
-            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.type.paged");
+        if (line == null) {
+            plugin.bundle().sendMessage(sender, "hologram.line.invalid");
+            return 0;
+        }
+        if (!(line instanceof final PagedHologramLine pagedLine)) {
+            plugin.bundle().sendMessage(sender, "hologram.type.paged");
             return 0;
         }
 
-        line.get().clearPages();
-        plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.page.clear",
+        pagedLine.clearPages();
+        plugin.bundle().sendMessage(sender, "hologram.page.clear",
                 Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", lineIndex + 1));
         return SINGLE_SUCCESS;

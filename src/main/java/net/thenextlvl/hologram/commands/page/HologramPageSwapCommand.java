@@ -37,20 +37,25 @@ public final class HologramPageSwapCommand extends SimpleCommand {
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context) {
+        final var sender = context.getSource().getSender();
         final var hologram = context.getArgument("hologram", Hologram.class);
         final var lineIndex = context.getArgument("line", int.class) - 1;
         final var first = context.getArgument("first", int.class);
         final var second = context.getArgument("second", int.class);
 
-        final var line = hologram.getLine(lineIndex, PagedHologramLine.class);
-        if (line.isEmpty()) {
-            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.type.paged");
+        final var line = hologram.getLine(lineIndex).orElse(null);
+        if (line == null) {
+            plugin.bundle().sendMessage(sender, "hologram.line.invalid");
+            return 0;
+        }
+        if (!(line instanceof final PagedHologramLine pagedLine)) {
+            plugin.bundle().sendMessage(sender, "hologram.type.paged");
             return 0;
         }
 
-        final var success = line.get().swapPages(first - 1, second - 1);
+        final var success = pagedLine.swapPages(first - 1, second - 1);
         final var message = success ? "hologram.page.swap" : "hologram.page.swap.failed";
-        plugin.bundle().sendMessage(context.getSource().getSender(), message,
+        plugin.bundle().sendMessage(sender, message,
                 Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", lineIndex + 1),
                 Formatter.number("first", first),

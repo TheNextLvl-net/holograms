@@ -26,7 +26,8 @@ final class EditShadowedCommand extends EditCommand {
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
             final var shadowed = context.getArgument("shadowed", boolean.class);
-            final var message = set(line.isShadowed(), shadowed, line::setShadowed, "hologram.shadowed");
+            final var successKey = shadowed ? "hologram.line.shadowed.enabled" : "hologram.line.shadowed.disabled";
+            final var message = set(line.isShadowed(), shadowed, line::setShadowed, successKey);
             plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
             return SINGLE_SUCCESS;
         }, LineType.TEXT);

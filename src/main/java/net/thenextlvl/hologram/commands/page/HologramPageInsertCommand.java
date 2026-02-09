@@ -46,28 +46,37 @@ public final class HologramPageInsertCommand extends BrigadierCommand {
                 .then(command.insertPage("text", StringArgumentType.greedyString(), command::insertTextPage, plugin)))));
     }
 
-    private LiteralArgumentBuilder<CommandSourceStack> insertPage(final String name, final ArgumentType<?> argumentType,
-                                                                  final BiConsumer<PagedHologramLine, CommandContext<CommandSourceStack>> inserter,
-                                                                  final HologramPlugin plugin) {
+    private LiteralArgumentBuilder<CommandSourceStack> insertPage(
+            final String name, final ArgumentType<?> argumentType,
+            final BiConsumer<PagedHologramLine, CommandContext<CommandSourceStack>> inserter,
+            final HologramPlugin plugin
+    ) {
         return Commands.literal(name).then(Commands.argument(name, argumentType)
                 .executes(context -> insertPage(context, plugin, inserter)));
     }
 
-    private int insertPage(final CommandContext<CommandSourceStack> context, final HologramPlugin plugin,
-                           final BiConsumer<PagedHologramLine, CommandContext<CommandSourceStack>> inserter) {
+    private int insertPage(
+            final CommandContext<CommandSourceStack> context,
+            final HologramPlugin plugin,
+            final BiConsumer<PagedHologramLine, CommandContext<CommandSourceStack>> inserter
+    ) {
+        final var sender = context.getSource().getSender();
         final var hologram = context.getArgument("hologram", Hologram.class);
         final var lineIndex = context.getArgument("line", int.class) - 1;
         final var pageIndex = context.getArgument("page", int.class) - 1;
-        final var line = hologram.getLine(lineIndex, PagedHologramLine.class);
+        final var line = hologram.getLine(lineIndex).orElse(null);
 
-        if (line.isEmpty()) {
-            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.type.paged");
+        if (line == null) {
+            plugin.bundle().sendMessage(sender, "hologram.line.invalid");
+            return 0;
+        }
+        if (!(line instanceof final PagedHologramLine pagedLine)) {
+            plugin.bundle().sendMessage(sender, "hologram.type.paged");
             return 0;
         }
 
-        final var pagedLine = line.get();
         if (pageIndex < 0 || pageIndex > pagedLine.getPageCount()) {
-            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.page.invalid",
+            plugin.bundle().sendMessage(sender, "hologram.page.invalid",
                     Placeholder.unparsed("hologram", hologram.getName()),
                     Formatter.number("line", lineIndex + 1),
                     Formatter.number("page", pageIndex + 1));
@@ -75,7 +84,7 @@ public final class HologramPageInsertCommand extends BrigadierCommand {
         }
 
         inserter.accept(pagedLine, context);
-        plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.page.insert",
+        plugin.bundle().sendMessage(sender, "hologram.page.insert",
                 Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", lineIndex + 1),
                 Formatter.number("page", pageIndex + 1));

@@ -38,17 +38,19 @@ public final class HologramPageListCommand extends BrigadierCommand {
     }
 
     private int listPages(final CommandContext<CommandSourceStack> context) {
+        final var sender = context.getSource().getSender();
         final var hologram = context.getArgument("hologram", Hologram.class);
         final var lineIndex = context.getArgument("line", int.class) - 1;
-        final var line = hologram.getLine(lineIndex, PagedHologramLine.class);
+        final var line = hologram.getLine(lineIndex).orElse(null);
 
-        if (line.isEmpty()) {
-            plugin.bundle().sendMessage(context.getSource().getSender(), "hologram.type.paged");
+        if (line == null) {
+            plugin.bundle().sendMessage(sender, "hologram.line.invalid");
             return 0;
         }
-
-        final var pagedLine = line.get();
-        final var sender = context.getSource().getSender();
+        if (!(line instanceof final PagedHologramLine pagedLine)) {
+            plugin.bundle().sendMessage(sender, "hologram.type.paged");
+            return 0;
+        }
 
         plugin.bundle().sendMessage(sender, "hologram.page.list.header",
                 Placeholder.unparsed("hologram", hologram.getName()),

@@ -75,6 +75,7 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
     }
 
     public boolean read() {
+        if (!Files.isDirectory(this.path)) return false;
         try (final var files = Files.list(this.path)) {
             unregisterAll();
             files.filter(path -> path.getFileName().toString().endsWith(".properties")).forEach(this::readLocale);

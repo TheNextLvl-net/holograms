@@ -22,24 +22,19 @@ public final class HologramPageChangeEvent extends HologramEvent implements Canc
     private final PagedHologramLine line;
     private final StaticHologramLine newPage;
     private final StaticHologramLine oldPage;
-    private final int newIndex;
-    private final int oldIndex;
     private final Player player;
     private boolean cancelled;
 
     @ApiStatus.Internal
     public HologramPageChangeEvent(
             final Hologram hologram, final PagedHologramLine line, final Player player,
-            final StaticHologramLine oldPage, final StaticHologramLine newPage,
-            final int oldIndex, final int newIndex
+            final StaticHologramLine oldPage, final StaticHologramLine newPage
     ) {
         super(hologram);
         this.line = line;
         this.player = player;
         this.oldPage = oldPage;
         this.newPage = newPage;
-        this.oldIndex = oldIndex;
-        this.newIndex = newIndex;
     }
 
     /**
@@ -84,28 +79,6 @@ public final class HologramPageChangeEvent extends HologramEvent implements Canc
     @Contract(pure = true)
     public StaticHologramLine getNewPage() {
         return newPage;
-    }
-
-    /**
-     * Returns the index of the old page.
-     *
-     * @return the index of the old page
-     * @since 0.8.0
-     */
-    @Contract(pure = true)
-    public int getOldIndex() {
-        return oldIndex;
-    }
-
-    /**
-     * Returns the index of the new page.
-     *
-     * @return the index of the new page
-     * @since 0.8.0
-     */
-    @Contract(pure = true)
-    public int getNewIndex() {
-        return newIndex;
     }
 
     @Override

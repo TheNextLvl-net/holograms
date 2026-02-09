@@ -384,7 +384,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         final var newPage = pages.get(newIndex);
 
         if (oldPage != null) {
-            final var event = new HologramPageChangeEvent(getHologram(), this, player, oldPage, newPage, oldIndex, newIndex);
+            final var event = new HologramPageChangeEvent(getHologram(), this, player, oldPage, newPage);
             if (!event.callEvent()) return CompletableFuture.completedFuture(false);
         }
 

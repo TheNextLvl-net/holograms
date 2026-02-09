@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Contract;
  *
  * @since 0.3.1
  */
-public class HologramDeleteEvent extends HologramEvent implements Cancellable {
+public final class HologramDeleteEvent extends HologramEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled;
 

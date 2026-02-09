@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Contract;
  *
  * @since 0.6.0
  */
-public class HologramTeleportEvent extends HologramEvent implements Cancellable {
+public final class HologramTeleportEvent extends HologramEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final Location from;
     private Location to;

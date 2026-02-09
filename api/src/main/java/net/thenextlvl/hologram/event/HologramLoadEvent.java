@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Contract;
  *
  * @since 0.6.0
  */
-public class HologramLoadEvent extends HologramEvent {
+public final class HologramLoadEvent extends HologramEvent {
     private static final HandlerList handlers = new HandlerList();
 
     @ApiStatus.Internal

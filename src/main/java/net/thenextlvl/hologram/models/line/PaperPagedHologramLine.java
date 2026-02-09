@@ -458,7 +458,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         return offset;
     }
 
-    public void addPage(final PaperStaticHologramLine<?> hologramLine) {
+    public void addPageInternal(final PaperStaticHologramLine<?> hologramLine) {
         hologramLine.parentLine = this;
         this.pages.add(hologramLine);
     }

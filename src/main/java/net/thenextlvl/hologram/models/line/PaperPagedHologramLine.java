@@ -60,16 +60,6 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
-    public Class<? extends Entity> getEntityClass() {
-        return Entity.class;
-    }
-
-    @Override
-    public EntityType getEntityType() {
-        return EntityType.MARKER;
-    }
-
-    @Override
     public LineType getType() {
         return LineType.PAGED;
     }

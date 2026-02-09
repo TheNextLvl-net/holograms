@@ -1,6 +1,8 @@
 package net.thenextlvl.hologram.line;
 
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
@@ -16,6 +18,24 @@ import java.util.Optional;
  * @since 0.5.0
  */
 public interface StaticHologramLine extends HologramLine {
+    /**
+     * Gets the class of the entity representing this line.
+     *
+     * @return entity class
+     * @since 0.8.0
+     */
+    @Contract(pure = true)
+    Class<? extends Entity> getEntityClass();
+
+    /**
+     * Gets the entity type of the entity representing this line.
+     *
+     * @return entity type
+     * @since 0.8.0
+     */
+    @Contract(pure = true)
+    EntityType getEntityType();
+
     /**
      * Gets whether this line is glowing.
      *

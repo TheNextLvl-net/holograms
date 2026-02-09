@@ -1,6 +1,9 @@
 package net.thenextlvl.hologram.models.line;
 
 import com.google.common.base.Preconditions;
+import net.thenextlvl.hologram.event.HologramPageAddEvent;
+import net.thenextlvl.hologram.event.HologramPageChangeEvent;
+import net.thenextlvl.hologram.event.HologramPageRemoveEvent;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -31,6 +34,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @NullMarked
 public final class PaperPagedHologramLine extends PaperHologramLine implements PagedHologramLine {
@@ -57,16 +61,6 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     @Override
     public <T> Optional<T> getEntity(final Player player, final Class<T> type) {
         return getEntity(player).filter(type::isInstance).map(type::cast);
-    }
-
-    @Override
-    public Class<? extends Entity> getEntityClass() {
-        return Entity.class;
-    }
-
-    @Override
-    public EntityType getEntityType() {
-        return EntityType.MARKER;
     }
 
     @Override
@@ -107,32 +101,27 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public TextHologramLine addTextPage() {
-        final var page = new PaperTextHologramLine(getHologram(), this);
-        pages.add(page);
-        getHologram().updateHologram();
-        return page;
+        return addPage(new PaperTextHologramLine(getHologram(), this));
     }
 
     @Override
     public ItemHologramLine addItemPage() {
-        final var page = new PaperItemHologramLine(getHologram(), this);
-        pages.add(page);
-        getHologram().updateHologram();
-        return page;
+        return addPage(new PaperItemHologramLine(getHologram(), this));
     }
 
     @Override
     public BlockHologramLine addBlockPage() {
-        final var page = new PaperBlockHologramLine(getHologram(), this);
-        pages.add(page);
-        getHologram().updateHologram();
-        return page;
+        return addPage(new PaperBlockHologramLine(getHologram(), this));
     }
 
     @Override
     public EntityHologramLine addEntityPage(final EntityType entityType) throws IllegalArgumentException {
-        final var page = new PaperEntityHologramLine(getHologram(), this, entityType);
+        return addPage(new PaperEntityHologramLine(getHologram(), this, entityType));
+    }
+
+    private <T extends PaperStaticHologramLine<?>> T addPage(final T page) {
         pages.add(page);
+        new HologramPageAddEvent(getHologram(), this, page).callEvent();
         getHologram().updateHologram();
         return page;
     }
@@ -141,6 +130,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public boolean removePage(final int index) {
         if (index < 0 || index >= pages.size()) return false;
         final var removed = pages.remove(index);
+        new HologramPageRemoveEvent(getHologram(), this, removed).callEvent();
         removed.despawn();
         return true;
     }
@@ -149,13 +139,19 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public boolean removePage(final HologramLine page) {
         if (!(page instanceof final PaperStaticHologramLine<?> paperPage)) return false;
         final var removed = pages.remove(paperPage);
-        if (removed) paperPage.despawn();
+        if (removed) {
+            new HologramPageRemoveEvent(getHologram(), this, paperPage).callEvent();
+            paperPage.despawn();
+        }
         return removed;
     }
 
     @Override
     public void clearPages() {
-        pages.forEach(PaperStaticHologramLine::despawn);
+        pages.forEach(page -> {
+            new HologramPageRemoveEvent(getHologram(), this, page).callEvent();
+            page.despawn();
+        });
         pages.clear();
         currentPageIndex.clear();
         stopCycleTask();
@@ -179,43 +175,28 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public TextHologramLine setTextPage(final int index) throws IndexOutOfBoundsException {
-        if (index < 0 || index >= pages.size())
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-
-        final var page = new PaperTextHologramLine(getHologram(), this);
-        pages.set(index, page);
-        getHologram().updateHologram();
-        return page;
+        return setPage(index, () -> new PaperTextHologramLine(getHologram(), this));
     }
 
     @Override
     public ItemHologramLine setItemPage(final int index) throws IndexOutOfBoundsException {
-        if (index < 0 || index >= pages.size())
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-
-        final var page = new PaperItemHologramLine(getHologram(), this);
-        pages.set(index, page);
-        getHologram().updateHologram();
-        return page;
+        return setPage(index, () -> new PaperItemHologramLine(getHologram(), this));
     }
 
     @Override
     public BlockHologramLine setBlockPage(final int index) throws IndexOutOfBoundsException {
-        if (index < 0 || index >= pages.size())
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-
-        final var page = new PaperBlockHologramLine(getHologram(), this);
-        pages.set(index, page);
-        getHologram().updateHologram();
-        return page;
+        return setPage(index, () -> new PaperBlockHologramLine(getHologram(), this));
     }
 
     @Override
     public EntityHologramLine setEntityPage(final int index, final EntityType entityType) throws IllegalArgumentException, IndexOutOfBoundsException {
+        return setPage(index, () -> new PaperEntityHologramLine(getHologram(), this, entityType));
+    }
+
+    private <T extends PaperStaticHologramLine<?>> T setPage(final int index, final Supplier<T> supplier) {
         if (index < 0 || index >= pages.size())
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-
-        final var page = new PaperEntityHologramLine(getHologram(), this, entityType);
+        final var page = supplier.get();
         pages.set(index, page);
         getHologram().updateHologram();
         return page;
@@ -223,40 +204,30 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     @Override
     public TextHologramLine insertTextPage(final int index) {
-        if (index < 0 || index > pages.size())
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-        final var page = new PaperTextHologramLine(getHologram(), this);
-        pages.add(index, page);
-        getHologram().updateHologram();
-        return page;
+        return insertPage(index, () -> new PaperTextHologramLine(getHologram(), this));
     }
 
     @Override
     public ItemHologramLine insertItemPage(final int index) {
-        if (index < 0 || index > pages.size())
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-        final var page = new PaperItemHologramLine(getHologram(), this);
-        pages.add(index, page);
-        getHologram().updateHologram();
-        return page;
+        return insertPage(index, () -> new PaperItemHologramLine(getHologram(), this));
     }
 
     @Override
     public BlockHologramLine insertBlockPage(final int index) {
-        if (index < 0 || index > pages.size())
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-        final var page = new PaperBlockHologramLine(getHologram(), this);
-        pages.add(index, page);
-        getHologram().updateHologram();
-        return page;
+        return insertPage(index, () -> new PaperBlockHologramLine(getHologram(), this));
     }
 
     @Override
     public EntityHologramLine insertEntityPage(final int index, final EntityType entityType) throws IllegalArgumentException {
+        return insertPage(index, () -> new PaperEntityHologramLine(getHologram(), this, entityType));
+    }
+
+    private <T extends PaperStaticHologramLine<?>> T insertPage(final int index, final Supplier<T> supplier) {
         if (index < 0 || index > pages.size())
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + pages.size());
-        final var page = new PaperEntityHologramLine(getHologram(), this, entityType);
+        final var page = supplier.get();
         pages.add(index, page);
+        new HologramPageAddEvent(getHologram(), this, page).callEvent();
         getHologram().updateHologram();
         return page;
     }
@@ -411,6 +382,12 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         }
 
         final var newPage = pages.get(newIndex);
+
+        if (oldPage != null) {
+            final var event = new HologramPageChangeEvent(getHologram(), this, player, oldPage, newPage);
+            if (!event.callEvent()) return CompletableFuture.completedFuture(false);
+        }
+
         currentPageIndex.put(player.getUniqueId(), newIndex);
 
         final var adopt = oldPage != null ? newPage.adoptEntities(oldPage, player) : CompletableFuture.<Void>completedFuture(null);
@@ -458,7 +435,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         return offset;
     }
 
-    public void addPage(final PaperStaticHologramLine<?> hologramLine) {
+    public void addPageInternal(final PaperStaticHologramLine<?> hologramLine) {
         hologramLine.parentLine = this;
         this.pages.add(hologramLine);
     }

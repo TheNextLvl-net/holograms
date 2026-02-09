@@ -1,33 +1,35 @@
 package net.thenextlvl.hologram.event;
 
 import net.thenextlvl.hologram.Hologram;
-import org.bukkit.event.Cancellable;
+import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 /**
- * Called when a hologram is deleted.
+ * Called when a line is removed from a hologram.
  *
- * @since 0.3.1
+ * @since 0.8.0
  */
-public final class HologramDeleteEvent extends HologramEvent implements Cancellable {
+public final class HologramLineRemoveEvent extends HologramEvent {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
+    private final HologramLine line;
 
     @ApiStatus.Internal
-    public HologramDeleteEvent(final Hologram hologram) {
+    public HologramLineRemoveEvent(final Hologram hologram, final HologramLine line) {
         super(hologram);
+        this.line = line;
     }
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(final boolean cancel) {
-        this.cancelled = cancel;
+    /**
+     * Returns the line that was removed.
+     *
+     * @return the removed line
+     * @since 0.8.0
+     */
+    @Contract(pure = true)
+    public HologramLine getLine() {
+        return line;
     }
 
     @Override

@@ -4,7 +4,6 @@ import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.action.ClickAction;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -51,24 +50,6 @@ public interface HologramLine {
      */
     @Contract(pure = true)
     <T> Optional<T> getEntity(Player player, Class<T> type);
-
-    /**
-     * Gets the class of the entity representing this line.
-     *
-     * @return entity class
-     * @since 0.5.0
-     */
-    @Contract(pure = true)
-    Class<? extends Entity> getEntityClass();
-
-    /**
-     * Gets the entity type of the entity representing this line.
-     *
-     * @return entity type
-     * @since 0.3.0
-     */
-    @Contract(pure = true)
-    EntityType getEntityType();
 
     /**
      * Gets the type of this line.

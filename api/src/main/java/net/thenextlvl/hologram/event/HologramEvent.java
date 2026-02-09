@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.event;
 
 import net.thenextlvl.hologram.Hologram;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -15,6 +16,7 @@ abstract class HologramEvent extends Event {
 
     @ApiStatus.Internal
     protected HologramEvent(final Hologram hologram) {
+        super(!Bukkit.isPrimaryThread());
         this.hologram = hologram;
     }
 

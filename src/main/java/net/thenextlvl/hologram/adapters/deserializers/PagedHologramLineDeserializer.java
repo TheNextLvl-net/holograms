@@ -26,7 +26,7 @@ public final class PagedHologramLineDeserializer extends HologramLineDeserialize
         tag.optional("pages").map(Tag::<CompoundTag>getAsList).ifPresent(pages -> {
             pages.stream().map(page -> PaperHologram.deserializeLine(context, page))
                     .map(PaperStaticHologramLine.class::cast)
-                    .forEach(line::addPage);
+                    .forEach(line::addPageInternal);
         });
     }
 

@@ -13,7 +13,7 @@ import java.util.UUID;
  *
  * @since 0.6.0
  */
-public class HologramViewerAddEvent extends HologramEvent implements Cancellable {
+public final class HologramViewerAddEvent extends HologramEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final UUID viewer;
     private boolean cancelled;

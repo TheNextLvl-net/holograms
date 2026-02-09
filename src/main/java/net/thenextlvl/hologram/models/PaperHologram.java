@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import io.papermc.paper.math.Position;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.event.HologramLineAddEvent;
+import net.thenextlvl.hologram.event.HologramLineRemoveEvent;
 import net.thenextlvl.hologram.event.HologramTeleportEvent;
 import net.thenextlvl.hologram.event.HologramViewerAddEvent;
 import net.thenextlvl.hologram.event.HologramViewerRemoveEvent;
@@ -53,6 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -216,7 +219,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public boolean removeLine(final HologramLine line) {
         final var removed = lines.remove(line);
-        if (removed) despawnLine(line);
+        if (removed) {
+            new HologramLineRemoveEvent(this, line).callEvent();
+            despawnLine(line);
+        }
         updateHologram();
         return removed;
     }
@@ -225,6 +231,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     public boolean removeLine(final int index) {
         if (index < 0 || index >= lines.size()) return false;
         final var removed = lines.remove(index);
+        new HologramLineRemoveEvent(this, removed).callEvent();
         despawnLine(removed);
         updateHologram();
         return true;
@@ -240,7 +247,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     @Override
     public void clearLines() {
         if (lines.isEmpty()) return;
-        lines.forEach(this::despawnLine);
+        lines.forEach(line -> {
+            new HologramLineRemoveEvent(this, line).callEvent();
+            despawnLine(line);
+        });
         lines.clear();
         updateHologram();
     }
@@ -288,15 +298,12 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public EntityHologramLine addEntityLine(final int index, final EntityType entityType) throws IllegalArgumentException {
-        final var hologramLine = new PaperEntityHologramLine(this, null, entityType);
-        lines.add(index, hologramLine);
-        updateHologram();
-        return hologramLine;
+    public EntityHologramLine addEntityLine(final int index, final EntityType entityType) throws IllegalArgumentException, IndexOutOfBoundsException {
+        return addLine(index, new PaperEntityHologramLine(this, null, entityType));
     }
 
     @Override
-    public EntityHologramLine addEntityLine(final int index, final Class<? extends Entity> entityType) throws IllegalArgumentException {
+    public EntityHologramLine addEntityLine(final int index, final Class<? extends Entity> entityType) throws IllegalArgumentException, IndexOutOfBoundsException {
         return addEntityLine(index, HologramPlugin.getEntityType(entityType));
     }
 
@@ -306,11 +313,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public BlockHologramLine addBlockLine(final int index) {
-        final var hologramLine = new PaperBlockHologramLine(this, null);
-        lines.add(index, hologramLine);
-        updateHologram();
-        return hologramLine;
+    public BlockHologramLine addBlockLine(final int index) throws IndexOutOfBoundsException {
+        return addLine(index, new PaperBlockHologramLine(this, null));
     }
 
     @Override
@@ -319,11 +323,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public ItemHologramLine addItemLine(final int index) {
-        final var hologramLine = new PaperItemHologramLine(this, null);
-        lines.add(index, hologramLine);
-        updateHologram();
-        return hologramLine;
+    public ItemHologramLine addItemLine(final int index) throws IndexOutOfBoundsException {
+        return addLine(index, new PaperItemHologramLine(this, null));
     }
 
     @Override
@@ -332,72 +333,66 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public TextHologramLine addTextLine(final int index) {
-        final var hologramLine = new PaperTextHologramLine(this, null);
-        lines.add(index, hologramLine);
-        updateHologram();
-        return hologramLine;
-    }
-
-    @Override
-    public EntityHologramLine setEntityLine(final int index, final EntityType entityType) throws IllegalArgumentException {
-        final var hologramLine = new PaperEntityHologramLine(this, null, entityType);
-        despawnLine(lines.set(index, hologramLine));
-        updateHologram();
-        return hologramLine;
-    }
-
-    @Override
-    public EntityHologramLine setEntityLine(final int index, final Class<? extends Entity> entityType) throws IllegalArgumentException {
-        return setEntityLine(index, HologramPlugin.getEntityType(entityType));
-    }
-
-    @Override
-    public BlockHologramLine setBlockLine(final int index) {
-        final var hologramLine = new PaperBlockHologramLine(this, null);
-        despawnLine(lines.set(index, hologramLine));
-        updateHologram();
-        return hologramLine;
-    }
-
-    @Override
-    public ItemHologramLine setItemLine(final int index) {
-        final var hologramLine = new PaperItemHologramLine(this, null);
-        despawnLine(lines.set(index, hologramLine));
-        updateHologram();
-        return hologramLine;
-    }
-
-    @Override
-    public TextHologramLine setTextLine(final int index) {
-        final var hologramLine = new PaperTextHologramLine(this, null);
-        despawnLine(lines.set(index, hologramLine));
-        updateHologram();
-        return hologramLine;
+    public TextHologramLine addTextLine(final int index) throws IndexOutOfBoundsException {
+        return addLine(index, new PaperTextHologramLine(this, null));
     }
 
     @Override
     public PagedHologramLine addPagedLine() {
-        final var hologramLine = new PaperPagedHologramLine(this);
-        lines.add(hologramLine);
-        updateHologram();
-        return hologramLine;
+        return addPagedLine(lines.size());
     }
 
     @Override
     public PagedHologramLine addPagedLine(final int index) throws IndexOutOfBoundsException {
-        final var hologramLine = new PaperPagedHologramLine(this);
+        return addLine(index, new PaperPagedHologramLine(this));
+    }
+
+    private <T extends HologramLine> T addLine(final int index, final T hologramLine) throws IndexOutOfBoundsException {
+        if (index < 0 || index > lines.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + lines.size());
         lines.add(index, hologramLine);
+        new HologramLineAddEvent(this, hologramLine).callEvent();
         updateHologram();
         return hologramLine;
     }
 
     @Override
+    public EntityHologramLine setEntityLine(final int index, final EntityType entityType) throws IllegalArgumentException, IndexOutOfBoundsException {
+        return setLine(index, () -> new PaperEntityHologramLine(this, null, entityType));
+    }
+
+    @Override
+    public EntityHologramLine setEntityLine(final int index, final Class<? extends Entity> entityType) throws IllegalArgumentException, IndexOutOfBoundsException {
+        return setEntityLine(index, HologramPlugin.getEntityType(entityType));
+    }
+
+    @Override
+    public BlockHologramLine setBlockLine(final int index) throws IndexOutOfBoundsException {
+        return setLine(index, () -> new PaperBlockHologramLine(this, null));
+    }
+
+    @Override
+    public ItemHologramLine setItemLine(final int index) throws IndexOutOfBoundsException {
+        return setLine(index, () -> new PaperItemHologramLine(this, null));
+    }
+
+    @Override
+    public TextHologramLine setTextLine(final int index) throws IndexOutOfBoundsException {
+        return setLine(index, () -> new PaperTextHologramLine(this, null));
+    }
+
+    @Override
     public PagedHologramLine setPagedLine(final int index) throws IndexOutOfBoundsException {
-        final var hologramLine = new PaperPagedHologramLine(this);
-        despawnLine(lines.set(index, hologramLine));
+        return setLine(index, () -> new PaperPagedHologramLine(this));
+    }
+
+    private <T extends HologramLine> T setLine(final int index, final Supplier<T> supplier) throws IndexOutOfBoundsException {
+        if (index < 0 || index >= lines.size())
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + lines.size());
+        final var line = supplier.get();
+        despawnLine(lines.set(index, line));
         updateHologram();
-        return hologramLine;
+        return line;
     }
 
     @Override
@@ -537,7 +532,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public CompletableFuture<Boolean> spawn(final Player player, final boolean update) {
-        if (!canSee(player) || !location.isChunkLoaded() || !player.isConnected()) 
+        if (!canSee(player) || !location.isChunkLoaded() || !player.isConnected())
             return CompletableFuture.completedFuture(false);
         if (!spawned.add(player.getUniqueId()) && !update)
             return CompletableFuture.completedFuture(false);

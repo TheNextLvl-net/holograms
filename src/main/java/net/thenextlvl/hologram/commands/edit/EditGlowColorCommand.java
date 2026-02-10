@@ -9,6 +9,7 @@ import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver.LineType;
 import org.jspecify.annotations.NullMarked;
@@ -37,8 +38,8 @@ final class EditGlowColorCommand extends EditCommand {
                     .or(() -> tryGetArgument(context, "color", NamedTextColor.class))
                     .orElse(null);
             final var message = set(line.getGlowColor().orElse(null), color, line::setGlowColor, "hologram.glow-color");
-            plugin.bundle().sendMessage(context.getSource().getSender(), message, concat(placeholders,
-                    Placeholder.unparsed("color", color != null ? color.toString() : "none")));
+            plugin.bundle().sendMessage(context.getSource().getSender(), message, TagResolver.resolver(placeholders),
+                    Placeholder.unparsed("color", color != null ? color.toString() : "none"));
             return SINGLE_SUCCESS;
         }, LineType.DISPLAY);
     }

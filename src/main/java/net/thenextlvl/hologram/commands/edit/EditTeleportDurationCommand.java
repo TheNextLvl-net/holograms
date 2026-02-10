@@ -7,6 +7,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver.LineType;
 import org.jspecify.annotations.NullMarked;
@@ -29,7 +30,8 @@ final class EditTeleportDurationCommand extends EditCommand {
             final var duration = context.getArgument("duration", int.class);
             final var message = set(line.getTeleportDuration(), duration, line::setTeleportDuration, "hologram.teleport-duration");
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
-                    concat(placeholders, Formatter.number("duration", duration)));
+                    TagResolver.resolver(placeholders),
+                    Formatter.number("duration", duration));
             return SINGLE_SUCCESS;
         }, LineType.DISPLAY);
     }

@@ -6,6 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.arguments.EnumArgumentType;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver.LineType;
@@ -44,7 +45,8 @@ final class EditTransformationCommand extends EditCommand {
             }, context.getSource().getSender());
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
-                    concat(placeholders, Placeholder.component("transformation", transformationName)));
+                    TagResolver.resolver(placeholders),
+                    Placeholder.component("transformation", transformationName));
             return SINGLE_SUCCESS;
         }, LineType.ITEM);
     }

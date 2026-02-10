@@ -34,7 +34,7 @@ abstract class HologramActionCommand<T> extends SimpleCommand {
 
         final var previous = line.getAction(actionName);
         final var cooldown = previous.map(ClickAction::getCooldown).orElse(Duration.ZERO);
-        final var permission = previous.map(ClickAction::getPermission).orElse(null);
+        final var permission = previous.flatMap(ClickAction::getPermission).orElse(null);
         final var chance = previous.map(ClickAction::getChance).orElse(100);
 
         final var success = line.addAction(actionName, ClickAction.create(actionType, clickTypes.getClickTypes(), input, action -> {

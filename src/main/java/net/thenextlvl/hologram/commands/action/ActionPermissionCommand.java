@@ -57,9 +57,9 @@ final class ActionPermissionCommand extends ActionCommand {
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final Hologram hologram, final HologramLine line, final ClickAction<?> action, final String actionName, final TagResolver... placeholders) {
-        final var message = action.getPermission() != null ? "hologram.action.permission" : "hologram.action.permission.none";
+        final var message = action.getPermission().isPresent() ? "hologram.action.permission" : "hologram.action.permission.none";
         plugin.bundle().sendMessage(context.getSource().getSender(), message, concat(placeholders,
-                Placeholder.unparsed("permission", String.valueOf(action.getPermission())),
+                Placeholder.unparsed("permission", action.getPermission().orElse("null")),
                 Placeholder.unparsed("action", actionName)));
         return SINGLE_SUCCESS;
     }

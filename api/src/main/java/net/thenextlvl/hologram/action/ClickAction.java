@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -99,9 +100,8 @@ public sealed interface ClickAction<T> permits SimpleClickAction {
      * @return permission
      * @since 0.6.0
      */
-    @Nullable
     @Contract(pure = true)
-    String getPermission();
+    Optional<String> getPermission();
 
     /**
      * Sets the permission required to perform this click action.

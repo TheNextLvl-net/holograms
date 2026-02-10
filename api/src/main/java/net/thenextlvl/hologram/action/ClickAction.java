@@ -98,7 +98,7 @@ public sealed interface ClickAction<T> permits SimpleClickAction {
      * Gets the permission required to perform this click action.
      *
      * @return permission
-     * @since 0.6.0
+     * @since 0.9.0
      */
     @Contract(pure = true)
     Optional<String> getPermission();

@@ -7,6 +7,7 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.action.ClickType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -17,6 +18,7 @@ import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -87,6 +89,13 @@ public final class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onEntityKnockback(final EntityKnockbackEvent event) {
         event.setCancelled(plugin.hologramProvider().isHologramPart(event.getEntity()));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChunkUnload(final EntityRemoveEvent event) {
+        plugin.hologramProvider().getHologramLine(event.getEntity())
+                .map(hologram -> (PaperHologramLine) hologram)
+                .ifPresent(hologram -> hologram.invalidate(event.getEntity()));
     }
 
     private void handleInteraction(final Player player, final Entity entity, final Cancellable cancellable, final boolean isRight) {

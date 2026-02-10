@@ -4,7 +4,7 @@ import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
 import io.papermc.paper.event.packet.PlayerChunkUnloadEvent;
 import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.models.PaperHologram;
+import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -33,8 +33,8 @@ public final class ChunkListener implements Listener {
     // todo: test entity untracking
     // @EventHandler(priority = EventPriority.MONITOR)
     public void onChunkUnload(final PlayerUntrackEntityEvent event) {
-        plugin.hologramProvider().getHologram(event.getEntity())
-                .map(hologram -> (PaperHologram) hologram)
+        plugin.hologramProvider().getHologramLine(event.getEntity())
+                .map(hologram -> (PaperHologramLine) hologram)
                 .ifPresent(hologram -> hologram.invalidate(event.getEntity()));
     }
 }

@@ -47,10 +47,6 @@ abstract class ActionCommand extends SimpleCommand {
 
     public abstract int run(CommandContext<CommandSourceStack> context, Hologram hologram, HologramLine line, ClickAction<?> action, String actionName, TagResolver... placeholders) throws CommandSyntaxException;
 
-    protected final TagResolver[] concat(final TagResolver[] placeholders, final TagResolver... resolvers) {
-        return Stream.concat(Arrays.stream(placeholders), Arrays.stream(resolvers)).toArray(TagResolver[]::new);
-    }
-
     protected static ArgumentBuilder<CommandSourceStack, ?> actionArgument(final HologramPlugin plugin) {
         return Commands.argument("action", StringArgumentType.word())
                 .suggests(new HologramActionSuggestionProvider());

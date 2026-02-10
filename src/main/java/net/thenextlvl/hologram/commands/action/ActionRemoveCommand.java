@@ -20,9 +20,15 @@ final class ActionRemoveCommand extends SimpleCommand {
         this.resolverBuilder = resolver;
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+    static LiteralArgumentBuilder<CommandSourceStack> create(
+            final HologramPlugin plugin,
+            final HologramActionCommand.ArgumentChainFactory chainFactory,
+            final ActionTargetResolver.Builder resolver
+    ) {
         final var command = new ActionRemoveCommand(plugin, resolver);
-        return command.create().then(actionArgument(plugin).executes(command));
+        final var chain = chainFactory.create();
+        chain.tail().then(actionArgument(plugin).executes(command));
+        return command.create().then(chain.build());
     }
 
     @Override

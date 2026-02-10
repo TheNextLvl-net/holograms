@@ -21,11 +21,17 @@ final class ActionChanceCommand extends ActionCommand {
         super(plugin, "chance", "holograms.command.action.chance", resolver);
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+    static LiteralArgumentBuilder<CommandSourceStack> create(
+            final HologramPlugin plugin,
+            final HologramActionCommand.ArgumentChainFactory chainFactory,
+            final ActionTargetResolver.Builder resolver
+    ) {
         final var command = new ActionChanceCommand(plugin, resolver);
-        return command.create().then(actionArgument(plugin)
+        final var chain = chainFactory.create();
+        chain.tail().then(actionArgument(plugin)
                 .then(chanceArgument().executes(command))
                 .executes(command));
+        return command.create().then(chain.build());
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> chanceArgument() {
@@ -38,9 +44,10 @@ final class ActionChanceCommand extends ActionCommand {
         final var success = chance != null && action.setChance(chance);
         final var message = chance == null ? "hologram.action.chance"
                 : success ? "hologram.action.chance.set" : "nothing.changed";
-        plugin.bundle().sendMessage(context.getSource().getSender(), message, concat(placeholders,
+        plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                TagResolver.resolver(placeholders),
                 Placeholder.unparsed("action", actionName),
-                Formatter.number("chance", chance != null ? chance : action.getChance())));
+                Formatter.number("chance", chance != null ? chance : action.getChance()));
         return success ? SINGLE_SUCCESS : 0;
     }
 }

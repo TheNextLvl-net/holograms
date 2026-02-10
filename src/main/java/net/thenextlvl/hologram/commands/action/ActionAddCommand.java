@@ -29,8 +29,13 @@ public final class ActionAddCommand extends BrigadierCommand {
         super(plugin, "add", "holograms.command.action.add");
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+    static LiteralArgumentBuilder<CommandSourceStack> create(
+            final HologramPlugin plugin,
+            final HologramActionCommand.ArgumentChainFactory chainFactory,
+            final ActionTargetResolver.Builder resolver
+    ) {
         final var command = new ActionAddCommand(plugin);
+        final var chain = chainFactory.create();
         final var commands = clickTypesArgument()
                 .then(ConnectCommand.create(plugin, resolver))
                 .then(CyclePageCommand.create(plugin, resolver))
@@ -43,7 +48,8 @@ public final class ActionAddCommand extends BrigadierCommand {
                 .then(SetPageCommand.create(plugin, resolver))
                 .then(TeleportCommand.create(plugin, resolver))
                 .then(TransferCommand.create(plugin, resolver));
-        return command.create().then(actionArgument(plugin).then(commands));
+        chain.tail().then(actionArgument(plugin).then(commands));
+        return command.create().then(chain.build());
     }
 
     static ArgumentBuilder<CommandSourceStack, ?> clickTypesArgument() {

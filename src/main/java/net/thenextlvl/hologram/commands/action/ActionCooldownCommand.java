@@ -22,11 +22,17 @@ final class ActionCooldownCommand extends ActionCommand {
         super(plugin, "cooldown", "holograms.command.action.cooldown", resolver);
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+    static LiteralArgumentBuilder<CommandSourceStack> create(
+            final HologramPlugin plugin,
+            final HologramActionCommand.ArgumentChainFactory chainFactory,
+            final ActionTargetResolver.Builder resolver
+    ) {
         final var command = new ActionCooldownCommand(plugin, resolver);
-        return command.create().then(actionArgument(plugin)
+        final var chain = chainFactory.create();
+        chain.tail().then(actionArgument(plugin)
                 .then(cooldownArgument().executes(command))
                 .executes(command));
+        return command.create().then(chain.build());
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> cooldownArgument() {
@@ -41,9 +47,10 @@ final class ActionCooldownCommand extends ActionCommand {
                 : success ? cooldown.isZero() ? "hologram.action.cooldown.removed"
                 : "hologram.action.cooldown.set"
                 : "nothing.changed";
-        plugin.bundle().sendMessage(context.getSource().getSender(), message, concat(placeholders,
+        plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                TagResolver.resolver(placeholders),
                 Placeholder.unparsed("action", actionName),
-                Formatter.number("cooldown", (cooldown != null ? cooldown : action.getCooldown()).toMillis() / 1000d)));
+                Formatter.number("cooldown", (cooldown != null ? cooldown : action.getCooldown()).toMillis() / 1000d));
         return success ? SINGLE_SUCCESS : 0;
     }
 }

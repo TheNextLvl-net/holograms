@@ -20,9 +20,14 @@ public final class HologramLineActionCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramLineActionCommand(plugin);
-        final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.ANY_LINE);
-        return command.create().then(HologramCommand.hologramArgument(plugin)
-                .then(HologramActionCommand.create(plugin, line, ActionTargetResolver.LINE)));
+        final HologramActionCommand.ArgumentChainFactory chainFactory = () -> {
+            final var hologram = HologramCommand.hologramArgument(plugin);
+            final var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                    .suggests(LineSuggestionProvider.ANY_LINE);
+            return new HologramActionCommand.ArgumentChain(hologram, line, null);
+        };
+        final var literal = command.create();
+        HologramActionCommand.register(plugin, literal, chainFactory, ActionTargetResolver.LINE);
+        return literal;
     }
 }

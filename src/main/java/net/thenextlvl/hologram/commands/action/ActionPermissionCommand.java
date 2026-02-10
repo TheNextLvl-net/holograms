@@ -21,12 +21,18 @@ final class ActionPermissionCommand extends ActionCommand {
         super(plugin, "permission", "holograms.command.action.permission", resolver);
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+    static LiteralArgumentBuilder<CommandSourceStack> create(
+            final HologramPlugin plugin,
+            final HologramActionCommand.ArgumentChainFactory chainFactory,
+            final ActionTargetResolver.Builder resolver
+    ) {
         final var command = new ActionPermissionCommand(plugin, resolver);
-        return command.create().then(actionArgument(plugin)
+        final var chain = chainFactory.create();
+        chain.tail().then(actionArgument(plugin)
                 .then(Commands.literal("remove").executes(command::set))
                 .then(permissionArgument(plugin).executes(command::set))
                 .executes(command));
+        return command.create().then(chain.build());
     }
 
     private int set(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -58,9 +64,10 @@ final class ActionPermissionCommand extends ActionCommand {
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final Hologram hologram, final HologramLine line, final ClickAction<?> action, final String actionName, final TagResolver... placeholders) {
         final var message = action.getPermission().isPresent() ? "hologram.action.permission" : "hologram.action.permission.none";
-        plugin.bundle().sendMessage(context.getSource().getSender(), message, concat(placeholders,
+        plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                TagResolver.resolver(placeholders),
                 Placeholder.unparsed("permission", action.getPermission().orElse("null")),
-                Placeholder.unparsed("action", actionName)));
+                Placeholder.unparsed("action", actionName));
         return SINGLE_SUCCESS;
     }
 }

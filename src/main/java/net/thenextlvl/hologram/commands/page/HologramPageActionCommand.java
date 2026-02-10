@@ -22,11 +22,16 @@ public final class HologramPageActionCommand extends BrigadierCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramPageActionCommand(plugin);
-        final var line = Commands.argument("line", IntegerArgumentType.integer(1))
-                .suggests(LineSuggestionProvider.PAGED_ONLY);
-        final var page = Commands.argument("page", IntegerArgumentType.integer(1))
-                .suggests(PageSuggestionProvider.INSTANCE);
-        return command.create().then(hologramArgument(plugin, true).then(line
-                .then(HologramActionCommand.create(plugin, page, ActionTargetResolver.PAGE))));
+        final HologramActionCommand.ArgumentChainFactory chainFactory = () -> {
+            final var hologram = hologramArgument(plugin, true);
+            final var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                    .suggests(LineSuggestionProvider.PAGED_ONLY);
+            final var page = Commands.argument("page", IntegerArgumentType.integer(1))
+                    .suggests(PageSuggestionProvider.INSTANCE);
+            return new HologramActionCommand.ArgumentChain(hologram, line, page);
+        };
+        final var literal = command.create();
+        HologramActionCommand.register(plugin, literal, chainFactory, ActionTargetResolver.PAGE);
+        return literal;
     }
 }

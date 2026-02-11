@@ -24,6 +24,7 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     private @Range(from = 0, to = 100) int chance = 100;
     private Duration cooldown = Duration.ZERO;
     private @Nullable String permission = null;
+    private double cost = 0;
 
     public SimpleClickAction(final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
         this.actionType = actionType;
@@ -86,6 +87,18 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     public boolean setPermission(@Nullable final String permission) {
         if (Objects.equals(this.permission, permission)) return false;
         this.permission = permission;
+        return true;
+    }
+
+    @Override
+    public double getCost() {
+        return cost;
+    }
+
+    @Override
+    public boolean setCost(final double cost) {
+        if (this.cost == cost) return false;
+        this.cost = cost;
         return true;
     }
 

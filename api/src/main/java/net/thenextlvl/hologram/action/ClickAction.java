@@ -114,6 +114,25 @@ public sealed interface ClickAction<T> permits SimpleClickAction {
     boolean setPermission(@Nullable String permission);
 
     /**
+     * Gets the cost of this click action.
+     *
+     * @return cost
+     * @since 0.9.0
+     */
+    @Contract(pure = true)
+    double getCost();
+
+    /**
+     * Sets the cost of this click action.
+     *
+     * @param cost new cost
+     * @return {@code true} if the cost was successfully set, {@code false} otherwise
+     * @since 0.9.0
+     */
+    @Contract(mutates = "this")
+    boolean setCost(double cost);
+
+    /**
      * Gets the cooldown for this click action.
      *
      * @return cooldown

@@ -130,11 +130,6 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     }
 
     @Override
-    public boolean canInvoke(final Player player) {
-        return (permission == null || player.hasPermission(permission)) && !isOnCooldown(player);
-    }
-
-    @Override
     public boolean invoke(final HologramLine line, final Player player) {
         if (!canInvoke(player)) return false;
         if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());

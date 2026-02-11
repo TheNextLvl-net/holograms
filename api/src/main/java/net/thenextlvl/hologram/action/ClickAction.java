@@ -185,16 +185,6 @@ public interface ClickAction<T> {
     boolean resetCooldown(Player player);
 
     /**
-     * Checks if this click action can be invoked by the given player.
-     *
-     * @param player player to check
-     * @return {@code true} if this click action can be invoked by the given player, {@code false} otherwise
-     * @since 0.6.0
-     */
-    @Contract(pure = true)
-    boolean canInvoke(Player player);
-
-    /**
      * Invokes this click action on the given hologram line for the given player.
      *
      * @param line   hologram line

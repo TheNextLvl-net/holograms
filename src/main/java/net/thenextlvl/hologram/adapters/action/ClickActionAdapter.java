@@ -41,18 +41,16 @@ public final class ClickActionAdapter implements TagAdapter<ClickAction<?>> {
     @SuppressWarnings("unchecked")
     public ClickAction<?> deserialize(final Tag tag, final TagDeserializationContext ignored) throws ParserException {
         final var root = tag.getAsCompound();
-        final var permission = root.optional("permission").map(Tag::getAsString).orElse(null);
-        final var cooldown = root.optional("cooldown").map(Tag::getAsLong).map(Duration::ofMillis).orElse(Duration.ZERO);
         final var actionType = context.deserialize(root.get("actionType"), ActionType.class);
         final var clickTypes = root.getAsList("clickTypes").stream()
                 .map(tag1 -> context.deserialize(tag1, ClickType.class))
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(ClickType.class)));
         final var input = context.deserialize(root.get("input"), actionType.type());
-        final var chance = root.optional("chance").map(Tag::getAsInt).orElse(100);
         final var action = ClickAction.create(actionType, clickTypes, input);
-        action.setChance(chance);
-        action.setCooldown(cooldown);
-        action.setPermission(permission);
+        root.optional("chance").map(Tag::getAsInt).ifPresent(action::setChance);
+        root.optional("cooldown").map(Tag::getAsLong).map(Duration::ofMillis).ifPresent(action::setCooldown);
+        root.optional("cost").map(Tag::getAsDouble).ifPresent(action::setCost);
+        root.optional("permission").map(Tag::getAsString).ifPresent(action::setPermission);
         return action;
     }
 
@@ -60,6 +58,7 @@ public final class ClickActionAdapter implements TagAdapter<ClickAction<?>> {
     public Tag serialize(final ClickAction<?> action, final TagSerializationContext ignored) throws ParserException {
         final var builder = CompoundTag.builder();
         action.getPermission().ifPresent(permission -> builder.put("permission", permission));
+        if (action.getCost() != 0) builder.put("cost", action.getCost());
         if (!action.getCooldown().isZero()) builder.put("cooldown", action.getCooldown().toMillis());
         builder.put("actionType", context.serialize(action.getActionType()));
         final var types = ListTag.builder().contentType(StringTag.ID);

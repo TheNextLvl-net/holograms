@@ -16,7 +16,6 @@ import java.util.Optional;
 /**
  * Represents a type of click action that can be performed on a hologram line.
  *
- * @see ClickActionFactory
  * @since 0.6.0
  */
 @ApiStatus.NonExtendable

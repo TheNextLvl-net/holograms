@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -72,7 +73,7 @@ final class ActionListCommand extends SimpleCommand {
             line.forEachAction((name, action) -> {
                 plugin.bundle().sendMessage(sender, "hologram.action.list",
                         Placeholder.parsed("action", name),
-                        actionResolvers(action));
+                        actionResolvers(sender, action));
                 count.incrementAndGet();
             });
         });
@@ -96,7 +97,7 @@ final class ActionListCommand extends SimpleCommand {
             line.forEachAction((name, action) -> {
                 plugin.bundle().sendMessage(sender, "hologram.action.list",
                         Placeholder.parsed("action", name),
-                        actionResolvers(action));
+                        actionResolvers(sender, action));
                 count.incrementAndGet();
             });
         });
@@ -123,18 +124,18 @@ final class ActionListCommand extends SimpleCommand {
                 plugin.bundle().sendMessage(sender, "hologram.action.list",
                         TagResolver.resolver(placeholders),
                         Placeholder.parsed("action", name),
-                        actionResolvers(action));
+                        actionResolvers(sender, action));
             });
             return SINGLE_SUCCESS;
         });
     }
 
-    private static TagResolver actionResolvers(final ClickAction<?> action) {
+    private TagResolver actionResolvers(final Audience audience, final ClickAction<?> action) {
         return TagResolver.resolver(
-                Placeholder.parsed("action_type", action.getActionType().name()),
                 Formatter.number("chance", action.getChance()),
-                Formatter.number("cost", action.getCost()),
                 Formatter.number("cooldown", action.getCooldown().toMillis() / 1000d),
+                Placeholder.parsed("action_type", action.getActionType().name()),
+                Placeholder.parsed("cost", plugin.economyProvider.format(audience, action.getCost())),
                 Placeholder.parsed("permission", action.getPermission().orElse("null"))
         );
     }

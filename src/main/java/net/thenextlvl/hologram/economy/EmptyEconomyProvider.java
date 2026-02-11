@@ -15,6 +15,7 @@ public final class EmptyEconomyProvider implements EconomyProvider {
     @Override
     public boolean withdraw(final Player player, final double amount) {
         if (amount == 0) return true;
+        plugin.getComponentLogger().warn("No economy provider installed, cannot withdraw money");
         return false;
     }
 }

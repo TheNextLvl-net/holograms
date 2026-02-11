@@ -38,7 +38,7 @@ abstract class HologramActionCommand<T> extends SimpleCommand {
         final var chance = previous.map(ClickAction::getChance).orElse(100);
         final var cost = previous.map(ClickAction::getCost).orElse(0d);
 
-        final var success = line.addAction(actionName, ClickAction.create(actionType, clickTypes.getClickTypes(), input, action -> {
+        final var success = line.addAction(actionName, ClickAction.factory().create(actionType, clickTypes.getClickTypes(), input, action -> {
             action.setChance(chance);
             action.setCooldown(cooldown);
             action.setCost(cost);

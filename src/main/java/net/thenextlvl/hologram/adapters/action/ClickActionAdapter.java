@@ -46,7 +46,7 @@ public final class ClickActionAdapter implements TagAdapter<ClickAction<?>> {
                 .map(tag1 -> context.deserialize(tag1, ClickType.class))
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(ClickType.class)));
         final var input = context.deserialize(root.get("input"), actionType.type());
-        final var action = ClickAction.create(actionType, clickTypes, input);
+        final var action = ClickAction.factory().create(actionType, clickTypes, input);
         root.optional("chance").map(Tag::getAsInt).ifPresent(action::setChance);
         root.optional("cooldown").map(Tag::getAsLong).map(Duration::ofMillis).ifPresent(action::setCooldown);
         root.optional("cost").map(Tag::getAsDouble).ifPresent(action::setCost);

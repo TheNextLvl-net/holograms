@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.action;
 
+import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Range;
@@ -8,16 +9,17 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 @NullMarked
 final class SimpleClickAction<T> implements ClickAction<T> {
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+    private final HologramPlugin plugin;
 
     private final ActionType<T> actionType;
     private EnumSet<ClickType> clickTypes;
@@ -28,7 +30,8 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     private @Nullable String permission = null;
     private double cost = 0;
 
-    public SimpleClickAction(final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
+    public SimpleClickAction(final HologramPlugin plugin, final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
+        this.plugin = plugin;
         this.actionType = actionType;
         this.clickTypes = clickTypes;
         this.input = input;
@@ -131,11 +134,12 @@ final class SimpleClickAction<T> implements ClickAction<T> {
 
     @Override
     public boolean invoke(final HologramLine line, final Player player) {
-        if (!canInvoke(player)) return false;
-        if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        if (isOnCooldown(player)) return false;
+        if (permission != null && !player.hasPermission(permission)) return false;
         if (ThreadLocalRandom.current().nextInt(100) > chance) return false;
-        // todo: withdraw cost
+        if (!plugin.economyProvider.withdraw(player, cost)) return false;
         actionType.action().invoke(line, player, input);
+        if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
         return true;
     }
 

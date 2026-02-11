@@ -105,6 +105,20 @@ hangarPublish { // docs - https://docs.papermc.io/misc/hangar-publishing
         platforms.register(Platforms.PAPER) {
             jar.set(tasks.shadowJar.flatMap { it.archiveFile })
             platformVersions.set(versions)
+            dependencies {
+                hangar("MiniPlaceholders") {
+                    required.set(false)
+                }
+                hangar("PlaceholderAPI") {
+                    required.set(false)
+                }
+                hangar("ServiceIO") {
+                    required.set(false)
+                }
+                url("Vault", "https://www.spigotmc.org/resources/vault.34315/") {
+                    required.set(false)
+                }
+            }
         }
     }
 }
@@ -118,4 +132,9 @@ modrinth {
     gameVersions.set(versions)
     syncBodyFrom.set(rootProject.file("README.md").readText())
     loaders.addAll((property("loaders") as String).split(",").map { it.trim() })
+    dependencies {
+        optional.project("miniplaceholders")
+        optional.project("placeholderapi")
+        optional.project("service-io")
+    }
 }

@@ -104,8 +104,11 @@ public final class HologramPlugin extends JavaPlugin {
     public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new?template=bug_report.yml";
     public static final boolean RUNNING_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
 
-    private final PaperHologramProvider provider = new PaperHologramProvider(this);
     private final HologramTickPool hologramTickPool = new HologramTickPool(this);
+    private final PaperHologramProvider provider = new PaperHologramProvider(this);
+
+    private final SimpleClickActionFactory clickActionFactory = new SimpleClickActionFactory(this);
+
     private final Metrics metrics = new Metrics(this, 25817);
     private final dev.faststats.core.Metrics fastStats = BukkitMetrics.factory()
             .token("27b63937a461e94208f25b105af290cf")
@@ -126,10 +129,10 @@ public final class HologramPlugin extends JavaPlugin {
 
     public @Nullable MiniPlaceholdersFormatter miniFormatter = null;
     public @Nullable PlaceholderAPIFormatter papiFormatter = null;
-    public EconomyProvider economyProvider = new EmptyEconomyProvider();
+    public EconomyProvider economyProvider = new EmptyEconomyProvider(this);
 
     public HologramPlugin() {
-        StaticBinder.getInstance(ClickActionFactory.class.getClassLoader()).bind(ClickActionFactory.class, SimpleClickActionFactory.INSTANCE);
+        StaticBinder.getInstance(ClickActionFactory.class.getClassLoader()).bind(ClickActionFactory.class, clickActionFactory);
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
     }
 
@@ -174,6 +177,10 @@ public final class HologramPlugin extends JavaPlugin {
 
     public PaperHologramProvider hologramProvider() {
         return provider;
+    }
+
+    public SimpleClickActionFactory clickActionFactory() {
+        return clickActionFactory;
     }
 
     public HologramTickPool hologramTickPool() {

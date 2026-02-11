@@ -35,6 +35,8 @@ import net.thenextlvl.hologram.adapters.serializers.TextHologramLineSerializer;
 import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.controller.HologramTickPool;
 import net.thenextlvl.hologram.controller.PaperHologramProvider;
+import net.thenextlvl.hologram.economy.EconomyProvider;
+import net.thenextlvl.hologram.economy.EmptyEconomyProvider;
 import net.thenextlvl.hologram.event.HologramLoadEvent;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
@@ -122,6 +124,7 @@ public final class HologramPlugin extends JavaPlugin {
 
     public @Nullable MiniPlaceholdersFormatter miniFormatter = null;
     public @Nullable PlaceholderAPIFormatter papiFormatter = null;
+    public EconomyProvider economyProvider = new EmptyEconomyProvider();
 
     public HologramPlugin() {
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);

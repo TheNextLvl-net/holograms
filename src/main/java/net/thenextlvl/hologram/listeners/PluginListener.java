@@ -1,6 +1,8 @@
 package net.thenextlvl.hologram.listeners;
 
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.economy.ServiceEconomyProvider;
+import net.thenextlvl.hologram.economy.VaultEconomyProvider;
 import net.thenextlvl.hologram.locale.MiniPlaceholdersFormatter;
 import net.thenextlvl.hologram.locale.PlaceholderAPIFormatter;
 import org.bukkit.event.EventHandler;
@@ -27,6 +29,12 @@ public final class PluginListener implements Listener {
         if (isPlugin(event.getPlugin(), "MiniPlaceholders")) {
             plugin.miniFormatter = new MiniPlaceholdersFormatter();
             plugin.getComponentLogger().info("MiniPlaceholders detected, using for placeholders");
+        }
+        
+        if (isPlugin(event.getPlugin(), "ServiceIO")) {
+            plugin.economyProvider = new ServiceEconomyProvider(event.getPlugin());
+        } else if (isPlugin(event.getPlugin(), "Vault")) {
+            plugin.economyProvider = new VaultEconomyProvider(event.getPlugin());
         }
     }
     

@@ -1,8 +1,6 @@
 package net.thenextlvl.hologram.action;
 
-import net.thenextlvl.binder.StaticBinder;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 
 import java.util.EnumSet;

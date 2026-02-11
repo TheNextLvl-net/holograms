@@ -2,14 +2,14 @@ package net.thenextlvl.hologram.action;
 
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 final class SimpleActionTypeRegistry implements ActionTypeRegistry {
     public static final ActionTypeRegistry INSTANCE = new SimpleActionTypeRegistry();
 
-    private final Set<ActionType<?>> actionTypes = new HashSet<>(Set.of(
+    private final Set<ActionType<?>> actionTypes = new CopyOnWriteArraySet<>(Set.of(
             ActionTypes.types().connect(),
             ActionTypes.types().cyclePage(),
             ActionTypes.types().playSound(),

@@ -22,13 +22,13 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     private final HologramPlugin plugin;
 
     private final ActionType<T> actionType;
-    private EnumSet<ClickType> clickTypes;
-    private T input;
+    private volatile EnumSet<ClickType> clickTypes;
+    private volatile T input;
 
-    private @Range(from = 0, to = 100) int chance = 100;
-    private Duration cooldown = Duration.ZERO;
-    private @Nullable String permission = null;
-    private double cost = 0;
+    private volatile @Range(from = 0, to = 100) int chance = 100;
+    private volatile Duration cooldown = Duration.ZERO;
+    private volatile @Nullable String permission = null;
+    private volatile double cost = 0;
 
     public SimpleClickAction(final HologramPlugin plugin, final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
         this.plugin = plugin;
@@ -135,7 +135,7 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     @Override
     public boolean invoke(final HologramLine line, final Player player) {
         if (isOnCooldown(player)) return false;
-        if (permission != null && !player.hasPermission(permission)) return false;
+        if (getPermission().map(player::hasPermission).orElse(true)) return false;
         if (ThreadLocalRandom.current().nextInt(100) > chance) return false;
         if (!plugin.economyProvider.withdraw(player, cost)) return false;
         actionType.action().invoke(line, player, input);

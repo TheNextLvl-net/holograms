@@ -3,6 +3,7 @@ package net.thenextlvl.hologram.action;
 import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Range;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+@NullMarked
 final class SimpleClickAction<T> implements ClickAction<T> {
     private final Map<UUID, Long> cooldowns = new HashMap<>();
 
@@ -137,6 +139,7 @@ final class SimpleClickAction<T> implements ClickAction<T> {
         if (!canInvoke(player)) return false;
         if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
         if (ThreadLocalRandom.current().nextInt(100) > chance) return false;
+        // todo: withdraw cost
         actionType.action().invoke(line, player, input);
         return true;
     }

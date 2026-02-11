@@ -10,6 +10,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.action.ClickAction;
+import net.thenextlvl.hologram.action.ClickActionFactory;
+import net.thenextlvl.hologram.action.SimpleClickActionFactory;
 import net.thenextlvl.hologram.adapters.BlockDataAdapter;
 import net.thenextlvl.hologram.adapters.BrightnessAdapter;
 import net.thenextlvl.hologram.adapters.ColorAdapter;
@@ -127,6 +129,7 @@ public final class HologramPlugin extends JavaPlugin {
     public EconomyProvider economyProvider = new EmptyEconomyProvider();
 
     public HologramPlugin() {
+        StaticBinder.getInstance(ClickActionFactory.class.getClassLoader()).bind(ClickActionFactory.class, SimpleClickActionFactory.INSTANCE);
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
     }
 

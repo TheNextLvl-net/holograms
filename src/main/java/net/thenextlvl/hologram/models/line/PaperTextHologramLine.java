@@ -58,6 +58,7 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
             builder.tag("lines", Tag.inserting(Component.text(getHologram().getLineCount())));
             getParentLine().ifPresentOrElse((line) -> {
                 builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(line) + 1)));
+                 // todo: visibility based? show max page count the player can see
                 builder.tag("page", Tag.inserting(Component.text(line.getPageIndex(this) + 1)));
                 builder.tag("pages", Tag.inserting(Component.text(line.getPageCount())));
             }, () -> builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(this) + 1))));

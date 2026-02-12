@@ -21,6 +21,7 @@ public final class HologramLineCommand extends BrigadierCommand {
                 .then(HologramLineInsertCommand.create(plugin))
                 .then(HologramLineMoveCommand.create(plugin))
                 .then(HologramLineRemoveCommand.create(plugin))
-                .then(HologramLineSwapCommand.create(plugin));
+                .then(HologramLineSwapCommand.create(plugin))
+                .then(HologramLineViewPermissionCommand.create(plugin));
     }
 }

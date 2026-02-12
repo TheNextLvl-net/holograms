@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -155,4 +156,34 @@ public interface HologramLine {
      * @since 0.8.0
      */
     void forEachAction(BiConsumer<String, ? super ClickAction<?>> action);
+
+    /**
+     * Returns the view permission of this line.
+     *
+     * @return view permission
+     * @since 0.9.0
+     */
+    @Contract(pure = true)
+    Optional<String> getViewPermission();
+
+    /**
+     * Sets the view permission of this line.
+     *
+     * @param permission view permission
+     * @return {@code true} if the view permission was changed, {@code false} otherwise
+     * @since 0.9.0
+     */
+    @Contract(mutates = "this")
+    boolean setViewPermission(@Nullable String permission);
+
+    /**
+     * Checks if the given player can see this line.
+     *
+     * @param player player
+     * @return {@code true} if the given player can see this line, {@code false} otherwise
+     * @see #getViewPermission()
+     * @since 0.9.0
+     */
+    @Contract(pure = true)
+    boolean canSee(Player player);
 }

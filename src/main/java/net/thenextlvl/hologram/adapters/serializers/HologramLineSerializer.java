@@ -13,9 +13,10 @@ abstract class HologramLineSerializer<T extends HologramLine> implements TagSeri
     public CompoundTag serialize(final T line, final TagSerializationContext context) throws ParserException {
         final var actions = CompoundTag.builder();
         line.getActions().forEach((name, clickAction) -> actions.put(name, context.serialize(clickAction)));
-        return CompoundTag.builder()
+        final var builder = CompoundTag.builder()
                 .put("clickActions", actions.build())
-                .put("lineType", context.serialize(line.getType()))
-                .build();
+                .put("lineType", context.serialize(line.getType()));
+        line.getViewPermission().ifPresent(permission -> builder.put("viewPermission", permission));
+        return builder.build();
     }
 }

@@ -10,6 +10,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.action.ClickAction;
+import net.thenextlvl.hologram.action.ClickActionFactory;
+import net.thenextlvl.hologram.action.SimpleClickActionFactory;
 import net.thenextlvl.hologram.adapters.BlockDataAdapter;
 import net.thenextlvl.hologram.adapters.BrightnessAdapter;
 import net.thenextlvl.hologram.adapters.ColorAdapter;
@@ -35,6 +37,8 @@ import net.thenextlvl.hologram.adapters.serializers.TextHologramLineSerializer;
 import net.thenextlvl.hologram.commands.HologramCommand;
 import net.thenextlvl.hologram.controller.HologramTickPool;
 import net.thenextlvl.hologram.controller.PaperHologramProvider;
+import net.thenextlvl.hologram.economy.EconomyProvider;
+import net.thenextlvl.hologram.economy.EmptyEconomyProvider;
 import net.thenextlvl.hologram.event.HologramLoadEvent;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
@@ -100,8 +104,11 @@ public final class HologramPlugin extends JavaPlugin {
     public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new?template=bug_report.yml";
     public static final boolean RUNNING_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
 
-    private final PaperHologramProvider provider = new PaperHologramProvider(this);
     private final HologramTickPool hologramTickPool = new HologramTickPool(this);
+    private final PaperHologramProvider provider = new PaperHologramProvider(this);
+
+    private final SimpleClickActionFactory clickActionFactory = new SimpleClickActionFactory(this);
+
     private final Metrics metrics = new Metrics(this, 25817);
     private final dev.faststats.core.Metrics fastStats = BukkitMetrics.factory()
             .token("27b63937a461e94208f25b105af290cf")
@@ -122,8 +129,10 @@ public final class HologramPlugin extends JavaPlugin {
 
     public @Nullable MiniPlaceholdersFormatter miniFormatter = null;
     public @Nullable PlaceholderAPIFormatter papiFormatter = null;
+    public EconomyProvider economyProvider = new EmptyEconomyProvider(this);
 
     public HologramPlugin() {
+        StaticBinder.getInstance(ClickActionFactory.class.getClassLoader()).bind(ClickActionFactory.class, clickActionFactory);
         StaticBinder.getInstance(HologramProvider.class.getClassLoader()).bind(HologramProvider.class, provider);
     }
 
@@ -168,6 +177,10 @@ public final class HologramPlugin extends JavaPlugin {
 
     public PaperHologramProvider hologramProvider() {
         return provider;
+    }
+
+    public SimpleClickActionFactory clickActionFactory() {
+        return clickActionFactory;
     }
 
     public HologramTickPool hologramTickPool() {

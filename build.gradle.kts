@@ -34,6 +34,9 @@ dependencies {
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
     compileOnly("me.clip:placeholderapi:2.12.2")
 
+    compileOnly("net.thenextlvl:vault-api:1.7.1")
+    compileOnly("net.thenextlvl:service-io:2.5.1")
+
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
     implementation("net.thenextlvl:i18n:1.2.0")
     implementation("net.thenextlvl:nbt:4.3.4")
@@ -68,6 +71,14 @@ paper {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
             required = false
         }
+        register("ServiceIO") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
+        register("Vault") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            required = false
+        }
     }
 }
 
@@ -94,6 +105,20 @@ hangarPublish { // docs - https://docs.papermc.io/misc/hangar-publishing
         platforms.register(Platforms.PAPER) {
             jar.set(tasks.shadowJar.flatMap { it.archiveFile })
             platformVersions.set(versions)
+            dependencies {
+                hangar("MiniPlaceholders") {
+                    required.set(false)
+                }
+                hangar("PlaceholderAPI") {
+                    required.set(false)
+                }
+                hangar("ServiceIO") {
+                    required.set(false)
+                }
+                url("Vault", "https://www.spigotmc.org/resources/vault.34315/") {
+                    required.set(false)
+                }
+            }
         }
     }
 }
@@ -107,4 +132,9 @@ modrinth {
     gameVersions.set(versions)
     syncBodyFrom.set(rootProject.file("README.md").readText())
     loaders.addAll((property("loaders") as String).split(",").map { it.trim() })
+    dependencies {
+        optional.project("miniplaceholders")
+        optional.project("placeholderapi")
+        optional.project("service-io")
+    }
 }

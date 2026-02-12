@@ -38,6 +38,7 @@ public final class HologramActionCommand {
         parent.then(ActionAddCommand.create(plugin, chainFactory, resolver))
                 .then(ActionChanceCommand.create(plugin, chainFactory, resolver))
                 .then(ActionCooldownCommand.create(plugin, chainFactory, resolver))
+                .then(ActionCostCommand.create(plugin, chainFactory, resolver))
                 .then(ActionListCommand.create(plugin, chainFactory, resolver))
                 .then(ActionPermissionCommand.create(plugin, chainFactory, resolver))
                 .then(ActionRemoveCommand.create(plugin, chainFactory, resolver));

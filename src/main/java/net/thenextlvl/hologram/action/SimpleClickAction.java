@@ -1,31 +1,37 @@
 package net.thenextlvl.hologram.action;
 
+import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Range;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+@NullMarked
 final class SimpleClickAction<T> implements ClickAction<T> {
-    private final Map<UUID, Long> cooldowns = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+    private final HologramPlugin plugin;
 
     private final ActionType<T> actionType;
-    private EnumSet<ClickType> clickTypes;
-    private T input;
+    private volatile EnumSet<ClickType> clickTypes;
+    private volatile T input;
 
-    private @Range(from = 0, to = 100) int chance = 100;
-    private Duration cooldown = Duration.ZERO;
-    private @Nullable String permission = null;
+    private volatile @Range(from = 0, to = 100) int chance = 100;
+    private volatile Duration cooldown = Duration.ZERO;
+    private volatile @Nullable String permission = null;
+    private volatile double cost = 0;
 
-    public SimpleClickAction(final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
+    public SimpleClickAction(final HologramPlugin plugin, final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
+        this.plugin = plugin;
         this.actionType = actionType;
         this.clickTypes = clickTypes;
         this.input = input;
@@ -90,6 +96,18 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     }
 
     @Override
+    public double getCost() {
+        return cost;
+    }
+
+    @Override
+    public boolean setCost(final double cost) {
+        if (this.cost == cost) return false;
+        this.cost = cost;
+        return true;
+    }
+
+    @Override
     public Duration getCooldown() {
         return cooldown;
     }
@@ -115,16 +133,13 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     }
 
     @Override
-    public boolean canInvoke(final Player player) {
-        return (permission == null || player.hasPermission(permission)) && !isOnCooldown(player);
-    }
-
-    @Override
     public boolean invoke(final HologramLine line, final Player player) {
-        if (!canInvoke(player)) return false;
-        if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        if (isOnCooldown(player)) return false;
+        if (getPermission().map(player::hasPermission).orElse(true)) return false;
         if (ThreadLocalRandom.current().nextInt(100) > chance) return false;
+        if (!plugin.economyProvider.withdraw(player, cost)) return false;
         actionType.action().invoke(line, player, input);
+        if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
         return true;
     }
 

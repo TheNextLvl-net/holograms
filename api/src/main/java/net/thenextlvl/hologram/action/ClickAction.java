@@ -1,7 +1,10 @@
 package net.thenextlvl.hologram.action;
 
+import net.thenextlvl.binder.StaticBinder;
 import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.Nullable;
@@ -9,14 +12,24 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Represents a type of click action that can be performed on a hologram line.
  *
  * @since 0.6.0
  */
-public sealed interface ClickAction<T> permits SimpleClickAction {
+@ApiStatus.NonExtendable
+public interface ClickAction<T> {
+    /**
+     * Gets the factory for creating click actions.
+     *
+     * @return click action factory
+     * @since 0.9.0
+     */
+    static @CheckReturnValue ClickActionFactory factory() {
+        return StaticBinder.getInstance(ClickActionFactory.class.getClassLoader()).find(ClickActionFactory.class);
+    }
+
     /**
      * Gets the action type of this click action.
      *
@@ -114,6 +127,25 @@ public sealed interface ClickAction<T> permits SimpleClickAction {
     boolean setPermission(@Nullable String permission);
 
     /**
+     * Gets the cost of this click action.
+     *
+     * @return cost
+     * @since 0.9.0
+     */
+    @Contract(pure = true)
+    double getCost();
+
+    /**
+     * Sets the cost of this click action.
+     *
+     * @param cost new cost
+     * @return {@code true} if the cost was successfully set, {@code false} otherwise
+     * @since 0.9.0
+     */
+    @Contract(mutates = "this")
+    boolean setCost(double cost);
+
+    /**
      * Gets the cooldown for this click action.
      *
      * @return cooldown
@@ -153,16 +185,6 @@ public sealed interface ClickAction<T> permits SimpleClickAction {
     boolean resetCooldown(Player player);
 
     /**
-     * Checks if this click action can be invoked by the given player.
-     *
-     * @param player player to check
-     * @return {@code true} if this click action can be invoked by the given player, {@code false} otherwise
-     * @since 0.6.0
-     */
-    @Contract(pure = true)
-    boolean canInvoke(Player player);
-
-    /**
      * Invokes this click action on the given hologram line for the given player.
      *
      * @param line   hologram line
@@ -171,37 +193,4 @@ public sealed interface ClickAction<T> permits SimpleClickAction {
      * @since 0.6.0
      */
     boolean invoke(HologramLine line, Player player);
-
-    /**
-     * Creates a new click action with the given action type, click types, and input.
-     *
-     * @param actionType action type
-     * @param clickTypes click types
-     * @param input      input
-     * @param <T>        input type
-     * @return new click action
-     * @since 0.6.0
-     */
-    @Contract(value = "_, _, _ -> new", pure = true)
-    static <T> ClickAction<T> create(final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
-        return new SimpleClickAction<>(actionType, clickTypes, input);
-    }
-
-    /**
-     * Creates a new click action with the given action type, click types, input, and configurator.
-     *
-     * @param actionType   action type
-     * @param clickTypes   click types
-     * @param input        input
-     * @param configurator configurator
-     * @param <T>          input type
-     * @return new click action
-     * @since 0.6.0
-     */
-    @Contract(value = "_, _, _, _ -> new", pure = true)
-    static <T> ClickAction<T> create(final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input, final Consumer<ClickAction<T>> configurator) {
-        final var action = create(actionType, clickTypes, input);
-        configurator.accept(action);
-        return action;
-    }
 }

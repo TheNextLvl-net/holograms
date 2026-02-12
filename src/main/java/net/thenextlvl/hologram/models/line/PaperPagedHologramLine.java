@@ -21,6 +21,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @NullMarked
 public final class PaperPagedHologramLine extends PaperHologramLine implements PagedHologramLine {
@@ -74,8 +76,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
-    public List<StaticHologramLine> getPages() {
-        return List.copyOf(pages);
+    public Stream<StaticHologramLine> getPages() {
+        return pages.stream().map(page -> page);
     }
 
     @Override
@@ -283,7 +285,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public CompletableFuture<Boolean> setPage(final Player player, final int page) throws IndexOutOfBoundsException {
         if (page < 0 || page >= pages.size())
             throw new IndexOutOfBoundsException("Index: " + page + ", Size: " + pages.size());
-        return cyclePage(player, calculateOffset(player), page - getCurrentPageIndex(player).orElse(0));
+        return setPage(player, calculateOffset(player), currentPageIndex.getOrDefault(player.getUniqueId(), 0), page);
     }
 
     @Override

@@ -4,14 +4,13 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * Represents a hologram line that cycles through multiple pages.
@@ -25,12 +24,11 @@ public interface PagedHologramLine extends HologramLine {
     /**
      * Gets all pages of this paged line.
      *
-     * @return an unmodifiable list of all pages
-     * @since 0.5.0
+     * @return a stream of all pages
+     * @since 0.9.0
      */
     @Contract(pure = true)
-    @Unmodifiable
-    List<StaticHologramLine> getPages();
+    Stream<StaticHologramLine> getPages();
 
     /**
      * Gets the page at the given index.

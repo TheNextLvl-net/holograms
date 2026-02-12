@@ -446,11 +446,10 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     private double calculateOffset(final Player player) {
-        final var lines = getHologram().getLines().toList();
         var offset = 0d;
-        for (var i = lines.size() - 1; i >= 0; i--) {
-            final var line = (PaperHologramLine) lines.get(i);
-            if (line == this) return offset;
+        for (final var l : getHologram()) {
+            if (l == this) return offset;
+            final var line = (PaperHologramLine) l;
             offset += 0.05 + line.getHeight(player) + line.getOffsetAfter(player);
         }
         return offset;

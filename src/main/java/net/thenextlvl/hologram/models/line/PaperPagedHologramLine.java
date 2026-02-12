@@ -21,6 +21,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @NullMarked
 public final class PaperPagedHologramLine extends PaperHologramLine implements PagedHologramLine {
@@ -74,8 +76,8 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
-    public List<StaticHologramLine> getPages() {
-        return List.copyOf(pages);
+    public Stream<StaticHologramLine> getPages() {
+        return pages.stream().map(page -> page);
     }
 
     @Override
@@ -283,7 +285,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public CompletableFuture<Boolean> setPage(final Player player, final int page) throws IndexOutOfBoundsException {
         if (page < 0 || page >= pages.size())
             throw new IndexOutOfBoundsException("Index: " + page + ", Size: " + pages.size());
-        return cyclePage(player, calculateOffset(player), page - getCurrentPageIndex(player).orElse(0));
+        return setPage(player, calculateOffset(player), currentPageIndex.getOrDefault(player.getUniqueId(), 0), page);
     }
 
     @Override
@@ -368,19 +370,20 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         pages.forEach(page -> page.invalidate(entity));
     }
 
-    private CompletableFuture<Boolean> cyclePage(final Player player, final double offset, final @Nullable Integer amount) {
+    private CompletableFuture<Boolean> cyclePage(final Player player, final double offset, @Nullable final Integer amount) {
         if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(false);
 
         final int oldIndex = currentPageIndex.getOrDefault(player.getUniqueId(), 0);
+        final int newIndex = findVisiblePage(player, oldIndex, amount);
+        if (newIndex == -1) return CompletableFuture.completedFuture(false);
+
+        return setPage(player, offset, oldIndex, newIndex);
+    }
+
+    private CompletableFuture<Boolean> setPage(final Player player, final double offset, final int oldIndex, final int newIndex) {
+        if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(false);
+
         final var oldPage = pages.size() > oldIndex ? pages.get(oldIndex) : null;
-
-        final int newIndex;
-        if (randomOrder && amount == null) {
-            newIndex = random.nextInt(pages.size());
-        } else {
-            newIndex = Math.floorMod(oldIndex + (amount != null ? amount : 1), pages.size());
-        }
-
         final var newPage = pages.get(newIndex);
 
         if (oldPage != null) {
@@ -424,12 +427,31 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         return CompletableFuture.allOf(futures);
     }
 
+    private int findVisiblePage(final Player player, final int currentIndex, @Nullable final Integer amount) {
+        final var size = pages.size();
+        if (randomOrder && amount == null) {
+            final var visible = new ArrayList<Integer>(size);
+            for (var i = 0; i < size; i++) {
+                if (i != currentIndex && pages.get(i).canSee(player)) visible.add(i);
+            }
+            if (visible.isEmpty()) return -1;
+            return visible.get(random.nextInt(visible.size()));
+        }
+        final var step = amount != null ? amount : 1;
+        final var direction = step < 0 ? -1 : 1;
+        var index = Math.floorMod(currentIndex + step, size);
+        for (var i = 0; i < size; i++) {
+            if (pages.get(index).canSee(player)) return index;
+            index = Math.floorMod(index + direction, size);
+        }
+        return -1;
+    }
+
     private double calculateOffset(final Player player) {
-        final var lines = getHologram().getLines().toList();
         var offset = 0d;
-        for (var i = lines.size() - 1; i >= 0; i--) {
-            final var line = (PaperHologramLine) lines.get(i);
-            if (line == this) return offset;
+        for (final var l : getHologram()) {
+            if (l == this) return offset;
+            final var line = (PaperHologramLine) l;
             offset += 0.05 + line.getHeight(player) + line.getOffsetAfter(player);
         }
         return offset;

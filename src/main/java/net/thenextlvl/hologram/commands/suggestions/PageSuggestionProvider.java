@@ -26,7 +26,7 @@ public final class PageSuggestionProvider implements SuggestionProvider<CommandS
         if (line.isEmpty()) return builder.buildFuture();
 
         final var pagedLine = line.get();
-        final var pages = pagedLine.getPages();
+        final var pages = pagedLine.getPages().toList(); // fixme: stream -> list -> for -> get -> that's stupid
 
         for (var index = 1; index <= pages.size(); index++) {
             final var page = String.valueOf(index);

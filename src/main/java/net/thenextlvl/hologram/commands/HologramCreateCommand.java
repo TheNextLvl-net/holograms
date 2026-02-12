@@ -9,8 +9,11 @@ import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.FinePositionResolver;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.action.ActionTypes;
+import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import net.thenextlvl.hologram.locale.Tips;
+import net.thenextlvl.hologram.models.ClickTypes;
 import org.bukkit.World;
 import org.jspecify.annotations.NullMarked;
 
@@ -50,6 +53,13 @@ final class HologramCreateCommand extends SimpleCommand {
         plugin.hologramProvider().spawnHologram(name, location, hologram -> {
             final var line = hologram.addPagedLine();
             line.setInterval(Duration.ofSeconds(10));
+            
+            line.addAction("next", ClickAction.factory().create(
+                    ActionTypes.types().cyclePage(), ClickTypes.ANY_LEFT_CLICK.getClickTypes(), 1
+            ));
+            line.addAction("previous", ClickAction.factory().create(
+                    ActionTypes.types().cyclePage(), ClickTypes.ANY_RIGHT_CLICK.getClickTypes(), -1
+            ));
 
             for (var i = 1; i <= Tips.TIPS_ENGLISH.size(); ++i) {
                 final String text = "<lang:hologram.tip." + i + "><br><lang:hologram.tip.page>";

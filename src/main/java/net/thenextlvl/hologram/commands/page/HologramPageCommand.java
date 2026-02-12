@@ -24,6 +24,7 @@ public final class HologramPageCommand extends BrigadierCommand {
                 .then(HologramPageMoveCommand.create(plugin))
                 .then(HologramPageRemoveCommand.create(plugin))
                 .then(HologramPageSettingsCommand.create(plugin))
-                .then(HologramPageSwapCommand.create(plugin));
+                .then(HologramPageSwapCommand.create(plugin))
+                .then(HologramPageViewPermissionCommand.create(plugin));
     }
 }

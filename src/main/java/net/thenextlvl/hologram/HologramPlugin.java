@@ -144,8 +144,8 @@ public final class HologramPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         getServer().getGlobalRegionScheduler().runAtFixedRate(this, ignored -> {
-            hologramProvider().getHolograms().map(PaperHologram.class::cast).forEach(hologram -> { // fixme: fix cast
-                getServer().getOnlinePlayers().forEach(hologram::updateVisibility);
+            hologramProvider().getHolograms().map(PaperHologram.class::cast).forEach(hologram -> {
+                getServer().getOnlinePlayers().forEach(hologram::updateVisibility); // fixme: cycling holograms dupe when changing page
             });
         }, 100L, 100L);
         registerCommands();
@@ -299,7 +299,7 @@ public final class HologramPlugin extends JavaPlugin {
         final var holograms = player != null
                 ? hologramProvider().getHolograms(player)
                 : hologramProvider().getHolograms();
-        holograms.map(PaperHologram.class::cast).forEach(hologram -> { // fixme: fix cast
+        holograms.map(PaperHologram.class::cast).forEach(hologram -> {
             if (player == null) hologram.updateText();
             else hologram.updateText(player);
         });

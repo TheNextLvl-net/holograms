@@ -22,6 +22,7 @@ import java.util.function.BiConsumer;
 @NullMarked
 public abstract class PaperHologramLine implements HologramLine {
     protected final Map<String, ClickAction<?>> clickActions = new ConcurrentHashMap<>();
+    private volatile @Nullable String viewPermission;
     private final PaperHologram hologram;
 
     public PaperHologramLine(final PaperHologram hologram) {
@@ -70,6 +71,24 @@ public abstract class PaperHologramLine implements HologramLine {
     @Override
     public void forEachAction(final BiConsumer<String, ? super ClickAction<?>> action) {
         clickActions.forEach(action);
+    }
+
+    @Override
+    public Optional<String> getViewPermission() {
+        return Optional.ofNullable(viewPermission);
+    }
+
+    @Override
+    public boolean setViewPermission(@Nullable final String permission) {
+        if (Objects.equals(this.viewPermission, permission)) return false;
+        this.viewPermission = permission;
+        getHologram().updateHologram();
+        return true;
+    }
+
+    @Override
+    public boolean canSee(final Player player) {
+        return getViewPermission().map(player::hasPermission).orElse(true);
     }
 
     @Override

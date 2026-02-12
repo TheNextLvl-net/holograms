@@ -21,6 +21,7 @@ abstract class HologramLineDeserializer<T extends HologramLine> implements TagDe
     protected void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
         tag.optional("clickActions").map(Tag::getAsCompound).ifPresent(actions -> actions.forEach((name, action) ->
                 line.addAction(name, context.deserialize(action, ClickAction.class))));
+        tag.optional("viewPermission").map(Tag::getAsString).ifPresent(line::setViewPermission);
     }
 
     protected abstract T createLine(CompoundTag tag, TagDeserializationContext context);

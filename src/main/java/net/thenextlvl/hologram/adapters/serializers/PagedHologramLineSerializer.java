@@ -12,7 +12,7 @@ public final class PagedHologramLineSerializer extends HologramLineSerializer<Pa
     @Override
     public CompoundTag serialize(final PagedHologramLine line, final TagSerializationContext context) throws ParserException {
         return CompoundTag.builder()
-                .put("pages", ListTag.of(CompoundTag.ID, line.getPages().stream()
+                .put("pages", ListTag.of(CompoundTag.ID, line.getPages()
                         .map(context::serialize)
                         .toList()))
                 .put("interval", context.serialize(line.getInterval()))

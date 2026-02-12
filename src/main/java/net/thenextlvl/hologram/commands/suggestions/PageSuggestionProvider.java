@@ -21,18 +21,13 @@ public final class PageSuggestionProvider implements SuggestionProvider<CommandS
     public CompletableFuture<Suggestions> getSuggestions(final CommandContext<CommandSourceStack> context, final SuggestionsBuilder builder) {
         final var hologram = context.getLastChild().getArgument("hologram", Hologram.class);
         final var lineIndex = context.getLastChild().getArgument("line", int.class) - 1;
-        final var line = hologram.getLine(lineIndex, PagedHologramLine.class);
-
-        if (line.isEmpty()) return builder.buildFuture();
-
-        final var pagedLine = line.get();
-        final var pages = pagedLine.getPages().toList(); // fixme: stream -> list -> for -> get -> that's stupid
-
-        for (var index = 1; index <= pages.size(); index++) {
-            final var page = String.valueOf(index);
-            if (!page.contains(builder.getRemaining())) continue;
-            builder.suggest(page, getTooltip(pages.get(index - 1)));
-        }
+        hologram.getLine(lineIndex, PagedHologramLine.class).ifPresent(line -> {
+            for (var index = 0; index < line.getPageCount(); index++) {
+                final var page = String.valueOf(index + 1);
+                if (!page.contains(builder.getRemaining())) continue;
+                line.getPage(index).ifPresent(p -> builder.suggest(page, getTooltip(p)));
+            }
+        });
         return builder.buildFuture();
     }
 }

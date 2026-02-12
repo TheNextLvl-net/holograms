@@ -57,11 +57,11 @@ public final class HologramPageListCommand extends BrigadierCommand {
                 Formatter.number("line", lineIndex + 1),
                 Formatter.number("count", pagedLine.getPageCount()));
 
-        final var pages = pagedLine.getPages().toList(); // fixme: stream -> list -> for -> get -> that's stupid
-        for (var i = 0; i < pages.size(); i++) {
-            final var page = pages.get(i);
+        for (var index = 0; index < pagedLine.getPageCount(); index++) {
+            final var page = pagedLine.getPage(index).orElse(null);
+            if (page == null) continue;
             plugin.bundle().sendMessage(sender, "hologram.page.list.entry",
-                    Formatter.number("index", i + 1),
+                    Formatter.number("index", index + 1),
                     Placeholder.unparsed("type", getPageType(page)),
                     Placeholder.component("preview", getPagePreview(page)));
         }

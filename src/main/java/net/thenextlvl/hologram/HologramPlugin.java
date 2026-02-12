@@ -145,7 +145,7 @@ public final class HologramPlugin extends JavaPlugin {
     public void onEnable() {
         getServer().getGlobalRegionScheduler().runAtFixedRate(this, ignored -> {
             hologramProvider().getHolograms().map(PaperHologram.class::cast).forEach(hologram -> {
-                getServer().getOnlinePlayers().forEach(hologram::updateVisibility);
+                getServer().getOnlinePlayers().forEach(hologram::updateVisibility); // fixme: cycling holograms dupe when changing page
             });
         }, 100L, 100L);
         registerCommands();

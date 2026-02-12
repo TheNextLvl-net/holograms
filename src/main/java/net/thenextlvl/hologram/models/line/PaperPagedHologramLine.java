@@ -368,19 +368,20 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
         pages.forEach(page -> page.invalidate(entity));
     }
 
-    private CompletableFuture<Boolean> cyclePage(final Player player, final double offset, final @Nullable Integer amount) {
+    private CompletableFuture<Boolean> cyclePage(final Player player, final double offset, @Nullable final Integer amount) {
         if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(false);
 
         final int oldIndex = currentPageIndex.getOrDefault(player.getUniqueId(), 0);
+        final int newIndex = findVisiblePage(player, oldIndex, amount);
+        if (newIndex == -1) return CompletableFuture.completedFuture(false);
+
+        return setPage(player, offset, oldIndex, newIndex);
+    }
+
+    private CompletableFuture<Boolean> setPage(final Player player, final double offset, final int oldIndex, final int newIndex) {
+        if (pages.isEmpty() || !player.isConnected()) return CompletableFuture.completedFuture(false);
+
         final var oldPage = pages.size() > oldIndex ? pages.get(oldIndex) : null;
-
-        final int newIndex;
-        if (randomOrder && amount == null) {
-            newIndex = random.nextInt(pages.size());
-        } else {
-            newIndex = Math.floorMod(oldIndex + (amount != null ? amount : 1), pages.size());
-        }
-
         final var newPage = pages.get(newIndex);
 
         if (oldPage != null) {
@@ -422,6 +423,26 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
                 .map(player -> cyclePage(player, calculateOffset(player), null))
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures);
+    }
+
+    private int findVisiblePage(final Player player, final int currentIndex, @Nullable final Integer amount) {
+        final var size = pages.size();
+        if (randomOrder && amount == null) {
+            final var visible = new ArrayList<Integer>(size);
+            for (var i = 0; i < size; i++) {
+                if (i != currentIndex && pages.get(i).canSee(player)) visible.add(i);
+            }
+            if (visible.isEmpty()) return -1;
+            return visible.get(random.nextInt(visible.size()));
+        }
+        final var step = amount != null ? amount : 1;
+        final var direction = step < 0 ? -1 : 1;
+        var index = Math.floorMod(currentIndex + step, size);
+        for (var i = 0; i < size; i++) {
+            if (pages.get(index).canSee(player)) return index;
+            index = Math.floorMod(index + direction, size);
+        }
+        return -1;
     }
 
     private double calculateOffset(final Player player) {

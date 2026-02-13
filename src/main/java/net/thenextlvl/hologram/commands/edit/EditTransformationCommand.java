@@ -22,17 +22,15 @@ final class EditTransformationCommand extends EditCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
         final var command = new EditTransformationCommand(plugin, resolver);
         final var named = Commands.argument("transformation", new EnumArgumentType<>(ItemDisplayTransform.class));
-        return command.create().then(named.executes(command));
+        return command.create().then(named.executes(command)).executes(command);
     }
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var transformation = context.getArgument("transformation", ItemDisplayTransform.class);
+            final var transformation = tryGetArgument(context, "transformation", ItemDisplayTransform.class);
 
-            final var message = set(line.getItemDisplayTransform(), transformation, line::setItemDisplayTransform, "hologram.transformation");
-
-            final var transformationName = plugin.bundle().component(switch (transformation) {
+            final var transformationName = plugin.bundle().component(switch (transformation.orElseGet(line::getItemDisplayTransform)) {
                 case FIRSTPERSON_LEFTHAND -> "transformation.firstperson-lefthand";
                 case FIRSTPERSON_RIGHTHAND -> "transformation.firstperson-righthand";
                 case FIXED -> "transformation.fixed";
@@ -43,6 +41,10 @@ final class EditTransformationCommand extends EditCommand {
                 case THIRDPERSON_LEFTHAND -> "transformation.thirdperson-lefthand";
                 case THIRDPERSON_RIGHTHAND -> "transformation.thirdperson-righthand";
             }, context.getSource().getSender());
+
+            final var message = transformation.map(value -> {
+                return set(line.getItemDisplayTransform(), value, line::setItemDisplayTransform, "hologram.transformation");
+            }).orElse("hologram.transformation.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),

@@ -6,6 +6,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver.LineType;
 import org.bukkit.entity.Display;
@@ -26,7 +28,17 @@ final class EditBrightnessCommand extends EditCommand {
         return command.create()
                 .then(brightness.executes(command))
                 .then(blockLight.then(skyLight.executes(command)))
-                .then(Commands.literal("reset").executes(command));
+                .then(Commands.literal("reset").executes(command::reset))
+                .executes(command);
+    }
+
+    private int reset(final CommandContext<CommandSourceStack> context) {
+        final var resolver = this.resolver.build(context, this.plugin);
+        return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
+            final var message = set(line.getBrightness().orElse(null), null, line::setBrightness, "hologram.brightness.reset");
+            plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
+            return SINGLE_SUCCESS;
+        }, LineType.DISPLAY);
     }
 
     @Override
@@ -37,10 +49,16 @@ final class EditBrightnessCommand extends EditCommand {
                     .or(() -> tryGetArgument(context, "block light", int.class).map((blockLight) -> {
                         final var skyLight = context.getArgument("sky light", int.class);
                         return new Display.Brightness(blockLight, skyLight);
-                    })).orElse(null);
-            final var successKey = brightness != null ? "hologram.brightness" : "hologram.brightness.reset";
-            final var message = set(line.getBrightness().orElse(null), brightness, line::setBrightness, successKey);
-            plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
+                    }));
+
+            final var ored = brightness.or(line::getBrightness).orElse(null);
+            final var message = brightness.map(value -> {
+                return set(line.getBrightness().orElse(null), value, line::setBrightness, "hologram.brightness");
+            }).orElse(ored != null ? "hologram.brightness.query" : "hologram.brightness.query.none");
+            plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                    TagResolver.resolver(placeholders),
+                    Formatter.number("block_light", ored != null ? ored.getBlockLight() : -1),
+                    Formatter.number("sky_light", ored != null ? ored.getSkyLight() : -1));
             return SINGLE_SUCCESS;
         }, LineType.DISPLAY);
     }

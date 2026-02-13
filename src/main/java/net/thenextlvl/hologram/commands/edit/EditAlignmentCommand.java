@@ -22,21 +22,24 @@ final class EditAlignmentCommand extends EditCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
         final var command = new EditAlignmentCommand(plugin, resolver);
         final var named = Commands.argument("alignment", new EnumArgumentType<>(TextDisplay.TextAlignment.class));
-        return command.create().then(named.executes(command));
+        return command.create().then(named.executes(command)).executes(command);
     }
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var alignment = context.getArgument("alignment", TextDisplay.TextAlignment.class);
-            final var message = set(line.getAlignment(), alignment, line::setAlignment, "hologram.text-alignment");
+            final var alignment = tryGetArgument(context, "alignment", TextDisplay.TextAlignment.class);
 
-            final var alignmentName = plugin.bundle().component(switch (alignment) {
+            final var alignmentName = plugin.bundle().component(switch (alignment.orElseGet(line::getAlignment)) {
                 case LEFT -> "text-alignment.left";
                 case CENTER -> "text-alignment.center";
                 case RIGHT -> "text-alignment.right";
             }, context.getSource().getSender());
 
+            final var message = alignment.map(textAlignment -> {
+                return set(line.getAlignment(), textAlignment, line::setAlignment, "hologram.text-alignment");
+            }).orElse("hologram.alignment.query");
+            
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),
                     Placeholder.component("alignment", alignmentName));

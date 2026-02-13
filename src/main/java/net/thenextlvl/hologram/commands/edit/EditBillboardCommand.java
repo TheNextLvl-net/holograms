@@ -22,21 +22,24 @@ final class EditBillboardCommand extends EditCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
         final var command = new EditBillboardCommand(plugin, resolver);
         final var named = Commands.argument("billboard", new EnumArgumentType<>(Display.Billboard.class));
-        return command.create().then(named.executes(command));
+        return command.create().then(named.executes(command)).executes(command);
     }
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var billboard = context.getArgument("billboard", Display.Billboard.class);
-            final var message = set(line.getBillboard(), billboard, line::setBillboard, "hologram.billboard");
+            final var billboard = tryGetArgument(context, "billboard", Display.Billboard.class);
 
-            final var billboardName = plugin.bundle().component(switch (billboard) {
+            final var billboardName = plugin.bundle().component(switch (billboard.orElseGet(line::getBillboard)) {
                 case FIXED -> "billboard.fixed";
                 case VERTICAL -> "billboard.vertical";
                 case HORIZONTAL -> "billboard.horizontal";
                 case CENTER -> "billboard.center";
             }, context.getSource().getSender());
+
+            final var message = billboard.map(value -> {
+                return set(line.getBillboard(), value, line::setBillboard, "hologram.billboard");
+            }).orElse("hologram.billboard.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),

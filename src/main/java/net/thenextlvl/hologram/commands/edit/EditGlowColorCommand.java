@@ -28,18 +28,32 @@ final class EditGlowColorCommand extends EditCommand {
         return command.create()
                 .then(hex.executes(command))
                 .then(named.executes(command))
-                .then(Commands.literal("reset").executes(command));
+                .then(Commands.literal("reset").executes(command::reset))
+                .executes(command);
+    }
+
+    private int reset(final CommandContext<CommandSourceStack> context) {
+        final var resolver = this.resolver.build(context, this.plugin);
+        return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
+            final var message = set(line.getGlowColor().orElse(null), null, line::setGlowColor, "hologram.glow-color");
+            plugin.bundle().sendMessage(context.getSource().getSender(), message, TagResolver.resolver(placeholders),
+                    Placeholder.unparsed("color", "none"));
+            return SINGLE_SUCCESS;
+        }, LineType.DISPLAY);
     }
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
             final var color = tryGetArgument(context, "hex", TextColor.class)
-                    .or(() -> tryGetArgument(context, "color", NamedTextColor.class))
-                    .orElse(null);
-            final var message = set(line.getGlowColor().orElse(null), color, line::setGlowColor, "hologram.glow-color");
-            plugin.bundle().sendMessage(context.getSource().getSender(), message, TagResolver.resolver(placeholders),
-                    Placeholder.unparsed("color", color != null ? color.toString() : "none"));
+                    .or(() -> tryGetArgument(context, "color", NamedTextColor.class));
+            final var ored = color.or(line::getGlowColor).orElse(null);
+            final var message = color.map(c -> {
+                return set(line.getGlowColor().orElse(null), c, line::setGlowColor, "hologram.glow-color");
+            }).orElse(ored != null ? "hologram.glow-color.query" : "hologram.glow-color.query.none");
+            plugin.bundle().sendMessage(context.getSource().getSender(), message,
+                    TagResolver.resolver(placeholders),
+                    Placeholder.unparsed("color", ored != null ? ored.toString() : "none"));
             return SINGLE_SUCCESS;
         }, LineType.DISPLAY);
     }

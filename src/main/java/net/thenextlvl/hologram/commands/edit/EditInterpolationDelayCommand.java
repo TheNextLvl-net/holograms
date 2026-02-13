@@ -21,17 +21,21 @@ final class EditInterpolationDelayCommand extends EditCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
         final var command = new EditInterpolationDelayCommand(plugin, resolver);
         final var named = Commands.argument("delay", ArgumentTypes.time());
-        return command.create().then(named.executes(command));
+        return command.create().then(named.executes(command)).executes(command);
     }
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var delay = context.getArgument("delay", int.class);
-            final var message = set(line.getInterpolationDelay(), delay, line::setInterpolationDelay, "hologram.interpolation-delay");
+            final var delay = tryGetArgument(context, "delay", int.class);
+
+            final var message = delay.map(value -> {
+                return set(line.getInterpolationDelay(), value, line::setInterpolationDelay, "hologram.interpolation-delay");
+            }).orElse("hologram.interpolation-delay.query");
+
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),
-                    Formatter.number("delay", delay));
+                    Formatter.number("delay", delay.orElseGet(line::getInterpolationDelay)));
             return SINGLE_SUCCESS;
         }, LineType.DISPLAY);
     }

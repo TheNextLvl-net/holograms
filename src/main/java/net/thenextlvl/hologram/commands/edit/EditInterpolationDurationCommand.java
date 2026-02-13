@@ -21,17 +21,21 @@ final class EditInterpolationDurationCommand extends EditCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
         final var command = new EditInterpolationDurationCommand(plugin, resolver);
         final var named = Commands.argument("duration", ArgumentTypes.time());
-        return command.create().then(named.executes(command));
+        return command.create().then(named.executes(command)).executes(command);
     }
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var duration = context.getArgument("duration", int.class);
-            final var message = set(line.getInterpolationDuration(), duration, line::setInterpolationDuration, "hologram.interpolation-duration");
+            final var duration = tryGetArgument(context, "duration", int.class);
+
+            final var message = duration.map(value -> {
+                return set(line.getInterpolationDuration(), value, line::setInterpolationDuration, "hologram.interpolation-duration");
+            }).orElse("hologram.interpolation-duration.query");
+
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),
-                    Formatter.number("duration", duration));
+                    Formatter.number("duration", duration.orElseGet(line::getInterpolationDuration)));
             return SINGLE_SUCCESS;
         }, LineType.DISPLAY);
     }

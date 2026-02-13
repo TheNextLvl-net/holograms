@@ -3,15 +3,12 @@ package net.thenextlvl.hologram.commands.edit;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public abstract class EditCommand extends SimpleCommand {
     protected final LineTargetResolver.Builder resolver;
@@ -31,7 +28,7 @@ public abstract class EditCommand extends SimpleCommand {
 
     protected abstract int run(CommandContext<CommandSourceStack> var1, LineTargetResolver var2) throws CommandSyntaxException;
 
-    protected final <V> String set(final V currentValue, final V newValue, final Consumer<V> setter, final String successKey) {
+    protected final <V> String set(final @Nullable V currentValue, final @Nullable V newValue, final Consumer<V> setter, final String successKey) {
         if (Objects.equals(currentValue, newValue)) {
             return "nothing.changed";
         } else {

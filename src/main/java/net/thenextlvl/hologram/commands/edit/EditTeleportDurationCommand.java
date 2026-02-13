@@ -21,17 +21,21 @@ final class EditTeleportDurationCommand extends EditCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
         final var command = new EditTeleportDurationCommand(plugin, resolver);
         final var named = Commands.argument("duration", ArgumentTypes.time());
-        return command.create().then(named.executes(command));
+        return command.create().then(named.executes(command)).executes(command);
     }
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) throws CommandSyntaxException {
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var duration = context.getArgument("duration", int.class);
-            final var message = set(line.getTeleportDuration(), duration, line::setTeleportDuration, "hologram.teleport-duration");
+            final var duration = tryGetArgument(context, "duration", int.class);
+
+            final var message = duration.map(value -> {
+                return set(line.getTeleportDuration(), value, line::setTeleportDuration, "hologram.teleport-duration");
+            }).orElse("hologram.teleport-duration.query");
+
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),
-                    Formatter.number("duration", duration));
+                    Formatter.number("duration", duration.orElseGet(line::getTeleportDuration)));
             return SINGLE_SUCCESS;
         }, LineType.DISPLAY);
     }

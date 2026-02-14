@@ -6,7 +6,6 @@ import net.thenextlvl.nbt.serialization.ParserException;
 import net.thenextlvl.nbt.serialization.TagDeserializationContext;
 import net.thenextlvl.nbt.tag.CompoundTag;
 import net.thenextlvl.nbt.tag.Tag;
-import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Display.Brightness;
 import org.bukkit.util.Transformation;
 import org.joml.Matrix4f;
@@ -21,7 +20,6 @@ abstract class DisplayHologramLineDeserializer<T extends DisplayHologramLine> ex
     @Override
     protected void deserialize(final T line, final CompoundTag tag, final TagDeserializationContext context) throws ParserException {
         super.deserialize(line, tag, context);
-        tag.optional("billboard").map(tag1 -> context.deserialize(tag1, Billboard.class)).ifPresent(line::setBillboard);
         tag.optional("brightness").map(tag1 -> context.deserialize(tag1, Brightness.class)).ifPresent(line::setBrightness);
         tag.optional("displayHeight").map(Tag::getAsFloat).ifPresent(line::setDisplayHeight);
         tag.optional("displayWidth").map(Tag::getAsFloat).ifPresent(line::setDisplayWidth);

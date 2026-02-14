@@ -149,6 +149,14 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return location.clone();
     }
 
+    public float getYaw() {
+        return location.getYaw();
+    }
+
+    public float getPitch() {
+        return location.getPitch();
+    }
+
     @Override
     public World getWorld() {
         return location.getWorld();

@@ -13,7 +13,6 @@ abstract class DisplayHologramLineSerializer<T extends DisplayHologramLine> exte
         final var builder = CompoundTag.builder();
         line.getBrightness().map(context::serialize).ifPresent(tag -> builder.put("brightness", tag));
         return builder.putAll(super.serialize(line, context))
-                .put("billboard", context.serialize(line.getBillboard()))
                 .put("height", line.getDisplayHeight())
                 .put("interpolationDelay", line.getInterpolationDelay())
                 .put("interpolationDuration", line.getInterpolationDuration())

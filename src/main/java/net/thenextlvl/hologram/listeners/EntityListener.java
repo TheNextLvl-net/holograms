@@ -3,10 +3,12 @@ package net.thenextlvl.hologram.listeners;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import io.papermc.paper.event.player.PlayerPickEntityEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
+import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.action.ClickType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.models.line.PaperEntityHologramLine;
 import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -23,6 +25,7 @@ import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.function.BiConsumer;
@@ -102,6 +105,17 @@ public final class EntityListener implements Listener {
         plugin.hologramProvider().getHologramLine(event.getEntity())
                 .map(hologram -> (PaperHologramLine) hologram)
                 .ifPresent(hologram -> hologram.invalidate(event.getEntity()));
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerMove(final PlayerMoveEvent event) {
+        plugin.hologramProvider().getHolograms(event.getPlayer())
+                .flatMap(Hologram::getLines)
+                .filter(PaperEntityHologramLine.class::isInstance)
+                .map(PaperEntityHologramLine.class::cast)
+                .forEach(line -> {
+                    line.applyBillboard(event.getPlayer());
+                });
     }
 
     private void handleInteraction(final Player player, final Entity entity, final Cancellable cancellable, final boolean isRight) {

@@ -205,10 +205,9 @@ public interface DisplayHologramLine extends StaticHologramLine {
     DisplayHologramLine setInterpolationDelay(int ticks);
 
     /**
-     * Gets the billboard setting of this entity.
+     * Gets the billboard setting of this line.
      * <p>
-     * The billboard setting controls the automatic rotation of the entity to
-     * face the player.
+     * The billboard setting controls the automatic rotation of the line to face the player.
      *
      * @return billboard setting
      * @since 0.1.0
@@ -217,10 +216,9 @@ public interface DisplayHologramLine extends StaticHologramLine {
     Display.Billboard getBillboard();
 
     /**
-     * Sets the billboard setting of this entity.
+     * Sets the billboard setting of this line.
      * <p>
-     * The billboard setting controls the automatic rotation of the entity to
-     * face the player.
+     * The billboard setting controls the automatic rotation of the line to face the player.
      *
      * @param billboard new setting
      * @return this

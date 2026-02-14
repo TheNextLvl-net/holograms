@@ -8,12 +8,14 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.line.StaticHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Explosive;
@@ -33,6 +35,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
 
     public PaperEntityHologramLine(final PaperHologram hologram, @Nullable final PagedHologramLine parentLine, final EntityType entityType) throws IllegalArgumentException {
         super(hologram, parentLine, entityType);
+        super.billboard = Display.Billboard.FIXED;
     }
 
     @Override
@@ -161,6 +164,52 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
             armorStand.setDisabledSlots(EquipmentSlot.values());
         }
 
+        applyBillboard(player, entity);
         super.preSpawn(entity, player);
+    }
+
+    @Override
+    public StaticHologramLine setBillboard(final Display.Billboard billboard) {
+        return set(this.billboard, billboard, () -> {
+            this.billboard = billboard;
+            applyBillboard();
+        }, false);
+    }
+
+    private void applyBillboard() {
+        entities.forEach((uuid, entity) -> {
+            final var player = getHologram().getPlugin().getServer().getPlayer(uuid);
+            if (player != null) applyBillboard(player, entity);
+        });
+    }
+
+    public void applyBillboard(final Player player) {
+        if (billboard.equals(Display.Billboard.FIXED)) return;
+        final var entity = entities.get(player.getUniqueId());
+        if (entity != null) applyBillboard(player, entity);
+    }
+
+    private void applyBillboard(final Player player, final Entity entity) {
+        final var location = entity.getLocation();
+        final var direction = player.getEyeLocation().subtract(0, 0.5, 0).toVector().subtract(location.toVector());
+        switch (billboard) {
+            case CENTER -> location.setDirection(direction);
+            case HORIZONTAL -> {
+                final var sqrt = Math.sqrt(direction.getX() * direction.getX() + direction.getZ() * direction.getZ());
+                final var angrad = -Math.atan2(direction.getY(), sqrt);
+                location.setPitch((float) Math.toDegrees(angrad));
+                location.setYaw(getHologram().getYaw());
+            }
+            case VERTICAL -> {
+                final var angrad = -Math.atan2(direction.getX(), direction.getZ());
+                location.setYaw((float) Math.toDegrees(angrad));
+                location.setPitch(getHologram().getPitch());
+            }
+            case FIXED -> {
+                location.setPitch(getHologram().getPitch());
+                location.setYaw(getHologram().getYaw());
+            }
+        }
+        entity.teleportAsync(location);
     }
 }

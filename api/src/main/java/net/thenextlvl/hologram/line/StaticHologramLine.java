@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.line;
 
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Contract;
@@ -71,6 +72,29 @@ public interface StaticHologramLine extends HologramLine {
      */
     @Contract(value = "_ -> this", mutates = "this")
     StaticHologramLine setGlowColor(@Nullable TextColor color);
+
+    /**
+     * Gets the billboard setting of this line.
+     * <p>
+     * The billboard setting controls the automatic rotation of the line to face the player.
+     *
+     * @return billboard setting
+     * @since 0.10.0
+     */
+    @Contract(pure = true)
+    Display.Billboard getBillboard();
+
+    /**
+     * Sets the billboard setting of this line.
+     * <p>
+     * The billboard setting controls the automatic rotation of the line to face the player.
+     *
+     * @param billboard new setting
+     * @return this
+     * @since 0.10.0
+     */
+    @Contract(value = "_ -> this", mutates = "this")
+    StaticHologramLine setBillboard(Display.Billboard billboard);
 
     /**
      * Gets the parent of this line if it is part of a paged line.

@@ -9,6 +9,7 @@ import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.StaticHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Interaction;
@@ -34,6 +35,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     protected volatile @Nullable PagedHologramLine parentLine;
     protected volatile @Nullable TextColor glowColor = null;
     protected volatile Class<E> entityClass;
+    protected volatile Display.Billboard billboard = Display.Billboard.CENTER;
     protected volatile EntityType entityType;
     protected volatile boolean glowing = false;
 
@@ -102,6 +104,11 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @Override
     public Optional<String> getViewPermission() {
         return super.getViewPermission().or(() -> getParentLine().flatMap(HologramLine::getViewPermission));
+    }
+
+    @Override
+    public Display.Billboard getBillboard() {
+        return billboard;
     }
 
     @Override

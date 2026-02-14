@@ -21,7 +21,6 @@ import java.util.Optional;
 @NullMarked
 public abstract class PaperDisplayHologramLine<E extends Display> extends PaperStaticHologramLine<E> implements DisplayHologramLine {
     protected volatile @Nullable Brightness brightness = null;
-    protected volatile Display.Billboard billboard = Display.Billboard.CENTER;
     protected volatile Transformation transformation = new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(1), new AxisAngle4f());
     protected volatile float displayHeight = 0;
     protected volatile float displayWidth = 0;
@@ -170,11 +169,6 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
             this.interpolationDelay = ticks;
             forEachEntity(entity -> entity.setInterpolationDelay(ticks));
         }, false);
-    }
-
-    @Override
-    public Display.Billboard getBillboard() {
-        return billboard;
     }
 
     @Override

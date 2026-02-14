@@ -12,6 +12,7 @@ abstract class StaticHologramLineSerializer<T extends StaticHologramLine> extend
     public CompoundTag serialize(final T line, final TagSerializationContext context) throws ParserException {
         final var builder = CompoundTag.builder()
                 .putAll(super.serialize(line, context))
+                .put("billboard", context.serialize(line.getBillboard()))
                 .put("glowing", line.isGlowing());
         line.getGlowColor().map(context::serialize).ifPresent(tag -> builder.put("glowColor", tag));
         return builder.build();

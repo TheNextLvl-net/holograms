@@ -45,6 +45,6 @@ final class EditBillboardCommand extends EditCommand {
                     TagResolver.resolver(placeholders),
                     Placeholder.component("billboard", billboardName));
             return SINGLE_SUCCESS;
-        }, LineType.DISPLAY);
+        }, LineType.STATIC);
     }
 }

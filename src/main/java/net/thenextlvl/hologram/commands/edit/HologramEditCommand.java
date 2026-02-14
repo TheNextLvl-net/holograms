@@ -25,6 +25,7 @@ public final class HologramEditCommand {
                 .then(EditInterpolationDurationCommand.create(plugin, resolver))
                 .then(EditOffsetCommand.create(plugin, resolver))
                 .then(EditOpacityCommand.create(plugin, resolver))
+                .then(EditPlayerHeadCommand.create(plugin, resolver))
                 .then(EditPrependCommand.create(plugin, resolver))
                 .then(EditReplaceCommand.create(plugin, resolver))
                 .then(EditScaleCommand.create(plugin, resolver))

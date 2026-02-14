@@ -24,6 +24,8 @@ public interface ItemHologramLine extends DisplayHologramLine {
 
     /**
      * Sets the displayed item stack.
+     * <p>
+     * Calling this method will set the {@link #isPlayerHead() player head} flag to {@code false}.
      *
      * @param item the new item stack
      * @return this
@@ -31,6 +33,29 @@ public interface ItemHologramLine extends DisplayHologramLine {
      */
     @Contract(value = "_ -> this", mutates = "this")
     ItemHologramLine setItemStack(@Nullable ItemStack item);
+
+    /**
+     * Checks if this item hologram line is a player head.
+     *
+     * @return {@code true} if this item hologram line is a player head
+     * @since 0.11.0
+     */
+    @Contract(pure = true)
+    boolean isPlayerHead();
+
+    /**
+     * Sets if this item hologram line is a player head.
+     * <p>
+     * The line will render the item as the viewing player's head if true.
+     * <p>
+     * Setting this to true will set the {@link #getItemStack() item stack} to a player head.
+     *
+     * @param playerHead {@code true} if this item hologram line is a player head
+     * @return this
+     * @since 0.11.0
+     */
+    @Contract(value = "_ -> this", mutates = "this")
+    ItemHologramLine setPlayerHead(boolean playerHead);
 
     /**
      * Gets the item display transform for this entity.

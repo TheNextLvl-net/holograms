@@ -41,7 +41,6 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
     @Override
     public ItemHologramLine setItemStack(@Nullable final ItemStack item) {
         return set(this.item, item, () -> {
-            if (item != null) this.playerHead = false;
             this.item = item != null ? item.clone() : null;
             forEachEntity(entity -> entity.setItemStack(this.item));
         }, false);

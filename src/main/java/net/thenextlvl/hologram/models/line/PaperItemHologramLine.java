@@ -80,44 +80,17 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
 
     @Override
     public double getHeight(final Player player) {
-        if (isSkull(item)) return switch (displayTransform) {
-            case GUI -> 0.9;
-            case NONE, FIRSTPERSON_LEFTHAND, FIRSTPERSON_RIGHTHAND, FIXED, HEAD -> 0.5;
-            case THIRDPERSON_LEFTHAND, THIRDPERSON_RIGHTHAND -> 0.3;
-            case GROUND -> 0.2;
-        } * transformation.getScale().y();
-        else return switch (displayTransform) {
-            case NONE, HEAD, GUI -> 1;
-            case GROUND, THIRDPERSON_LEFTHAND, THIRDPERSON_RIGHTHAND, FIRSTPERSON_LEFTHAND, FIRSTPERSON_RIGHTHAND ->
-                    0.45;
-            case FIXED -> 0.5;
-        } * transformation.getScale().y();
+        return transformation.getScale().y();
     }
 
     @Override
     public double getOffsetBefore(final Player player) {
-        if (displayTransform == ItemDisplayTransform.GROUND) return 0;
-        final var v = getHeight(player) / 2;
-        if (!isSkull(this.item)) return v;
-        return v + switch (displayTransform) {
-            case FIRSTPERSON_LEFTHAND, FIRSTPERSON_RIGHTHAND, NONE, HEAD -> 0.25;
-            default -> 0;
-        };
+        return getHeight(player) / 2;
     }
 
     @Override
     public double getOffsetAfter(final Player player) {
-        return isSkull(item) ? switch (displayTransform) {
-            case GROUND, THIRDPERSON_LEFTHAND, THIRDPERSON_RIGHTHAND -> 0;
-            default -> -getOffsetBefore(player);
-        } : 0;
-    }
-
-    private boolean isSkull(@Nullable final ItemStack item) {
-        return item != null && switch (item.getType()) {
-            case PLAYER_HEAD, ZOMBIE_HEAD, PISTON_HEAD, PIGLIN_HEAD, DRAGON_HEAD, CREEPER_HEAD -> true;
-            default -> false;
-        };
+        return -getOffsetBefore(player);
     }
 
     @Override

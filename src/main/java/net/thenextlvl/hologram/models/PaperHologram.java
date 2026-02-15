@@ -422,6 +422,13 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
+    public Stream<Player> getTrackedBy() {
+        return spawned.stream()
+                .map(plugin.getServer()::getPlayer)
+                .filter(Objects::nonNull);
+    }
+
+    @Override
     public @Unmodifiable Set<UUID> getViewers() {
         return Set.copyOf(viewers);
     }
@@ -570,7 +577,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     @Override
     public CompletableFuture<Void> despawn() {
-        final var futures = getSpawned()
+        final var futures = getTrackedBy()
                 .map(this::despawn)
                 .toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(futures);
@@ -586,14 +593,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return CompletableFuture.allOf(futures).thenApply(v -> true);
     }
 
-    public Stream<Player> getSpawned() {
-        return spawned.stream()
-                .map(plugin.getServer()::getPlayer)
-                .filter(Objects::nonNull);
-    }
-
     @Override
-    public boolean isSpawned(final Player player) {
+    public boolean isTrackedBy(final Player player) {
         return spawned.contains(player.getUniqueId());
     }
 
@@ -608,16 +609,16 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public void updateHologram() {
-        getSpawned().forEach(this::updateHologram);
+        getTrackedBy().forEach(this::updateHologram);
     }
 
     public CompletableFuture<Boolean> updateHologram(final Player player) {
-        if (isSpawned(player)) return spawn(player, true);
+        if (isTrackedBy(player)) return spawn(player, true);
         return CompletableFuture.completedFuture(false);
     }
 
     public void updateVisibility() {
-        getSpawned().forEach(this::updateVisibility);
+        getTrackedBy().forEach(this::updateVisibility);
     }
 
     public void updateVisibility(final Player player) {

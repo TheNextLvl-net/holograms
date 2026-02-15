@@ -415,6 +415,15 @@ public interface Hologram extends HologramLike, Iterable<HologramLine> {
     boolean setViewPermission(@Nullable String permission);
 
     /**
+     * Returns the players that are tracking this hologram.
+     *
+     * @return players that are tracking this hologram
+     * @since 1.0.0
+     */
+    @Contract(pure = true)
+    Stream<Player> getTrackedBy();
+
+    /**
      * Returns the viewers of this hologram.
      *
      * @return viewers
@@ -477,7 +486,7 @@ public interface Hologram extends HologramLike, Iterable<HologramLine> {
     /**
      * Checks if the given player can see this hologram.
      * <p>
-     * This method is different to {@link #isSpawned(Player)} in that it checks
+     * This method is different to {@link #isTrackedBy(Player)} in that it checks
      * if the player has the permission to see the hologram.
      *
      * @param player player
@@ -485,7 +494,7 @@ public interface Hologram extends HologramLike, Iterable<HologramLine> {
      * @see #getViewPermission()
      * @see #isVisibleByDefault()
      * @see #isViewer(UUID)
-     * @see #isSpawned(Player)
+     * @see #isTrackedBy(Player)
      * @since 0.1.0
      */
     @Contract(pure = true)
@@ -601,10 +610,10 @@ public interface Hologram extends HologramLike, Iterable<HologramLine> {
      *
      * @param player the player to check for
      * @return {@code true} if this hologram is spawned for the given player, {@code false} otherwise
-     * @since 0.4.0
+     * @since 1.0.0
      */
     @Contract(pure = true)
-    boolean isSpawned(Player player);
+    boolean isTrackedBy(Player player);
 
     /**
      * Checks if the given entity is part of this hologram.

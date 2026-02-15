@@ -11,6 +11,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ActionTypes;
 import net.thenextlvl.hologram.action.ClickAction;
+import net.thenextlvl.hologram.action.PageChange;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import net.thenextlvl.hologram.locale.Tips;
 import net.thenextlvl.hologram.models.ClickTypes;
@@ -53,12 +54,16 @@ final class HologramCreateCommand extends SimpleCommand {
         plugin.hologramProvider().spawnHologram(name, location, hologram -> {
             final var line = hologram.addPagedLine();
             line.setInterval(Duration.ofSeconds(10));
-            
+
             line.addAction("next", ClickAction.factory().create(
-                    ActionTypes.types().cyclePage(), ClickTypes.ANY_LEFT_CLICK.getClickTypes(), 1
+                    ActionTypes.types().cyclePage(),
+                    ClickTypes.ANY_LEFT_CLICK.getClickTypes(),
+                    new PageChange(hologram, hologram.getLineIndex(line), 1)
             ));
             line.addAction("previous", ClickAction.factory().create(
-                    ActionTypes.types().cyclePage(), ClickTypes.ANY_RIGHT_CLICK.getClickTypes(), -1
+                    ActionTypes.types().cyclePage(),
+                    ClickTypes.ANY_RIGHT_CLICK.getClickTypes(),
+                    new PageChange(hologram, hologram.getLineIndex(line), -1)
             ));
 
             for (var i = 1; i <= Tips.TIPS_ENGLISH.size(); ++i) {

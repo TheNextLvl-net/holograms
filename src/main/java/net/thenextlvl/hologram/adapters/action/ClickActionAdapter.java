@@ -3,9 +3,11 @@ package net.thenextlvl.hologram.adapters.action;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.title.Title;
+import net.thenextlvl.hologram.HologramLike;
 import net.thenextlvl.hologram.action.ActionType;
 import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.action.ClickType;
+import net.thenextlvl.hologram.action.PageChange;
 import net.thenextlvl.hologram.action.UnparsedTitle;
 import net.thenextlvl.nbt.serialization.NBT;
 import net.thenextlvl.nbt.serialization.ParserException;
@@ -29,8 +31,10 @@ public final class ClickActionAdapter implements TagAdapter<ClickAction<?>> {
     private final NBT context = NBT.builder()
             .registerTypeHierarchyAdapter(ActionType.class, new ActionTypeAdapter())
             .registerTypeHierarchyAdapter(ClickType.class, new EnumAdapter<>(ClickType.class))
+            .registerTypeHierarchyAdapter(HologramLike.class, new HologramLikeAdapter())
             .registerTypeHierarchyAdapter(Key.class, new KeyAdapter())
             .registerTypeHierarchyAdapter(Location.class, new LazyLocationAdapter())
+            .registerTypeHierarchyAdapter(PageChange.class, new PageChangeAdapter())
             .registerTypeHierarchyAdapter(Sound.Source.class, new EnumAdapter<>(Sound.Source.class))
             .registerTypeHierarchyAdapter(Sound.class, new SoundAdapter())
             .registerTypeHierarchyAdapter(Title.Times.class, new TitleTimesAdapter())

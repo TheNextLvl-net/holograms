@@ -65,15 +65,25 @@ final class SimpleActionTypes implements ActionTypes {
         player.sendPluginMessage(plugin, "BungeeCord", dataOutput.toByteArray());
     });
 
-    private final ActionType<Integer> cyclePage = ActionType.create("cycle_page", Integer.class, (line, player, amount) -> {
-        if (line instanceof PagedHologramLine pagedLine) pagedLine.cyclePage(player, amount);
+    private final ActionType<PageChange> cyclePage = ActionType.create("cycle_page", PageChange.class, (line, player, change) -> {
+        change.hologram().getHologram().ifPresentOrElse(hologram -> {
+            hologram.getLine(change.line(), PagedHologramLine.class).ifPresentOrElse(pagedLine -> {
+                pagedLine.cyclePage(player, change.page());
+            }, () -> plugin.getComponentLogger().warn("Line {} of hologram {} is not a paged line",
+                    change.line(), change.hologram().getName()));
+        }, () -> plugin.getComponentLogger().warn("Hologram {} does not exist", change.hologram().getName()));
     });
 
-    private final ActionType<Integer> setPage = ActionType.create("set_page", Integer.class, (line, player, page) -> {
-        if (!(line instanceof PagedHologramLine pagedLine)) return;
-        if (page >= 0 && page < pagedLine.getPageCount()) pagedLine.setPage(player, page);
-        else plugin.getComponentLogger().warn("Invalid page index for hologram {}: {}/{}",
-                line.getHologram().getName(), page, pagedLine.getPageCount());
+    private final ActionType<PageChange> setPage = ActionType.create("set_page", PageChange.class, (line, player, change) -> {
+        change.hologram().getHologram().ifPresentOrElse(hologram -> {
+            hologram.getLine(change.line(), PagedHologramLine.class).ifPresentOrElse(pagedLine -> {
+                var page = change.page();
+                if (page >= 0 && page < pagedLine.getPageCount()) pagedLine.setPage(player, page);
+                else plugin.getComponentLogger().warn("Invalid page index for hologram {}: {}/{}",
+                        hologram.getName(), page, pagedLine.getPageCount());
+            }, () -> plugin.getComponentLogger().warn("Line {} of hologram {} is not a paged line",
+                    change.line(), change.hologram().getName()));
+        }, () -> plugin.getComponentLogger().warn("Hologram {} does not exist", change.hologram().getName()));
     });
 
     @Override
@@ -122,12 +132,12 @@ final class SimpleActionTypes implements ActionTypes {
     }
 
     @Override
-    public ActionType<Integer> cyclePage() {
+    public ActionType<PageChange> cyclePage() {
         return cyclePage;
     }
 
     @Override
-    public ActionType<Integer> setPage() {
+    public ActionType<PageChange> setPage() {
         return setPage;
     }
 }

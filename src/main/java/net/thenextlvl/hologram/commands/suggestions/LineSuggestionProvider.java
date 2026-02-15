@@ -17,6 +17,7 @@ import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
+import org.bukkit.Material;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.concurrent.CompletableFuture;
@@ -53,8 +54,9 @@ public final class LineSuggestionProvider implements SuggestionProvider<CommandS
                     .append(Component.translatable(blockLine.getBlock().getMaterial()));
             case final EntityHologramLine entityLine -> Component.text("Entity: ")
                     .append(Component.translatable(entityLine.getEntityType()));
-            case final ItemHologramLine itemLine -> Component.text("Item: ")
-                    .append(Component.translatable(itemLine.getItemStack().getType()));
+            case final ItemHologramLine itemLine -> Component.text("Item: ").append(Component.translatable(
+                    itemLine.isPlayerHead() ? Material.PLAYER_HEAD : itemLine.getItemStack().getType()
+            ));
             case final TextHologramLine textLine -> textLine.getUnparsedText().map(component -> {
                 return MiniMessage.miniMessage().deserialize("Text: " + component.replace("\n", "\\n"));
             }).orElse(Component.empty());

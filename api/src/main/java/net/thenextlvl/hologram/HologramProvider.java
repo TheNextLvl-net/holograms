@@ -156,10 +156,10 @@ public interface HologramProvider {
      * @return all holograms nearby the given location
      * @throws IllegalArgumentException if the radius is smaller than 1
      * @throws IllegalArgumentException if the world of the location is {@code null}
-     * @since 0.4.0
+     * @since 0.12.0
      */
     @Contract(pure = true)
-    Stream<Hologram> getHologramNearby(Location location, double radius) throws IllegalArgumentException;
+    Stream<Hologram> getHologramsNearby(Location location, double radius) throws IllegalArgumentException;
 
     /**
      * Get the names of all holograms

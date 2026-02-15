@@ -112,7 +112,7 @@ public class PaperHologramProvider implements HologramProvider {
     }
 
     @Override
-    public Stream<Hologram> getHologramNearby(final Location location, final double radius) {
+    public Stream<Hologram> getHologramsNearby(final Location location, final double radius) {
         Preconditions.checkArgument(radius > 0, "Radius must be greater than 0");
         Preconditions.checkArgument(location.getWorld() != null, "World cannot be null");
         final var radiusSquared = radius * radius;

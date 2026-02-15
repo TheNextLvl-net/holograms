@@ -112,6 +112,11 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
+    public Optional<Hologram> getHologram() {
+        return Optional.of(this);
+    }
+
+    @Override
     public boolean setName(final String name) {
         if (Objects.equals(this.name, name)) return false;
         if (plugin.hologramProvider().hasHologram(name)) return false;

@@ -23,18 +23,20 @@ import java.util.concurrent.CompletableFuture;
 
 @NullMarked
 public final class LineSuggestionProvider implements SuggestionProvider<CommandSourceStack> {
-    public static final LineSuggestionProvider ANY_LINE = new LineSuggestionProvider(false);
-    public static final LineSuggestionProvider PAGED_ONLY = new LineSuggestionProvider(true);
+    public static final LineSuggestionProvider ANY_LINE = new LineSuggestionProvider(false, "hologram");
+    public static final LineSuggestionProvider PAGED_ONLY = new LineSuggestionProvider(true, "hologram");
 
     private final boolean pagedOnly;
+    private final String argument;
 
-    private LineSuggestionProvider(final boolean pagedOnly) {
+    public LineSuggestionProvider(final boolean pagedOnly, final String argument) {
         this.pagedOnly = pagedOnly;
+        this.argument = argument;
     }
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(final CommandContext<CommandSourceStack> context, final SuggestionsBuilder builder) {
-        final var hologram = context.getLastChild().getArgument("hologram", Hologram.class);
+        final var hologram = context.getLastChild().getArgument(argument, Hologram.class);
         for (var index = 1; index <= hologram.getLineCount(); index++) {
             final var line = String.valueOf(index);
             if (!line.contains(builder.getRemaining())) continue;

@@ -111,7 +111,7 @@ public sealed interface ActionTypes permits SimpleActionTypes {
      * @since 0.8.0
      */
     @Contract(pure = true)
-    ActionType<Integer> cyclePage();
+    ActionType<PageChange> cyclePage();
 
     /**
      * Gets the action type for setting the page of a hologram.
@@ -120,5 +120,5 @@ public sealed interface ActionTypes permits SimpleActionTypes {
      * @since 0.8.0
      */
     @Contract(pure = true)
-    ActionType<Integer> setPage();
+    ActionType<PageChange> setPage();
 }

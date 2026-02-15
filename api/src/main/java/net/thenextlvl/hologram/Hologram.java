@@ -30,16 +30,7 @@ import java.util.stream.Stream;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface Hologram extends Iterable<HologramLine> {
-    /**
-     * Returns the name of the hologram.
-     *
-     * @return hologram name
-     * @since 0.1.0
-     */
-    @Contract(pure = true)
-    String getName();
-
+public interface Hologram extends HologramLike, Iterable<HologramLine> {
     /**
      * Sets the name of the hologram.
      * <p>

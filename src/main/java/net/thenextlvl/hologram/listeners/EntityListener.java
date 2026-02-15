@@ -7,10 +7,12 @@ import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.action.ClickType;
+import net.thenextlvl.hologram.event.PlayerHologramInteractEvent;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.models.line.PaperEntityHologramLine;
 import net.thenextlvl.hologram.models.line.PaperHologramLine;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -106,7 +108,7 @@ public final class EntityListener implements Listener {
                 .map(hologram -> (PaperHologramLine) hologram)
                 .ifPresent(hologram -> hologram.invalidate(event.getEntity()));
     }
-    
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(final PlayerMoveEvent event) {
         plugin.hologramProvider().getHolograms(event.getPlayer())
@@ -119,18 +121,23 @@ public final class EntityListener implements Listener {
     }
 
     private void handleInteraction(final Player player, final Entity entity, final Cancellable cancellable, final boolean isRight) {
-        plugin.hologramProvider().getHologramLine(entity).ifPresent(hologramLine -> {
-            // todo: add custom hologram interact event
+        plugin.hologramProvider().getHologramLine(entity).ifPresent(line -> {
+            cancellable.setCancelled(true);
+
+            if (!entity.getType().equals(EntityType.INTERACTION)) return;
+
             final var type = player.isSneaking()
                     ? (isRight ? ClickType.SHIFT_RIGHT : ClickType.SHIFT_LEFT)
                     : (isRight ? ClickType.RIGHT : ClickType.LEFT);
+
+            if (!new PlayerHologramInteractEvent(line, player, type).callEvent()) return;
+
             final var consumer = (BiConsumer<String, ClickAction<?>>) (name, action) -> {
-                if (action.isSupportedClickType(type)) action.invoke(hologramLine, player);
+                if (action.isSupportedClickType(type)) action.invoke(line, player);
             };
-            if (hologramLine instanceof final PagedHologramLine paged)
+            if (line instanceof final PagedHologramLine paged)
                 paged.forEachPage(page -> page.forEachAction(consumer));
-            hologramLine.forEachAction(consumer);
-            cancellable.setCancelled(true);
+            line.forEachAction(consumer);
         });
     }
 }

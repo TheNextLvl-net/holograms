@@ -5,11 +5,14 @@ import net.thenextlvl.hologram.economy.ServiceEconomyProvider;
 import net.thenextlvl.hologram.economy.VaultEconomyProvider;
 import net.thenextlvl.hologram.locale.MiniPlaceholdersFormatter;
 import net.thenextlvl.hologram.locale.PlaceholderAPIFormatter;
+import net.thenextlvl.hologram.service.ServiceHologramController;
+import net.thenextlvl.service.api.hologram.HologramController;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.ServicePriority;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -30,8 +33,15 @@ public final class PluginListener implements Listener {
             plugin.miniFormatter = new MiniPlaceholdersFormatter();
             plugin.getComponentLogger().info("MiniPlaceholders detected, using for placeholders");
         }
-        
+
         if (isPlugin(event.getPlugin(), "ServiceIO")) {
+            plugin.getServer().getServicesManager().register(
+                    HologramController.class,
+                    new ServiceHologramController(),
+                    plugin,
+                    ServicePriority.Highest
+            );
+
             plugin.economyProvider = new ServiceEconomyProvider(event.getPlugin());
             plugin.getComponentLogger().info("ServiceIO detected, using for economy");
         } else if (isPlugin(event.getPlugin(), "Vault")) {
@@ -39,7 +49,7 @@ public final class PluginListener implements Listener {
             plugin.getComponentLogger().info("Vault detected, using for economy");
         }
     }
-    
+
     private boolean isPlugin(final Plugin plugin, final String name) {
         return plugin.getName().equals(name) || plugin.getPluginMeta().getProvidedPlugins().contains(name);
     }

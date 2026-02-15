@@ -1,7 +1,10 @@
 package net.thenextlvl.hologram.action;
 
 import net.kyori.adventure.sound.Sound;
+import net.thenextlvl.binder.StaticBinder;
 import org.bukkit.Location;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 
 import java.net.InetSocketAddress;
@@ -11,16 +14,16 @@ import java.net.InetSocketAddress;
  *
  * @since 0.6.0
  */
-public sealed interface ActionTypes permits SimpleActionTypes {
+@ApiStatus.Internal
+public interface ActionTypes {
     /**
      * Gets the action types.
      *
      * @return action types
      * @since 0.6.0
      */
-    @Contract(pure = true)
-    static ActionTypes types() {
-        return SimpleActionTypes.INSTANCE;
+    static @CheckReturnValue ActionTypes types() {
+        return StaticBinder.getInstance(ActionTypes.class.getClassLoader()).find(ActionTypes.class);
     }
 
     /**

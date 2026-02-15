@@ -2,30 +2,29 @@ package net.thenextlvl.hologram.action;
 
 import com.google.common.io.ByteStreams;
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.title.Title;
+import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jspecify.annotations.NullMarked;
 
 import java.net.InetSocketAddress;
 
 import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN;
 
-final class SimpleActionTypes implements ActionTypes {
+@NullMarked
+public final class SimpleActionTypes implements ActionTypes {
     public static final ActionTypes INSTANCE = new SimpleActionTypes();
-    private static final JavaPlugin plugin = JavaPlugin.getProvidingPlugin(SimpleActionTypes.class);
+    private static final HologramPlugin plugin = JavaPlugin.getPlugin(HologramPlugin.class);
 
     private final ActionType<String> sendActionbar = ActionType.create("send_actionbar", String.class, (line, player, actionbar) -> {
-        var placeholder = Placeholder.parsed("player", player.getName());
-        var message = MiniMessage.miniMessage().deserialize(actionbar, placeholder);
-        player.sendActionBar(message);
+        player.sendActionBar(PaperTextHologramLine.parse(plugin, line.getHologram(), line, actionbar, player));
     });
 
     private final ActionType<String> sendMessage = ActionType.create("send_message", String.class, (line, player, message) -> {
-        var placeholder = Placeholder.parsed("player", player.getName());
-        player.sendMessage(MiniMessage.miniMessage().deserialize(message, placeholder));
+        player.sendMessage(PaperTextHologramLine.parse(plugin, line.getHologram(), line, message, player));
     });
 
     private final ActionType<InetSocketAddress> transfer = ActionType.create("transfer", InetSocketAddress.class, (line, player, address) -> {
@@ -52,9 +51,8 @@ final class SimpleActionTypes implements ActionTypes {
     });
 
     private final ActionType<UnparsedTitle> sendTitle = ActionType.create("send_title", UnparsedTitle.class, (line, player, title) -> {
-        var miniMessage = MiniMessage.miniMessage();
-        var titleComponent = miniMessage.deserialize(title.title());
-        var subtitleComponent = miniMessage.deserialize(title.subtitle());
+        var titleComponent = PaperTextHologramLine.parse(plugin, line.getHologram(), line, title.title(), player);
+        var subtitleComponent = PaperTextHologramLine.parse(plugin, line.getHologram(), line, title.subtitle(), player);
         player.showTitle(Title.title(titleComponent, subtitleComponent, title.times()));
     });
 

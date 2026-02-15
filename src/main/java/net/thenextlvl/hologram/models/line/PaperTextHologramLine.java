@@ -5,8 +5,12 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
+import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.line.StaticHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import net.thenextlvl.hologram.locale.ImageTagResolver;
 import net.thenextlvl.hologram.models.PaperHologram;
@@ -43,30 +47,37 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
 
     @Override
     public Optional<Component> getText(final Player player) {
-        return getUnparsedText().map(string -> {
-            return getHologram().getPlugin().translations().translate(player, string, 0);
-        }).map(string -> {
-            final var papiFormatter = getHologram().getPlugin().papiFormatter;
-            return papiFormatter != null ? papiFormatter.format(player, string) : string;
-        }).map(string -> {
-            final var formatter = getHologram().getPlugin().miniFormatter;
-            final var builder = TagResolver.builder();
+        return getUnparsedText().map(string -> parse(getHologram().getPlugin(), getHologram(), this, string, player));
+    }
 
-            builder.resolver(StandardTags.defaults());
-            builder.resolver(ImageTagResolver.INSTANCE);
-            builder.tag("hologram", Tag.preProcessParsed(getHologram().getName()));
-            builder.tag("lines", Tag.inserting(Component.text(getHologram().getLineCount())));
-            getParentLine().ifPresentOrElse((line) -> {
-                builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(line) + 1)));
-                 // todo: visibility based? show max page count the player can see
-                builder.tag("page", Tag.inserting(Component.text(line.getPageIndex(this) + 1)));
-                builder.tag("pages", Tag.inserting(Component.text(line.getPageCount())));
-            }, () -> builder.tag("line", Tag.inserting(Component.text(getHologram().getLineIndex(this) + 1))));
-            builder.tag("player", Tag.preProcessParsed(player.getName()));
-            if (formatter != null) builder.resolver(formatter.tagResolver());
+    public static Component parse(final HologramPlugin plugin, final Hologram hologram, final HologramLine line, final String text, final Player player) {
+        final var translated = plugin.translations().translate(player, text, 0);
 
-            return MiniMessage.miniMessage().deserialize(string, player, builder.build());
-        });
+        final var papiFormatter = plugin.papiFormatter;
+        final var formatted = papiFormatter != null ? papiFormatter.format(player, translated) : translated;
+
+        final var builder = TagResolver.builder();
+
+        builder.resolver(StandardTags.defaults());
+        builder.resolver(ImageTagResolver.INSTANCE);
+
+        final var miniFormatter = plugin.miniFormatter;
+        if (miniFormatter != null) builder.resolver(miniFormatter.tagResolver());
+
+        builder.tag("hologram", Tag.preProcessParsed(hologram.getName()));
+        builder.tag("lines", Tag.inserting(Component.text(hologram.getLineCount())));
+        builder.tag("player", Tag.preProcessParsed(player.getName()));
+
+        final var parentLine = line instanceof final StaticHologramLine staticLine
+                ? staticLine.getParentLine() : Optional.<PagedHologramLine>empty();
+        parentLine.ifPresentOrElse(parent -> {
+            builder.tag("line", Tag.inserting(Component.text(hologram.getLineIndex(parent) + 1)));
+            // todo: visibility based? show max page count the player can see
+            builder.tag("page", Tag.inserting(Component.text(parent.getPageIndex(line) + 1)));
+            builder.tag("pages", Tag.inserting(Component.text(parent.getPageCount())));
+        }, () -> builder.tag("line", Tag.inserting(Component.text(hologram.getLineIndex(line) + 1))));
+
+        return MiniMessage.miniMessage().deserialize(formatted, player, builder.build());
     }
 
     @Override

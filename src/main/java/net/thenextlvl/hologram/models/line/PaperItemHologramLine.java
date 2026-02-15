@@ -15,11 +15,9 @@ import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
-
 @NullMarked
 public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDisplay> implements ItemHologramLine {
-    private volatile ItemDisplayTransform displayTransform = ItemDisplayTransform.FIXED;
+    private volatile ItemDisplayTransform displayTransform = ItemDisplayTransform.NONE;
     private volatile @Nullable ItemStack item = null;
     private volatile boolean playerHead = false;
 
@@ -42,7 +40,7 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
     public ItemHologramLine setItemStack(@Nullable final ItemStack item) {
         return set(this.item, item, () -> {
             this.item = item != null ? item.clone() : null;
-            forEachEntity(entity -> entity.setItemStack(this.item));
+            if (!playerHead) updateItems();
         }, false);
     }
 
@@ -53,16 +51,19 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
 
     @Override
     public ItemHologramLine setPlayerHead(final boolean playerHead) {
-        if (Objects.equals(this.playerHead, playerHead)) return this;
-        this.playerHead = playerHead;
-        if (playerHead) this.item = ItemStack.of(Material.PLAYER_HEAD);
+        return set(this.playerHead, playerHead, () -> {
+            this.playerHead = playerHead;
+            updateItems();
+        }, false);
+    }
+
+    private void updateItems() {
         if (playerHead) entities.forEach((uuid, entity) -> {
             final var head = ItemStack.of(Material.PLAYER_HEAD);
             head.setData(DataComponentTypes.PROFILE, ResolvableProfile.resolvableProfile().uuid(uuid));
             entity.setItemStack(head);
         });
         else forEachEntity(entity -> entity.setItemStack(this.item));
-        return this;
     }
 
     @Override

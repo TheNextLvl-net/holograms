@@ -19,10 +19,12 @@ public final class HologramEditCommand {
                 .then(EditBillboardCommand.create(plugin, resolver))
                 .then(EditBrightnessCommand.create(plugin, resolver))
                 .then(EditDefaultBackgroundCommand.create(plugin, resolver))
+                .then(EditDisplayHeightCommand.create(plugin, resolver))
                 .then(EditGlowColorCommand.create(plugin, resolver))
                 .then(EditGlowingCommand.create(plugin, resolver))
                 .then(EditInterpolationDelayCommand.create(plugin, resolver))
                 .then(EditInterpolationDurationCommand.create(plugin, resolver))
+                .then(EditLineWidthCommand.create(plugin, resolver))
                 .then(EditOffsetCommand.create(plugin, resolver))
                 .then(EditOpacityCommand.create(plugin, resolver))
                 .then(EditPlayerHeadCommand.create(plugin, resolver))
@@ -32,7 +34,10 @@ public final class HologramEditCommand {
                 .then(EditSeeThroughCommand.create(plugin, resolver))
                 .then(EditSetCommand.create(plugin, resolver))
                 .then(EditShadowedCommand.create(plugin, resolver))
+                .then(EditShadowRadiusCommand.create(plugin, resolver))
+                .then(EditShadowStrengthCommand.create(plugin, resolver))
                 .then(EditTeleportDurationCommand.create(plugin, resolver))
-                .then(EditTransformationCommand.create(plugin, resolver));
+                .then(EditTransformationCommand.create(plugin, resolver))
+                .then(EditViewRangeCommand.create(plugin, resolver));
     }
 }

@@ -625,7 +625,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (canSee(player)) {
             getLines().<HologramLine>mapMulti((line, consumer) -> {
                         if (line instanceof final PagedHologramLine paged)
-                            paged.getPages().forEach(consumer);
+                            paged.forEachPage(consumer::accept);
                         else consumer.accept(line);
                     }).map(PaperHologramLine.class::cast)
                     .filter(line -> !line.canSee(player))

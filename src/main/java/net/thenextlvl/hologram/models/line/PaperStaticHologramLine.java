@@ -134,7 +134,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @Override
     public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
         if (!getHologram().getWorld().equals(player.getWorld()) || !canSee(player))
-            return CompletableFuture.completedFuture(null);
+            return despawn(player.getUniqueId()).thenApply(v -> null);
 
         return spawnEntity(player, offset).thenCompose(entity -> {
             return spawnInteraction(player, entity).thenCompose(interaction -> {

@@ -103,7 +103,7 @@ public final class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onChunkUnload(final EntityRemoveEvent event) {
+    public void onEntityRemove(final EntityRemoveEvent event) {
         plugin.hologramProvider().getHologramLine(event.getEntity())
                 .map(hologram -> (PaperHologramLine) hologram)
                 .ifPresent(hologram -> hologram.invalidate(event.getEntity()));

@@ -2,9 +2,10 @@ package net.thenextlvl.hologram.listeners;
 
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
 import io.papermc.paper.event.packet.PlayerChunkUnloadEvent;
+import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
 import net.thenextlvl.hologram.HologramPlugin;
-import net.thenextlvl.hologram.models.line.PaperHologramLine;
+import net.thenextlvl.hologram.models.line.PaperPagedHologramLine;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -30,11 +31,19 @@ public final class ChunkListener implements Listener {
                 .forEach(hologram -> hologram.despawn(event.getPlayer()));
     }
 
-    // todo: test entity untracking
-    // @EventHandler(priority = EventPriority.MONITOR)
-    public void onChunkUnload(final PlayerUntrackEntityEvent event) {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerUntrackEntity(final PlayerUntrackEntityEvent event) {
         plugin.hologramProvider().getHologramLine(event.getEntity())
-                .map(hologram -> (PaperHologramLine) hologram)
-                .ifPresent(hologram -> hologram.invalidate(event.getEntity()));
+                .filter(PaperPagedHologramLine.class::isInstance)
+                .map(PaperPagedHologramLine.class::cast)
+                .ifPresent(line -> line.untrack(event.getPlayer().getUniqueId()));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerTrackEntity(final PlayerTrackEntityEvent event) {
+        plugin.hologramProvider().getHologramLine(event.getEntity())
+                .filter(PaperPagedHologramLine.class::isInstance)
+                .map(PaperPagedHologramLine.class::cast)
+                .ifPresent(line -> line.track(event.getPlayer().getUniqueId()));
     }
 }

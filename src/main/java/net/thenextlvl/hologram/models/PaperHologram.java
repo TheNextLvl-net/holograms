@@ -647,10 +647,6 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         });
     }
 
-    public void invalidate(final Entity entity) {
-        lines.forEach(line -> ((PaperHologramLine) line).invalidate(entity));
-    }
-
     @Override
     public CompoundTag serialize() throws ParserException {
         final var nbt = plugin.serializer(getWorld());

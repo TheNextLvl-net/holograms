@@ -5,6 +5,8 @@ import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
@@ -40,12 +42,12 @@ public abstract class PaperHologramLine implements HologramLine {
         hologram.updateHologram();
         return true;
     }
-    
+
     @Override
     public @Unmodifiable Map<String, ClickAction<?>> getActions() {
         return Map.copyOf(clickActions);
     }
-    
+
     @Override
     public boolean hasAction(final ClickAction<?> action) {
         return clickActions.containsValue(action);
@@ -87,8 +89,13 @@ public abstract class PaperHologramLine implements HologramLine {
     }
 
     @Override
+    @SuppressWarnings("ConstantValue")
     public boolean canSee(final Player player) {
-        return getViewPermission().map(player::hasPermission).orElse(true);
+        return getHologram().getWorld().equals(player.getWorld()) && getEntity(player).map(entity -> {
+            final var tracker = ((CraftEntity) entity).getHandleRaw().moonrise$getTrackedEntity();
+            final var connection = ((CraftPlayer) player).getHandle().connection;
+            return tracker != null && tracker.seenBy.contains(connection);
+        }).orElse(false) || getViewPermission().map(player::hasPermission).orElse(true);
     }
 
     @Override

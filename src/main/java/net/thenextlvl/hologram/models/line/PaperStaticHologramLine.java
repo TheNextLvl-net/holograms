@@ -114,7 +114,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @Override
     public CompletableFuture<Void> despawn() {
         final var futures = Stream.concat(entities.values().stream(), interactions.values().stream())
-                .map(e -> getHologram().getPlugin().supply(e, e::remove))
+                .map(e -> getHologram().getPlugin().supply(e, e::remove, true))
                 .toArray(CompletableFuture[]::new);
         entities.clear();
         interactions.clear();
@@ -124,17 +124,21 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @Override
     public CompletableFuture<@Nullable Void> despawn(final UUID player) {
         final var futures = new ArrayList<CompletableFuture<Void>>(2);
+
         final var entity = entities.remove(player);
-        if (entity != null) futures.add(getHologram().getPlugin().supply(entity, entity::remove));
+        if (entity != null && entity.isValid())
+            futures.add(getHologram().getPlugin().supply(entity, entity::remove, true));
+
         final var interaction = interactions.remove(player);
-        if (interaction != null) futures.add(getHologram().getPlugin().supply(interaction, interaction::remove));
+        if (interaction != null && interaction.isValid())
+            futures.add(getHologram().getPlugin().supply(interaction, interaction::remove, true));
+
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     @Override
     public CompletableFuture<@Nullable Entity> spawn(final Player player, final double offset) {
-        if (!getHologram().getWorld().equals(player.getWorld()) || !canSee(player))
-            return despawn(player.getUniqueId()).thenApply(v -> null);
+        if (!canSee(player)) return despawn(player.getUniqueId()).thenApply(v -> null);
 
         return spawnEntity(player, offset).thenCompose(entity -> {
             return spawnInteraction(player, entity).thenCompose(interaction -> {
@@ -248,9 +252,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     }
 
     public CompletableFuture<@Nullable Void> adoptEntities(final PaperStaticHologramLine<?> oldPage, final Player player) {
-        return adoptInteraction(oldPage, player).thenCompose(ignored -> {
-            return adoptEntity(oldPage, player);
-        });
+        return adoptInteraction(oldPage, player).thenCompose(ignored -> adoptEntity(oldPage, player));
     }
 
     private CompletableFuture<@Nullable Void> adoptInteraction(final PaperStaticHologramLine<?> oldPage, final Player player) {
@@ -264,8 +266,12 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @SuppressWarnings("unchecked")
     private CompletableFuture<@Nullable Void> adoptEntity(final PaperStaticHologramLine<?> oldPage, final Player player) {
         final var entity = oldPage.entities.remove(player.getUniqueId());
-        if (entity == null) return CompletableFuture.completedFuture(null);
-        if (!entityClass.isInstance(entity)) return getHologram().getPlugin().supply(entity, entity::remove);
+        if (entity == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+        if (!entityClass.isInstance(entity)) {
+            return getHologram().getPlugin().supply(entity, entity::remove);
+        }
         entities.put(player.getUniqueId(), (E) entity);
         return CompletableFuture.completedFuture(null);
     }

@@ -151,7 +151,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
             livingEntity.setAI(false);
             livingEntity.setCollidable(false);
             livingEntity.setCanPickupItems(false);
-            livingEntity.setRemoveWhenFarAway(true);
+            livingEntity.setRemoveWhenFarAway(false);
         }
 
         if (entity instanceof final Attributable attributable) {

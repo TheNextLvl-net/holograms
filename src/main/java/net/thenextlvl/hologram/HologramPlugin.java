@@ -309,20 +309,24 @@ public final class HologramPlugin extends JavaPlugin {
     }
 
     public CompletableFuture<@Nullable Void> supply(final Entity entity, final Runnable runnable) {
+        return this.supply(entity, runnable, false);
+    }
+
+    public CompletableFuture<@Nullable Void> supply(final Entity entity, final Runnable runnable, final boolean alwaysDelayed) {
         return this.supply(entity, () -> {
             runnable.run();
             return null;
-        });
+        }, alwaysDelayed);
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public <T> CompletableFuture<@Nullable T> supply(final Entity entity, final Supplier<@Nullable T> supplier) {
+    public <T> CompletableFuture<@Nullable T> supply(final Entity entity, final Supplier<@Nullable T> supplier, final boolean alwaysDelayed) {
         if (!isEnabled()) {
             final var disabled = new IllegalStateException("Plugin is disabled");
             return CompletableFuture.failedFuture(disabled);
         }
 
-        if (getServer().isOwnedByCurrentRegion(entity)) {
+        if (!alwaysDelayed && getServer().isOwnedByCurrentRegion(entity)) {
             return CompletableFuture.completedFuture(supplier.get());
         }
 

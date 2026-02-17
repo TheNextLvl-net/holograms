@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.models.line;
 
 import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
@@ -47,5 +48,13 @@ public final class PaperBlockHologramLine extends PaperDisplayHologramLine<Block
     protected void preSpawn(final BlockDisplay entity, final Player player) {
         entity.setBlock(block);
         super.preSpawn(entity, player);
+    }
+
+    @Override
+    public HologramLine copyFrom(final HologramLine other) {
+        if (other instanceof final BlockHologramLine line) {
+            block = line.getBlock().clone();
+        }
+        return super.copyFrom(other);
     }
 }

@@ -182,6 +182,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
                 return interaction;
             });
         } else if (existingInteraction != null) {
+            interactions.remove(player.getUniqueId());
             return getHologram().getPlugin().supply(existingInteraction, existingInteraction::remove).thenApply(v -> null);
         } else {
             return CompletableFuture.completedFuture(null);
@@ -293,5 +294,15 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
     public void forEachEntity(final Consumer<E> consumer) {
         entities.values().forEach(consumer);
+    }
+
+    @Override
+    public HologramLine copyFrom(final HologramLine other) {
+        if (other instanceof final StaticHologramLine line) {
+            glowing = line.isGlowing();
+            glowColor = line.getGlowColor().orElse(null);
+            billboard = line.getBillboard();
+        }
+        return super.copyFrom(other);
     }
 }

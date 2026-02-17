@@ -30,7 +30,7 @@ import java.util.stream.Stream;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface Hologram extends HologramLike, Iterable<HologramLine> {
+public interface Hologram extends HologramLike, Iterable<HologramLine>, Copyable<Hologram> {
     /**
      * Sets the name of the hologram.
      * <p>

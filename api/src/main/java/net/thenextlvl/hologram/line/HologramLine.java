@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.line;
 
+import net.thenextlvl.hologram.Copyable;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.action.ClickAction;
 import org.bukkit.World;
@@ -22,7 +23,7 @@ import java.util.function.BiConsumer;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface HologramLine {
+public interface HologramLine extends Copyable<HologramLine> {
     /**
      * Gets the hologram this line belongs to.
      *

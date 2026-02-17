@@ -53,6 +53,28 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     private volatile boolean paused = false;
     private volatile boolean randomOrder = false;
 
+    @Override
+    public HologramLine copyFrom(final HologramLine other) {
+        if (other instanceof final PagedHologramLine paged) {
+            despawn();
+            pages.clear();
+            paged.forEachPage(page -> {
+                final var copy = switch (page) {
+                    case final TextHologramLine text -> addTextPage();
+                    case final ItemHologramLine item -> addItemPage();
+                    case final BlockHologramLine block -> addBlockPage();
+                    case final EntityHologramLine entity -> addEntityPage(page.getEntityType());
+                    default -> null;
+                };
+                if (copy != null) copy.copyFrom(page);
+            });
+            interval = paged.getInterval();
+            paused = paged.isPaused();
+            randomOrder = paged.isRandomOrder();
+        }
+        return super.copyFrom(other);
+    }
+
     public PaperPagedHologramLine(final PaperHologram hologram) {
         super(hologram);
     }
@@ -402,7 +424,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
         currentPageIndex.put(player.getUniqueId(), newIndex);
         if (!trackedPlayers.contains(player.getUniqueId())) return CompletableFuture.completedFuture(true);
-        
+
         final var adopt = oldPage != null ? newPage.adoptEntities(oldPage, player) : CompletableFuture.<Void>completedFuture(null);
         return adopt.thenCompose(v -> getHologram().updateHologram(player));
     }

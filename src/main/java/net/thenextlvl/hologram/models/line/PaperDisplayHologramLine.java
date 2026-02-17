@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.models.line;
 
 import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.DisplayHologramLine;
+import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Color;
@@ -219,5 +220,22 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
         entity.setViewRange(viewRange);
 
         super.preSpawn(entity, player);
+    }
+
+    @Override
+    public HologramLine copyFrom(final HologramLine other) {
+        if (other instanceof final DisplayHologramLine line) {
+            brightness = line.getBrightness().orElse(null);
+            displayHeight = line.getDisplayHeight();
+            displayWidth = line.getDisplayWidth();
+            interpolationDelay = line.getInterpolationDelay();
+            interpolationDuration = line.getInterpolationDuration();
+            shadowRadius = line.getShadowRadius();
+            shadowStrength = line.getShadowStrength();
+            teleportDuration = line.getTeleportDuration();
+            transformation = line.getTransformation();
+            viewRange = line.getViewRange();
+        }
+        return super.copyFrom(other);
     }
 }

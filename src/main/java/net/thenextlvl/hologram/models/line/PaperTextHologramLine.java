@@ -231,4 +231,19 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     private void updateOpacity(final TextDisplay entity) {
         entity.setTextOpacity((byte) Math.round(25f + ((100f - opacity) * 2.3f)));
     }
+
+    @Override
+    public HologramLine copyFrom(final HologramLine other) {
+        if (other instanceof final TextHologramLine line) {
+            backgroundColor = line.getBackgroundColor().orElse(null);
+            unparsedText = line.getUnparsedText().orElse(null);
+            alignment = line.getAlignment();
+            defaultBackground = line.isDefaultBackground();
+            seeThrough = line.isSeeThrough();
+            shadowed = line.isShadowed();
+            opacity = line.getTextOpacity();
+            lineWidth = line.getLineWidth();
+        }
+        return super.copyFrom(other);
+    }
 }

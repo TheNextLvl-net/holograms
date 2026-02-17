@@ -265,11 +265,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
             despawnLine(line);
         });
         lines.clear();
-        updateHologram();
     }
 
-    private void despawnLine(final HologramLine line) {
-        ((PaperHologramLine) line).despawn();
+    private CompletableFuture<Void> despawnLine(final HologramLine line) { // todo: respect the future :)
+        return ((PaperHologramLine) line).despawn();
     }
 
     @Override
@@ -613,8 +612,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public CompletableFuture<Boolean> updateHologram(final Player player) {
-        if (isTrackedBy(player)) return spawn(player, true);
-        return CompletableFuture.completedFuture(false);
+        return spawn(player, true);
     }
 
     public void updateVisibility() {
@@ -697,5 +695,30 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
             case TEXT -> TextHologramLine.class;
             case PAGED -> PaperPagedHologramLine.class;
         });
+    }
+
+    @Override
+    public Hologram copyFrom(final Hologram other) {
+        despawn();
+
+        lines.clear();
+        other.forEach(line -> {
+            final var hologramLine = switch (line) {
+                case final EntityHologramLine entityLine -> addEntityLine(entityLine.getEntityType());
+                case final BlockHologramLine blockLine -> addBlockLine();
+                case final ItemHologramLine itemLine -> addItemLine();
+                case final TextHologramLine textLine -> addTextLine();
+                case final PagedHologramLine pagedLine -> addPagedLine();
+                default -> null;
+            };
+            if (hologramLine != null) hologramLine.copyFrom(line);
+        });
+
+        viewers.clear();
+        viewers.addAll(other.getViewers());
+        viewPermission = other.getViewPermission().orElse(null);
+        persistent = other.isPersistent();
+        visibleByDefault = other.isVisibleByDefault();
+        return this;
     }
 }

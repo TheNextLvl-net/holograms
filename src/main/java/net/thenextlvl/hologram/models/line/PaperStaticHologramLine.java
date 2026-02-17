@@ -182,6 +182,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
                 return interaction;
             });
         } else if (existingInteraction != null) {
+            interactions.remove(player.getUniqueId());
             return getHologram().getPlugin().supply(existingInteraction, existingInteraction::remove).thenApply(v -> null);
         } else {
             return CompletableFuture.completedFuture(null);

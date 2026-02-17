@@ -43,10 +43,10 @@ public interface ClickAction<T> extends Copyable<ClickAction<T>> {
     /**
      * Gets the click types of this click action.
      *
-     * @return click types
+     * @return a clone of the click types
      * @since 0.6.0
      */
-    @Contract(pure = true)
+    @Contract(value = " -> new", pure = true)
     EnumSet<ClickType> getClickTypes();
 
     /**

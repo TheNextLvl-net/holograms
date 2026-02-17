@@ -44,13 +44,13 @@ final class SimpleClickAction<T> implements ClickAction<T> {
 
     @Override
     public EnumSet<ClickType> getClickTypes() {
-        return clickTypes;
+        return clickTypes.clone();
     }
 
     @Override
     public boolean setClickTypes(final EnumSet<ClickType> clickTypes) {
         if (Objects.equals(this.clickTypes, clickTypes)) return false;
-        this.clickTypes = clickTypes;
+        this.clickTypes = clickTypes.clone();
         return true;
     }
 

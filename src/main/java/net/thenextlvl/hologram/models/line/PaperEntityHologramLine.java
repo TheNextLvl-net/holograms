@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.util.TriState;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.EntityHologramLine;
+import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.StaticHologramLine;
@@ -211,5 +212,14 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
             }
         }
         entity.teleportAsync(location);
+    }
+
+    @Override
+    public HologramLine copyFrom(final HologramLine other) {
+        if (other instanceof final EntityHologramLine line) {
+            scale = line.getScale();
+            offset = line.getOffset();
+        }
+        return super.copyFrom(other);
     }
 }

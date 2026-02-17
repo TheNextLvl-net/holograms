@@ -140,4 +140,18 @@ public abstract class PaperHologramLine implements HologramLine {
     public abstract void invalidate(final Entity entity);
 
     public abstract CompletableFuture<Void> teleportRelative(final Location previous, final Location location);
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public HologramLine copyFrom(final HologramLine other) {
+        clickActions.clear();
+        other.forEachAction((name, action) -> {
+            final var a = (ClickAction<Object>) action;
+            clickActions.put(name, ClickAction.factory().create(a.getActionType(), a.getClickTypes(), a.getInput(), copy -> {
+                copy.copyFrom(a);
+            }));
+        });
+        viewPermission = other.getViewPermission().orElse(null);
+        return this;
+    }
 }

@@ -159,4 +159,15 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     public int hashCode() {
         return Objects.hash(actionType, clickTypes, input, chance, cooldown, permission);
     }
+
+    @Override
+    public ClickAction<T> copyFrom(final ClickAction<T> other) {
+        clickTypes = other.getClickTypes();
+        input = other.getInput();
+        chance = other.getChance();
+        cooldown = other.getCooldown();
+        cost = other.getCost();
+        permission = other.getPermission().orElse(null);
+        return this;
+    }
 }

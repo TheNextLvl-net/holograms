@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.action;
 
 import net.thenextlvl.binder.StaticBinder;
+import net.thenextlvl.hologram.Copyable;
 import net.thenextlvl.hologram.line.HologramLine;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -19,7 +20,7 @@ import java.util.Optional;
  * @since 0.6.0
  */
 @ApiStatus.NonExtendable
-public interface ClickAction<T> {
+public interface ClickAction<T> extends Copyable<ClickAction<T>> {
     /**
      * Gets the factory for creating click actions.
      *

@@ -698,4 +698,29 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
             case PAGED -> PaperPagedHologramLine.class;
         });
     }
+
+    @Override
+    public Hologram copyFrom(final Hologram other) {
+        despawn();
+
+        lines.clear();
+        other.forEach(line -> {
+            final var hologramLine = switch (line) {
+                case final EntityHologramLine entityLine -> addEntityLine(entityLine.getEntityType());
+                case final BlockHologramLine blockLine -> addBlockLine();
+                case final ItemHologramLine itemLine -> addItemLine();
+                case final TextHologramLine textLine -> addTextLine();
+                case final PagedHologramLine pagedLine -> addPagedLine();
+                default -> null;
+            };
+            if (hologramLine != null) hologramLine.copyFrom(line);
+        });
+
+        viewers.clear();
+        viewers.addAll(other.getViewers());
+        viewPermission = other.getViewPermission().orElse(null);
+        persistent = other.isPersistent();
+        visibleByDefault = other.isVisibleByDefault();
+        return this;
+    }
 }

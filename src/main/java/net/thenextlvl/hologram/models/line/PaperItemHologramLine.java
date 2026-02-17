@@ -2,6 +2,7 @@ package net.thenextlvl.hologram.models.line;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
+import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.models.PaperHologram;
@@ -101,5 +102,15 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
         entity.setItemStack(item);
         entity.setItemDisplayTransform(displayTransform);
         super.preSpawn(entity, player);
+    }
+
+    @Override
+    public HologramLine copyFrom(final HologramLine other) {
+        if (other instanceof final ItemHologramLine line) {
+            item = line.getItemStack();
+            playerHead = line.isPlayerHead();
+            displayTransform = line.getItemDisplayTransform();
+        }
+        return super.copyFrom(other);
     }
 }

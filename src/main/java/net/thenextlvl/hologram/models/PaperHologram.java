@@ -621,6 +621,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
 
     public void updateVisibility(final Player player) {
         if (canSee(player)) {
+            // fixme: lines dont realign when despawned
+            //  lines dont respawn when they should be re-spawned
             getLines().<HologramLine>mapMulti((line, consumer) -> {
                         if (line instanceof final PagedHologramLine paged)
                             paged.forEachPage(consumer::accept);

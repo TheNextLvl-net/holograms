@@ -406,7 +406,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
         final int oldIndex = currentPageIndex.getOrDefault(player.getUniqueId(), 0);
         final int newIndex = findVisiblePage(player, oldIndex, amount);
-        if (newIndex == -1) return CompletableFuture.completedFuture(false);
+        if (newIndex == -1) return despawn(player.getUniqueId()).thenApply(v -> false);
 
         return setPage(player, offset, oldIndex, newIndex);
     }

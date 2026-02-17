@@ -265,11 +265,10 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
             despawnLine(line);
         });
         lines.clear();
-        updateHologram();
     }
 
-    private void despawnLine(final HologramLine line) {
-        ((PaperHologramLine) line).despawn();
+    private CompletableFuture<Void> despawnLine(final HologramLine line) { // todo: respect the future :)
+        return ((PaperHologramLine) line).despawn();
     }
 
     @Override
@@ -613,8 +612,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public CompletableFuture<Boolean> updateHologram(final Player player) {
-        if (isTrackedBy(player)) return spawn(player, true);
-        return CompletableFuture.completedFuture(false);
+        return spawn(player, true);
     }
 
     public void updateVisibility() {

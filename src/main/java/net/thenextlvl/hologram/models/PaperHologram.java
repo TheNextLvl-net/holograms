@@ -554,7 +554,7 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         if (!canSee(player) || !location.isChunkLoaded() || !player.isConnected())
             return CompletableFuture.completedFuture(false);
         if (getLines().noneMatch(line -> line.canSee(player)))
-            return CompletableFuture.completedFuture(false);
+            return despawn(player);
         if (!spawned.add(player.getUniqueId()) && !update)
             return CompletableFuture.completedFuture(false);
         return getPlugin().supply(location, () -> spawnLine(player, lines.size() - 1, 0d))

@@ -23,6 +23,7 @@ public final class HologramCommand extends BrigadierCommand {
     public static LiteralCommandNode<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramCommand(plugin);
         return command.create()
+                .then(HologramCloneCommand.create(plugin))
                 .then(HologramCreateCommand.create(plugin))
                 .then(HologramDeleteCommand.create(plugin))
                 .then(HologramLineCommand.create(plugin))

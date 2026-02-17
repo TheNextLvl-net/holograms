@@ -39,8 +39,8 @@ public final class CyclePageCommand extends HologramActionCommand<PageChange> {
     public int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         return resolverBuilder.build(context, plugin).resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
             final var amount = tryGetArgument(context, "amount", int.class).orElse(1);
-            final var targetHologram = tryGetArgument(context, "target", Hologram.class).orElse(hologram);
-            final var targetLine = tryGetArgument(context, "target-line", int.class).map(i -> i - 1).orElse(lineIndex);
+            final var targetHologram = tryGetArgument(context, "target", Hologram.class).orElse(null);
+            final var targetLine = tryGetArgument(context, "target-line", int.class).map(i -> i - 1).orElse(null);
             return addAction(context, hologram, line, new PageChange(targetHologram, targetLine, amount));
         });
     }

@@ -64,24 +64,28 @@ public final class SimpleActionTypes implements ActionTypes {
     });
 
     private final ActionType<PageChange> cyclePage = ActionType.create("cycle_page", PageChange.class, (line, player, change) -> {
-        change.hologram().getHologram().ifPresentOrElse(hologram -> {
-            hologram.getLine(change.line(), PagedHologramLine.class).ifPresentOrElse(pagedLine -> {
+        var holo = change.hologram() != null ? change.hologram() : line.getHologram();
+        holo.getHologram().ifPresentOrElse(hologram -> {
+            var lineIndex = change.line() != null ? change.line() : hologram.getLineIndex(line);
+            hologram.getLine(lineIndex, PagedHologramLine.class).ifPresentOrElse(pagedLine -> {
                 pagedLine.cyclePage(player, change.page());
             }, () -> plugin.getComponentLogger().warn("Line {} of hologram {} is not a paged line",
-                    change.line(), change.hologram().getName()));
-        }, () -> plugin.getComponentLogger().warn("Hologram {} does not exist", change.hologram().getName()));
+                    lineIndex + 1, holo.getName()));
+        }, () -> plugin.getComponentLogger().warn("Hologram {} does not exist", holo.getName()));
     });
 
     private final ActionType<PageChange> setPage = ActionType.create("set_page", PageChange.class, (line, player, change) -> {
-        change.hologram().getHologram().ifPresentOrElse(hologram -> {
-            hologram.getLine(change.line(), PagedHologramLine.class).ifPresentOrElse(pagedLine -> {
+        var holo = change.hologram() != null ? change.hologram() : line.getHologram();
+        holo.getHologram().ifPresentOrElse(hologram -> {
+            var lineIndex = change.line() != null ? change.line() : hologram.getLineIndex(line);
+            hologram.getLine(lineIndex, PagedHologramLine.class).ifPresentOrElse(pagedLine -> {
                 var page = change.page();
                 if (page >= 0 && page < pagedLine.getPageCount()) pagedLine.setPage(player, page);
                 else plugin.getComponentLogger().warn("Invalid page index for hologram {}: {}/{}",
                         hologram.getName(), page, pagedLine.getPageCount());
             }, () -> plugin.getComponentLogger().warn("Line {} of hologram {} is not a paged line",
-                    change.line(), change.hologram().getName()));
-        }, () -> plugin.getComponentLogger().warn("Hologram {} does not exist", change.hologram().getName()));
+                    lineIndex + 1, holo.getName()));
+        }, () -> plugin.getComponentLogger().warn("Hologram {} does not exist", holo.getName()));
     });
 
     @Override

@@ -14,19 +14,19 @@ import org.jspecify.annotations.NullMarked;
 public class PageChangeAdapter implements TagAdapter<PageChange> {
     @Override
     public PageChange deserialize(final Tag tag, final TagDeserializationContext context) throws ParserException {
+        if (tag.isNumber()) return new PageChange(tag.getAsInt());
         final var root = tag.getAsCompound();
-        final var hologram = context.deserialize(root.get("hologram"), HologramLike.class);
-        final var line = root.get("line").getAsInt();
+        final var hologram = root.optional("hologram").map(t -> context.deserialize(t, HologramLike.class)).orElse(null);
+        final var line = root.optional("line").map(Tag::getAsInt).orElse(null);
         final var page = root.get("page").getAsInt();
         return new PageChange(hologram, line, page);
     }
 
     @Override
     public Tag serialize(final PageChange change, final TagSerializationContext context) throws ParserException {
-        return CompoundTag.builder()
-                .put("hologram", context.serialize(change.hologram()))
-                .put("line", change.line())
-                .put("page", change.page())
-                .build();
+        final var builder = CompoundTag.builder().put("page", change.page());
+        if (change.hologram() != null) builder.put("hologram", context.serialize(change.hologram()));
+        if (change.line() != null) builder.put("line", change.line());
+        return builder.build();
     }
 }

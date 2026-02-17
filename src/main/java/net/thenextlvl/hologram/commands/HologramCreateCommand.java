@@ -58,12 +58,12 @@ final class HologramCreateCommand extends SimpleCommand {
             line.addAction("next", ClickAction.factory().create(
                     ActionTypes.types().cyclePage(),
                     ClickTypes.ANY_LEFT_CLICK.getClickTypes(),
-                    new PageChange(hologram, hologram.getLineIndex(line), 1)
+                    new PageChange(1)
             ));
             line.addAction("previous", ClickAction.factory().create(
                     ActionTypes.types().cyclePage(),
                     ClickTypes.ANY_RIGHT_CLICK.getClickTypes(),
-                    new PageChange(hologram, hologram.getLineIndex(line), -1)
+                    new PageChange(-1)
             ));
 
             for (var i = 1; i <= Tips.TIPS_ENGLISH.size(); ++i) {

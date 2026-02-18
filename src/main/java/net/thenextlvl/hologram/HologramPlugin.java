@@ -37,7 +37,6 @@ import net.thenextlvl.hologram.adapters.serializers.ItemHologramLineSerializer;
 import net.thenextlvl.hologram.adapters.serializers.PagedHologramLineSerializer;
 import net.thenextlvl.hologram.adapters.serializers.TextHologramLineSerializer;
 import net.thenextlvl.hologram.commands.HologramCommand;
-import net.thenextlvl.hologram.controller.HologramTickPool;
 import net.thenextlvl.hologram.controller.PaperHologramProvider;
 import net.thenextlvl.hologram.economy.EconomyProvider;
 import net.thenextlvl.hologram.economy.EmptyEconomyProvider;
@@ -106,7 +105,6 @@ public final class HologramPlugin extends JavaPlugin {
     public static final String ISSUES = "https://github.com/TheNextLvl-net/holograms/issues/new?template=bug_report.yml";
     public static final boolean RUNNING_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
 
-    private final HologramTickPool hologramTickPool = new HologramTickPool(this);
     private final PaperHologramProvider provider = new PaperHologramProvider(this);
 
     private final SimpleClickActionFactory clickActionFactory = new SimpleClickActionFactory(this);
@@ -172,7 +170,6 @@ public final class HologramPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        hologramTickPool.shutdown();
         provider.forEachHologram(Hologram::persist);
         fastStats.shutdown();
         metrics.shutdown();
@@ -184,10 +181,6 @@ public final class HologramPlugin extends JavaPlugin {
 
     public SimpleClickActionFactory clickActionFactory() {
         return clickActionFactory;
-    }
-
-    public HologramTickPool hologramTickPool() {
-        return hologramTickPool;
     }
 
     public ComponentBundle bundle() {
@@ -309,24 +302,20 @@ public final class HologramPlugin extends JavaPlugin {
     }
 
     public CompletableFuture<@Nullable Void> supply(final Entity entity, final Runnable runnable) {
-        return this.supply(entity, runnable, false);
-    }
-
-    public CompletableFuture<@Nullable Void> supply(final Entity entity, final Runnable runnable, final boolean alwaysDelayed) {
         return this.supply(entity, () -> {
             runnable.run();
             return null;
-        }, alwaysDelayed);
+        });
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public <T> CompletableFuture<@Nullable T> supply(final Entity entity, final Supplier<@Nullable T> supplier, final boolean alwaysDelayed) {
+    public <T> CompletableFuture<@Nullable T> supply(final Entity entity, final Supplier<@Nullable T> supplier) {
         if (!isEnabled()) {
             final var disabled = new IllegalStateException("Plugin is disabled");
             return CompletableFuture.failedFuture(disabled);
         }
 
-        if (!alwaysDelayed && getServer().isOwnedByCurrentRegion(entity)) {
+        if (getServer().isOwnedByCurrentRegion(entity)) {
             return CompletableFuture.completedFuture(supplier.get());
         }
 

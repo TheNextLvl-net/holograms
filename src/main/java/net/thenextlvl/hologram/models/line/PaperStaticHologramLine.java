@@ -114,7 +114,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @Override
     public CompletableFuture<Void> despawn() {
         final var futures = Stream.concat(entities.values().stream(), interactions.values().stream())
-                .map(e -> getHologram().getPlugin().supply(e, e::remove, true))
+                .map(e -> getHologram().getPlugin().supply(e, e::remove))
                 .toArray(CompletableFuture[]::new);
         entities.clear();
         interactions.clear();
@@ -127,11 +127,11 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
 
         final var entity = entities.remove(player);
         if (entity != null && entity.isValid())
-            futures.add(getHologram().getPlugin().supply(entity, entity::remove, true));
+            futures.add(getHologram().getPlugin().supply(entity, entity::remove));
 
         final var interaction = interactions.remove(player);
         if (interaction != null && interaction.isValid())
-            futures.add(getHologram().getPlugin().supply(interaction, interaction::remove, true));
+            futures.add(getHologram().getPlugin().supply(interaction, interaction::remove));
 
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }

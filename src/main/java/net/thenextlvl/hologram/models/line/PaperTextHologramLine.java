@@ -5,7 +5,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
-import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.LineType;
@@ -50,7 +49,7 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
         return getUnparsedText().map(string -> parse(getHologram().getPlugin(), getHologram(), this, string, player));
     }
 
-    public static Component parse(final HologramPlugin plugin, final Hologram hologram, final HologramLine line, final String text, final Player player) {
+    public static Component parse(final HologramPlugin plugin, final PaperHologram hologram, final HologramLine line, final String text, final Player player) {
         final var translated = plugin.translations().translate(player, text, 0);
 
         final var papiFormatter = plugin.papiFormatter;
@@ -64,9 +63,11 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
         final var miniFormatter = plugin.miniFormatter;
         if (miniFormatter != null) builder.resolver(miniFormatter.tagResolver());
 
+        final var online = hologram.getPlugin().getServer().getOnlinePlayers().size();
         builder.tag("hologram", Tag.preProcessParsed(hologram.getName()));
         builder.tag("lines", Tag.inserting(Component.text(hologram.getLineCount())));
         builder.tag("player", Tag.preProcessParsed(player.getName()));
+        builder.tag("players", Tag.inserting(Component.text(online)));
 
         final var parentLine = line instanceof final StaticHologramLine staticLine
                 ? staticLine.getParentLine() : Optional.<PagedHologramLine>empty();

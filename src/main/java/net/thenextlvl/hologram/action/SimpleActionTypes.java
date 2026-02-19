@@ -5,6 +5,7 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.title.Title;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.models.PaperHologram;
 import net.thenextlvl.hologram.models.line.PaperTextHologramLine;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,11 +21,11 @@ public final class SimpleActionTypes implements ActionTypes {
     private static final HologramPlugin plugin = JavaPlugin.getPlugin(HologramPlugin.class);
 
     private final ActionType<String> sendActionbar = ActionType.create("send_actionbar", String.class, (line, player, actionbar) -> {
-        player.sendActionBar(PaperTextHologramLine.parse(plugin, line.getHologram(), line, actionbar, player));
+        player.sendActionBar(PaperTextHologramLine.parse(plugin, (PaperHologram) line.getHologram(), line, actionbar, player));
     });
 
     private final ActionType<String> sendMessage = ActionType.create("send_message", String.class, (line, player, message) -> {
-        player.sendMessage(PaperTextHologramLine.parse(plugin, line.getHologram(), line, message, player));
+        player.sendMessage(PaperTextHologramLine.parse(plugin, (PaperHologram) line.getHologram(), line, message, player));
     });
 
     private final ActionType<InetSocketAddress> transfer = ActionType.create("transfer", InetSocketAddress.class, (line, player, address) -> {
@@ -51,8 +52,8 @@ public final class SimpleActionTypes implements ActionTypes {
     });
 
     private final ActionType<UnparsedTitle> sendTitle = ActionType.create("send_title", UnparsedTitle.class, (line, player, title) -> {
-        var titleComponent = PaperTextHologramLine.parse(plugin, line.getHologram(), line, title.title(), player);
-        var subtitleComponent = PaperTextHologramLine.parse(plugin, line.getHologram(), line, title.subtitle(), player);
+        var titleComponent = PaperTextHologramLine.parse(plugin, (PaperHologram) line.getHologram(), line, title.title(), player);
+        var subtitleComponent = PaperTextHologramLine.parse(plugin, (PaperHologram) line.getHologram(), line, title.subtitle(), player);
         player.showTitle(Title.title(titleComponent, subtitleComponent, title.times()));
     });
 

@@ -551,9 +551,9 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     public CompletableFuture<Boolean> spawn(final Player player, final boolean update) {
-        if (!canSee(player) || !location.isChunkLoaded() || !player.isConnected())
+        if (!location.isChunkLoaded() || !player.isConnected())
             return CompletableFuture.completedFuture(false);
-        if (getLines().noneMatch(line -> line.canSee(player)))
+        if (!canSee(player) || getLines().noneMatch(line -> line.canSee(player)))
             return despawn(player);
         if (!spawned.add(player.getUniqueId()) && !update)
             return CompletableFuture.completedFuture(false);
@@ -607,31 +607,16 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         return lines.iterator();
     }
 
+    public void updateVisibility() {
+        plugin.getServer().getOnlinePlayers().forEach(this::updateHologram);
+    }
+
     public void updateHologram() {
         getTrackedBy().forEach(this::updateHologram);
     }
 
     public CompletableFuture<Boolean> updateHologram(final Player player) {
         return spawn(player, true);
-    }
-
-    public void updateVisibility() {
-        getTrackedBy().forEach(this::updateVisibility);
-    }
-
-    public void updateVisibility(final Player player) {
-        if (canSee(player)) {
-            // fixme: lines dont realign when despawned
-            //  lines dont respawn when they should be re-spawned
-            getLines().<HologramLine>mapMulti((line, consumer) -> {
-                        if (line instanceof final PagedHologramLine paged)
-                            paged.forEachPage(consumer::accept);
-                        else consumer.accept(line);
-                    }).map(PaperHologramLine.class::cast)
-                    .filter(line -> !line.canSee(player))
-                    .forEach(line -> line.despawn(player.getUniqueId()));
-            spawn(player);
-        } else despawn(player);
     }
 
     public void updateText() {

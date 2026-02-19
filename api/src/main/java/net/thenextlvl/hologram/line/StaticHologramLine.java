@@ -5,6 +5,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Contract;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -104,4 +105,23 @@ public interface StaticHologramLine extends HologramLine {
      */
     @Contract(pure = true)
     Optional<PagedHologramLine> getParentLine();
+
+    /**
+     * Gets the offset of the entity.
+     *
+     * @return a copy of the offset
+     * @since 1.0.0
+     */
+    @Contract(value = " -> new", pure = true)
+    Vector3f getOffset();
+
+    /**
+     * Sets the offset of the entity.
+     *
+     * @param offset new offset
+     * @return this
+     * @since 1.0.0
+     */
+    @Contract(value = "_ -> this", mutates = "this")
+    StaticHologramLine setOffset(Vector3f offset);
 }

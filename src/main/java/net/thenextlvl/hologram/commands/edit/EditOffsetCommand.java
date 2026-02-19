@@ -46,6 +46,6 @@ final class EditOffsetCommand extends EditCommand {
                     Formatter.number("y", ored.y()),
                     Formatter.number("z", ored.z()));
             return SINGLE_SUCCESS;
-        }, LineType.ENTITY);
+        }, LineType.STATIC);
     }
 }

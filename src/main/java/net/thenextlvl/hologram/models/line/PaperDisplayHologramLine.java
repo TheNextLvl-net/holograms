@@ -37,6 +37,21 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
     }
 
     @Override
+    public Vector3f getOffset() {
+        return new Vector3f(transformation.getTranslation());
+    }
+
+    @Override
+    public DisplayHologramLine setOffset(final Vector3f offset) {
+        return setTransformation(new Transformation(
+                offset,
+                transformation.getLeftRotation(),
+                transformation.getScale(),
+                transformation.getRightRotation()
+        ));
+    }
+
+    @Override
     public Transformation getTransformation() {
         return new Transformation(
                 transformation.getTranslation(),

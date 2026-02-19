@@ -65,10 +65,10 @@ public abstract class PaperDisplayHologramLine<E extends Display> extends PaperS
     public DisplayHologramLine setTransformation(final Transformation transformation) {
         return set(this.transformation, transformation, () -> {
             this.transformation = new Transformation(
-                    new Vector3f(transformation.getTranslation()),
-                    new AxisAngle4f(transformation.getLeftRotation()),
-                    new Vector3f(transformation.getScale()),
-                    new AxisAngle4f(transformation.getRightRotation())
+                    transformation.getTranslation(),
+                    transformation.getLeftRotation(),
+                    transformation.getScale(),
+                    transformation.getRightRotation()
             );
         }, true);
     }

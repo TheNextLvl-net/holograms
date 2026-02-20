@@ -4,7 +4,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -38,14 +37,14 @@ public final class HologramLineAddCommand extends BrigadierCommand {
                 .then(command.addLine("block", ArgumentTypes.blockState(), command::addBlockLine))
                 .then(command.addLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityLine))
                 .then(command.addLine("item", ArgumentTypes.itemStack(), command::addItemLine))
-                .then(command.addLine("text", StringArgumentType.greedyString(), command::addTextLine))
+                .then(Commands.literal("text").then(Commands.argument("text", StringArgumentType.greedyString())
+                        .suggests(new TagSuggestionProvider<>(plugin))
+                        .executes(command::addTextLine)))
                 .then(Commands.literal("paged").executes(command::addPagedLine)));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> addLine(final String name, final ArgumentType<?> argumentType, final Command<CommandSourceStack> command) {
-        final RequiredArgumentBuilder<CommandSourceStack, ?> argument = Commands.argument(name, argumentType);
-        if (name.equals("text")) argument.suggests(new TagSuggestionProvider<>(plugin));
-        return Commands.literal(name).then(argument.executes(command));
+        return Commands.literal(name).then(Commands.argument(name, argumentType).executes(command));
     }
 
     private int addBlockLine(final CommandContext<CommandSourceStack> context) {

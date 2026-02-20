@@ -57,10 +57,92 @@ paper {
     authors = listOf("NonSwag")
     foliaSupported = true
     permissions {
+        val command = listOf("holograms.command")
         register("holograms.command")
-        register("holograms.command.create") { children = listOf("holograms.command") }
-        register("holograms.command.delete") { children = listOf("holograms.command") }
-        register("holograms.command.list") { children = listOf("holograms.command") }
+        register("holograms.command.clone") { children = command }
+        register("holograms.command.create") { children = command }
+        register("holograms.command.delete") { children = command }
+        register("holograms.command.list") { children = command }
+        register("holograms.command.rename") { children = command }
+        register("holograms.command.teleport") { children = command }
+        register("holograms.command.view-permission") { children = command }
+
+        val action = listOf("holograms.command.action")
+        register("holograms.command.action")
+        register("holograms.command.action.add") { children = action }
+        register("holograms.command.action.chance") { children = action }
+        register("holograms.command.action.cooldown") { children = action }
+        register("holograms.command.action.cost") { children = action }
+        register("holograms.command.action.list") { children = action }
+        register("holograms.command.action.permission") { children = action }
+        register("holograms.command.action.remove") { children = action }
+
+        val line = listOf("holograms.command.line")
+        register("holograms.command.line") { children = command }
+        register("holograms.command.line.action") { children = line }
+        register("holograms.command.line.add") { children = line }
+        register("holograms.command.line.edit") { children = line }
+        register("holograms.command.line.insert") { children = line }
+        register("holograms.command.line.move") { children = line }
+        register("holograms.command.line.remove") { children = line }
+        register("holograms.command.line.swap") { children = line }
+        register("holograms.command.line.view-permission") { children = line }
+
+        val lineEdit = listOf("holograms.command.line.edit")
+        register("holograms.command.line.edit.alignment") { children = lineEdit }
+        register("holograms.command.line.edit.append") { children = lineEdit }
+        register("holograms.command.line.edit.background-color") { children = lineEdit }
+        register("holograms.command.line.edit.billboard") { children = lineEdit }
+        register("holograms.command.line.edit.brightness") { children = lineEdit }
+        register("holograms.command.line.edit.default-background") { children = lineEdit }
+        register("holograms.command.line.edit.display-height") { children = lineEdit }
+        register("holograms.command.line.edit.glow-color") { children = lineEdit }
+        register("holograms.command.line.edit.glowing") { children = lineEdit }
+        register("holograms.command.line.edit.interpolation-delay") { children = lineEdit }
+        register("holograms.command.line.edit.interpolation-duration") { children = lineEdit }
+        register("holograms.command.line.edit.left-rotation") { children = lineEdit }
+        register("holograms.command.line.edit.line-width") { children = lineEdit }
+        register("holograms.command.line.edit.offset") { children = lineEdit }
+        register("holograms.command.line.edit.opacity") { children = lineEdit }
+        register("holograms.command.line.edit.player-head") { children = lineEdit }
+        register("holograms.command.line.edit.prepend") { children = lineEdit }
+        register("holograms.command.line.edit.replace") { children = lineEdit }
+        register("holograms.command.line.edit.right-rotation") { children = lineEdit }
+        register("holograms.command.line.edit.scale") { children = lineEdit }
+        register("holograms.command.line.edit.see-through") { children = lineEdit }
+        register("holograms.command.line.edit.set") { children = lineEdit }
+        register("holograms.command.line.edit.shadowed") { children = lineEdit }
+        register("holograms.command.line.edit.shadow-radius") { children = lineEdit }
+        register("holograms.command.line.edit.shadow-strength") { children = lineEdit }
+        register("holograms.command.line.edit.teleport-duration") { children = lineEdit }
+        register("holograms.command.line.edit.transformation") { children = lineEdit }
+        register("holograms.command.line.edit.view-range") { children = lineEdit }
+
+        val page = listOf("holograms.command.page")
+        register("holograms.command.page") { children = command }
+        register("holograms.command.page.action") { children = page }
+        register("holograms.command.page.add") { children = page }
+        register("holograms.command.page.clear") { children = page }
+        register("holograms.command.page.edit") { children = page }
+        register("holograms.command.page.insert") { children = page }
+        register("holograms.command.page.list") { children = page }
+        register("holograms.command.page.move") { children = page }
+        register("holograms.command.page.remove") { children = page }
+        register("holograms.command.page.settings") { children = page }
+        register("holograms.command.page.swap") { children = page }
+        register("holograms.command.page.view-permission") { children = page }
+
+        val pageSettings = listOf("holograms.command.page.settings")
+        register("holograms.command.page.settings.interval") { children = pageSettings }
+        register("holograms.command.page.settings.pause") { children = pageSettings }
+        register("holograms.command.page.settings.random") { children = pageSettings }
+
+        val translation = listOf("holograms.command.translation")
+        register("holograms.command.translation") { children = command }
+        register("holograms.command.translation.add") { children = translation }
+        register("holograms.command.translation.list") { children = translation }
+        register("holograms.command.translation.reload") { children = translation }
+        register("holograms.command.translation.remove") { children = translation }
     }
     serverDependencies {
         register("MiniPlaceholders") {

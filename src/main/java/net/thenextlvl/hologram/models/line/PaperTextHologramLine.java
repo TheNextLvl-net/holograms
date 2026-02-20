@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @NullMarked
@@ -93,16 +92,13 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public TextHologramLine setText(@Nullable final Component text) {
+    public boolean setText(@Nullable final Component text) {
         return setUnparsedText(text != null ? MiniMessage.miniMessage().serialize(text) : null);
     }
 
     @Override
-    public TextHologramLine setUnparsedText(@Nullable final String text) {
-        if (Objects.equals(this.unparsedText, text)) return this;
-        this.unparsedText = text;
-        getHologram().updateHologram();
-        return this;
+    public boolean setUnparsedText(@Nullable final String text) {
+        return set(this.unparsedText, text, () -> this.unparsedText = text, true);
     }
 
     @Override
@@ -111,11 +107,11 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public TextHologramLine setLineWidth(final int width) {
-        if (Objects.equals(this.lineWidth, width)) return this;
-        this.lineWidth = width;
-        forEachEntity(entity -> entity.setLineWidth(width));
-        return this;
+    public boolean setLineWidth(final int width) {
+        return set(this.lineWidth, width, () -> {
+            this.lineWidth = width;
+            forEachEntity(entity -> entity.setLineWidth(width));
+        }, false);
     }
 
     @Override
@@ -124,11 +120,11 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public TextHologramLine setBackgroundColor(@Nullable final Color color) {
-        if (Objects.equals(this.backgroundColor, color)) return this;
-        this.backgroundColor = color;
-        forEachEntity(entity -> entity.setBackgroundColor(color));
-        return this;
+    public boolean setBackgroundColor(@Nullable final Color color) {
+        return set(this.backgroundColor, color, () -> {
+            this.backgroundColor = color;
+            forEachEntity(entity -> entity.setBackgroundColor(color));
+        }, false);
     }
 
     @Override
@@ -137,11 +133,11 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public TextHologramLine setTextOpacity(@Range(from = 0, to = 100) final int opacity) {
-        if (Objects.equals(this.opacity, opacity)) return this;
-        this.opacity = opacity;
-        forEachEntity(this::updateOpacity);
-        return this;
+    public boolean setTextOpacity(@Range(from = 0, to = 100) final int opacity) {
+        return set(this.opacity, opacity, () -> {
+            this.opacity = opacity;
+            forEachEntity(this::updateOpacity);
+        }, false);
     }
 
     @Override
@@ -150,11 +146,11 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public TextHologramLine setShadowed(final boolean shadow) {
-        if (Objects.equals(this.shadowed, shadow)) return this;
-        this.shadowed = shadow;
-        forEachEntity(entity -> entity.setShadowed(shadow));
-        return this;
+    public boolean setShadowed(final boolean shadow) {
+        return set(this.shadowed, shadow, () -> {
+            this.shadowed = shadow;
+            forEachEntity(entity -> entity.setShadowed(shadow));
+        }, false);
     }
 
     @Override
@@ -163,11 +159,11 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public TextHologramLine setSeeThrough(final boolean seeThrough) {
-        if (Objects.equals(this.seeThrough, seeThrough)) return this;
-        this.seeThrough = seeThrough;
-        forEachEntity(entity -> entity.setSeeThrough(seeThrough));
-        return this;
+    public boolean setSeeThrough(final boolean seeThrough) {
+        return set(this.seeThrough, seeThrough, () -> {
+            this.seeThrough = seeThrough;
+            forEachEntity(entity -> entity.setSeeThrough(seeThrough));
+        }, false);
     }
 
     @Override
@@ -176,11 +172,11 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public TextHologramLine setDefaultBackground(final boolean defaultBackground) {
-        if (Objects.equals(this.defaultBackground, defaultBackground)) return this;
-        this.defaultBackground = defaultBackground;
-        forEachEntity(entity -> entity.setDefaultBackground(defaultBackground));
-        return this;
+    public boolean setDefaultBackground(final boolean defaultBackground) {
+        return set(this.defaultBackground, defaultBackground, () -> {
+            this.defaultBackground = defaultBackground;
+            forEachEntity(entity -> entity.setDefaultBackground(defaultBackground));
+        }, false);
     }
 
     @Override
@@ -189,11 +185,11 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public TextHologramLine setAlignment(final TextDisplay.TextAlignment alignment) {
-        if (Objects.equals(this.alignment, alignment)) return this;
-        this.alignment = alignment;
-        forEachEntity(entity -> entity.setAlignment(alignment));
-        return this;
+    public boolean setAlignment(final TextDisplay.TextAlignment alignment) {
+        return set(this.alignment, alignment, () -> {
+            this.alignment = alignment;
+            forEachEntity(entity -> entity.setAlignment(alignment));
+        }, false);
     }
 
     @Override

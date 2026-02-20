@@ -41,21 +41,21 @@ public interface TextHologramLine extends DisplayHologramLine {
      * Sets the displayed text.
      *
      * @param text the new text
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the text was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setText(@Nullable Component text);
+    @Contract(mutates = "this")
+    boolean setText(@Nullable Component text);
 
     /**
      * Sets the displayed text in {@link net.kyori.adventure.text.minimessage.MiniMessage} format.
      *
      * @param text the new text
-     * @return this
-     * @since 0.4.0
+     * @return {@code true} if the text was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setUnparsedText(@Nullable String text);
+    @Contract(mutates = "this")
+    boolean setUnparsedText(@Nullable String text);
 
     /**
      * Gets the maximum line width before wrapping.
@@ -70,11 +70,11 @@ public interface TextHologramLine extends DisplayHologramLine {
      * Sets the maximum line width before wrapping.
      *
      * @param width new line width
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the line width was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setLineWidth(int width);
+    @Contract(mutates = "this")
+    boolean setLineWidth(int width);
 
     /**
      * Gets the text background color.
@@ -89,11 +89,11 @@ public interface TextHologramLine extends DisplayHologramLine {
      * Sets the text background color.
      *
      * @param color new background color
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the background color was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setBackgroundColor(@Nullable Color color);
+    @Contract(mutates = "this")
+    boolean setBackgroundColor(@Nullable Color color);
 
     /**
      * Gets the text opacity in percent.
@@ -108,11 +108,11 @@ public interface TextHologramLine extends DisplayHologramLine {
      * Sets the text opacity in percent.
      *
      * @param opacity the new opacity
-     * @return this
-     * @since 0.7.0
+     * @return {@code true} if the opacity was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setTextOpacity(@Range(from = 0, to = 100) int opacity);
+    @Contract(mutates = "this")
+    boolean setTextOpacity(@Range(from = 0, to = 100) int opacity);
 
     /**
      * Gets if the text is shadowed.
@@ -127,11 +127,11 @@ public interface TextHologramLine extends DisplayHologramLine {
      * Sets if the text is shadowed.
      *
      * @param shadow if shadowed
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the shadow status was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setShadowed(boolean shadow);
+    @Contract(mutates = "this")
+    boolean setShadowed(boolean shadow);
 
     /**
      * Gets if the text is see through.
@@ -146,11 +146,11 @@ public interface TextHologramLine extends DisplayHologramLine {
      * Sets if the text is see through.
      *
      * @param seeThrough if see through
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the see through status was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setSeeThrough(boolean seeThrough);
+    @Contract(mutates = "this")
+    boolean setSeeThrough(boolean seeThrough);
 
     /**
      * Gets if the text has its default background.
@@ -165,11 +165,11 @@ public interface TextHologramLine extends DisplayHologramLine {
      * Sets if the text has its default background.
      *
      * @param defaultBackground if default
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the default background was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setDefaultBackground(boolean defaultBackground);
+    @Contract(mutates = "this")
+    boolean setDefaultBackground(boolean defaultBackground);
 
     /**
      * Gets the text alignment for this display.
@@ -184,9 +184,9 @@ public interface TextHologramLine extends DisplayHologramLine {
      * Sets the text alignment for this display.
      *
      * @param alignment new alignment
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the alignment was changed, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    TextHologramLine setAlignment(TextAlignment alignment);
+    @Contract(mutates = "this")
+    boolean setAlignment(TextAlignment alignment);
 }

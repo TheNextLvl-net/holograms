@@ -21,7 +21,7 @@ public final class LangTagSuggestionProvider<S> implements SuggestionProvider<S>
     public CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         final var remaining = builder.getRemaining();
         final var suggestions = plugin.translations().getTranslationKeys()
-                .filter(key -> key.startsWith(remaining.trim()))
+                .filter(key -> key.startsWith(remaining.strip()))
                 .map(key -> {
                     final var dot = key.indexOf('.', remaining.length());
                     return dot != -1 ? key.substring(0, dot + 1) : key + ">";

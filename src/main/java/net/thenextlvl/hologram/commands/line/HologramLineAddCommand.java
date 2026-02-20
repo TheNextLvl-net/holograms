@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -14,6 +15,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.tags.TagSuggestionProvider;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -41,7 +43,9 @@ public final class HologramLineAddCommand extends BrigadierCommand {
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> addLine(final String name, final ArgumentType<?> argumentType, final Command<CommandSourceStack> command) {
-        return Commands.literal(name).then(Commands.argument(name, argumentType).executes(command));
+        final RequiredArgumentBuilder<CommandSourceStack, ?> argument = Commands.argument(name, argumentType);
+        if (name.equals("text")) argument.suggests(new TagSuggestionProvider<>(plugin));
+        return Commands.literal(name).then(argument.executes(command));
     }
 
     private int addBlockLine(final CommandContext<CommandSourceStack> context) {

@@ -1,25 +1,27 @@
-## Holograms – The Ultimate Hologram Plugin for Minecraft
+## Holograms – The Ultimate Hologram Plugin
 
-Holograms is a versatile and easy-to-use plugin for Minecraft servers,
-allowing you to create and manage holograms in your world.
-Perfect for server information, instructions, or decorative messages, This plugin makes it simple!
+A feature-rich hologram plugin for Paper servers with first-class Folia support.  
+Create, customize, and manage holograms entirely in-game.
 
 ### Features
 
-**Edit In-Game** – Create and modify holograms directly in-game, no config files needed  
-**Customizable Appearance** – Change text color, formatting, size, and position with simple commands  
-**Developer API** – Integrate holograms into your own plugins with a straightforward API  
-**Multi-Line Support** – Display multiple lines in a single hologram  
-**Fully Translatable** – Translate your holograms into every language  
-**Placeholders** – Display data with PlaceholderAPI and MiniPlaceholders integration  
-**Images** – Display images in-game
+**Edit In-Game** – Create and tweak holograms directly in-game, no config files needed  
+**Customizable Appearance** – Adjust text color, formatting, size, and position with simple commands  
+**Multi-Line Support** – Show multiple lines in a single hologram  
+**Pagination** – Organize hologram content across multiple pages  
+**Interactive Holograms** – Add click actions or triggers to make holograms respond to players  
+**Placeholders** – Pull in live data with PlaceholderAPI and MiniPlaceholders  
+**Images** – Render images directly in-game  
+**Fully Translatable** – Localize your holograms into any language  
+**Developer API** – Hook into holograms from your own plugins with a clean API
 
 ### What's Next?
 
-**Interactive Holograms** – Add click actions or triggers to holograms<br>
+**Look At** – Holograms that react to players looking at them  
+**Animations** – Bring holograms to life with animated effects
 
-With **Holograms**, adding eye-catching holograms to your server has never been easier.
-Whether you’re a server owner or a developer, this plugin has you covered!
+With **Holograms**, adding eye-catching displays to your server has never been easier.
+Whether you're a server owner or a developer, this plugin has you covered!
 
 [Download now](https://modrinth.com/project/yWs5IQBz)<br>
 [Check out the Wiki](https://thenextlvl.net/docs/holograms)<br>

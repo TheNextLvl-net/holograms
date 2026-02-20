@@ -35,7 +35,7 @@ final class EditGlowColorCommand extends EditCommand {
     private int reset(final CommandContext<CommandSourceStack> context) {
         final var resolver = this.resolver.build(context, this.plugin);
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var message = set(line.getGlowColor().orElse(null), null, line::setGlowColor, "hologram.glow-color");
+            final var message = set(null, line::setGlowColor, "hologram.glow-color");
             plugin.bundle().sendMessage(context.getSource().getSender(), message, TagResolver.resolver(placeholders),
                     Placeholder.unparsed("color", "none"));
             return SINGLE_SUCCESS;
@@ -49,7 +49,7 @@ final class EditGlowColorCommand extends EditCommand {
                     .or(() -> tryGetArgument(context, "color", NamedTextColor.class));
             final var ored = color.or(line::getGlowColor).orElse(null);
             final var message = color.map(c -> {
-                return set(line.getGlowColor().orElse(null), c, line::setGlowColor, "hologram.glow-color");
+                return set(c, line::setGlowColor, "hologram.glow-color");
             }).orElse(ored != null ? "hologram.glow-color.query" : "hologram.glow-color.query.none");
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),

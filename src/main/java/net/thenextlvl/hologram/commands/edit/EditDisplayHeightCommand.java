@@ -30,7 +30,7 @@ final class EditDisplayHeightCommand extends EditCommand {
             final var height = tryGetArgument(context, "height", float.class);
 
             final var message = height.map(value -> {
-                return set(line.getDisplayHeight(), value, line::setDisplayHeight, "hologram.display-height");
+                return set(value, line::setDisplayHeight, "hologram.display-height");
             }).orElse("hologram.display-height.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

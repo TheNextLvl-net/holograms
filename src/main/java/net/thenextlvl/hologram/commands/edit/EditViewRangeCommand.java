@@ -30,7 +30,7 @@ final class EditViewRangeCommand extends EditCommand {
             final var range = tryGetArgument(context, "range", float.class).map(value -> value / 100f);
 
             final var message = range.map(value -> {
-                return set(line.getViewRange(), value, line::setViewRange, "hologram.view-range");
+                return set(value, line::setViewRange, "hologram.view-range");
             }).orElse("hologram.view-range.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

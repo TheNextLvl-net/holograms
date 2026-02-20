@@ -31,7 +31,7 @@ final class EditSeeThroughCommand extends EditCommand {
 
             final var message = seeThrough.map(value -> {
                 final var successKey = value ? "hologram.line.see-through.enabled" : "hologram.line.see-through.disabled";
-                return set(line.isSeeThrough(), value, line::setSeeThrough, successKey);
+                return set(value, line::setSeeThrough, successKey);
             }).orElse("hologram.see-through.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

@@ -31,7 +31,7 @@ final class EditDefaultBackgroundCommand extends EditCommand {
 
             final var message = defaultBackground.map(value -> {
                 final var successKey = value ? "hologram.line.default-background.enabled" : "hologram.line.default-background.disabled";
-                return set(line.isDefaultBackground(), value, line::setDefaultBackground, successKey);
+                return set(value, line::setDefaultBackground, successKey);
             }).orElse("hologram.default-background.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

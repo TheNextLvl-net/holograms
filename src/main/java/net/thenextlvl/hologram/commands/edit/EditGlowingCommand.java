@@ -31,7 +31,7 @@ final class EditGlowingCommand extends EditCommand {
 
             final var message = glowing.map(value -> {
                 final var successKey = value ? "hologram.line.glowing.enabled" : "hologram.line.glowing.disabled";
-                return set(line.isGlowing(), value, line::setGlowing, successKey);
+                return set(value, line::setGlowing, successKey);
             }).orElse("hologram.glowing.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

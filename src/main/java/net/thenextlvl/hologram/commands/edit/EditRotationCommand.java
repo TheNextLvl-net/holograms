@@ -58,10 +58,9 @@ abstract sealed class EditRotationCommand extends EditCommand permits EditLeftRo
             final var transformation = line.getTransformation();
             final var current = rotationGetter.apply(transformation);
             final var message = rotation.map(quaternion -> {
-                return set(current, quaternion, (v) -> {
+                return set(quaternion, (v) -> {
                     current.set(v);
-                    System.out.println(transformation);
-                    line.setTransformation(transformation);
+                    return line.setTransformation(transformation);
                 }, successKey);
             }).orElse(queryKey);
 

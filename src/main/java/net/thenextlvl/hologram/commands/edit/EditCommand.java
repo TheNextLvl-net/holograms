@@ -7,8 +7,7 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.SimpleCommand;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public abstract class EditCommand extends SimpleCommand {
     protected final LineTargetResolver.Builder resolver;
@@ -28,12 +27,7 @@ public abstract class EditCommand extends SimpleCommand {
 
     protected abstract int run(CommandContext<CommandSourceStack> var1, LineTargetResolver var2) throws CommandSyntaxException;
 
-    protected final <V> String set(final @Nullable V currentValue, final @Nullable V newValue, final Consumer<V> setter, final String successKey) {
-        if (Objects.equals(currentValue, newValue)) {
-            return "nothing.changed";
-        } else {
-            setter.accept(newValue);
-            return successKey;
-        }
+    protected final <V> String set(final @Nullable V newValue, final Predicate<V> setter, final String successKey) {
+        return setter.test(newValue) ? successKey : "nothing.changed";
     }
 }

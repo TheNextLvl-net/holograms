@@ -38,7 +38,7 @@ final class EditBillboardCommand extends EditCommand {
             }, context.getSource().getSender());
 
             final var message = billboard.map(value -> {
-                return set(line.getBillboard(), value, line::setBillboard, "hologram.billboard");
+                return set(value, line::setBillboard, "hologram.billboard");
             }).orElse("hologram.billboard.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

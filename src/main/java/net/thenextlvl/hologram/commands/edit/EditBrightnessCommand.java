@@ -35,7 +35,7 @@ final class EditBrightnessCommand extends EditCommand {
     private int reset(final CommandContext<CommandSourceStack> context) {
         final var resolver = this.resolver.build(context, this.plugin);
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var message = set(line.getBrightness().orElse(null), null, line::setBrightness, "hologram.brightness.reset");
+            final var message = set(null, line::setBrightness, "hologram.brightness.reset");
             plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
             return SINGLE_SUCCESS;
         }, LineType.DISPLAY);
@@ -53,7 +53,7 @@ final class EditBrightnessCommand extends EditCommand {
 
             final var ored = brightness.or(line::getBrightness).orElse(null);
             final var message = brightness.map(value -> {
-                return set(line.getBrightness().orElse(null), value, line::setBrightness, "hologram.brightness");
+                return set(value, line::setBrightness, "hologram.brightness");
             }).orElse(ored != null ? "hologram.brightness.query" : "hologram.brightness.query.none");
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),

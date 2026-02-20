@@ -30,7 +30,7 @@ final class EditInterpolationDurationCommand extends EditCommand {
             final var duration = tryGetArgument(context, "duration", int.class);
 
             final var message = duration.map(value -> {
-                return set(line.getInterpolationDuration(), value, line::setInterpolationDuration, "hologram.interpolation-duration");
+                return set(value, line::setInterpolationDuration, "hologram.interpolation-duration");
             }).orElse("hologram.interpolation-duration.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

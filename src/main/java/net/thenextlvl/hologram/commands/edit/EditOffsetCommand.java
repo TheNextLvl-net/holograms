@@ -38,7 +38,7 @@ final class EditOffsetCommand extends EditCommand {
 
             final var ored = offset.orElseGet(line::getOffset);
             final var message = offset.map(vector3f -> {
-                return set(line.getOffset(), vector3f, line::setOffset, "hologram.offset");
+                return set(vector3f, line::setOffset, "hologram.offset");
             }).orElse("hologram.offset.query");
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),

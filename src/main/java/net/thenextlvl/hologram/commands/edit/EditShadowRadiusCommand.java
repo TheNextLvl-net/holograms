@@ -30,7 +30,7 @@ final class EditShadowRadiusCommand extends EditCommand {
             final var radius = tryGetArgument(context, "radius", float.class);
 
             final var message = radius.map(value -> {
-                return set(line.getShadowRadius(), value, line::setShadowRadius, "hologram.shadow-radius");
+                return set(value, line::setShadowRadius, "hologram.shadow-radius");
             }).orElse("hologram.shadow-radius.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

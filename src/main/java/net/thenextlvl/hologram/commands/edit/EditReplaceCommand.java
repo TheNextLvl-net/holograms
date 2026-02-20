@@ -30,7 +30,7 @@ final class EditReplaceCommand extends EditCommand {
             final var text = context.getArgument("text", String.class);
             final var current = line.getUnparsedText().orElse(null);
             final var newText = current == null ? text : current.replace(match, text);
-            final var message = set(current, newText, line::setUnparsedText, "hologram.text.set");
+            final var message = set(newText, line::setUnparsedText, "hologram.text.set");
             plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
             return SINGLE_SUCCESS;
         }, LineType.TEXT);

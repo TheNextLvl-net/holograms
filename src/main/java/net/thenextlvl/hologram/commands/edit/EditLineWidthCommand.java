@@ -30,7 +30,7 @@ final class EditLineWidthCommand extends EditCommand {
     private int reset(final CommandContext<CommandSourceStack> context) {
         final var resolver = this.resolver.build(context, this.plugin);
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var message = set(line.getLineWidth(), Integer.MAX_VALUE, line::setLineWidth, "hologram.line-width.reset");
+            final var message = set(Integer.MAX_VALUE, line::setLineWidth, "hologram.line-width.reset");
             plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
             return SINGLE_SUCCESS;
         }, LineType.TEXT);
@@ -42,7 +42,7 @@ final class EditLineWidthCommand extends EditCommand {
             final var width = tryGetArgument(context, "width", int.class);
 
             final var message = width.map(value -> {
-                return set(line.getLineWidth(), value, line::setLineWidth, "hologram.line-width");
+                return set(value, line::setLineWidth, "hologram.line-width");
             }).orElse("hologram.line-width.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

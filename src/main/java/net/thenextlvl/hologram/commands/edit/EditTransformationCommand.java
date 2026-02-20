@@ -43,7 +43,7 @@ final class EditTransformationCommand extends EditCommand {
             }, context.getSource().getSender());
 
             final var message = transformation.map(value -> {
-                return set(line.getItemDisplayTransform(), value, line::setItemDisplayTransform, "hologram.transformation");
+                return set(value, line::setItemDisplayTransform, "hologram.transformation");
             }).orElse("hologram.transformation.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

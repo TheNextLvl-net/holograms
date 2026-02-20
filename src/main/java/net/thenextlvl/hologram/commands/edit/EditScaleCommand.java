@@ -46,13 +46,13 @@ final class EditScaleCommand extends EditCommand {
             final var message = scale.map(vector3f -> {
                 if (line instanceof final DisplayHologramLine displayLine) {
                     final var transformation = displayLine.getTransformation();
-                    return set(transformation.getScale(), vector3f, (v) -> {
+                    return set(vector3f, (v) -> {
                         transformation.getScale().set(v);
-                        displayLine.setTransformation(transformation);
+                        return displayLine.setTransformation(transformation);
                     }, "hologram.scale");
                 } else if (line instanceof final EntityHologramLine entityLine) {
-                    return set(entityLine.getScale(), vector3f.y(), value -> {
-                        entityLine.setScale(vector3f.y());
+                    return set(vector3f.y(), value -> {
+                        return entityLine.setScale(value);
                     }, "hologram.scale");
                 } else throw new IllegalArgumentException("Invalid line type");
             }).orElse("hologram.scale.query");

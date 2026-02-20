@@ -30,7 +30,7 @@ final class EditTeleportDurationCommand extends EditCommand {
             final var duration = tryGetArgument(context, "duration", int.class);
 
             final var message = duration.map(value -> {
-                return set(line.getTeleportDuration(), value, line::setTeleportDuration, "hologram.teleport-duration");
+                return set(value, line::setTeleportDuration, "hologram.teleport-duration");
             }).orElse("hologram.teleport-duration.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

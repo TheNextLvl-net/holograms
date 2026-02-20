@@ -30,7 +30,7 @@ final class EditShadowStrengthCommand extends EditCommand {
             final var strength = tryGetArgument(context, "strength", float.class);
 
             final var message = strength.map(value -> {
-                return set(line.getShadowStrength(), value, line::setShadowStrength, "hologram.shadow-strength");
+                return set(value, line::setShadowStrength, "hologram.shadow-strength");
             }).orElse("hologram.shadow-strength.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

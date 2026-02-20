@@ -31,7 +31,7 @@ final class EditShadowedCommand extends EditCommand {
 
             final var message = shadowed.map(value -> {
                 final var successKey = value ? "hologram.line.shadowed.enabled" : "hologram.line.shadowed.disabled";
-                return set(line.isShadowed(), value, line::setShadowed, successKey);
+                return set(value, line::setShadowed, successKey);
             }).orElse("hologram.shadowed.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

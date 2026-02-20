@@ -30,7 +30,7 @@ final class EditOpacityCommand extends EditCommand {
             final var opacity = tryGetArgument(context, "opacity", int.class);
 
             final var message = opacity.map(value -> {
-                return set(line.getTextOpacity(), value, line::setTextOpacity, "hologram.line.opacity");
+                return set(value, line::setTextOpacity, "hologram.line.opacity");
             }).orElse("hologram.opacity.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

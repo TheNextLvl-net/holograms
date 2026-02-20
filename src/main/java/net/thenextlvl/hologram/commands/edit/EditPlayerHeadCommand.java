@@ -30,7 +30,7 @@ final class EditPlayerHeadCommand extends EditCommand {
 
             final var message = playerHead.map(value -> {
                 final var successKey = value ? "hologram.line.player-head.enabled" : "hologram.line.player-head.disabled";
-                return set(line.isPlayerHead(), value, line::setPlayerHead, successKey);
+                return set(value, line::setPlayerHead, successKey);
             }).orElseGet(() -> line.isPlayerHead()
                     ? "hologram.player-head.query.enabled"
                     : "hologram.player-head.query.disabled");

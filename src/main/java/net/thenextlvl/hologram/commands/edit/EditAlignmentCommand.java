@@ -37,7 +37,7 @@ final class EditAlignmentCommand extends EditCommand {
             }, context.getSource().getSender());
 
             final var message = alignment.map(textAlignment -> {
-                return set(line.getAlignment(), textAlignment, line::setAlignment, "hologram.text-alignment");
+                return set(textAlignment, line::setAlignment, "hologram.text-alignment");
             }).orElse("hologram.alignment.query");
             
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

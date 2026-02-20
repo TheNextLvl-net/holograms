@@ -36,7 +36,7 @@ final class EditBackgroundColorCommand extends EditCommand {
     private int reset(final CommandContext<CommandSourceStack> context) {
         final var resolver = this.resolver.build(context, this.plugin);
         return resolver.resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
-            final var message = set(line.getBackgroundColor().orElse(null), null, line::setBackgroundColor, "hologram.text.background-color.reset");
+            final var message = set(null, line::setBackgroundColor, "hologram.text.background-color.reset");
             plugin.bundle().sendMessage(context.getSource().getSender(), message, placeholders);
             return SINGLE_SUCCESS;
         }, LineType.TEXT);
@@ -49,7 +49,7 @@ final class EditBackgroundColorCommand extends EditCommand {
                     .or(() -> tryGetArgument(context, "color", NamedTextColor.class)
                             .map(TextColor::value).map(Color::fromRGB));
             final var message = color.map(c -> {
-                return set(line.getBackgroundColor().orElse(null), c, line::setBackgroundColor, "hologram.text.background-color");
+                return set(c, line::setBackgroundColor, "hologram.text.background-color");
             }).orElseGet(() -> {
                 return line.getBackgroundColor().isPresent() ? "hologram.background-color.query" : "hologram.background-color.query.none";
             });

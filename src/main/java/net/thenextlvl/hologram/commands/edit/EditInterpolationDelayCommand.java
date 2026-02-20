@@ -30,7 +30,7 @@ final class EditInterpolationDelayCommand extends EditCommand {
             final var delay = tryGetArgument(context, "delay", int.class);
 
             final var message = delay.map(value -> {
-                return set(line.getInterpolationDelay(), value, line::setInterpolationDelay, "hologram.interpolation-delay");
+                return set(value, line::setInterpolationDelay, "hologram.interpolation-delay");
             }).orElse("hologram.interpolation-delay.query");
 
             plugin.bundle().sendMessage(context.getSource().getSender(), message,

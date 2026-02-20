@@ -8,6 +8,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver.LineType;
+import net.thenextlvl.hologram.commands.suggestions.tags.TagSuggestionProvider;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -18,7 +19,8 @@ final class EditPrependCommand extends EditCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
         final var command = new EditPrependCommand(plugin, resolver);
-        final var text = Commands.argument("text", StringArgumentType.greedyString());
+        final var text = Commands.argument("text", StringArgumentType.greedyString())
+                .suggests(new TagSuggestionProvider<>(plugin));
         return command.create().then(text.executes(command));
     }
 

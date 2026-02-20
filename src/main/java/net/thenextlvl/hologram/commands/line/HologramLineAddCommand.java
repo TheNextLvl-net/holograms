@@ -14,6 +14,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.suggestions.tags.TagSuggestionProvider;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -36,7 +37,9 @@ public final class HologramLineAddCommand extends BrigadierCommand {
                 .then(command.addLine("block", ArgumentTypes.blockState(), command::addBlockLine))
                 .then(command.addLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityLine))
                 .then(command.addLine("item", ArgumentTypes.itemStack(), command::addItemLine))
-                .then(command.addLine("text", StringArgumentType.greedyString(), command::addTextLine))
+                .then(Commands.literal("text").then(Commands.argument("text", StringArgumentType.greedyString())
+                        .suggests(new TagSuggestionProvider<>(plugin))
+                        .executes(command::addTextLine)))
                 .then(Commands.literal("paged").executes(command::addPagedLine)));
     }
 

@@ -2,7 +2,6 @@ package net.thenextlvl.hologram.commands.edit.set;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -11,6 +10,7 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.edit.EditCommand;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver.LineType;
+import net.thenextlvl.hologram.commands.suggestions.tags.TagSuggestionProvider;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.jspecify.annotations.NullMarked;
 
@@ -21,8 +21,9 @@ final class EditSetTextCommand extends EditCommand {
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
-        final EditSetTextCommand command = new EditSetTextCommand(plugin, resolver);
-        final RequiredArgumentBuilder<CommandSourceStack, String> text = Commands.argument("text", StringArgumentType.greedyString());
+        final var command = new EditSetTextCommand(plugin, resolver);
+        final var text = Commands.argument("text", StringArgumentType.greedyString())
+                .suggests(new TagSuggestionProvider<>(plugin));
         return command.create().then(text.executes(command));
     }
 

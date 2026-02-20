@@ -16,6 +16,7 @@ import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import net.thenextlvl.hologram.commands.suggestions.PageSuggestionProvider;
+import net.thenextlvl.hologram.commands.suggestions.tags.TagSuggestionProvider;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
@@ -43,7 +44,9 @@ public final class HologramPageInsertCommand extends BrigadierCommand {
                 .then(command.insertPage("block", ArgumentTypes.blockState(), command::insertBlockPage, plugin))
                 .then(command.insertPage("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::insertEntityPage, plugin))
                 .then(command.insertPage("item", ArgumentTypes.itemStack(), command::insertItemPage, plugin))
-                .then(command.insertPage("text", StringArgumentType.greedyString(), command::insertTextPage, plugin)))));
+                .then(Commands.literal("text").then(Commands.argument("text", StringArgumentType.greedyString())
+                        .suggests(new TagSuggestionProvider<>(plugin))
+                        .executes(context -> command.insertPage(context, plugin, command::insertTextPage)))))));
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> insertPage(

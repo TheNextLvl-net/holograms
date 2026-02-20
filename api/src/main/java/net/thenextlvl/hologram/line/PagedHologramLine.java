@@ -316,6 +316,7 @@ public interface PagedHologramLine extends HologramLine {
      * @see #cyclePage(Player, int)
      * @since 0.8.0
      */
+    @Contract(mutates = "this")
     CompletableFuture<Boolean> cyclePage(Player player);
 
     /**
@@ -329,6 +330,7 @@ public interface PagedHologramLine extends HologramLine {
      * @apiNote Negative amounts will cycle backwards.
      * @since 0.8.0
      */
+    @Contract(mutates = "this")
     CompletableFuture<Boolean> cyclePage(Player player, int amount);
 
     /**
@@ -341,6 +343,7 @@ public interface PagedHologramLine extends HologramLine {
      * @see #getPageCount()
      * @since 0.8.0
      */
+    @Contract(mutates = "this")
     CompletableFuture<Boolean> setPage(Player player, int page) throws IndexOutOfBoundsException;
 
     /**
@@ -350,6 +353,7 @@ public interface PagedHologramLine extends HologramLine {
      * @return current page index
      * @since 0.8.0
      */
+    @Contract(pure = true)
     OptionalInt getCurrentPageIndex(Player player);
 
     /**
@@ -359,6 +363,7 @@ public interface PagedHologramLine extends HologramLine {
      * @return current page
      * @since 0.8.0
      */
+    @Contract(pure = true)
     Optional<StaticHologramLine> getCurrentPage(Player player);
 
     /**

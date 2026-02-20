@@ -51,10 +51,11 @@ public interface StaticHologramLine extends HologramLine {
      * Sets whether this line is glowing.
      *
      * @param glowing true if this line should glow
-     * @since 0.5.0
+     * @return {@code true} if the glowing state was successfully set, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    StaticHologramLine setGlowing(boolean glowing);
+    @Contract(mutates = "this")
+    boolean setGlowing(boolean glowing);
 
     /**
      * Gets the glow color of this line.
@@ -69,10 +70,11 @@ public interface StaticHologramLine extends HologramLine {
      * Sets the glow color of this line.
      *
      * @param color new color
-     * @since 0.5.0
+     * @return {@code true} if the glow color was successfully set, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    StaticHologramLine setGlowColor(@Nullable TextColor color);
+    @Contract(mutates = "this")
+    boolean setGlowColor(@Nullable TextColor color);
 
     /**
      * Gets the billboard setting of this line.
@@ -91,11 +93,11 @@ public interface StaticHologramLine extends HologramLine {
      * The billboard setting controls the automatic rotation of the line to face the player.
      *
      * @param billboard new setting
-     * @return this
-     * @since 0.10.0
+     * @return {@code true} if the billboard setting was successfully set, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    StaticHologramLine setBillboard(Display.Billboard billboard);
+    @Contract(mutates = "this")
+    boolean setBillboard(Display.Billboard billboard);
 
     /**
      * Gets the parent of this line if it is part of a paged line.
@@ -119,9 +121,9 @@ public interface StaticHologramLine extends HologramLine {
      * Sets the offset of the entity.
      *
      * @param offset new offset
-     * @return this
+     * @return {@code true} if the offset was successfully set, {@code false} otherwise
      * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    StaticHologramLine setOffset(Vector3f offset);
+    @Contract(mutates = "this")
+    boolean setOffset(Vector3f offset);
 }

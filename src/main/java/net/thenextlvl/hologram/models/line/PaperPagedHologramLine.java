@@ -174,15 +174,11 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     }
 
     @Override
-    public void clearPages() {
-        pages.forEach(page -> {
-            new HologramPageRemoveEvent(getHologram(), this, page).callEvent();
-            page.despawn();
-        });
-        pages.clear();
-        currentPageIndex.clear();
-        trackedPlayers.clear();
-        stopCycleTask();
+    public boolean clearPages() {
+        if (pages.isEmpty()) return false;
+        pages.forEach(page -> new HologramPageRemoveEvent(getHologram(), this, page).callEvent());
+        despawn().thenRun(pages::clear);
+        return true;
     }
 
     public boolean swapPages(final int first, final int second) {

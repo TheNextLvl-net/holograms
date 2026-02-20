@@ -32,7 +32,7 @@ public final class PaperBlockHologramLine extends PaperDisplayHologramLine<Block
     }
 
     @Override
-    public BlockHologramLine setBlock(final BlockData block) {
+    public boolean setBlock(final BlockData block) {
         return set(this.block, block, () -> {
             this.block = block.clone();
             forEachEntity(entity -> entity.setBlock(block));

@@ -38,7 +38,7 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
     }
 
     @Override
-    public ItemHologramLine setItemStack(@Nullable final ItemStack item) {
+    public boolean setItemStack(@Nullable final ItemStack item) {
         return set(this.item, item, () -> {
             this.item = item != null ? item.clone() : null;
             if (!playerHead) updateItems();
@@ -51,7 +51,7 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
     }
 
     @Override
-    public ItemHologramLine setPlayerHead(final boolean playerHead) {
+    public boolean setPlayerHead(final boolean playerHead) {
         return set(this.playerHead, playerHead, () -> {
             this.playerHead = playerHead;
             updateItems();
@@ -73,7 +73,7 @@ public final class PaperItemHologramLine extends PaperDisplayHologramLine<ItemDi
     }
 
     @Override
-    public ItemHologramLine setItemDisplayTransform(final ItemDisplayTransform display) {
+    public boolean setItemDisplayTransform(final ItemDisplayTransform display) {
         return set(this.displayTransform, display, () -> {
             this.displayTransform = display;
         }, true);

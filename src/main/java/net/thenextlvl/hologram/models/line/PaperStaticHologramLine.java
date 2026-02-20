@@ -54,7 +54,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     }
 
     @Override
-    public StaticHologramLine setGlowColor(@Nullable final TextColor color) {
+    public boolean setGlowColor(@Nullable final TextColor color) {
         return set(this.glowColor, color, () -> {
             this.glowColor = color;
             updateGlowColor(color);
@@ -67,7 +67,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     }
 
     @Override
-    public StaticHologramLine setGlowing(final boolean glowing) {
+    public boolean setGlowing(final boolean glowing) {
         return set(this.glowing, glowing, () -> {
             this.glowing = glowing;
             forEachEntity(entity -> entity.setGlowing(glowing));

@@ -9,7 +9,6 @@ import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.LineType;
 import net.thenextlvl.hologram.line.PagedHologramLine;
-import net.thenextlvl.hologram.line.StaticHologramLine;
 import net.thenextlvl.hologram.models.PaperHologram;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
@@ -67,7 +66,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
 
     @Override
     @SuppressWarnings("unchecked")
-    public EntityHologramLine setEntityType(final EntityType entityType) throws IllegalArgumentException {
+    public boolean setEntityType(final EntityType entityType) throws IllegalArgumentException {
         return set(this.entityType, entityType, () -> {
             Preconditions.checkArgument(entityType.getEntityClass() != null, "Entity type %s is not spawnable", entityType);
             this.entityClass = (Class<Entity>) entityType.getEntityClass();
@@ -76,10 +75,9 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
     }
 
     @Override
-    public EntityHologramLine setEntityType(final Class<? extends Entity> entityType) throws IllegalArgumentException {
+    public boolean setEntityType(final Class<? extends Entity> entityType) throws IllegalArgumentException {
         return setEntityType(HologramPlugin.getEntityType(entityType));
     }
-
 
     @Override
     public double getScale() {
@@ -87,7 +85,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
     }
 
     @Override
-    public EntityHologramLine setScale(final double scale) {
+    public boolean setScale(final double scale) {
         return set(this.scale, scale, () -> {
             if (this.scale == scale) return;
             this.scale = scale;
@@ -100,18 +98,19 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
     }
 
     @Override
-    public EntityHologramLine setOffset(final Vector3f newOffset) {
-        final var oldOffset = this.offset;
-        if (oldOffset.equals(newOffset)) return this;
-        final var copy = new Vector3f(newOffset);
-        this.offset = copy;
-        forEachEntity(entity -> {
-            final var location = entity.getLocation();
-            location.subtract(oldOffset.x(), oldOffset.y(), oldOffset.z());
-            location.add(copy.x(), copy.y(), copy.z());
-            entity.teleportAsync(location);
-        });
-        return this;
+    public boolean setOffset(final Vector3f newOffset) {
+        return set(this.offset, newOffset, () -> {
+            final var oldOffset = this.offset;
+            if (oldOffset.equals(newOffset)) return;
+            final var copy = new Vector3f(newOffset);
+            this.offset = copy;
+            forEachEntity(entity -> {
+                final var location = entity.getLocation();
+                location.subtract(oldOffset.x(), oldOffset.y(), oldOffset.z());
+                location.add(copy.x(), copy.y(), copy.z());
+                entity.teleportAsync(location);
+            });
+        }, false);
     }
 
     @Override
@@ -170,7 +169,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
     }
 
     @Override
-    public StaticHologramLine setBillboard(final Display.Billboard billboard) {
+    public boolean setBillboard(final Display.Billboard billboard) {
         return set(this.billboard, billboard, () -> {
             this.billboard = billboard;
             applyBillboard();

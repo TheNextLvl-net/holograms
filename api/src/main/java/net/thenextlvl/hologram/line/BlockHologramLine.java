@@ -24,9 +24,9 @@ public interface BlockHologramLine extends DisplayHologramLine {
      * Sets the displayed block.
      *
      * @param block the new block
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the block was successfully set, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    BlockHologramLine setBlock(BlockData block);
+    @Contract(mutates = "this")
+    boolean setBlock(BlockData block);
 }

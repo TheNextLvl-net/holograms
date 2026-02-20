@@ -258,13 +258,11 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
     }
 
     @Override
-    public void clearLines() {
-        if (lines.isEmpty()) return;
-        lines.forEach(line -> {
-            new HologramLineRemoveEvent(this, line).callEvent();
-            despawnLine(line);
-        });
-        lines.clear();
+    public boolean clearLines() {
+        if (lines.isEmpty()) return false;
+        lines.forEach(line -> new HologramLineRemoveEvent(this, line).callEvent());
+        despawn().thenRun(lines::clear);
+        return true;
     }
 
     private CompletableFuture<Void> despawnLine(final HologramLine line) { // todo: respect the future :)

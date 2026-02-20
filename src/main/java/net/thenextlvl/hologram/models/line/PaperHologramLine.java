@@ -101,17 +101,16 @@ public abstract class PaperHologramLine implements HologramLine {
         return hologram.getWorld();
     }
 
-    @SuppressWarnings("unchecked")
-    protected <T extends HologramLine, V> T set(
+    protected <V> boolean set(
             final @Nullable V currentValue,
             final @Nullable V newValue,
             final Runnable setter,
             final boolean update
     ) {
-        if (Objects.equals(currentValue, newValue)) return (T) this;
+        if (Objects.equals(currentValue, newValue)) return false;
         setter.run();
         if (update) hologram.updateHologram();
-        return (T) this;
+        return true;
     }
 
     public abstract double getHeight(Player player);

@@ -132,10 +132,11 @@ public interface PagedHologramLine extends HologramLine {
     /**
      * Removes all pages from this paged line.
      *
-     * @since 0.5.0
+     * @return {@code true} if any pages were removed, {@code false} otherwise
+     * @since 1.0.0
      */
     @Contract(mutates = "this")
-    void clearPages();
+    boolean clearPages();
 
     /**
      * Swaps the pages at the given indices.

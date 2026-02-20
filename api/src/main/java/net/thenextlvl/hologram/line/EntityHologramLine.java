@@ -16,23 +16,23 @@ public interface EntityHologramLine extends StaticHologramLine {
      * Sets the entity type of the hologram line.
      *
      * @param entityType new entity type
-     * @return this
+     * @return {@code true} if the entity type was successfully set, {@code false} otherwise
      * @throws IllegalArgumentException if the entity type is not valid
-     * @since 0.6.0
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    EntityHologramLine setEntityType(EntityType entityType) throws IllegalArgumentException;
+    @Contract(mutates = "this")
+    boolean setEntityType(EntityType entityType) throws IllegalArgumentException;
 
     /**
      * Sets the entity type of the hologram line.
      *
      * @param entityType new entity type
-     * @return this
+     * @return {@code true} if the entity type was successfully set, {@code false} otherwise
      * @throws IllegalArgumentException if the entity type is not valid
-     * @since 0.6.0
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    EntityHologramLine setEntityType(Class<? extends Entity> entityType) throws IllegalArgumentException;
+    @Contract(mutates = "this")
+    boolean setEntityType(Class<? extends Entity> entityType) throws IllegalArgumentException;
 
     /**
      * Gets the scale of the entity.
@@ -47,9 +47,9 @@ public interface EntityHologramLine extends StaticHologramLine {
      * Sets the scale of the entity.
      *
      * @param scale new scale
-     * @return this
-     * @since 0.3.0
+     * @return {@code true} if the scale was successfully set, {@code false} otherwise
+     * @since 1.0.0
      */
-    @Contract(value = "_ -> this", mutates = "this")
-    EntityHologramLine setScale(double scale);
+    @Contract(mutates = "this")
+    boolean setScale(double scale);
 }

@@ -158,10 +158,11 @@ public interface Hologram extends HologramLike, Iterable<HologramLine>, Copyable
     /**
      * Removes all lines from this hologram.
      *
-     * @since 0.1.0
+     * @return {@code true} if any lines were removed, {@code false} otherwise
+     * @since 1.0.0
      */
     @Contract(mutates = "this")
-    void clearLines();
+    boolean clearLines();
 
     /**
      * Checks if the given line is in this hologram.

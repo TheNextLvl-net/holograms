@@ -26,7 +26,7 @@ public interface DisplayHologramLine extends StaticHologramLine {
     Transformation getTransformation();
 
     /**
-     * Sets the transformation applied to this display
+     * Sets the transformation applied to this display.
      *
      * @param transformation the new transformation
      * @return this
@@ -36,7 +36,7 @@ public interface DisplayHologramLine extends StaticHologramLine {
     DisplayHologramLine setTransformation(Transformation transformation);
 
     /**
-     * Sets the raw transformation matrix applied to this display
+     * Sets the raw transformation matrix applied to this display.
      *
      * @param transformationMatrix the transformation matrix
      * @return this
@@ -176,7 +176,7 @@ public interface DisplayHologramLine extends StaticHologramLine {
     float getDisplayHeight();
 
     /**
-     * Sets the height if this display.
+     * Sets the height of this display.
      *
      * @param height new height
      * @return this

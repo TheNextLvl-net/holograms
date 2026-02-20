@@ -32,7 +32,7 @@ public interface EntityHologramLine extends StaticHologramLine {
      * @since 0.6.0
      */
     @Contract(value = "_ -> this", mutates = "this")
-    EntityHologramLine setEntityType(Class<Entity> entityType) throws IllegalArgumentException;
+    EntityHologramLine setEntityType(Class<? extends Entity> entityType) throws IllegalArgumentException;
 
     /**
      * Gets the scale of the entity.

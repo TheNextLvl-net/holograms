@@ -76,7 +76,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
     }
 
     @Override
-    public EntityHologramLine setEntityType(final Class<Entity> entityType) throws IllegalArgumentException {
+    public EntityHologramLine setEntityType(final Class<? extends Entity> entityType) throws IllegalArgumentException {
         return setEntityType(HologramPlugin.getEntityType(entityType));
     }
 

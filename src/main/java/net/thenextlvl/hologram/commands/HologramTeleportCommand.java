@@ -7,6 +7,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.FinePositionResolver;
+import io.papermc.paper.command.brigadier.argument.resolvers.RotationResolver;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
@@ -27,9 +28,10 @@ final class HologramTeleportCommand extends SimpleCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
         final var command = new HologramTeleportCommand(plugin);
+        final var rotation = Commands.argument("rotation", ArgumentTypes.rotation()).executes(command);
+        final var world = Commands.argument("world", ArgumentTypes.world()).executes(command);
         final var position = Commands.argument("position", ArgumentTypes.finePosition())
-                .then(Commands.argument("world", ArgumentTypes.world()).executes(command))
-                .executes(command);
+                .then(rotation.then(world)).executes(command);
         final var entity = Commands.argument("target", ArgumentTypes.entity()).executes(command);
         return command.create().then(hologramArgument(plugin)
                 .then(position)
@@ -42,6 +44,8 @@ final class HologramTeleportCommand extends SimpleCommand {
         final var sender = context.getSource().getSender();
 
         final var hologram = context.getArgument("hologram", Hologram.class);
+        final var rotation = resolveArgument(context, "rotation", RotationResolver.class)
+                .orElseGet(hologram.getLocation()::getRotation);
         final var target = resolveArgument(context, "target", EntitySelectorArgumentResolver.class)
                 .map(entity -> entity.getFirst().getLocation()).orElse(null);
         final var position = target == null ? resolveArgument(context, "position", FinePositionResolver.class).map(resolved -> {
@@ -56,7 +60,7 @@ final class HologramTeleportCommand extends SimpleCommand {
             });
             return SINGLE_SUCCESS;
         } else if (position != null) {
-            hologram.teleportAsync(position).thenAccept(success -> {
+            hologram.teleportAsync(position.setRotation(rotation)).thenAccept(success -> {
                 final var message = success ? "hologram.move.success" : "hologram.move.failed";
                 plugin.bundle().sendMessage(sender, message, Placeholder.unparsed("hologram", hologram.getName()));
             });

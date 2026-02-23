@@ -26,3 +26,5 @@ Whether you're a server owner or a developer, this plugin has you covered!
 [Download now](https://modrinth.com/project/yWs5IQBz)  
 [Check out the Wiki](https://thenextlvl.net/docs/holograms)  
 [Our Maven Repository](https://repo.thenextlvl.net/#/releases/net/thenextlvl/holograms)
+
+[![Usage](https://faststats.dev/embed/8b6549b5-37be-4619-9fb6-ff5ae72586dc?w=1012)](https://faststats.dev/project/holograms)

@@ -23,8 +23,10 @@ Create, customize, and manage holograms entirely in-game.
 With **Holograms**, adding eye-catching displays to your server has never been easier.
 Whether you're a server owner or a developer, this plugin has you covered!
 
+---
+
 [Download now](https://modrinth.com/project/yWs5IQBz)  
 [Check out the Wiki](https://thenextlvl.net/docs/holograms)  
 [Our Maven Repository](https://repo.thenextlvl.net/#/releases/net/thenextlvl/holograms)
 
-[![Usage](https://faststats.dev/embed/8b6549b5-37be-4619-9fb6-ff5ae72586dc?w=1012)](https://faststats.dev/project/holograms)
+[![Usage](https://faststats.dev/embed/default:3a8954d0-6dd4-4e82-b0eb-e64fc2ecc68d:servers-and-players?w=1012)](https://faststats.dev/project/holograms)

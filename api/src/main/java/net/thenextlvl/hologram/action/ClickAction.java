@@ -128,6 +128,25 @@ public interface ClickAction<T> extends Copyable<ClickAction<T>> {
     boolean setPermission(@Nullable String permission);
 
     /**
+     * Gets the currency name used for transactions of this click action.
+     *
+     * @return an {@code Optional} containing the name of the currency
+     * @since 1.2.0
+     */
+    @Contract(pure = true)
+    Optional<String> getCurrency();
+
+    /**
+     * Sets the currency name used for transaction of this click action.
+     *
+     * @param currency the name of the new currency
+     * @return {@code true} if the currency was successfully set, {@code false} otherwise
+     * @since 1.2.0
+     */
+    @Contract(mutates = "this")
+    boolean setCurrency(@Nullable String currency);
+
+    /**
      * Gets the cost of this click action.
      *
      * @return cost

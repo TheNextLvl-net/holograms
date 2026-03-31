@@ -22,6 +22,7 @@ tasks.compileJava {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://repo.thenextlvl.net/releases")
@@ -35,7 +36,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.12.2")
 
     compileOnly("net.thenextlvl:vault-api:1.7.1")
-    compileOnly("net.thenextlvl:service-io:2.5.1")
+    compileOnly("net.thenextlvl:service-io:3.0.0-pre8")
 
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
     implementation("net.thenextlvl:i18n:1.2.0")

@@ -25,9 +25,10 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     private volatile EnumSet<ClickType> clickTypes;
     private volatile T input;
 
+    private volatile @Nullable String currency = null;
+    private volatile @Nullable String permission = null;
     private volatile @Range(from = 0, to = 100) int chance = 100;
     private volatile Duration cooldown = Duration.ZERO;
-    private volatile @Nullable String permission = null;
     private volatile double cost = 0;
 
     public SimpleClickAction(final HologramPlugin plugin, final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
@@ -96,6 +97,18 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     }
 
     @Override
+    public Optional<String> getCurrency() {
+        return Optional.ofNullable(currency);
+    }
+
+    @Override
+    public boolean setCurrency(@Nullable final String currency) {
+        if (Objects.equals(this.currency, currency)) return false;
+        this.currency = currency;
+        return true;
+    }
+
+    @Override
     public double getCost() {
         return cost;
     }
@@ -137,14 +150,14 @@ final class SimpleClickAction<T> implements ClickAction<T> {
         if (isOnCooldown(player)) return false;
         if (!getPermission().map(player::hasPermission).orElse(true)) return false;
         if (ThreadLocalRandom.current().nextInt(100) > chance) return false;
-        if (!plugin.economyProvider.withdraw(player, cost)) return false;
+        if (!plugin.economyProvider.withdraw(player, currency, cost)) return false;
         actionType.action().invoke(line, player, input);
         if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
         return true;
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@Nullable final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         final SimpleClickAction<?> that = (SimpleClickAction<?>) o;
         return chance == that.chance

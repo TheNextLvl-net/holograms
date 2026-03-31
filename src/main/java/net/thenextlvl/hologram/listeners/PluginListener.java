@@ -37,7 +37,7 @@ public final class PluginListener implements Listener {
         if (isPlugin(event.getPlugin(), "ServiceIO")) {
             plugin.getServer().getServicesManager().register(
                     HologramController.class,
-                    new ServiceHologramController(),
+                    new ServiceHologramController(plugin),
                     plugin,
                     ServicePriority.Highest
             );

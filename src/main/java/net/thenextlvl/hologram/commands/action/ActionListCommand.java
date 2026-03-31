@@ -134,8 +134,8 @@ final class ActionListCommand extends SimpleCommand {
         return TagResolver.resolver(
                 Formatter.number("chance", action.getChance()),
                 Formatter.number("cooldown", action.getCooldown().toMillis() / 1000d),
+                Placeholder.component("cost", plugin.economyProvider.format(audience, action.getCurrency().orElse(null), action.getCost())),
                 Placeholder.parsed("action_type", action.getActionType().name()),
-                Placeholder.parsed("cost", plugin.economyProvider.format(audience, action.getCost())),
                 Placeholder.parsed("permission", action.getPermission().orElse("null"))
         );
     }

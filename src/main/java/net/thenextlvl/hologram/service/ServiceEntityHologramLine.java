@@ -1,58 +1,90 @@
 package net.thenextlvl.hologram.service;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.EntityHologramLine;
+import net.thenextlvl.service.api.hologram.line.PagedHologramLine;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Optional;
 
 @NullMarked
-public final class ServiceEntityHologramLine extends ServiceHologramLine<EntityType, EntityHologramLine> {
-    public ServiceEntityHologramLine(final EntityHologramLine line) {
-        super(line);
+public final class ServiceEntityHologramLine extends ServiceHologramLine<EntityHologramLine> implements net.thenextlvl.service.api.hologram.line.EntityHologramLine {
+    public ServiceEntityHologramLine(final ServiceHologram hologram, final EntityHologramLine line) {
+        super(hologram, line);
     }
 
     @Override
-    public EntityType getContent() {
+    public boolean setEntityType(final EntityType entityType) {
+        return line.setEntityType(entityType);
+    }
+
+    @Override
+    public double getScale() {
+        return line.getScale();
+    }
+
+    @Override
+    public boolean setScale(final double scale) {
+        return line.setScale(scale);
+    }
+
+    @Override
+    public Class<? extends Entity> getEntityClass() {
+        return line.getEntityClass();
+    }
+
+    @Override
+    public EntityType getEntityType() {
         return line.getEntityType();
     }
 
     @Override
-    public double getOffsetX() {
-        return line.getOffset().x();
+    public boolean isGlowing() {
+        return line.isGlowing();
     }
 
     @Override
-    public double getOffsetY() {
-        return line.getOffset().y();
+    public boolean setGlowing(final boolean glowing) {
+        return line.setGlowing(glowing);
     }
 
     @Override
-    public double getOffsetZ() {
-        return line.getOffset().z();
+    public Optional<TextColor> getGlowColor() {
+        return line.getGlowColor();
     }
 
     @Override
-    public void setContent(final EntityType content) {
-        line.setEntityType(content);
+    public boolean setGlowColor(@Nullable final TextColor color) {
+        return line.setGlowColor(color);
     }
 
     @Override
-    public void setOffsetX(final double offsetX) {
-        final var offset = line.getOffset();
-        offset.x = (float) offsetX;
-        line.setOffset(offset);
+    public Display.Billboard getBillboard() {
+        return line.getBillboard();
     }
 
     @Override
-    public void setOffsetY(final double offsetY) {
-        final var offset = line.getOffset();
-        offset.y = (float) offsetY;
-        line.setOffset(offset);
+    public boolean setBillboard(final Display.Billboard billboard) {
+        return line.setBillboard(billboard);
     }
 
     @Override
-    public void setOffsetZ(final double offsetZ) {
-        final var offset = line.getOffset();
-        offset.z = (float) offsetZ;
-        line.setOffset(offset);
+    public Optional<PagedHologramLine> getParentLine() {
+        return line.getParentLine().map(line -> new ServicePagedHologramLine(hologram, line));
+    }
+
+    @Override
+    public Vector3f getOffset() {
+        return line.getOffset();
+    }
+
+    @Override
+    public boolean setOffset(final Vector3f offset) {
+        return line.setOffset(offset);
     }
 }

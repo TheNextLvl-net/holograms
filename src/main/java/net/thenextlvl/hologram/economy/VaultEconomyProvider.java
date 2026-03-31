@@ -1,9 +1,11 @@
 package net.thenextlvl.hologram.economy;
 
+import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -21,13 +23,13 @@ public final class VaultEconomyProvider implements EconomyProvider {
     }
 
     @Override
-    public String format(final Locale locale, final double amount) {
-        return getEconomy().map(economy -> economy.format(amount))
-                .orElseGet(() -> EconomyProvider.super.format(locale, amount));
+    public Component format(final Locale locale, @Nullable final String currency, final double amount) {
+        return Component.text(getEconomy().map(economy -> economy.format(amount))
+                .orElseGet(() -> String.format(locale, "%.2f", amount)));
     }
 
     @Override
-    public boolean withdraw(final Player player, final double amount) {
+    public boolean withdraw(final Player player, @Nullable final String currency, final double amount) {
         return getEconomy().map(economy -> {
             return economy.withdrawPlayer(player, amount).transactionSuccess();
         }).orElse(false);

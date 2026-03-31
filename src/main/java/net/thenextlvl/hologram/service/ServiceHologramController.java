@@ -1,21 +1,14 @@
 package net.thenextlvl.hologram.service;
 
-import net.kyori.adventure.text.Component;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.HologramProvider;
-import net.thenextlvl.service.api.capability.CapabilityException;
 import net.thenextlvl.service.api.hologram.Hologram;
 import net.thenextlvl.service.api.hologram.HologramCapability;
 import net.thenextlvl.service.api.hologram.HologramController;
-import net.thenextlvl.service.api.hologram.HologramLine;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NullMarked;
 
@@ -23,37 +16,29 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @NullMarked
 public final class ServiceHologramController implements HologramController {
     private final HologramProvider provider = HologramProvider.instance();
+    private final Set<HologramCapability> capabilities = EnumSet.allOf(HologramCapability.class);
+    private final HologramPlugin plugin;
 
-    @Override
-    public Hologram createHologram(final String name, final Location location, final Collection<HologramLine<?>> lines) throws CapabilityException {
-        final var hologram = new ServiceHologram(provider.createHologram(name, location));
-        hologram.addLines(lines); // fixme: aint gonna work
-        return hologram;
+    public ServiceHologramController(final HologramPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @Override
-    public HologramLine<BlockData> createLine(final BlockData block) throws CapabilityException {
-        return null; // todo
+    public Hologram createHologram(final String name, final Location location) {
+        return new ServiceHologram(provider.createHologram(name, location));
     }
 
     @Override
-    public HologramLine<Component> createLine(final Component text) throws CapabilityException {
-        return null; // todo
-    }
-
-    @Override
-    public HologramLine<EntityType> createLine(final EntityType entity) throws CapabilityException {
-        return null; // todo    
-    }
-
-    @Override
-    public HologramLine<ItemStack> createLine(final ItemStack itemStack) throws CapabilityException {
-        return null; // todo
+    public boolean deleteHologram(final Hologram hologram) {
+        return hologram instanceof ServiceHologram(
+                final net.thenextlvl.hologram.Hologram service
+        ) && provider.deleteHologram(service);
     }
 
     @Override
@@ -83,23 +68,23 @@ public final class ServiceHologramController implements HologramController {
     }
 
     @Override
-    public @Unmodifiable EnumSet<HologramCapability> getCapabilities() {
-        return EnumSet.allOf(HologramCapability.class);
+    public @Unmodifiable Set<HologramCapability> getCapabilities() {
+        return Set.copyOf(capabilities);
     }
 
     @Override
     public boolean hasCapabilities(final Collection<HologramCapability> capabilities) {
-        return true;
+        return this.capabilities.containsAll(capabilities);
     }
 
     @Override
     public boolean hasCapability(final HologramCapability capability) {
-        return true;
+        return capabilities.contains(capability);
     }
 
     @Override
     public Plugin getPlugin() {
-        return JavaPlugin.getPlugin(HologramPlugin.class);
+        return plugin;
     }
 
     @Override

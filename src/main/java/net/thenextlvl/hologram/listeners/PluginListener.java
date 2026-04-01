@@ -43,7 +43,7 @@ public final class PluginListener implements Listener {
             );
 
             plugin.economyProvider = new ServiceEconomyProvider(event.getPlugin());
-            plugin.getComponentLogger().info("ServiceIO detected, using for economy");
+            plugin.getComponentLogger().info("ServiceIO detected, using for all services");
         } else if (isPlugin(event.getPlugin(), "Vault")) {
             plugin.economyProvider = new VaultEconomyProvider(event.getPlugin());
             plugin.getComponentLogger().info("Vault detected, using for economy");

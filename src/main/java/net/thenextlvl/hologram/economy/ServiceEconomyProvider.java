@@ -1,8 +1,8 @@
 package net.thenextlvl.hologram.economy;
 
 import net.kyori.adventure.text.Component;
-import net.thenextlvl.service.api.economy.EconomyController;
-import net.thenextlvl.service.api.economy.currency.Currency;
+import net.thenextlvl.service.economy.EconomyController;
+import net.thenextlvl.service.economy.currency.Currency;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;

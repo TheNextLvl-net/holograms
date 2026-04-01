@@ -7,7 +7,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public final class ServiceItemHologramLine extends ServiceDisplayHologramLine<ItemHologramLine> implements net.thenextlvl.service.api.hologram.line.ItemHologramLine {
+public final class ServiceItemHologramLine extends ServiceDisplayHologramLine<ItemHologramLine> implements net.thenextlvl.service.hologram.line.ItemHologramLine {
     public ServiceItemHologramLine(final ServiceHologram hologram, final ItemHologramLine line) {
         super(hologram, line);
     }

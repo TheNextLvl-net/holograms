@@ -1,13 +1,13 @@
 package net.thenextlvl.hologram.service;
 
 import net.thenextlvl.hologram.Hologram;
-import net.thenextlvl.service.api.capability.CapabilityException;
-import net.thenextlvl.service.api.hologram.line.BlockHologramLine;
-import net.thenextlvl.service.api.hologram.line.EntityHologramLine;
-import net.thenextlvl.service.api.hologram.line.HologramLine;
-import net.thenextlvl.service.api.hologram.line.ItemHologramLine;
-import net.thenextlvl.service.api.hologram.line.PagedHologramLine;
-import net.thenextlvl.service.api.hologram.line.TextHologramLine;
+import net.thenextlvl.service.capability.CapabilityException;
+import net.thenextlvl.service.hologram.line.BlockHologramLine;
+import net.thenextlvl.service.hologram.line.EntityHologramLine;
+import net.thenextlvl.service.hologram.line.HologramLine;
+import net.thenextlvl.service.hologram.line.ItemHologramLine;
+import net.thenextlvl.service.hologram.line.PagedHologramLine;
+import net.thenextlvl.service.hologram.line.TextHologramLine;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @NullMarked
-public record ServiceHologram(Hologram hologram) implements net.thenextlvl.service.api.hologram.Hologram {
+public record ServiceHologram(Hologram hologram) implements net.thenextlvl.service.hologram.Hologram {
     @Override
     public CompletableFuture<Boolean> teleportAsync(final Location location) {
         return hologram.teleportAsync(location);

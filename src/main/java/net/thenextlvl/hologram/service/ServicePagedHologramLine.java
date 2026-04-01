@@ -1,13 +1,13 @@
 package net.thenextlvl.hologram.service;
 
 import net.thenextlvl.hologram.line.PagedHologramLine;
-import net.thenextlvl.service.api.capability.CapabilityException;
-import net.thenextlvl.service.api.hologram.line.BlockHologramLine;
-import net.thenextlvl.service.api.hologram.line.EntityHologramLine;
-import net.thenextlvl.service.api.hologram.line.HologramLine;
-import net.thenextlvl.service.api.hologram.line.ItemHologramLine;
-import net.thenextlvl.service.api.hologram.line.StaticHologramLine;
-import net.thenextlvl.service.api.hologram.line.TextHologramLine;
+import net.thenextlvl.service.capability.CapabilityException;
+import net.thenextlvl.service.hologram.line.BlockHologramLine;
+import net.thenextlvl.service.hologram.line.EntityHologramLine;
+import net.thenextlvl.service.hologram.line.HologramLine;
+import net.thenextlvl.service.hologram.line.ItemHologramLine;
+import net.thenextlvl.service.hologram.line.StaticHologramLine;
+import net.thenextlvl.service.hologram.line.TextHologramLine;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @NullMarked
-public final class ServicePagedHologramLine extends ServiceHologramLine<PagedHologramLine> implements net.thenextlvl.service.api.hologram.line.PagedHologramLine {
+public final class ServicePagedHologramLine extends ServiceHologramLine<PagedHologramLine> implements net.thenextlvl.service.hologram.line.PagedHologramLine {
     public ServicePagedHologramLine(final ServiceHologram hologram, final PagedHologramLine line) {
         super(hologram, line);
     }

@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 @NullMarked
-public final class ServiceTextHologramLine extends ServiceDisplayHologramLine<TextHologramLine> implements net.thenextlvl.service.api.hologram.line.TextHologramLine {
+public final class ServiceTextHologramLine extends ServiceDisplayHologramLine<TextHologramLine> implements net.thenextlvl.service.hologram.line.TextHologramLine {
     public ServiceTextHologramLine(final ServiceHologram hologram, final TextHologramLine line) {
         super(hologram, line);
     }

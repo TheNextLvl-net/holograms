@@ -5,7 +5,7 @@ import org.bukkit.block.data.BlockData;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class ServiceBlockHologramLine extends ServiceDisplayHologramLine<BlockHologramLine> implements net.thenextlvl.service.api.hologram.line.BlockHologramLine {
+public final class ServiceBlockHologramLine extends ServiceDisplayHologramLine<BlockHologramLine> implements net.thenextlvl.service.hologram.line.BlockHologramLine {
     public ServiceBlockHologramLine(final ServiceHologram hologram, final BlockHologramLine line) {
         super(hologram, line);
     }

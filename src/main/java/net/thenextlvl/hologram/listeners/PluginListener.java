@@ -6,7 +6,7 @@ import net.thenextlvl.hologram.economy.VaultEconomyProvider;
 import net.thenextlvl.hologram.locale.MiniPlaceholdersFormatter;
 import net.thenextlvl.hologram.locale.PlaceholderAPIFormatter;
 import net.thenextlvl.hologram.service.ServiceHologramController;
-import net.thenextlvl.service.api.hologram.HologramController;
+import net.thenextlvl.service.hologram.HologramController;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

@@ -1,8 +1,8 @@
 package net.thenextlvl.hologram.service;
 
-import net.thenextlvl.service.api.hologram.Hologram;
-import net.thenextlvl.service.api.hologram.LineType;
-import net.thenextlvl.service.api.hologram.line.HologramLine;
+import net.thenextlvl.service.hologram.Hologram;
+import net.thenextlvl.service.hologram.LineType;
+import net.thenextlvl.service.hologram.line.HologramLine;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;

@@ -2,7 +2,7 @@ package net.thenextlvl.hologram.service;
 
 import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.line.DisplayHologramLine;
-import net.thenextlvl.service.api.hologram.line.PagedHologramLine;
+import net.thenextlvl.service.hologram.line.PagedHologramLine;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -15,7 +15,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 @NullMarked
-abstract class ServiceDisplayHologramLine<L extends DisplayHologramLine> extends ServiceHologramLine<L> implements net.thenextlvl.service.api.hologram.line.DisplayHologramLine {
+abstract class ServiceDisplayHologramLine<L extends DisplayHologramLine> extends ServiceHologramLine<L> implements net.thenextlvl.service.hologram.line.DisplayHologramLine {
     protected ServiceDisplayHologramLine(final ServiceHologram hologram, final L line) {
         super(hologram, line);
     }

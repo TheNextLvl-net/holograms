@@ -2,9 +2,9 @@ package net.thenextlvl.hologram.service;
 
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.HologramProvider;
-import net.thenextlvl.service.api.hologram.Hologram;
-import net.thenextlvl.service.api.hologram.HologramCapability;
-import net.thenextlvl.service.api.hologram.HologramController;
+import net.thenextlvl.service.hologram.Hologram;
+import net.thenextlvl.service.hologram.HologramCapability;
+import net.thenextlvl.service.hologram.HologramController;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

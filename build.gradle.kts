@@ -147,19 +147,19 @@ paper {
     }
     serverDependencies {
         register("MiniPlaceholders") {
-            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
             required = false
         }
         register("PlaceholderAPI") {
-            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
             required = false
         }
         register("ServiceIO") {
-            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
             required = false
         }
         register("Vault") {
-            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
             required = false
         }
     }

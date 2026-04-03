@@ -8,17 +8,17 @@ plugins {
     id("com.modrinth.minotaur") version "2.+"
     id("de.eldoria.plugin-yml.paper") version "0.9.0"
     id("io.papermc.hangar-publish-plugin") version "0.1.4"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21"
 }
 
 group = "net.thenextlvl.holograms"
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 tasks.compileJava {
-    options.release.set(21)
+    options.release.set(25)
 }
 
 repositories {
@@ -29,7 +29,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.foliaDevBundle("1.21.11-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("26.1.1.build.+")
 
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
     compileOnly("me.clip:placeholderapi:2.12.2")
@@ -51,7 +51,7 @@ dependencies {
 paper {
     name = "Holograms"
     main = "net.thenextlvl.hologram.HologramPlugin"
-    apiVersion = "1.21"
+    apiVersion = "26.1"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net"
     authors = listOf("NonSwag")

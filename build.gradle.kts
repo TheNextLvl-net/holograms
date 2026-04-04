@@ -35,7 +35,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.12.2")
 
     compileOnly("net.thenextlvl:vault-api:1.7.1")
-    compileOnly("net.thenextlvl:service-io:2.5.1")
+    compileOnly("net.thenextlvl:service-io:2.6.0")
 
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
     implementation("net.thenextlvl:i18n:1.2.0")

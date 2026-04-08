@@ -31,7 +31,7 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("26.1.1.build.29-alpha")
 
-    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
+    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.2.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.12.2")
 
     compileOnly("net.thenextlvl:vault-api:1.7.1")

@@ -137,7 +137,7 @@ final class SimpleClickAction<T> implements ClickAction<T> {
         if (isOnCooldown(player)) return false;
         if (!getPermission().map(player::hasPermission).orElse(true)) return false;
         if (chance < 100 && ThreadLocalRandom.current().nextInt(100) > chance) return false;
-        if (!plugin.economyProvider.withdraw(player, cost)) return false;
+        if (cost > 0 && !plugin.economyProvider.withdraw(player, cost)) return false;
         actionType.action().invoke(line, player, input);
         if (cooldown.isPositive()) cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
         return true;

@@ -144,7 +144,7 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@Nullable final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         final SimpleClickAction<?> that = (SimpleClickAction<?>) o;
         return chance == that.chance

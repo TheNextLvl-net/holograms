@@ -33,7 +33,7 @@ final class SimpleClickAction<T> implements ClickAction<T> {
     public SimpleClickAction(final HologramPlugin plugin, final ActionType<T> actionType, final EnumSet<ClickType> clickTypes, final T input) {
         this.plugin = plugin;
         this.actionType = actionType;
-        this.clickTypes = clickTypes;
+        this.clickTypes = EnumSet.copyOf(clickTypes);
         this.input = input;
     }
 

@@ -26,7 +26,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jspecify.annotations.NullMarked;
 
@@ -82,7 +82,7 @@ public final class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerInteractEntity(final PlayerInteractEntityEvent event) {
+    public void onPlayerInteractEntity(final PlayerInteractAtEntityEvent event) {
         handleInteraction(event.getPlayer(), event.getRightClicked(), event, true);
     }
 

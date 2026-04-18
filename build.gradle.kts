@@ -1,4 +1,5 @@
 import io.papermc.hangarpublishplugin.model.Platforms
+import org.gradle.api.attributes.java.TargetJvmVersion
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import net.minecrell.pluginyml.paper.PaperPluginDescription
 
@@ -18,7 +19,11 @@ java {
 }
 
 tasks.compileJava {
-    options.release.set(25)
+    options.release.set(21)
+}
+
+configurations.compileClasspath {
+    attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
 }
 
 repositories {
@@ -51,7 +56,7 @@ dependencies {
 paper {
     name = "Holograms"
     main = "net.thenextlvl.hologram.HologramPlugin"
-    apiVersion = "26.1"
+    apiVersion = "1.21.2"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net"
     authors = listOf("NonSwag")

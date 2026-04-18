@@ -135,8 +135,8 @@ public final class EntityListener implements Listener {
             final var consumer = (BiConsumer<String, ClickAction<?>>) (name, action) -> {
                 if (action.isSupportedClickType(type)) action.invoke(line, player);
             };
-            if (line instanceof final PagedHologramLine paged)
-                paged.forEachPage(page -> page.forEachAction(consumer));
+            if (line instanceof final PagedHologramLine paged) paged.getCurrentPage(player)
+                    .ifPresent(page -> page.forEachAction(consumer));
             line.forEachAction(consumer);
         });
     }

@@ -37,14 +37,14 @@ final class ActionCostCommand extends ActionCommand {
     public int run(final CommandContext<CommandSourceStack> context, final Hologram hologram, final HologramLine line, final ClickAction<?> action, final String actionName, final TagResolver... placeholders) {
         final var cost = tryGetArgument(context, "cost", double.class);
         final var success = cost.map(action::setCost).orElse(false);
-        final var message = success ? "hologram.action.cost.set" : cost.isEmpty()
-                ? "hologram.action.cost" : "nothing.changed";
+        final var message = success ? "hologram.action.cost.set"
+                : cost.isEmpty() ? "hologram.action.cost" : "nothing.changed";
         final var sender = context.getSource().getSender();
-        final var formatted = plugin.economyProvider.format(sender, cost.orElse(action.getCost()));
+        final var formatted = plugin.economyProvider.format(sender, action.getCurrency().orElse(null), cost.orElse(action.getCost()));
         plugin.bundle().sendMessage(sender, message,
                 TagResolver.resolver(placeholders),
                 Placeholder.unparsed("action", actionName),
-                Placeholder.parsed("cost", formatted));
+                Placeholder.component("cost", formatted));
         return SINGLE_SUCCESS;
     }
 }

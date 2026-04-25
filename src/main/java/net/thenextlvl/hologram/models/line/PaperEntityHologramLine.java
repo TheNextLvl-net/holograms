@@ -154,7 +154,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
         if (entity instanceof final Attributable attributable) {
             final var attribute = attributable.getAttribute(Attribute.SCALE);
             if (attribute != null) attribute.setBaseValue(scale);
-            ((CraftEntity) entity).getHandle().refreshDimensions();
+            ((CraftEntity) entity).getHandle().refreshDimensions(); // todo: modularize? reflections?
         }
 
         if (entity instanceof final ArmorStand armorStand) {

@@ -10,6 +10,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.action.ClickAction;
+import net.thenextlvl.hologram.commands.action.argument.CurrencyArgumentType;
 import net.thenextlvl.hologram.line.HologramLine;
 import org.jspecify.annotations.NullMarked;
 
@@ -27,24 +28,37 @@ final class ActionCostCommand extends ActionCommand {
         final var command = new ActionCostCommand(plugin, resolver);
         final var chain = chainFactory.create();
         final var cost = Commands.argument("cost", DoubleArgumentType.doubleArg(0));
+        final var currency = Commands.argument("currency", new CurrencyArgumentType(plugin));
         chain.tail().then(actionArgument(plugin)
-                .then(cost.executes(command))
+                .then(cost.executes(command).then(currency.executes(command)))
                 .executes(command));
         return command.create().then(chain.build());
     }
 
     @Override
     public int run(final CommandContext<CommandSourceStack> context, final Hologram hologram, final HologramLine line, final ClickAction<?> action, final String actionName, final TagResolver... placeholders) {
-        final var cost = tryGetArgument(context, "cost", double.class);
-        final var success = cost.map(action::setCost).orElse(false);
-        final var message = success ? "hologram.action.cost.set"
-                : cost.isEmpty() ? "hologram.action.cost" : "nothing.changed";
         final var sender = context.getSource().getSender();
-        final var formatted = plugin.economyProvider.format(sender, action.getCurrency().orElse(null), cost.orElse(action.getCost()));
+
+        final var cost = tryGetArgument(context, "cost", double.class).orElse(null);
+        final var currency = tryGetArgument(context, "currency", String.class).orElse(null);
+
+
+        final var format = plugin.economyProvider.format(sender, action.getCurrency().orElse(null), cost != null ? cost : action.getCost());
+        if (cost == null) {
+            plugin.bundle().sendMessage(sender, "hologram.action.cost",
+                    TagResolver.resolver(placeholders),
+                    Placeholder.component("cost", format),
+                    Placeholder.unparsed("action", actionName));
+            return SINGLE_SUCCESS;
+        }
+
+        final var success = action.setCost(cost) | action.setCurrency(currency);
+        final var message = success ? "hologram.action.cost.set" : "nothing.changed";
+
         plugin.bundle().sendMessage(sender, message,
                 TagResolver.resolver(placeholders),
-                Placeholder.unparsed("action", actionName),
-                Placeholder.component("cost", formatted));
-        return SINGLE_SUCCESS;
+                Placeholder.component("cost", format),
+                Placeholder.unparsed("action", actionName));
+        return success ? SINGLE_SUCCESS : 0;
     }
 }

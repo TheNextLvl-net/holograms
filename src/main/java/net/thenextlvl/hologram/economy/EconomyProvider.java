@@ -8,6 +8,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.stream.Stream;
 
 @NullMarked
 public interface EconomyProvider {
@@ -18,4 +19,8 @@ public interface EconomyProvider {
     Component format(final Locale locale, @Nullable final String currency, final double amount);
 
     boolean withdraw(Player player, @Nullable final String currency, double amount);
+
+    boolean currencyExists(String currency);
+
+    Stream<String> getCurrencies();
 }

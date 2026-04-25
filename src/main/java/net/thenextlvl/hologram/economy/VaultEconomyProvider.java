@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @NullMarked
 public final class VaultEconomyProvider implements EconomyProvider {
@@ -33,5 +34,15 @@ public final class VaultEconomyProvider implements EconomyProvider {
         return getEconomy().map(economy -> {
             return economy.withdrawPlayer(player, amount).transactionSuccess();
         }).orElse(false);
+    }
+
+    @Override
+    public boolean currencyExists(final String currency) {
+        return false;
+    }
+
+    @Override
+    public Stream<String> getCurrencies() {
+        return Stream.empty();
     }
 }

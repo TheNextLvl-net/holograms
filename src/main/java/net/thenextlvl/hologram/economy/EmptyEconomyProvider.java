@@ -7,6 +7,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.stream.Stream;
 
 @NullMarked
 public final class EmptyEconomyProvider implements EconomyProvider {
@@ -26,5 +27,15 @@ public final class EmptyEconomyProvider implements EconomyProvider {
         if (amount == 0) return true;
         plugin.getComponentLogger().warn("No economy provider installed, cannot withdraw money");
         return false;
+    }
+
+    @Override
+    public boolean currencyExists(final String currency) {
+        return false;
+    }
+
+    @Override
+    public Stream<String> getCurrencies() {
+        return Stream.empty();
     }
 }

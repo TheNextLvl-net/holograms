@@ -3,6 +3,7 @@ package net.thenextlvl.hologram.economy;
 import net.kyori.adventure.text.Component;
 import net.thenextlvl.service.economy.EconomyController;
 import net.thenextlvl.service.economy.currency.Currency;
+import net.thenextlvl.service.economy.currency.CurrencyController;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
@@ -10,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @NullMarked
 public final class ServiceEconomyProvider implements EconomyProvider {
@@ -21,6 +23,10 @@ public final class ServiceEconomyProvider implements EconomyProvider {
 
     private Optional<EconomyController> getController() {
         return Optional.ofNullable(plugin.getServer().getServicesManager().load(EconomyController.class));
+    }
+
+    private Optional<CurrencyController> getCurrencyController() {
+        return getController().map(EconomyController::getCurrencyController);
     }
 
     private Optional<Currency> getCurrency(@Nullable final String name) {
@@ -44,5 +50,19 @@ public final class ServiceEconomyProvider implements EconomyProvider {
         return getController().flatMap(controller -> controller.getAccount(player).map(account -> {
             return account.withdraw(amount, getCurrency(controller, currency)).successful();
         })).orElse(false);
+    }
+
+    @Override
+    public boolean currencyExists(final String currency) {
+        return getCurrencyController()
+                .map(controller -> controller.currencyExists(currency))
+                .orElse(false);
+    }
+
+    @Override
+    public Stream<String> getCurrencies() {
+        return getCurrencyController()
+                .map(controller -> controller.getCurrencies().map(Currency::getName))
+                .orElseGet(Stream::empty);
     }
 }

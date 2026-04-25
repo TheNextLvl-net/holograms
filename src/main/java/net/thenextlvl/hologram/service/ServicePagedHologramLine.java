@@ -14,7 +14,6 @@ import org.jspecify.annotations.NullMarked;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -197,8 +196,9 @@ public final class ServicePagedHologramLine extends ServiceHologramLine<PagedHol
     }
 
     @Override
-    public OptionalInt getCurrentPageIndex(final Player player) {
-        return line.getCurrentPageIndex(player);
+    public Optional<Integer> getCurrentPageIndex(final Player player) {
+        final var page = line.getCurrentPageIndex(player);
+        return page.isPresent() ? Optional.of(page.getAsInt()) : Optional.empty();
     }
 
     @Override

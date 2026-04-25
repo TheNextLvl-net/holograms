@@ -14,10 +14,9 @@ import org.jspecify.annotations.NullMarked;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @NullMarked
 public final class ServiceHologramController implements HologramController {
@@ -42,24 +41,18 @@ public final class ServiceHologramController implements HologramController {
     }
 
     @Override
-    public @Unmodifiable List<Hologram> getHolograms() {
-        return provider.getHolograms()
-                .map(ServiceHologram::new)
-                .collect(Collectors.toUnmodifiableList());
+    public Stream<Hologram> getHolograms() {
+        return provider.getHolograms().map(ServiceHologram::new);
     }
 
     @Override
-    public @Unmodifiable List<Hologram> getHolograms(final Player player) {
-        return provider.getHolograms(player)
-                .map(ServiceHologram::new)
-                .collect(Collectors.toUnmodifiableList());
+    public Stream<Hologram> getHolograms(final Player player) {
+        return provider.getHolograms(player).map(ServiceHologram::new);
     }
 
     @Override
-    public @Unmodifiable List<Hologram> getHolograms(final World world) {
-        return provider.getHolograms(world)
-                .map(ServiceHologram::new)
-                .collect(Collectors.toUnmodifiableList());
+    public Stream<Hologram> getHolograms(final World world) {
+        return provider.getHolograms(world).map(ServiceHologram::new);
     }
 
     @Override

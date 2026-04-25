@@ -48,10 +48,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
 
     @Override
     public double getHeight(final Player player) {
-        return getEntity(player, CraftEntity.class)
-                .map(CraftEntity::getHandleRaw)
-                .map(net.minecraft.world.entity.Entity::getBbHeight)
-                .orElse(1f);
+        return getEntity(player).map(Entity::getHeight).orElse(1d);
     }
 
     @Override

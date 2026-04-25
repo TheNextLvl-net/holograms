@@ -27,7 +27,6 @@ configurations.compileClasspath {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://repo.thenextlvl.net/releases")

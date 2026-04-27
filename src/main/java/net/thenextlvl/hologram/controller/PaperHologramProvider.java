@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.controller;
 
 import com.google.common.base.Preconditions;
+import io.papermc.paper.ServerBuildInfo;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.HologramProvider;
@@ -35,6 +36,9 @@ import static net.thenextlvl.hologram.HologramPlugin.ISSUES;
 
 @NullMarked
 public class PaperHologramProvider implements HologramProvider {
+    private static final Set<String> oldVersions = Set.of(
+            "1.21.8", "1.21.9", "1.21.10", "1.21.11"
+    );
     private final HologramPlugin plugin;
     public final Set<Hologram> holograms = new CopyOnWriteArraySet<>();
 
@@ -44,7 +48,9 @@ public class PaperHologramProvider implements HologramProvider {
 
     @Override
     public Path getDataFolder(final World world) {
-        return world.getWorldPath().resolve("holograms");
+        final var version = ServerBuildInfo.buildInfo().minecraftVersionId();
+        if (oldVersions.contains(version)) return world.getWorldPath().resolve("portals");
+        return world.getWorldPath().resolve("data").resolve("portals");
     }
 
     @Override

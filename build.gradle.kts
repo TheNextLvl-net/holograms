@@ -39,8 +39,9 @@ dependencies {
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.2.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.12.2")
 
-    compileOnly("net.thenextlvl:vault-api:1.7.1")
     compileOnly("net.thenextlvl:service-io:3.0.0-pre11")
+    compileOnly("net.thenextlvl:vault-api:1.7.1")
+    compileOnly("net.thenextlvl:worlds:4.2.0")
 
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
     implementation("net.thenextlvl:i18n:1.2.0")
@@ -155,6 +156,10 @@ paper {
             required = false
         }
         register("PlaceholderAPI") {
+            load = PaperPluginDescription.RelativeLoadOrder.AFTER
+            required = false
+        }
+        register("Worlds") {
             load = PaperPluginDescription.RelativeLoadOrder.AFTER
             required = false
         }

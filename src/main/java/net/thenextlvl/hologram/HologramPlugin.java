@@ -53,6 +53,7 @@ import net.thenextlvl.hologram.listeners.EntityListener;
 import net.thenextlvl.hologram.listeners.LocaleListener;
 import net.thenextlvl.hologram.listeners.PluginListener;
 import net.thenextlvl.hologram.listeners.WorldListener;
+import net.thenextlvl.hologram.listeners.WorldMigrationListener;
 import net.thenextlvl.hologram.locale.HologramTranslationStore;
 import net.thenextlvl.hologram.locale.MiniPlaceholdersFormatter;
 import net.thenextlvl.hologram.locale.PlaceholderAPIFormatter;
@@ -68,6 +69,7 @@ import net.thenextlvl.nbt.NBTInputStream;
 import net.thenextlvl.nbt.serialization.NBT;
 import net.thenextlvl.nbt.serialization.ParserException;
 import net.thenextlvl.nbt.serialization.adapters.EnumAdapter;
+import net.thenextlvl.version.SemanticVersion;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -166,6 +168,13 @@ public final class HologramPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new LocaleListener(this), this);
         getServer().getPluginManager().registerEvents(new PluginListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
+
+        final var worlds = getServer().getPluginManager().getPlugin("Worlds");
+        if (worlds != null && SemanticVersion.parse(worlds.getPluginMeta().getVersion())
+                .compareTo(new SemanticVersion(4, 2, 0, null)) >= 0) {
+            getServer().getPluginManager().registerEvents(new WorldMigrationListener(this), this);
+            getComponentLogger().info("Added WorldFolderMigrationEvent hook");
+        }
     }
 
     @Override

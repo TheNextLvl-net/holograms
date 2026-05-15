@@ -49,8 +49,8 @@ public class PaperHologramProvider implements HologramProvider {
     @Override
     public Path getDataFolder(final World world) {
         final var version = ServerBuildInfo.buildInfo().minecraftVersionId();
-        if (oldVersions.contains(version)) return world.getWorldPath().resolve("portals");
-        return world.getWorldPath().resolve("data").resolve("portals");
+        if (oldVersions.contains(version)) return world.getWorldPath().resolve("holograms");
+        return world.getWorldPath().resolve("data").resolve("holograms");
     }
 
     @Override

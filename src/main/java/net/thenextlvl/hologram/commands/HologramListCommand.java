@@ -25,7 +25,7 @@ final class HologramListCommand extends SimpleCommand {
         final var sender = commandContext.getSource().getSender();
         final var holograms = plugin.hologramProvider().getHolograms().map(hologram -> {
             return plugin.bundle().component("hologram.list.entry", sender, 
-                    Placeholder.unparsed("hologram", hologram.getName()));
+                    Placeholder.parsed("hologram", hologram.getName()));
         }).toList();
         final var message = holograms.isEmpty() ? "hologram.list.empty" : "hologram.list";
         plugin.bundle().sendMessage(sender, message,

@@ -24,6 +24,7 @@ import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.stream.IntStream;
@@ -152,8 +153,39 @@ final class HologramInfoCommand extends SimpleCommand {
 
     private String getEditCommand(final Hologram hologram, final HologramLine line, final int lineNumber, final int page) {
         if (line instanceof PagedHologramLine) {
-            return "/holo page edit " + hologram.getName() + " " + lineNumber + " " + page + " ";
+            final var command = "/holo page edit " + hologram.getName() + " " + lineNumber + " " + page + " ";
+            return command + getTypedEditCommand(getPagedLine(line, page));
         }
-        return "/holo line edit " + hologram.getName() + " " + lineNumber + " ";
+        final var command = "/holo line edit " + hologram.getName() + " " + lineNumber + " ";
+        return command + getTypedEditCommand(line);
+    }
+
+    private HologramLine getPagedLine(final HologramLine line, final int page) {
+        if (line instanceof final PagedHologramLine pagedLine) {
+            return pagedLine.getPage(page - 1).map(HologramLine.class::cast).orElse(line);
+        }
+        return line;
+    }
+
+    private String getTypedEditCommand(final HologramLine line) {
+        return switch (line) {
+            case final TextHologramLine textLine -> "set text " + textLine.getUnparsedText().orElse("");
+            case final BlockHologramLine blockLine -> {
+                final var block = blockLine.getBlock();
+                yield "set block " + (block.getMaterial().isAir() ? "" : block.getAsString(true));
+            }
+            case final EntityHologramLine entityLine -> "set entity " + entityLine.getEntityType().getKey().asString();
+            case final ItemHologramLine itemLine -> "set item " + toString(itemLine.getItemStack());
+            case final PagedHologramLine ignored -> "set paged";
+            default -> "";
+        };
+    }
+
+    private String toString(final ItemStack item) {
+        if (item.isEmpty()) return "";
+        final var components = item.getItemMeta().getAsComponentString();
+        final var key = item.getType().getKey().asString();
+        if (components.equals("[]")) return key;
+        return key + components;
     }
 }

@@ -18,69 +18,45 @@ import java.util.stream.Collectors;
 
 @NullMarked
 public final class TagSuggestionProvider<S> implements SuggestionProvider<S> {
-    private final HologramPlugin plugin;
-    private final Map<String, @Nullable SuggestionProvider<S>> tags;
+    private final Map<String, @Nullable SuggestionProvider<S>> tags = new HashMap<>();
 
     public TagSuggestionProvider(final HologramPlugin plugin) {
-        this.plugin = plugin;
-        this.tags = new HashMap<>();
-        tags.put("</b>", null);
-        tags.put("</bold>", null);
-        tags.put("</em>", null);
-        tags.put("</font>", null);
-        tags.put("</gradient>", null);
-        tags.put("</i>", null);
-        tags.put("</italic>", null);
-        tags.put("</obf>", null);
-        tags.put("</obfuscated>", null);
-        tags.put("</pride>", null);
-        tags.put("</rainbow>", null);
-        tags.put("</shadow>", null);
-        tags.put("</sprite>", null);
-        tags.put("</st>", null);
-        tags.put("</strikethrough>", null);
-        tags.put("</transition>", null);
-        tags.put("</u>", null);
-        tags.put("</underline>", null);
-        tags.put("<b>", null);
-        tags.put("<bold>", null);
-        tags.put("<br>", null);
-        tags.put("<em>", null);
-        tags.put("<font:", null);
-        tags.put("<gradient", null);
+        addClosableTags(false, "font:");
+        addClosableTags(false, "gradient");
+        addClosableTags(false, "pride");
+        addClosableTags(false, "rainbow");
+        addClosableTags(false, "shadow");
+        addClosableTags(false, "transition");
+
+        addClosableTags(true, "bold", "b");
+        addClosableTags(true, "italic", "i", "em");
+        addClosableTags(true, "obfuscated", "obf");
+        addClosableTags(true, "sprite");
+        addClosableTags(true, "strikethrough", "st");
+        addClosableTags(true, "underline", "u");
+        addClosableTags(true, NamedTextColor.NAMES.keys().toArray(new String[0]));
+
+        addSimpleTags("hologram");
+        addSimpleTags("line", "lines");
+        addSimpleTags("newline", "br");
+        addSimpleTags("page", "pages");
+        addSimpleTags("player", "players");
+
         tags.put("<head:", null);
-        tags.put("<hologram>", null);
-        tags.put("<i>", null);
         tags.put("<image:", new ImageTagSuggestionProvider<>());
-        tags.put("<italic>", null);
         tags.put("<key:", null);
         tags.put("<lang:", new LangTagSuggestionProvider<>(plugin));
-        tags.put("<lines>", null);
-        tags.put("<newline>", null);
-        tags.put("<obf>", null);
-        tags.put("<obfuscated>", null);
-        tags.put("<page>", null);
-        tags.put("<pages>", null);
-        tags.put("<player>", null);
-        tags.put("<players>", null);
-        tags.put("<pride", null);
-        tags.put("<rainbow", null);
-        tags.put("<shadow", null);
-        tags.put("<sprite", null);
-        tags.put("<st>", null);
-        tags.put("<strikethrough>", null);
-        tags.put("<transition", null);
-        tags.put("<u>", null);
-        tags.put("<underline>", null);
-        NamedTextColor.NAMES.keys().forEach(s -> {
-            tags.put("<" + s + ">", null);
-            tags.put("</" + s + ">", null);
-        });
     }
 
-    public TagSuggestionProvider(final HologramPlugin plugin, final Map<String, @Nullable SuggestionProvider<S>> tags) {
-        this.plugin = plugin;
-        this.tags = tags;
+    private void addClosableTags(final boolean autoClose, final String... tags) {
+        for (final var tag : tags) {
+            this.tags.put("<" + tag + (autoClose ? ">" : ""), null);
+            this.tags.put("</" + tag + ">", null);
+        }
+    }
+
+    private void addSimpleTags(final String... tags) {
+        for (final var tag : tags) this.tags.put("<" + tag + ">", null);
     }
 
     @Override
@@ -152,7 +128,8 @@ public final class TagSuggestionProvider<S> implements SuggestionProvider<S> {
         var nameStart = start + (input.startsWith("</", start) ? 2 : 1);
         while (nameStart < end && Character.isWhitespace(input.charAt(nameStart))) nameStart++;
         var nameEnd = nameStart;
-        while (nameEnd < end && input.charAt(nameEnd) != ':' && !Character.isWhitespace(input.charAt(nameEnd))) nameEnd++;
+        while (nameEnd < end && input.charAt(nameEnd) != ':' && !Character.isWhitespace(input.charAt(nameEnd)))
+            nameEnd++;
         return nameStart != nameEnd ? input.substring(nameStart, nameEnd) : null;
     }
 }

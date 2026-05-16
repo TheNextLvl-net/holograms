@@ -139,14 +139,13 @@ final class HologramInfoCommand extends SimpleCommand {
     private Component getPageButton(final Hologram hologram, final String label, final int page, final boolean enabled) {
         if (!enabled) return Component.text(label);
         return Component.text(label, NamedTextColor.GREEN)
-                .clickEvent(ClickEvent.runCommand("/hologram info " + hologram.getName() + " " + page))
+                .clickEvent(ClickEvent.runCommand("/hologram info " + escape(hologram) + " " + page))
                 .hoverEvent(Component.text("Page " + page, NamedTextColor.GRAY));
     }
 
     private Component getEmptyLine(final Audience audience, final Hologram hologram) {
         return plugin.bundle().component("hologram.info.empty", audience,
-                Placeholder.parsed("command", "/holo line add "
-                        + StringArgumentType.escapeIfRequired(hologram.getName()) + " "));
+                Placeholder.parsed("command", "/holo line add " + escape(hologram) + " "));
     }
 
     private Component getInfoLine(final Audience audience, final Hologram hologram, final HologramLine line,
@@ -167,7 +166,7 @@ final class HologramInfoCommand extends SimpleCommand {
                                   final int lineNumber) {
         final var type = Component.text(getLineType(line), NamedTextColor.DARK_GRAY);
         if (!(line instanceof final PagedHologramLine pagedLine)) return type;
-        return type.clickEvent(ClickEvent.suggestCommand("/holo page settings " + hologram.getName() + " " + lineNumber + " "))
+        return type.clickEvent(ClickEvent.suggestCommand("/holo page settings " + escape(hologram) + " " + lineNumber + " "))
                 .hoverEvent(HoverEvent.showText(getPageSettingsHover(audience, pagedLine)));
     }
 
@@ -210,11 +209,15 @@ final class HologramInfoCommand extends SimpleCommand {
 
     private String getEditCommand(final Hologram hologram, final HologramLine line, final int lineNumber, final int page) {
         if (line instanceof PagedHologramLine) {
-            final var command = "/holo page edit " + hologram.getName() + " " + lineNumber + " " + page + " ";
+            final var command = "/holo page edit " + escape(hologram) + " " + lineNumber + " " + page + " ";
             return command + getTypedEditCommand(getPagedLine(line, page));
         }
-        final var command = "/holo line edit " + hologram.getName() + " " + lineNumber + " ";
+        final var command = "/holo line edit " + escape(hologram) + " " + lineNumber + " ";
         return command + getTypedEditCommand(line);
+    }
+
+    private String escape(final Hologram hologram) {
+        return StringArgumentType.escapeIfRequired(hologram.getName());
     }
 
     private HologramLine getPagedLine(final HologramLine line, final int page) {

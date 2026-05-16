@@ -10,9 +10,11 @@ import net.thenextlvl.hologram.HologramPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @NullMarked
 public final class TagSuggestionProvider<S> implements SuggestionProvider<S> {
@@ -102,14 +104,55 @@ public final class TagSuggestionProvider<S> implements SuggestionProvider<S> {
         final var unclosed = lastOpen != -1 && remaining.indexOf('>', lastOpen) == -1;
         final var partial = unclosed ? remaining.substring(lastOpen) : null;
         final var offset = builder.createOffset(unclosed ? builder.getStart() + lastOpen : start);
+        final var openTags = findOpenTags(remaining.substring(0, unclosed ? lastOpen : remaining.length()));
+        final var closingTag = openTags.peekLast() != null ? "</" + openTags.peekLast() + ">" : null;
 
         for (final var entry : tags.entrySet()) {
-            if (partial == null || entry.getKey().startsWith(partial)) {
-                offset.suggest(entry.getKey());
+            final var tag = entry.getKey();
+            if (tag.startsWith("</") && !tag.equals(closingTag)) continue;
+            if (partial == null || tag.startsWith(partial)) {
+                offset.suggest(tag);
             }
         }
         builder.add(offset);
 
         return builder.buildFuture();
+    }
+
+    private ArrayDeque<String> findOpenTags(final String input) {
+        final var closeable = tags.keySet().stream()
+                .filter(tag -> tag.startsWith("</"))
+                .map(tag -> tag.substring(2, tag.length() - 1))
+                .collect(Collectors.toSet());
+        final var openTags = new ArrayDeque<String>();
+
+        var index = 0;
+        while ((index = input.indexOf('<', index)) != -1) {
+            final var end = input.indexOf('>', index);
+            if (end == -1) break;
+
+            final var name = tagName(input, index, end);
+            if (name == null) {
+                index = end + 1;
+                continue;
+            }
+
+            if (input.startsWith("</", index)) {
+                openTags.removeLastOccurrence(name);
+            } else if (closeable.contains(name)) {
+                openTags.addLast(name);
+            }
+            index = end + 1;
+        }
+
+        return openTags;
+    }
+
+    private @Nullable String tagName(final String input, final int start, final int end) {
+        var nameStart = start + (input.startsWith("</", start) ? 2 : 1);
+        while (nameStart < end && Character.isWhitespace(input.charAt(nameStart))) nameStart++;
+        var nameEnd = nameStart;
+        while (nameEnd < end && input.charAt(nameEnd) != ':' && !Character.isWhitespace(input.charAt(nameEnd))) nameEnd++;
+        return nameStart != nameEnd ? input.substring(nameStart, nameEnd) : null;
     }
 }

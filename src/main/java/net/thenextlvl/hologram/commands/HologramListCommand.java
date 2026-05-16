@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.commands;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -69,7 +70,8 @@ final class HologramListCommand extends SimpleCommand {
                 final var hologram = holograms.get(hologramIndex);
                 plugin.bundle().sendMessage(sender, "hologram.list.entry",
                         Placeholder.parsed("tree", hologramIndex + 1 == holograms.size() ? "└" : "├"),
-                        Placeholder.parsed("hologram", hologram.getName()));
+                        Placeholder.unparsed("hologram", hologram.getName()),
+                        Placeholder.parsed("command", "/hologram info " + StringArgumentType.escapeIfRequired(hologram.getName())));
             }
         }
         return SINGLE_SUCCESS;

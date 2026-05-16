@@ -153,6 +153,7 @@ public final class HologramPlugin extends JavaPlugin {
         }, 100L, 100L);
         registerCommands();
         registerListeners();
+        fastStats.ready();
     }
 
     private void registerCommands() {

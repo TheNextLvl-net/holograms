@@ -14,6 +14,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.commands.CommandItems;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import net.thenextlvl.hologram.commands.suggestions.tags.TagSuggestionProvider;
@@ -41,7 +42,8 @@ public final class HologramPageAddCommand extends BrigadierCommand {
         return command.create().then(hologramArgument(plugin, true).then(line
                 .then(command.addPage("block", ArgumentTypes.blockState(), command::addBlockPage))
                 .then(command.addPage("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityPage))
-                .then(command.addPage("item", ArgumentTypes.itemStack(), command::addItemPage))
+                .then(command.addPage("item", ArgumentTypes.itemStack(), command::addItemPage)
+                        .then(Commands.literal("hand").executes(command::addItemPage)))
                 .then(Commands.literal("text").then(Commands.argument("text", StringArgumentType.greedyString())
                         .suggests(new TagSuggestionProvider<>(plugin))
                         .executes(command::addTextPage)))));
@@ -62,7 +64,8 @@ public final class HologramPageAddCommand extends BrigadierCommand {
     }
 
     private int addItemPage(final CommandContext<CommandSourceStack> context) {
-        final var item = context.getArgument("item", ItemStack.class);
+        final var item = tryGetArgument(context, "item", ItemStack.class)
+                .orElseGet(() -> CommandItems.getHeldItem(context));
         return addPage(context, pagedLine -> pagedLine.addItemPage().setItemStack(item));
     }
 

@@ -8,6 +8,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.commands.CommandItems;
 import net.thenextlvl.hologram.commands.edit.EditCommand;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver;
 import net.thenextlvl.hologram.commands.edit.LineTargetResolver.LineType;
@@ -24,12 +25,16 @@ final class EditSetItemCommand extends EditCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final LineTargetResolver.Builder resolver) {
         final EditSetItemCommand command = new EditSetItemCommand(plugin, resolver);
         final RequiredArgumentBuilder<CommandSourceStack, ItemStack> item = Commands.argument("item", ArgumentTypes.itemStack());
-        return command.create().then(item.executes(command));
+        final var hand = Commands.literal("hand");
+        return command.create()
+                .then(item.executes(command))
+                .then(hand.executes(command));
     }
 
     protected int run(final CommandContext<CommandSourceStack> context, final LineTargetResolver resolver) {
         return EditSetCommand.setLine(resolver, LineType.ITEM, (line) -> {
-            final ItemStack item = context.getArgument("item", ItemStack.class);
+            final ItemStack item = tryGetArgument(context, "item", ItemStack.class)
+                    .orElseGet(() -> CommandItems.getHeldItem(context));
             line.setItemStack(item);
         }, Hologram::setItemLine, PagedHologramLine::setItemPage);
     }

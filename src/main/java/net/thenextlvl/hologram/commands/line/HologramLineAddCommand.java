@@ -13,6 +13,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.commands.CommandItems;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.suggestions.tags.TagSuggestionProvider;
 import org.bukkit.block.BlockState;
@@ -36,7 +37,8 @@ public final class HologramLineAddCommand extends BrigadierCommand {
         return command.create().then(hologramArgument(plugin)
                 .then(command.addLine("block", ArgumentTypes.blockState(), command::addBlockLine))
                 .then(command.addLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::addEntityLine))
-                .then(command.addLine("item", ArgumentTypes.itemStack(), command::addItemLine))
+                .then(command.addLine("item", ArgumentTypes.itemStack(), command::addItemLine)
+                        .then(Commands.literal("hand").executes(command::addItemLine)))
                 .then(Commands.literal("text").then(Commands.argument("text", StringArgumentType.greedyString())
                         .suggests(new TagSuggestionProvider<>(plugin))
                         .executes(command::addTextLine)))
@@ -58,7 +60,8 @@ public final class HologramLineAddCommand extends BrigadierCommand {
     }
 
     private int addItemLine(final CommandContext<CommandSourceStack> context) {
-        final var item = context.getArgument("item", ItemStack.class);
+        final var item = tryGetArgument(context, "item", ItemStack.class)
+                .orElseGet(() -> CommandItems.getHeldItem(context));
         return addLine(context, hologram -> hologram.addItemLine().setItemStack(item));
     }
 

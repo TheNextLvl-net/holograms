@@ -13,6 +13,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.commands.CommandItems;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import net.thenextlvl.hologram.commands.suggestions.PageSuggestionProvider;
@@ -43,7 +44,9 @@ public final class HologramPageInsertCommand extends BrigadierCommand {
         return command.create().then(hologramArgument(plugin, true).then(line.then(page
                 .then(command.insertPage("block", ArgumentTypes.blockState(), command::insertBlockPage, plugin))
                 .then(command.insertPage("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::insertEntityPage, plugin))
-                .then(command.insertPage("item", ArgumentTypes.itemStack(), command::insertItemPage, plugin))
+                .then(command.insertPage("item", ArgumentTypes.itemStack(), command::insertItemPage, plugin)
+                        .then(Commands.literal("hand").executes(context -> command.insertPage(
+                                context, plugin, command::insertItemPage))))
                 .then(Commands.literal("text").then(Commands.argument("text", StringArgumentType.greedyString())
                         .suggests(new TagSuggestionProvider<>(plugin))
                         .executes(context -> command.insertPage(context, plugin, command::insertTextPage)))))));
@@ -107,7 +110,8 @@ public final class HologramPageInsertCommand extends BrigadierCommand {
     }
 
     private void insertItemPage(final PagedHologramLine pagedLine, final CommandContext<CommandSourceStack> context) {
-        final var item = context.getArgument("item", ItemStack.class);
+        final var item = tryGetArgument(context, "item", ItemStack.class)
+                .orElseGet(() -> CommandItems.getHeldItem(context));
         final var pageIndex = context.getArgument("page", int.class) - 1;
         pagedLine.insertItemPage(pageIndex).setItemStack(item);
     }

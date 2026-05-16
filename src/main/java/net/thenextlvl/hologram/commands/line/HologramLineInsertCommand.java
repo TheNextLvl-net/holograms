@@ -14,6 +14,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramPlugin;
+import net.thenextlvl.hologram.commands.CommandItems;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
 import net.thenextlvl.hologram.commands.suggestions.LineSuggestionProvider;
 import net.thenextlvl.hologram.commands.suggestions.tags.TagSuggestionProvider;
@@ -40,7 +41,8 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
         return command.create().then(hologramArgument(plugin).then(line
                 .then(command.createLine("block", ArgumentTypes.blockState(), command::insertBlockLine))
                 .then(command.createLine("entity", ArgumentTypes.resource(RegistryKey.ENTITY_TYPE), command::insertEntityLine))
-                .then(command.createLine("item", ArgumentTypes.itemStack(), command::insertItemLine))
+                .then(command.createLine("item", ArgumentTypes.itemStack(), command::insertItemLine)
+                        .then(Commands.literal("hand").executes(command::insertItemLine)))
                 .then(Commands.literal("text").then(Commands.argument("text", StringArgumentType.greedyString())
                         .suggests(new TagSuggestionProvider<>(plugin))
                         .executes(command::insertTextLine)))
@@ -62,7 +64,8 @@ public final class HologramLineInsertCommand extends BrigadierCommand {
     }
 
     private int insertItemLine(final CommandContext<CommandSourceStack> context) {
-        final var item = context.getArgument("item", ItemStack.class);
+        final var item = tryGetArgument(context, "item", ItemStack.class)
+                .orElseGet(() -> CommandItems.getHeldItem(context));
         return insertLine(context, (hologram, line) -> hologram.addItemLine(line).setItemStack(item));
     }
 

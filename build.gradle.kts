@@ -59,7 +59,7 @@ paper {
     main = "net.thenextlvl.hologram.HologramPlugin"
     apiVersion = "1.21.8"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
-    website = "https://thenextlvl.net"
+    website = "https://thenextlvl.net/docs/holograms"
     authors = listOf("NonSwag")
     foliaSupported = true
     permissions {

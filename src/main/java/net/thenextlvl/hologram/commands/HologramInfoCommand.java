@@ -1,6 +1,7 @@
 package net.thenextlvl.hologram.commands;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -63,6 +64,11 @@ final class HologramInfoCommand extends SimpleCommand {
                 Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.booleanChoice("plural", hologram.getLineCount() != 1),
                 Formatter.number("amount", hologram.getLineCount()));
+
+        if (hologram.getLineCount() == 0) {
+            sender.sendMessage(getEmptyLine(sender, hologram));
+            return SINGLE_SUCCESS;
+        }
 
         IntStream.range(0, hologram.getLineCount()).forEach(index -> {
             final var line = hologram.getLine(index).orElse(null);
@@ -135,6 +141,12 @@ final class HologramInfoCommand extends SimpleCommand {
         return Component.text(label, NamedTextColor.GREEN)
                 .clickEvent(ClickEvent.runCommand("/hologram info " + hologram.getName() + " " + page))
                 .hoverEvent(Component.text("Page " + page, NamedTextColor.GRAY));
+    }
+
+    private Component getEmptyLine(final Audience audience, final Hologram hologram) {
+        return plugin.bundle().component("hologram.info.empty", audience,
+                Placeholder.parsed("command", "/holo line add "
+                        + StringArgumentType.escapeIfRequired(hologram.getName()) + " "));
     }
 
     private Component getInfoLine(final Audience audience, final Hologram hologram, final HologramLine line,

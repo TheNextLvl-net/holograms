@@ -1,12 +1,13 @@
 package net.thenextlvl.hologram.locale;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 import net.kyori.adventure.translation.Translator;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.locale.store.MutableMiniMessageTranslationStore;
-import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
@@ -33,12 +34,13 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
         registerDefaults();
     }
 
-    public String translate(final Player player, final String string, final int depth) {
+    public String translate(final Audience audience, final String string, final int depth) {
         if (depth > 10) {
             plugin.getComponentLogger().warn("Too many recursive translations for {}", string);
             return string;
         }
-        final var allTranslations = plugin.translations().getAllTranslations(player.locale());
+        final var locale = audience.get(Identity.LOCALE).orElse(Locale.US);
+        final var allTranslations = plugin.translations().getAllTranslations(locale);
         var translated = string;
         for (final var entry : allTranslations.entrySet()) {
             final var key = Pattern.quote(entry.getKey());
@@ -48,7 +50,7 @@ public final class HologramTranslationStore extends MutableMiniMessageTranslatio
             translated = translated.replaceAll("(?<!\\\\)<tr:" + key + ">", value);
         }
         if (translated.equals(string)) return string;
-        return translate(player, translated, depth + 1);
+        return translate(audience, translated, depth + 1);
     }
 
     public void registerDefaults() {

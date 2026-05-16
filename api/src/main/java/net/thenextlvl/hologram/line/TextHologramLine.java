@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.line;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -23,10 +24,23 @@ public interface TextHologramLine extends DisplayHologramLine {
      *
      * @param player the player for which to get the text
      * @return the displayed text
+     * @see #getText(Audience)
      * @since 0.4.0
      */
     @Contract(pure = true)
-    Optional<Component> getText(Player player);
+    default Optional<Component> getText(final Player player) {
+        return getText((Audience) player);
+    }
+
+    /**
+     * Gets the displayed text.
+     *
+     * @param audience the audience for which to get the text
+     * @return the displayed text
+     * @since 1.5.0
+     */
+    @Contract(pure = true)
+    Optional<Component> getText(Audience audience);
 
     /**
      * Gets the displayed text in {@link net.kyori.adventure.text.minimessage.MiniMessage} format.

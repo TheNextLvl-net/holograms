@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.models.line;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -44,14 +45,15 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
     }
 
     @Override
-    public Optional<Component> getText(final Player player) {
-        return getUnparsedText().map(string -> parse(getHologram().getPlugin(), getHologram(), this, string, player));
+    public Optional<Component> getText(final Audience audience) {
+        return getUnparsedText().map(string -> parse(getHologram().getPlugin(), getHologram(), this, string, audience));
     }
 
-    public static Component parse(final HologramPlugin plugin, final PaperHologram hologram, final HologramLine line, final String text, final Player player) {
-        final var translated = plugin.translations().translate(player, text, 0);
+    public static Component parse(final HologramPlugin plugin, final PaperHologram hologram, final HologramLine line, final String text, final Audience audience) {
+        final var translated = plugin.translations().translate(audience, text, 0);
+        final var player = audience instanceof Player ? (Player) audience : null;
 
-        final var papiFormatter = plugin.papiFormatter;
+        final var papiFormatter = player != null ? plugin.papiFormatter : null;
         final var formatted = papiFormatter != null ? papiFormatter.format(player, translated) : translated;
 
         final var builder = TagResolver.builder();
@@ -65,7 +67,7 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
         final var online = hologram.getPlugin().getServer().getOnlinePlayers().size();
         builder.tag("hologram", Tag.preProcessParsed(hologram.getName()));
         builder.tag("lines", Tag.inserting(Component.text(hologram.getLineCount())));
-        builder.tag("player", Tag.preProcessParsed(player.getName()));
+        if (player != null) builder.tag("player", Tag.preProcessParsed(player.getName()));
         builder.tag("players", Tag.inserting(Component.text(online)));
 
         final var parentLine = line instanceof final StaticHologramLine staticLine
@@ -73,17 +75,17 @@ public final class PaperTextHologramLine extends PaperDisplayHologramLine<TextDi
         parentLine.ifPresentOrElse(parent -> {
             builder.tag("line", Tag.inserting(Component.text(hologram.getLineIndex(parent) + 1)));
             final var pageCount = parent.getPages()
-                    .filter(page -> page.canSee(player))
+                    .filter(page -> player == null || page.canSee(player))
                     .count();
             final var visiblePageIndex = parent.getPages()
                     .limit(parent.getPageIndex(line))
-                    .filter(page -> page.canSee(player))
+                    .filter(page -> player == null || page.canSee(player))
                     .count();
             builder.tag("page", Tag.inserting(Component.text(visiblePageIndex + 1)));
             builder.tag("pages", Tag.inserting(Component.text(pageCount)));
         }, () -> builder.tag("line", Tag.inserting(Component.text(hologram.getLineIndex(line) + 1))));
 
-        return MiniMessage.miniMessage().deserialize(formatted, player, builder.build());
+        return MiniMessage.miniMessage().deserialize(formatted, audience, builder.build());
     }
 
     @Override

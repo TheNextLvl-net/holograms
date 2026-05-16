@@ -123,8 +123,8 @@ public final class HologramPlugin extends JavaPlugin {
     private final Path path = getDataPath().resolve("translations");
     private final ComponentBundle bundle = ComponentBundle.builder(key, path)
             .placeholder("prefix", "prefix")
-            .resource("messages.properties", Locale.US)
-            .resource("messages_german.properties", Locale.GERMANY)
+            .resource("english.properties", Locale.US)
+            .resource("german.properties", Locale.GERMANY)
             .build();
 
     private final HologramTranslationStore translations = new HologramTranslationStore(this);

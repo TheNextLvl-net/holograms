@@ -26,6 +26,7 @@ public final class HologramCommand extends BrigadierCommand {
                 .then(HologramCloneCommand.create(plugin))
                 .then(HologramCreateCommand.create(plugin))
                 .then(HologramDeleteCommand.create(plugin))
+                .then(HologramHelpCommand.create(plugin))
                 .then(HologramLineCommand.create(plugin))
                 .then(HologramListCommand.create(plugin))
                 .then(HologramPageCommand.create(plugin))

@@ -70,10 +70,7 @@ final class HologramInfoCommand extends SimpleCommand {
             final var lineNumber = index + 1;
             plugin.bundle().sendMessage(sender, "hologram.info.line",
                     Placeholder.parsed("tree", index + 1 == hologram.getLineCount() ? "└" : "├"),
-                    Placeholder.component("line", getEditButton(hologram, line, lineNumber, page)),
-                    Placeholder.unparsed("type", getLineType(line)),
-                    Placeholder.component("preview", getLinePreview(sender, line, page - 1)
-                            .clickEvent(ClickEvent.suggestCommand(getEditCommand(hologram, line, lineNumber, page)))));
+                    Placeholder.component("line", getInfoLine(sender, hologram, line, lineNumber, page)));
         });
 
         if (maxPages > 1) {
@@ -145,10 +142,57 @@ final class HologramInfoCommand extends SimpleCommand {
                 .hoverEvent(Component.text("Page " + page, NamedTextColor.GRAY));
     }
 
-    private Component getEditButton(final Hologram hologram, final HologramLine line, final int lineNumber, final int page) {
-        return Component.text(lineNumber, NamedTextColor.GREEN)
-                .clickEvent(ClickEvent.suggestCommand(getEditCommand(hologram, line, lineNumber, page)))
-                .hoverEvent(Component.text("Click to edit line " + lineNumber, NamedTextColor.GRAY));
+    private Component getInfoLine(final Audience audience, final Hologram hologram, final HologramLine line,
+                                  final int lineNumber, final int page) {
+        return Component.text()
+                .append(Component.text(lineNumber, NamedTextColor.GREEN))
+                .append(Component.text(": ", NamedTextColor.DARK_GRAY))
+                .append(Component.text("[", NamedTextColor.DARK_GRAY))
+                .append(getLineType(audience, hologram, line, lineNumber))
+                .append(Component.text("] ", NamedTextColor.DARK_GRAY))
+                .append(getLinePreview(audience, line, page - 1).hoverEvent(null))
+                .clickEvent(isEmptyPage(line, page) ? null : ClickEvent.suggestCommand(getEditCommand(hologram, line, lineNumber, page)))
+                .hoverEvent(HoverEvent.showText(getEditHover(audience, line, page)))
+                .build();
+    }
+
+    private Component getLineType(final Audience audience, final Hologram hologram, final HologramLine line,
+                                  final int lineNumber) {
+        final var type = Component.text(getLineType(line), NamedTextColor.DARK_GRAY);
+        if (!(line instanceof final PagedHologramLine pagedLine)) return type;
+        return type.clickEvent(ClickEvent.suggestCommand("/holo page settings " + hologram.getName() + " " + lineNumber + " "))
+                .hoverEvent(HoverEvent.showText(getPageSettingsHover(audience, pagedLine)));
+    }
+
+    private Component getPageSettingsHover(final Audience audience, final PagedHologramLine line) {
+        return plugin.bundle().component("hologram.info.setting.hover", audience)
+                .append(Component.newline())
+                .append(Component.newline())
+                .append(plugin.bundle().component("hologram.info.setting.interval", audience,
+                        Placeholder.unparsed("value", formatSeconds(line.getInterval()))))
+                .append(Component.newline())
+                .append(plugin.bundle().component("hologram.info.setting.paused", audience,
+                        Placeholder.unparsed("value", Boolean.toString(line.isPaused()))))
+                .append(Component.newline())
+                .append(plugin.bundle().component("hologram.info.setting.randomized", audience,
+                        Placeholder.unparsed("value", Boolean.toString(line.isRandomOrder()))));
+    }
+
+    private String formatSeconds(final java.time.Duration duration) {
+        final var seconds = duration.toMillis() / 1000d;
+        if (seconds == Math.rint(seconds)) return Long.toString((long) seconds);
+        return Double.toString(seconds);
+    }
+
+    private boolean isEmptyPage(final HologramLine line, final int page) {
+        return line instanceof final PagedHologramLine pagedLine && pagedLine.getPage(page - 1).isEmpty();
+    }
+
+    private Component getEditHover(final Audience audience, final HologramLine line, final int page) {
+        return plugin.bundle().component(line instanceof PagedHologramLine
+                        ? "hologram.info.hover.page"
+                        : "hologram.info.hover.line", audience,
+                Placeholder.component("preview", getLinePreview(audience, line, page - 1)));
     }
 
     private String getEditCommand(final Hologram hologram, final HologramLine line, final int lineNumber, final int page) {

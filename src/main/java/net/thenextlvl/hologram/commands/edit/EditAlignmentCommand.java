@@ -39,7 +39,7 @@ final class EditAlignmentCommand extends EditCommand {
             final var message = alignment.map(textAlignment -> {
                 return set(textAlignment, line::setAlignment, "hologram.text-alignment");
             }).orElse("hologram.alignment.query");
-            
+
             plugin.bundle().sendMessage(context.getSource().getSender(), message,
                     TagResolver.resolver(placeholders),
                     Placeholder.component("alignment", alignmentName));

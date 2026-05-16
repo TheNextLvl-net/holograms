@@ -3,6 +3,7 @@ package net.thenextlvl.hologram.image;
 import net.kyori.adventure.text.Component;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -50,7 +51,7 @@ final class SimpleAnimatedComponent implements ImageComponent.Animated {
         return new SimpleAnimatedComponent(Duration.ofMillis(avgFrameDelay), images);
     }
 
-    private static int[] getFrameOffset(final javax.imageio.ImageReader reader, final int frameIndex) throws IOException {
+    private static int[] getFrameOffset(final ImageReader reader, final int frameIndex) throws IOException {
         final var metadata = reader.getImageMetadata(frameIndex);
         final var root = metadata.getAsTree("javax_imageio_gif_image_1.0");
         final var children = root.getChildNodes();
@@ -66,7 +67,7 @@ final class SimpleAnimatedComponent implements ImageComponent.Animated {
         return new int[]{0, 0};
     }
 
-    private static int getFrameDuration(final javax.imageio.ImageReader reader, final int frameIndex) throws IOException {
+    private static int getFrameDuration(final ImageReader reader, final int frameIndex) throws IOException {
         final var metadata = reader.getImageMetadata(frameIndex);
         final var root = metadata.getAsTree("javax_imageio_gif_image_1.0");
         final var children = root.getChildNodes();

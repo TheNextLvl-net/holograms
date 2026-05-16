@@ -19,7 +19,7 @@ import static net.thenextlvl.hologram.commands.translation.HologramTranslationCo
 
 @NullMarked
 public final class HologramTranslationAddCommand extends SimpleCommand {
-    
+
     private HologramTranslationAddCommand(final HologramPlugin plugin) {
         super(plugin, "add", "holograms.command.translation.add");
     }

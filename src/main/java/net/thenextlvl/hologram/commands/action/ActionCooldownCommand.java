@@ -44,9 +44,10 @@ final class ActionCooldownCommand extends ActionCommand {
         final var cooldown = tryGetArgument(context, "cooldown", int.class).map(Tick::of).orElse(null);
         final var success = cooldown != null && action.setCooldown(cooldown);
         final var message = cooldown == null ? "hologram.action.cooldown"
-                : success ? cooldown.isZero() ? "hologram.action.cooldown.removed"
-                : "hologram.action.cooldown.set"
-                : "nothing.changed";
+                : success ? cooldown.isZero()
+                            ? "hologram.action.cooldown.removed"
+                            : "hologram.action.cooldown.set"
+                  : "nothing.changed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 TagResolver.resolver(placeholders),
                 Placeholder.unparsed("action", actionName),

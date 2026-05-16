@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
+import java.time.Duration;
 import java.util.stream.IntStream;
 
 import static net.thenextlvl.hologram.commands.HologramCommand.hologramArgument;
@@ -184,7 +185,7 @@ final class HologramInfoCommand extends SimpleCommand {
                         Placeholder.unparsed("value", Boolean.toString(line.isRandomOrder()))));
     }
 
-    private String formatSeconds(final java.time.Duration duration) {
+    private String formatSeconds(final Duration duration) {
         final var seconds = duration.toMillis() / 1000d;
         if (seconds == Math.rint(seconds)) return Long.toString((long) seconds);
         return Double.toString(seconds);

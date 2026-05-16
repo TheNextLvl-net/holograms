@@ -50,9 +50,8 @@ final class ActionPermissionCommand extends ActionCommand {
             }
 
             final var success = action.setPermission(permission);
-            final var message = success ? permission != null
-                    ? "hologram.action.permission.set" : "hologram.action.permission.removed"
-                    : "nothing.changed";
+            final var message = success ? permission != null ? "hologram.action.permission.set"
+                                          : "hologram.action.permission.removed" : "nothing.changed";
             plugin.bundle().sendMessage(sender, message,
                     Placeholder.unparsed("action", actionName),
                     Placeholder.unparsed("hologram", hologram.getName()),

@@ -17,9 +17,6 @@ import net.thenextlvl.hologram.line.HologramLine;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
 @NullMarked
 abstract class ActionCommand extends SimpleCommand {
     protected final ActionTargetResolver.Builder resolverBuilder;

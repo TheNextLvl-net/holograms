@@ -1,5 +1,4 @@
 import io.papermc.hangarpublishplugin.model.Platforms
-import org.gradle.api.attributes.java.TargetJvmVersion
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import net.minecrell.pluginyml.paper.PaperPluginDescription
 

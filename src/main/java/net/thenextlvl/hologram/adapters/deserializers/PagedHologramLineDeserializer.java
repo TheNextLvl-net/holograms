@@ -1,8 +1,8 @@
 package net.thenextlvl.hologram.adapters.deserializers;
 
 import net.thenextlvl.hologram.models.PaperHologram;
-import net.thenextlvl.hologram.models.line.PaperStaticHologramLine;
 import net.thenextlvl.hologram.models.line.PaperPagedHologramLine;
+import net.thenextlvl.hologram.models.line.PaperStaticHologramLine;
 import net.thenextlvl.nbt.serialization.ParserException;
 import net.thenextlvl.nbt.serialization.TagDeserializationContext;
 import net.thenextlvl.nbt.tag.CompoundTag;

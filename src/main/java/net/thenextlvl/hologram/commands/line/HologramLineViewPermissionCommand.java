@@ -43,8 +43,10 @@ final class HologramLineViewPermissionCommand extends SimpleCommand {
         }
         final var viewPermission = tryGetArgument(context, "permission", String.class).orElse(null);
         final var success = hologramLine.setViewPermission(viewPermission);
-        final var message = !success ? "nothing.changed" : viewPermission != null
-                ? "hologram.line.view-permission.set" : "hologram.line.view-permission.removed";
+        final var message = !success ? "nothing.changed"
+                : viewPermission != null
+                  ? "hologram.line.view-permission.set"
+                  : "hologram.line.view-permission.removed";
         plugin.bundle().sendMessage(context.getSource().getSender(), message,
                 Placeholder.unparsed("hologram", hologram.getName()),
                 Formatter.number("line", lineIndex),

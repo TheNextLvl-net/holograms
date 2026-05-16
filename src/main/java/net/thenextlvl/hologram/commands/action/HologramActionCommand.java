@@ -23,7 +23,7 @@ public final class HologramActionCommand {
             return page != null ? page : line;
         }
 
-        public ArgumentBuilder<CommandSourceStack,?> build() {
+        public ArgumentBuilder<CommandSourceStack, ?> build() {
             if (page != null) line.then(page);
             return hologram.then(line);
         }

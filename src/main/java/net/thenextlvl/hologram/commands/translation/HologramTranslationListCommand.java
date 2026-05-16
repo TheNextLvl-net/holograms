@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -18,6 +19,7 @@ import net.thenextlvl.hologram.locale.LanguageTags;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import static net.thenextlvl.hologram.commands.translation.HologramTranslationCommand.translationKeyArgument;
 
@@ -73,8 +75,7 @@ public final class HologramTranslationListCommand extends SimpleCommand {
         return SINGLE_SUCCESS;
     }
 
-    private Component getTranslationPreview(final String key, final java.util.Locale locale, final String translation,
-                                            final net.kyori.adventure.audience.Audience audience) {
+    private Component getTranslationPreview(final String key, final Locale locale, final String translation, final Audience audience) {
         final var command = "/holo translation add "
                 + StringArgumentType.escapeIfRequired(key) + " "
                 + StringArgumentType.escapeIfRequired(LanguageTags.getLanguageName(locale)) + " "
@@ -84,8 +85,7 @@ public final class HologramTranslationListCommand extends SimpleCommand {
                 .hoverEvent(HoverEvent.showText(getTranslationHover(audience, locale, translation, command)));
     }
 
-    private Component getTranslationHover(final net.kyori.adventure.audience.Audience audience, final java.util.Locale locale,
-                                          final String translation, final String command) {
+    private Component getTranslationHover(final Audience audience, final Locale locale, final String translation, final String command) {
         final var hover = plugin.bundle().component("hologram.translation.hover", audience,
                 Placeholder.component("preview", MINI_MESSAGE.deserialize(translation)));
         if (command.length() <= 256) return hover;

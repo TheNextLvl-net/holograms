@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -183,7 +184,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
 
     public boolean swapPages(final int first, final int second) {
         if (first < 0 || first >= pages.size() || second < 0 || second >= pages.size()) return false;
-        java.util.Collections.swap(pages, first, second);
+        Collections.swap(pages, first, second);
         getHologram().updateHologram();
         return true;
     }

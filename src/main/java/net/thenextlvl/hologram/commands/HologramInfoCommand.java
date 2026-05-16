@@ -83,45 +83,40 @@ final class HologramInfoCommand extends SimpleCommand {
         return SINGLE_SUCCESS;
     }
 
-    private Component getLinePreview(final Audience audience, final HologramLine line, final int page) {
+    private LinePreview getLinePreview(final Audience audience, final HologramLine line, final int page) {
         if (line instanceof final PagedHologramLine pagedLine) {
             return pagedLine.getPage(page).map(pageLine -> getStaticLinePreview(audience, pageLine))
-                    .orElseGet(() -> preview("(empty)"));
+                    .orElseGet(() -> LinePreview.of(Component.text("(empty)")));
         }
         return getStaticLinePreview(audience, line);
     }
 
-    private Component getStaticLinePreview(final Audience audience, final HologramLine line) {
+    private LinePreview getStaticLinePreview(final Audience audience, final HologramLine line) {
         return switch (line) {
-            case final TextHologramLine textLine ->
-                    preview(textLine.getText(audience).orElse(Component.text("(empty)")));
+            case final TextHologramLine textLine -> LinePreview.of(textLine.getText(audience)
+                    .orElse(Component.text("(empty)")));
             case final ItemHologramLine itemLine -> {
                 if (itemLine.isPlayerHead() && audience instanceof final Player player) {
-                    yield preview(Component.object(ObjectContents.playerHead(player)));
+                    yield LinePreview.of(Component.object(ObjectContents.playerHead(player)));
                 } else {
                     final var item = itemLine.getItemStack();
-                    yield Component.translatable(item).hoverEvent(item.asHoverEvent());
+                    yield LinePreview.of(Component.translatable(item).hoverEvent(item.asHoverEvent()));
                 }
             }
-            case final BlockHologramLine blockLine -> Component.translatable(blockLine.getBlock().getMaterial())
-                    .hoverEvent(HoverEvent.showItem(blockLine.getBlock().getMaterial(), 1));
-            case final EntityHologramLine entityLine -> preview(Component.translatable(entityLine.getEntityType()));
-            default -> preview("?");
+            case final BlockHologramLine blockLine ->
+                    LinePreview.of(Component.translatable(blockLine.getBlock().getMaterial())
+                            .hoverEvent(HoverEvent.showItem(blockLine.getBlock().getMaterial(), 1)));
+            case final EntityHologramLine entityLine ->
+                    LinePreview.of(Component.translatable(entityLine.getEntityType()));
+            default -> LinePreview.of(Component.text("?"));
         };
     }
 
-    private Component preview(final Component component) {
-        return preview(component, PLAIN_TEXT.serialize(component));
-    }
-
-    private Component preview(final String text) {
-        return preview(Component.text(text), text);
-    }
-
-    private Component preview(final Component hover, final String text) {
+    private static Component summarize(final Component component) {
+        final var text = PLAIN_TEXT.serialize(component);
         final var plain = text.replace('\n', ' ');
         final var preview = plain.length() > PREVIEW_LENGTH ? plain.substring(0, PREVIEW_LENGTH) + "…" : plain;
-        return Component.text(preview).hoverEvent(hover);
+        return Component.text(preview);
     }
 
     private String getLineType(final HologramLine line) {
@@ -150,7 +145,7 @@ final class HologramInfoCommand extends SimpleCommand {
                 .append(Component.text("[", NamedTextColor.DARK_GRAY))
                 .append(getLineType(audience, hologram, line, lineNumber))
                 .append(Component.text("] ", NamedTextColor.DARK_GRAY))
-                .append(getLinePreview(audience, line, page - 1).hoverEvent(null))
+                .append(getLinePreview(audience, line, page - 1).summary())
                 .clickEvent(isEmptyPage(line, page) ? null : ClickEvent.suggestCommand(getEditCommand(hologram, line, lineNumber, page)))
                 .hoverEvent(HoverEvent.showText(getEditHover(audience, line, page)))
                 .build();
@@ -192,7 +187,13 @@ final class HologramInfoCommand extends SimpleCommand {
         return plugin.bundle().component(line instanceof PagedHologramLine
                         ? "hologram.info.hover.page"
                         : "hologram.info.hover.line", audience,
-                Placeholder.component("preview", getLinePreview(audience, line, page - 1)));
+                Placeholder.component("preview", getLinePreview(audience, line, page - 1).full()));
+    }
+
+    private record LinePreview(Component summary, Component full) {
+        private static LinePreview of(final Component component) {
+            return new LinePreview(summarize(component), component);
+        }
     }
 
     private String getEditCommand(final Hologram hologram, final HologramLine line, final int lineNumber, final int page) {

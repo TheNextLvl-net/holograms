@@ -12,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramProvider;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
@@ -64,9 +65,9 @@ public final class HologramDialog {
                     }
 
                     try {
-                        HologramProvider.instance().spawnHologram(name, player.getLocation(), ignored -> {
+                        final var hologram = HologramProvider.instance().spawnHologram(name, player.getLocation(), ignored -> {
                         });
-                        audience.closeDialog();
+                        audience.showDialog(editHologram(hologram));
                     } catch (final IllegalStateException ignored) {
                         final var text = Component.text("A hologram with this name already exists", NamedTextColor.RED);
                         audience.showDialog(createNewHologram(name, text));
@@ -80,5 +81,9 @@ public final class HologramDialog {
                                 DialogInput.text("name", Component.text("Hologram name")).initial(initial).build()
                         )).build())
                 .type(DialogType.multiAction(List.of(create)).exitAction(back).build()));
+    }
+
+    private static DialogLike editHologram(final Hologram hologram) {
+        return null; // todo: add hologram edit dialog
     }
 }

@@ -8,6 +8,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.HologramPlugin;
 import net.thenextlvl.hologram.commands.arguments.HologramArgumentType;
 import net.thenextlvl.hologram.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.commands.dialog.HologramDialog;
 import net.thenextlvl.hologram.commands.line.HologramLineCommand;
 import net.thenextlvl.hologram.commands.page.HologramPageCommand;
 import net.thenextlvl.hologram.commands.suggestions.PermissionSuggestionProvider;
@@ -35,6 +36,11 @@ public final class HologramCommand extends BrigadierCommand {
                 .then(HologramTeleportCommand.create(plugin))
                 .then(HologramTranslationCommand.create(plugin))
                 .then(HologramViewPermissionCommand.create(plugin))
+                .then(Commands.literal("dialog").executes(context -> {
+                    final var sender = context.getSource().getSender();
+                    sender.showDialog(HologramDialog.overview());
+                    return 1;
+                }))
                 .build();
     }
 

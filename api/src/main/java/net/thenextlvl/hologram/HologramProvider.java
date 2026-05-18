@@ -36,7 +36,12 @@ public interface HologramProvider {
      */
     @Contract(pure = true)
     static HologramProvider instance() {
-        return StaticBinder.getInstance(HologramProvider.class.getClassLoader()).find(HologramProvider.class);
+        final class Cache {
+            private static final HologramProvider INSTANCE = StaticBinder
+                    .getInstance(HologramProvider.class.getClassLoader())
+                    .find(HologramProvider.class);
+        }
+        return Cache.INSTANCE;
     }
 
     /**

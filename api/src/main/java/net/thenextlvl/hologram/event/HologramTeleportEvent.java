@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.event;
 
+import com.google.common.base.Preconditions;
 import net.thenextlvl.hologram.Hologram;
 import org.bukkit.Location;
 import org.bukkit.event.Cancellable;
@@ -51,10 +52,12 @@ public final class HologramTeleportEvent extends HologramEvent implements Cancel
      * Sets the location the hologram will teleport to.
      *
      * @param to the destination location
+     * @throws IllegalArgumentException if the world of the location is null
      * @since 0.6.0
      */
     @Contract(mutates = "this")
     public void setTo(final Location to) {
+        Preconditions.checkArgument(to.getWorld() != null, "World cannot be null");
         this.to = to.clone();
     }
 

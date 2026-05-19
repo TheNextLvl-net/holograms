@@ -182,7 +182,9 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
         final var destination = event.getTo();
         final var success = setLocation(destination);
         if (!success) return CompletableFuture.completedFuture(false);
-        return CompletableFuture.allOf(lines.stream()
+        if (!previous.getWorld().equals(destination.getWorld())) {
+            return despawn().thenRun(this::spawn).thenApply(v -> true);
+        } else return CompletableFuture.allOf(lines.stream()
                 .map(PaperHologramLine.class::cast)
                 .map(line -> line.teleportRelative(previous, destination))
                 .toArray(CompletableFuture[]::new)

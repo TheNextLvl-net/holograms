@@ -362,7 +362,8 @@ public class PaperHologram implements Hologram, TagSerializable<CompoundTag> {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + lines.size());
         lines.add(index, hologramLine);
         new HologramLineAddEvent(this, hologramLine).callEvent();
-        updateHologram();
+        if (lines.size() == 1) spawn();
+        else updateHologram();
         return hologramLine;
     }
 

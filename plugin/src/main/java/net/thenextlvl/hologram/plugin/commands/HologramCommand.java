@@ -38,7 +38,7 @@ public final class HologramCommand extends BrigadierCommand {
                 .then(HologramViewPermissionCommand.create(plugin))
                 .then(Commands.literal("dialog").executes(context -> {
                     final var sender = context.getSource().getSender();
-                    sender.showDialog(HologramDialog.overview());
+                    HologramDialog.showLast(sender);
                     return 1;
                 }))
                 .build();

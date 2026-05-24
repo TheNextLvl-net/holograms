@@ -266,6 +266,7 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
     public PagedHologramLine setInterval(final Duration interval) {
         Preconditions.checkArgument(interval.isPositive(), "Interval must be bigger than zero");
         this.interval = interval;
+        restartCycleTask();
         return this;
     }
 
@@ -444,6 +445,12 @@ public final class PaperPagedHologramLine extends PaperHologramLine implements P
             task = null;
         }
         cycling.set(false);
+    }
+
+    private void restartCycleTask() {
+        if (task == null) return;
+        stopCycleTask();
+        startCycleTask();
     }
 
     private void tickCycle() {

@@ -166,6 +166,11 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addLineType(hologram));
                 }))).width(300).build());
+        if (lines.size() > 1)
+            actions.add(ActionButton.builder(Component.text("Change order", NamedTextColor.LIGHT_PURPLE))
+                    .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                        show(audience, current -> changeLineOrder(hologram, current));
+                    }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Teleport Hologram", NamedTextColor.AQUA))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, current -> teleportHologram(hologram));
@@ -410,7 +415,7 @@ public final class HologramDialog {
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Item", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    show(audience, ignored -> addItemLine(hologram, "", null));
+                    show(audience, current -> addItemLine(hologram, "", null, current));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Block", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
@@ -451,19 +456,25 @@ public final class HologramDialog {
         });
     }
 
-    private static DialogLike addItemLine(final Hologram hologram, final String initial, @Nullable final Component note) {
+    private static DialogLike addItemLine(final Hologram hologram, final String initial, @Nullable final Component note, final Audience viewer) {
         final var back = ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addLineType(hologram));
                 }))).build();
-        final var held = ActionButton.builder(Component.text("Use Held Item", NamedTextColor.GREEN))
+        final var actions = new ArrayList<ActionButton>();
+        actions.add(ActionButton.builder(Component.text("Player head", NamedTextColor.YELLOW))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    if (audience instanceof final Player player) {
-                        hologram.addItemLine().setItemStack(player.getInventory().getItemInMainHand());
-                    }
+                    final var line = hologram.addItemLine();
+                    line.setItemStack(ItemStack.of(Material.PLAYER_HEAD));
+                    line.setPlayerHead(true);
                     show(audience, current -> editHologram(hologram, current));
-                }))).build();
-        return itemSearchDialog("Add Item Line", initial, note, List.of(held), back, (audience, item) -> {
+                }))).build());
+        final var held = heldItemButton(viewer, "Use Held Item", (audience, item) -> {
+            hologram.addItemLine().setItemStack(item);
+            show(audience, current -> editHologram(hologram, current));
+        });
+        if (held != null) actions.add(held);
+        return itemSearchDialog("Add Item Line", initial, note, actions, back, (audience, item) -> {
             hologram.addItemLine().setItemStack(item);
             show(audience, current -> editHologram(hologram, current));
         });
@@ -499,7 +510,7 @@ public final class HologramDialog {
         return switch (line) {
             case final TextHologramLine textLine -> editTextLine(hologram, lineIndex, textLine, null);
             case final BlockHologramLine blockLine -> editBlockLine(hologram, lineIndex, blockLine, null);
-            case final ItemHologramLine itemLine -> editItemLine(hologram, lineIndex, itemLine, null);
+            case final ItemHologramLine itemLine -> editItemLine(hologram, lineIndex, itemLine, null, viewer);
             case final EntityHologramLine entityLine -> editEntityLine(hologram, lineIndex, entityLine, null);
             case final PagedHologramLine pagedLine -> editPagedLine(hologram, lineIndex, pagedLine, viewer);
             default -> Dialog.create(builder -> builder.empty()
@@ -638,18 +649,19 @@ public final class HologramDialog {
             final PagedHologramLine pagedLine,
             final int pageIndex,
             final ItemHologramLine page,
-            @Nullable final Component note
+            @Nullable final Component note,
+            final Audience viewer
     ) {
-        final var setHeld = ActionButton.builder(Component.text("Set to Held Item", NamedTextColor.GREEN))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    if (audience instanceof final Player player) {
-                        page.setItemStack(player.getInventory().getItemInMainHand());
-                    }
-                    show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
-                }))).build();
+        final var actions = new ArrayList<ActionButton>();
+        final var setHeld = heldItemButton(viewer, "Set to Held Item", (audience, item) -> {
+            page.setItemStack(item);
+            show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
+        });
+        if (setHeld != null) actions.add(setHeld);
         final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
+        actions.add(delete);
         return itemSearchDialog("Page " + (pageIndex + 1), page.getItemStack().getType().key().asString(), note,
-                List.of(setHeld, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, item) -> {
+                actions, editPageBackButton(hologram, lineIndex, pagedLine), (audience, item) -> {
                     page.setItemStack(item);
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
                 });
@@ -672,6 +684,159 @@ public final class HologramDialog {
                         .body(List.of(DialogBody.plainMessage(Component.text("This cannot be undone"))))
                         .build())
                 .type(DialogType.confirmation(confirm, cancel)));
+    }
+
+    private static DialogLike changeLineOrder(final Hologram hologram, final Audience viewer) {
+        final var swap = ActionButton.builder(Component.text("Swap two lines", NamedTextColor.YELLOW))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> selectLineToSwap(hologram, current));
+                }))).width(300).build();
+        final var move = ActionButton.builder(Component.text("Move line above another", NamedTextColor.YELLOW))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> selectLineToMove(hologram, current));
+                }))).width(300).build();
+        final var back = editHologramBackButton(hologram);
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Change order"))
+                        .body(List.of(DialogBody.plainMessage(Component.text("Choose whether to swap two lines or move one line above another"))))
+                        .build())
+                .type(DialogType.multiAction(List.of(swap, move)).columns(1).exitAction(back).build()));
+    }
+
+    private static DialogLike selectLineToSwap(final Hologram hologram, final Audience viewer) {
+        return selectLine(hologram, viewer, "Select first line",
+                "Select the first line. It will trade places with the second line you choose.", -1,
+                audience -> changeLineOrder(hologram, audience),
+                lineIndex -> audience -> {
+                    show(audience, current -> selectLineSwapTarget(hologram, lineIndex, current));
+                });
+    }
+
+    private static DialogLike selectLineSwapTarget(final Hologram hologram, final int first, final Audience viewer) {
+        return selectLine(hologram, viewer, "Select second line",
+                "Select the second line. The two selected lines will swap positions.", first,
+                audience -> selectLineToSwap(hologram, audience),
+                second -> audience -> {
+                    if (second == first) {
+                        show(audience, ignored -> selectLineSwapTarget(hologram, first, viewer,
+                                Component.text("You cannot swap a line with itself", NamedTextColor.RED)));
+                        return;
+                    }
+                    hologram.swapLines(first, second);
+                    show(audience, current -> editHologram(hologram, current));
+                });
+    }
+
+    private static DialogLike selectLineToMove(final Hologram hologram, final Audience viewer) {
+        return selectLine(hologram, viewer, "Select line to move",
+                "Select the line that should be moved.", -1,
+                audience -> changeLineOrder(hologram, audience),
+                lineIndex -> audience -> {
+                    show(audience, current -> selectLineMoveTarget(hologram, lineIndex, current));
+                });
+    }
+
+    private static DialogLike selectLineMoveTarget(final Hologram hologram, final int from, final Audience viewer) {
+        return selectLine(hologram, viewer, "Move above line",
+                "Select the target line. The moved line will be placed directly above it.", from,
+                audience -> selectLineToMove(hologram, audience),
+                target -> audience -> {
+                    if (target == from) {
+                        show(audience, ignored -> selectLineMoveTarget(hologram, from, viewer,
+                                Component.text("You cannot move a line above itself", NamedTextColor.RED)));
+                        return;
+                    }
+                    hologram.moveLine(from, from < target ? target - 1 : target);
+                    show(audience, current -> editHologram(hologram, current));
+                });
+    }
+
+    private static DialogLike selectLineSwapTarget(
+            final Hologram hologram,
+            final int first,
+            final Audience viewer,
+            @Nullable final Component note
+    ) {
+        return selectLine(hologram, viewer, "Select second line",
+                "Select the second line. The two selected lines will swap positions.", first,
+                audience -> selectLineToSwap(hologram, audience), note,
+                second -> audience -> {
+                    if (second == first) {
+                        show(audience, ignored -> selectLineSwapTarget(hologram, first, viewer,
+                                Component.text("You cannot swap a line with itself", NamedTextColor.RED)));
+                        return;
+                    }
+                    hologram.swapLines(first, second);
+                    show(audience, current -> editHologram(hologram, current));
+                });
+    }
+
+    private static DialogLike selectLineMoveTarget(
+            final Hologram hologram,
+            final int from,
+            final Audience viewer,
+            @Nullable final Component note
+    ) {
+        return selectLine(hologram, viewer, "Move above line",
+                "Select the target line. The moved line will be placed directly above it.", from,
+                audience -> selectLineToMove(hologram, audience), note,
+                target -> audience -> {
+                    if (target == from) {
+                        show(audience, ignored -> selectLineMoveTarget(hologram, from, viewer,
+                                Component.text("You cannot move a line above itself", NamedTextColor.RED)));
+                        return;
+                    }
+                    hologram.moveLine(from, from < target ? target - 1 : target);
+                    show(audience, current -> editHologram(hologram, current));
+                });
+    }
+
+    private static DialogLike selectLine(
+            final Hologram hologram,
+            final Audience viewer,
+            final String title,
+            final String description,
+            final int excludedIndex,
+            final Function<Audience, DialogLike> backDialog,
+            final Function<Integer, java.util.function.Consumer<Audience>> selection
+    ) {
+        return selectLine(hologram, viewer, title, description, excludedIndex, backDialog, null, selection);
+    }
+
+    private static DialogLike selectLine(
+            final Hologram hologram,
+            final Audience viewer,
+            final String title,
+            final String description,
+            final int excludedIndex,
+            final Function<Audience, DialogLike> backDialog,
+            @Nullable final Component note,
+            final Function<Integer, java.util.function.Consumer<Audience>> selection
+    ) {
+        final var lines = hologram.getLines().toList();
+        final var actions = new ArrayList<ActionButton>();
+        for (var index = 0; index < lines.size(); index++) {
+            final var line = lines.get(index);
+            final var lineIndex = index;
+            actions.add(ActionButton.builder(index == excludedIndex
+                            ? lineLabel(lineIndex, line).color(NamedTextColor.GOLD)
+                            : lineLabel(lineIndex, line))
+                    .tooltip(linePreview(line, viewer))
+                    .action(DialogAction.staticAction(ClickEvent.callback(selection.apply(lineIndex)::accept)))
+                    .width(300)
+                    .build());
+        }
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, backDialog);
+                }))).width(300).build();
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(title))
+                        .body(bodyLines(description, note))
+                        .build())
+                .type(DialogType.multiAction(actions).columns(1).exitAction(back).build()));
     }
 
     private static DialogLike editBlockLine(
@@ -712,24 +877,28 @@ public final class HologramDialog {
             final Hologram hologram,
             final int lineIndex,
             final ItemHologramLine line,
-            @Nullable final Component note
+            @Nullable final Component note,
+            final Audience viewer
     ) {
-        final var setHeld = ActionButton.builder(Component.text("Set to Held Item", NamedTextColor.GREEN))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    if (audience instanceof final Player player) {
-                        line.setItemStack(player.getInventory().getItemInMainHand());
-                    }
-                    show(audience, current -> editHologram(hologram, current));
-                }))).build();
-        final var playerHead = ActionButton.builder(Component.text("Toggle Player Head", NamedTextColor.YELLOW))
+        final var actions = new ArrayList<ActionButton>();
+        final var setHeld = heldItemButton(viewer, "Set to Held Item", (audience, item) -> {
+            line.setItemStack(item);
+            show(audience, current -> editHologram(hologram, current));
+        });
+        if (setHeld != null) actions.add(setHeld);
+        final var playerHead = ActionButton.builder(Component.text(
+                        "Player head: " + (line.isPlayerHead() ? "On" : "Off"),
+                        line.isPlayerHead() ? NamedTextColor.GREEN : NamedTextColor.RED))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     line.setPlayerHead(!line.isPlayerHead());
-                    show(audience, current -> editLine(hologram, lineIndex, current));
+                    show(audience, current -> editItemLine(hologram, lineIndex, line, note, current));
                 }))).build();
         final var remove = deleteLineButton(hologram, lineIndex, false);
+        actions.add(playerHead);
+        actions.add(remove);
         final var back = editHologramBackButton(hologram);
         return itemSearchDialog(lineLabel(lineIndex, line), line.getItemStack().getType().key().asString(), note,
-                List.of(setHeld, playerHead, remove), back, (audience, item) -> {
+                actions, back, (audience, item) -> {
                     line.setItemStack(item);
                     show(audience, current -> editHologram(hologram, current));
                 });
@@ -775,6 +944,11 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addPageType(hologram, lineIndex, line));
                 }))).width(300).build());
+        if (pages.size() > 1)
+            actions.add(ActionButton.builder(Component.text("Change order", NamedTextColor.LIGHT_PURPLE))
+                    .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                        show(audience, current -> changePageOrder(hologram, lineIndex, line, current));
+                    }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Page Settings", NamedTextColor.YELLOW))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> editPageSettings(hologram, lineIndex, line, null, null));
@@ -856,7 +1030,7 @@ public final class HologramDialog {
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Item", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    show(audience, ignored -> addItemPage(hologram, lineIndex, line, "", null));
+                    show(audience, current -> addItemPage(hologram, lineIndex, line, "", null, current));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Block", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
@@ -890,7 +1064,7 @@ public final class HologramDialog {
             case final BlockHologramLine blockLine ->
                     editBlockPage(hologram, lineIndex, pagedLine, pageIndex, blockLine, null);
             case final ItemHologramLine itemLine ->
-                    editItemPage(hologram, lineIndex, pagedLine, pageIndex, itemLine, null);
+                    editItemPage(hologram, lineIndex, pagedLine, pageIndex, itemLine, null, viewer);
             case final EntityHologramLine entityLine ->
                     editEntityPage(hologram, lineIndex, pagedLine, pageIndex, entityLine, null);
             default -> editPagedLine(hologram, lineIndex, pagedLine, viewer);
@@ -910,10 +1084,228 @@ public final class HologramDialog {
     ) {
         final var builder = ActionButton.builder(Component.text("Delete this page", NamedTextColor.RED))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    line.removePage(pageIndex);
-                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                    audience.showDialog(deletePage(hologram, lineIndex, line, pageIndex));
                 })));
         return customWidth ? builder.width(300).build() : builder.build();
+    }
+
+    private static DialogLike deletePage(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final int pageIndex
+    ) {
+        final var confirm = ActionButton.builder(Component.text("Delete this page", NamedTextColor.RED))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    line.removePage(pageIndex);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                }))).build();
+
+        final var cancel = ActionButton.builder(Component.text("Cancel"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editPage(hologram, lineIndex, line, pageIndex, current));
+                }))).build();
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Delete page " + (pageIndex + 1) + "?"))
+                        .body(List.of(DialogBody.plainMessage(Component.text("This cannot be undone"))))
+                        .build())
+                .type(DialogType.confirmation(confirm, cancel)));
+    }
+
+    private static DialogLike changePageOrder(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final Audience viewer
+    ) {
+        final var swap = ActionButton.builder(Component.text("Swap two pages", NamedTextColor.YELLOW))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> selectPageToSwap(hologram, lineIndex, line, current));
+                }))).width(300).build();
+        final var move = ActionButton.builder(Component.text("Move page above another", NamedTextColor.YELLOW))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> selectPageToMove(hologram, lineIndex, line, current));
+                }))).width(300).build();
+        final var back = editPageBackButton(hologram, lineIndex, line);
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Change order"))
+                        .body(List.of(DialogBody.plainMessage(Component.text("Choose whether to swap two pages or move one page above another"))))
+                        .build())
+                .type(DialogType.multiAction(List.of(swap, move)).columns(1).exitAction(back).build()));
+    }
+
+    private static DialogLike selectPageToSwap(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final Audience viewer
+    ) {
+        return selectPage(hologram, lineIndex, line, viewer, "Select first page",
+                "Select the first page. It will trade places with the second page you choose.", -1,
+                audience -> changePageOrder(hologram, lineIndex, line, audience),
+                pageIndex -> audience -> {
+                    show(audience, current -> selectPageSwapTarget(hologram, lineIndex, line, pageIndex, current));
+                });
+    }
+
+    private static DialogLike selectPageSwapTarget(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final int first,
+            final Audience viewer
+    ) {
+        return selectPage(hologram, lineIndex, line, viewer, "Select second page",
+                "Select the second page. The two selected pages will swap positions.", first,
+                audience -> selectPageToSwap(hologram, lineIndex, line, audience),
+                second -> audience -> {
+                    if (second == first) {
+                        show(audience, ignored -> selectPageSwapTarget(hologram, lineIndex, line, first, viewer,
+                                Component.text("You cannot swap a page with itself", NamedTextColor.RED)));
+                        return;
+                    }
+                    line.swapPages(first, second);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                });
+    }
+
+    private static DialogLike selectPageToMove(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final Audience viewer
+    ) {
+        return selectPage(hologram, lineIndex, line, viewer, "Select page to move",
+                "Select the page that should be moved.", -1,
+                audience -> changePageOrder(hologram, lineIndex, line, audience),
+                pageIndex -> audience -> {
+                    show(audience, current -> selectPageMoveTarget(hologram, lineIndex, line, pageIndex, current));
+                });
+    }
+
+    private static DialogLike selectPageMoveTarget(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final int from,
+            final Audience viewer
+    ) {
+        return selectPage(hologram, lineIndex, line, viewer, "Move above page",
+                "Select the target page. The moved page will be placed directly above it.", from,
+                audience -> selectPageToMove(hologram, lineIndex, line, audience),
+                target -> audience -> {
+                    if (target == from) {
+                        show(audience, ignored -> selectPageMoveTarget(hologram, lineIndex, line, from, viewer,
+                                Component.text("You cannot move a page above itself", NamedTextColor.RED)));
+                        return;
+                    }
+                    line.movePage(from, from < target ? target - 1 : target);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                });
+    }
+
+    private static DialogLike selectPageSwapTarget(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final int first,
+            final Audience viewer,
+            @Nullable final Component note
+    ) {
+        return selectPage(hologram, lineIndex, line, viewer, "Select second page",
+                "Select the second page. The two selected pages will swap positions.", first,
+                audience -> selectPageToSwap(hologram, lineIndex, line, audience), note,
+                second -> audience -> {
+                    if (second == first) {
+                        show(audience, ignored -> selectPageSwapTarget(hologram, lineIndex, line, first, viewer,
+                                Component.text("You cannot swap a page with itself", NamedTextColor.RED)));
+                        return;
+                    }
+                    line.swapPages(first, second);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                });
+    }
+
+    private static DialogLike selectPageMoveTarget(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final int from,
+            final Audience viewer,
+            @Nullable final Component note
+    ) {
+        return selectPage(hologram, lineIndex, line, viewer, "Move above page",
+                "Select the target page. The moved page will be placed directly above it.", from,
+                audience -> selectPageToMove(hologram, lineIndex, line, audience), note,
+                target -> audience -> {
+                    if (target == from) {
+                        show(audience, ignored -> selectPageMoveTarget(hologram, lineIndex, line, from, viewer,
+                                Component.text("You cannot move a page above itself", NamedTextColor.RED)));
+                        return;
+                    }
+                    line.movePage(from, from < target ? target - 1 : target);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                });
+    }
+
+    private static DialogLike selectPage(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final Audience viewer,
+            final String title,
+            final String description,
+            final int excludedIndex,
+            final Function<Audience, DialogLike> backDialog,
+            final Function<Integer, java.util.function.Consumer<Audience>> selection
+    ) {
+        return selectPage(hologram, lineIndex, line, viewer, title, description, excludedIndex, backDialog, null, selection);
+    }
+
+    private static DialogLike selectPage(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final Audience viewer,
+            final String title,
+            final String description,
+            final int excludedIndex,
+            final Function<Audience, DialogLike> backDialog,
+            @Nullable final Component note,
+            final Function<Integer, java.util.function.Consumer<Audience>> selection
+    ) {
+        final var pages = line.getPages().toList();
+        final var actions = new ArrayList<ActionButton>();
+        for (var index = 0; index < pages.size(); index++) {
+            final var page = pages.get(index);
+            final var pageIndex = index;
+            actions.add(ActionButton.builder(index == excludedIndex
+                            ? Component.text("Page " + (pageIndex + 1) + ": " + lineDescription(page), NamedTextColor.GOLD)
+                            : Component.text("Page " + (pageIndex + 1) + ": " + lineDescription(page)))
+                    .tooltip(linePreview(page, viewer))
+                    .action(DialogAction.staticAction(ClickEvent.callback(selection.apply(pageIndex)::accept)))
+                    .width(300)
+                    .build());
+        }
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, backDialog);
+                }))).width(300).build();
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(title))
+                        .body(bodyLines(description, note))
+                        .build())
+                .type(DialogType.multiAction(actions).columns(1).exitAction(back).build()));
+    }
+
+    private static List<DialogBody> bodyLines(final String description, @Nullable final Component note) {
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text(description)));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return body;
     }
 
     private static ActionButton editPagedBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
@@ -967,16 +1359,16 @@ public final class HologramDialog {
             final int lineIndex,
             final PagedHologramLine line,
             final String initial,
-            @Nullable final Component note
+            @Nullable final Component note,
+            final Audience viewer
     ) {
-        final var held = ActionButton.builder(Component.text("Use Held Item", NamedTextColor.GREEN))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    if (audience instanceof final Player player) {
-                        line.addItemPage().setItemStack(player.getInventory().getItemInMainHand());
-                    }
-                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
-                }))).build();
-        return itemSearchDialog("Add Item Page", initial, note, List.of(held), editPagedBackButton(hologram, lineIndex, line),
+        final var actions = new ArrayList<ActionButton>();
+        final var held = heldItemButton(viewer, "Use Held Item", (audience, item) -> {
+            line.addItemPage().setItemStack(item);
+            show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+        });
+        if (held != null) actions.add(held);
+        return itemSearchDialog("Add Item Page", initial, note, actions, editPagedBackButton(hologram, lineIndex, line),
                 (audience, item) -> {
                     line.addItemPage().setItemStack(item);
                     show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
@@ -1243,6 +1635,21 @@ public final class HologramDialog {
                 }))).build();
     }
 
+    private static @Nullable ActionButton heldItemButton(
+            final Audience viewer,
+            final String label,
+            final BiConsumer<Audience, ItemStack> selection
+    ) {
+        if (!(viewer instanceof final Player player)) return null;
+        final var item = player.getInventory().getItemInMainHand();
+        if (item.getType().isAir()) return null;
+        return ActionButton.builder(Component.text(label, NamedTextColor.GREEN))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    selection.accept(audience, item);
+                })))
+                .build();
+    }
+
     private static List<DialogBody> searchBody(
             final String prompt,
             @Nullable final Component note,
@@ -1322,7 +1729,9 @@ public final class HologramDialog {
             case final TextHologramLine textLine -> textLine.getUnparsedText().filter(text -> !text.isBlank())
                     .orElse(line.getType().name());
             case final BlockHologramLine blockLine -> blockLine.getBlock().getAsString();
-            case final ItemHologramLine itemLine -> itemLine.getItemStack().getType().key().asString();
+            case final ItemHologramLine itemLine -> itemLine.isPlayerHead()
+                    ? "Player Head"
+                    : itemLine.getItemStack().getType().key().asString();
             case final EntityHologramLine entityLine -> entityLine.getEntityType().key().asString();
             case final PagedHologramLine pagedLine -> "PAGED (" + pagedLine.getPageCount() + " pages)";
             default -> line.getType().name();
@@ -1386,7 +1795,8 @@ public final class HologramDialog {
                 case "h" -> Duration.ofMillis(Math.round(Duration.ofHours(1).toMillis() * value));
                 default -> null;
             };
-            if (duration == null) return new ParseResult<>(null, "Invalid interval; use a number optionally followed by ms, s, m, or h");
+            if (duration == null)
+                return new ParseResult<>(null, "Invalid interval; use a number optionally followed by ms, s, m, or h");
 
             if (duration.toMillis() < 50) return new ParseResult<>(null, "Interval must be at least 50ms");
             return new ParseResult<>(Duration.ofMillis(Math.round(duration.toMillis() / 50d) * 50), null);

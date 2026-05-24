@@ -36,6 +36,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,11 +46,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.nio.file.Path;
 
 @NullMarked
 public final class HologramDialog {
@@ -393,6 +398,11 @@ public final class HologramDialog {
                     show(audience, current -> editHologram(hologram, current));
                 }, ClickCallback.Options.builder().uses(1).build()))
                 .build();
+        final var image = ActionButton.builder(Component.text("Image", NamedTextColor.AQUA))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> addTextImageLine(hologram, initial, "", "8", note));
+                })))
+                .build();
 
         return Dialog.create(builder -> builder.empty()
                 .base(DialogBase.builder(Component.text("Add Line"))
@@ -404,7 +414,7 @@ public final class HologramDialog {
                                         .multiline(TextDialogInput.MultilineOptions.create(null, 120))
                                         .build()
                         )).build())
-                .type(DialogType.multiAction(List.of(add)).exitAction(back).build()));
+                .type(DialogType.multiAction(List.of(add, image)).exitAction(back).build()));
     }
 
     private static DialogLike addLineType(final Hologram hologram) {
@@ -658,6 +668,14 @@ public final class HologramDialog {
             show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
         });
         if (setHeld != null) actions.add(setHeld);
+        final var playerHead = ActionButton.builder(Component.text(
+                        "Player head: " + (page.isPlayerHead() ? "On" : "Off"),
+                        page.isPlayerHead() ? NamedTextColor.GREEN : NamedTextColor.RED))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    page.setPlayerHead(!page.isPlayerHead());
+                    show(audience, current -> editItemPage(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+                }))).build();
+        actions.add(playerHead);
         final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
         actions.add(delete);
         return itemSearchDialog("Page " + (pageIndex + 1), page.getItemStack().getType().key().asString(), note,
@@ -1340,6 +1358,11 @@ public final class HologramDialog {
                     line.addTextPage().setUnparsedText(saveLineBreaks(text));
                     show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
                 }, ClickCallback.Options.builder().uses(1).build())).build();
+        final var image = ActionButton.builder(Component.text("Image", NamedTextColor.AQUA))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> addTextImagePage(hologram, lineIndex, line, initial, "", "8", note));
+                })))
+                .build();
         final var body = new ArrayList<DialogBody>();
         if (note != null) body.add(DialogBody.plainMessage(note));
         return Dialog.create(builder -> builder.empty()
@@ -1351,7 +1374,7 @@ public final class HologramDialog {
                                 .multiline(TextDialogInput.MultilineOptions.create(null, 120))
                                 .build()))
                         .build())
-                .type(DialogType.multiAction(List.of(add)).exitAction(editPagedBackButton(hologram, lineIndex, line)).build()));
+                .type(DialogType.multiAction(List.of(add, image)).exitAction(editPagedBackButton(hologram, lineIndex, line)).build()));
     }
 
     private static DialogLike addItemPage(
@@ -1363,6 +1386,13 @@ public final class HologramDialog {
             final Audience viewer
     ) {
         final var actions = new ArrayList<ActionButton>();
+        actions.add(ActionButton.builder(Component.text("Player head", NamedTextColor.YELLOW))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    final var created = line.addItemPage();
+                    created.setItemStack(ItemStack.of(Material.PLAYER_HEAD));
+                    created.setPlayerHead(true);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                }))).build());
         final var held = heldItemButton(viewer, "Use Held Item", (audience, item) -> {
             line.addItemPage().setItemStack(item);
             show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
@@ -1373,6 +1403,132 @@ public final class HologramDialog {
                     line.addItemPage().setItemStack(item);
                     show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
                 });
+    }
+
+    private static DialogLike addTextImageLine(
+            final Hologram hologram,
+            final String textInitial,
+            final String sourceInitial,
+            final String sizeInitial,
+            @Nullable final Component note
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> addLine(hologram, textInitial, note));
+                })))
+                .width(150)
+                .build();
+
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter the URL or file path for the image")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+
+        final var add = ActionButton.builder(Component.text("Add"))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = response.getText("source");
+                    final var source = input != null ? input.trim() : null;
+                    if (source == null || source.isBlank()) {
+                        show(audience, ignored -> addTextImageLine(hologram, textInitial, "", sizeInitial, Component.text("Image source cannot be empty", NamedTextColor.RED)));
+                        return;
+                    }
+
+                    final var size = response.getText("size");
+                    final var height = parseImageHeight(size);
+                    if (height.error() != null) {
+                        show(audience, ignored -> addTextImageLine(hologram, textInitial, source, size != null ? size : sizeInitial,
+                                Component.text(height.error(), NamedTextColor.RED)));
+                        return;
+                    }
+
+                    final var image = parseImageSource(source);
+                    if (image.error() != null) {
+                        show(audience, ignored -> addTextImageLine(hologram, textInitial, source, size != null ? size : sizeInitial,
+                                Component.text(image.error(), NamedTextColor.RED)));
+                        return;
+                    }
+
+                    hologram.addTextLine().setUnparsedText(imageTag(source, height.value()));
+                    show(audience, current -> editHologram(hologram, current));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Add Image Line"))
+                        .body(body)
+                        .inputs(List.of(
+                                DialogInput.text("source", Component.text("Image source"))
+                                        .initial(sourceInitial)
+                                        .maxLength(8192)
+                                        .build(),
+                                DialogInput.text("size", Component.text("Image size"))
+                                        .initial(sizeInitial)
+                                        .build()
+                        )).build())
+                .type(DialogType.multiAction(List.of(add)).exitAction(back).build()));
+    }
+
+    private static DialogLike addTextImagePage(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final String textInitial,
+            final String sourceInitial,
+            final String sizeInitial,
+            @Nullable final Component note
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> addTextPage(hologram, lineIndex, line, textInitial, note));
+                })))
+                .width(150)
+                .build();
+
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter the URL or file path for the image")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+
+        final var add = ActionButton.builder(Component.text("Add"))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = response.getText("source");
+                    final var source = input != null ? input.trim() : null;
+                    if (source == null || source.isBlank()) {
+                        show(audience, ignored -> addTextImagePage(hologram, lineIndex, line, textInitial, "", sizeInitial, Component.text("Image source cannot be empty", NamedTextColor.RED)));
+                        return;
+                    }
+
+                    final var size = response.getText("size");
+                    final var height = parseImageHeight(size);
+                    if (height.error() != null) {
+                        show(audience, ignored -> addTextImagePage(hologram, lineIndex, line, textInitial, source, size != null ? size : sizeInitial,
+                                Component.text(height.error(), NamedTextColor.RED)));
+                        return;
+                    }
+
+                    final var image = parseImageSource(source);
+                    if (image.error() != null) {
+                        show(audience, ignored -> addTextImagePage(hologram, lineIndex, line, textInitial, source, size != null ? size : sizeInitial,
+                                Component.text(image.error(), NamedTextColor.RED)));
+                        return;
+                    }
+
+                    line.addTextPage().setUnparsedText(imageTag(source, height.value()));
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Add Image Page"))
+                        .body(body)
+                        .inputs(List.of(
+                                DialogInput.text("source", Component.text("Image source"))
+                                        .initial(sourceInitial)
+                                        .maxLength(8192)
+                                        .build(),
+                                DialogInput.text("size", Component.text("Image size"))
+                                        .initial(sizeInitial)
+                                        .build()
+                        )).build())
+                .type(DialogType.multiAction(List.of(add)).exitAction(back).build()));
     }
 
     private static DialogLike addBlockPage(
@@ -1751,6 +1907,41 @@ public final class HologramDialog {
 
     private static String saveLineBreaks(final String text) {
         return text.replace("\r\n", "\n").replace('\r', '\n').replace("\n", "<newline>");
+    }
+
+    private static String imageTag(final String source, final int height) {
+        return "<image:" + quoteArgument(source) + ":" + height + ">";
+    }
+
+    private static String quoteArgument(final String value) {
+        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+    }
+
+    @SuppressWarnings("HttpUrlsUsage")
+    private static ParseResult<BufferedImage> parseImageSource(final @Nullable String input) {
+        try {
+            if (input == null || input.isBlank()) return new ParseResult<>(null, "Image source cannot be empty");
+            final var source = input.trim();
+            final var image = source.startsWith("http://") || source.startsWith("https://")
+                    ? ImageIO.read(URI.create(source).toURL())
+                    : ImageIO.read(Path.of(source).toFile());
+            return image != null
+                    ? new ParseResult<>(image, null)
+                    : new ParseResult<>(null, "Could not read image");
+        } catch (final IOException | IllegalArgumentException ignored) {
+            return new ParseResult<>(null, "Could not read image");
+        }
+    }
+
+    private static ParseResult<Integer> parseImageHeight(final @Nullable String input) {
+        try {
+            if (input == null || input.isBlank()) return new ParseResult<>(8, null);
+            final var height = Integer.parseInt(input.trim());
+            if (height < 1) return new ParseResult<>(null, "Image size must be at least 1");
+            return new ParseResult<>(height, null);
+        } catch (final NumberFormatException ignored) {
+            return new ParseResult<>(null, "Image size must be a number");
+        }
     }
 
     private static String formatSeconds(final Duration duration) {

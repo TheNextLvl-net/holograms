@@ -16,6 +16,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramProvider;
 import net.thenextlvl.hologram.line.BlockHologramLine;
@@ -23,18 +24,26 @@ import net.thenextlvl.hologram.line.EntityHologramLine;
 import net.thenextlvl.hologram.line.HologramLine;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.line.DisplayHologramLine;
+import net.thenextlvl.hologram.line.StaticHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
+import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Transformation;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.joml.Vector3f;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -50,6 +59,7 @@ import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.nio.file.Path;
@@ -557,6 +567,10 @@ public final class HologramDialog {
                     show(audience, current -> editHologram(hologram, current));
                 }, ClickCallback.Options.builder().uses(1).build()))
                 .width(300).build();
+        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+                }))).width(300).build();
 
         final var back = ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
@@ -578,7 +592,7 @@ public final class HologramDialog {
                                 .multiline(TextDialogInput.MultilineOptions.create(null, 120))
                                 .build()))
                         .build())
-                .type(DialogType.multiAction(List.of(save, remove)).columns(1).exitAction(back).build()));
+                .type(DialogType.multiAction(List.of(save, visual, remove)).columns(1).exitAction(back).build()));
     }
 
     private static DialogLike editTextPage(
@@ -601,6 +615,10 @@ public final class HologramDialog {
                     page.setUnparsedText(saveLineBreaks(text));
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
                 }, ClickCallback.Options.builder().uses(1).build())).build();
+        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+                }))).width(300).build();
         final var body = new ArrayList<DialogBody>();
         if (note != null) body.add(DialogBody.plainMessage(note));
         return Dialog.create(builder -> builder.empty()
@@ -612,7 +630,7 @@ public final class HologramDialog {
                                 .multiline(TextDialogInput.MultilineOptions.create(null, 120))
                                 .build()))
                         .build())
-                .type(DialogType.multiAction(List.of(save, deletePageButton(hologram, lineIndex, pagedLine, pageIndex)))
+                .type(DialogType.multiAction(List.of(save, visual, deletePageButton(hologram, lineIndex, pagedLine, pageIndex)))
                         .columns(1)
                         .exitAction(editPageBackButton(hologram, lineIndex, pagedLine))
                         .build()));
@@ -630,9 +648,13 @@ public final class HologramDialog {
             page.setBlock(block);
             show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
         });
+        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+                }))).build();
         final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
         return blockSearchDialog("Page " + (pageIndex + 1), page.getBlock().getMaterial().key().asString(), note,
-                List.of(held, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, block) -> {
+                List.of(held, visual, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, block) -> {
                     page.setBlock(block);
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
                 });
@@ -646,11 +668,15 @@ public final class HologramDialog {
             final EntityHologramLine page,
             @Nullable final Component note
     ) {
+        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editEntityPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+                }))).build();
         return entitySearchDialog("Page " + (pageIndex + 1), page.getEntityType().key().asString(), note,
                 editPageBackButton(hologram, lineIndex, pagedLine), (audience, entityType) -> {
                     page.setEntityType(entityType);
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
-                }, deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false));
+                }, visual, deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false));
     }
 
     private static DialogLike editItemPage(
@@ -668,6 +694,10 @@ public final class HologramDialog {
             show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
         });
         if (setHeld != null) actions.add(setHeld);
+        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+                }))).build();
         final var playerHead = ActionButton.builder(Component.text(
                         "Player head: " + (page.isPlayerHead() ? "On" : "Off"),
                         page.isPlayerHead() ? NamedTextColor.GREEN : NamedTextColor.RED))
@@ -675,6 +705,7 @@ public final class HologramDialog {
                     page.setPlayerHead(!page.isPlayerHead());
                     show(audience, current -> editItemPage(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
                 }))).build();
+        actions.add(visual);
         actions.add(playerHead);
         final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
         actions.add(delete);
@@ -683,6 +714,348 @@ public final class HologramDialog {
                     page.setItemStack(item);
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
                 });
+    }
+
+    private static DialogLike editTextLineVisuals(
+            final Hologram hologram,
+            final int lineIndex,
+            final TextHologramLine line,
+            final Audience viewer
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editTextLine(hologram, lineIndex, line, line.getUnparsedText().orElse(""), null));
+                })))
+                .build();
+
+        final var actions = new ArrayList<ActionButton>();
+        actions.add(visualGlowButton(hologram, line, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualGlowColorButton(hologram, line, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualBillboardButton(hologram, line, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualOffsetButton(hologram, line, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualDisplayScaleButton(line, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualBrightnessButton(hologram, line, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualFloatButton("View Range", line.getViewRange(), 0.0d, 1000.0d, (audience, value) -> {
+            line.setViewRange(value.floatValue());
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualFloatButton("Shadow Radius", line.getShadowRadius(), 0.0d, 1000.0d, (audience, value) -> {
+            line.setShadowRadius(value.floatValue());
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualFloatButton("Shadow Strength", line.getShadowStrength(), 0.0d, 10.0d, (audience, value) -> {
+            line.setShadowStrength(value.floatValue());
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualFloatButton("Display Width", line.getDisplayWidth(), 0.0d, 4096.0d, (audience, value) -> {
+            line.setDisplayWidth(value.floatValue());
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualFloatButton("Display Height", line.getDisplayHeight(), 0.0d, 4096.0d, (audience, value) -> {
+            line.setDisplayHeight(value.floatValue());
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualIntButton("Interpolation Delay", line.getInterpolationDelay(), 0, 6000, (audience, value) -> {
+            line.setInterpolationDelay(value);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualIntButton("Interpolation Duration", line.getInterpolationDuration(), 0, 6000, (audience, value) -> {
+            line.setInterpolationDuration(value);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualIntButton("Teleport Duration", line.getTeleportDuration(), 0, 59, (audience, value) -> {
+            line.setTeleportDuration(value);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualBackgroundColorButton("Background Color", line.getBackgroundColor().orElse(null), true, (audience, color) -> {
+            line.setBackgroundColor(color);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualLineWidthButton(line.getLineWidth(), (audience, value) -> {
+            line.setLineWidth(value);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(visualIntButton("Text Opacity", line.getTextOpacity(), 0, 100, (audience, value) -> {
+            line.setTextOpacity(value);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }, audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        actions.add(toggleButton("Shadowed", line.isShadowed(), (audience, value) -> {
+            line.setShadowed(value);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }));
+        actions.add(toggleButton("See Through", line.isSeeThrough(), (audience, value) -> {
+            line.setSeeThrough(value);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }));
+        actions.add(toggleButton("Default Background", line.isDefaultBackground(), (audience, value) -> {
+            line.setDefaultBackground(value);
+            show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
+        }));
+        actions.add(enumButton("Alignment", line.getAlignment(), TextAlignment.class, line::setAlignment,
+                audience -> editTextLineVisuals(hologram, lineIndex, line, audience)));
+        return visualOptionsDialog("Visual Options", lineLabel(lineIndex, line), null, actions, back);
+    }
+
+    private static DialogLike editTextPageVisuals(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine pagedLine,
+            final int pageIndex,
+            final TextHologramLine page,
+            final Audience viewer
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editTextPage(hologram, lineIndex, pagedLine, pageIndex, page, null));
+                })))
+                .build();
+
+        final var actions = new ArrayList<ActionButton>();
+        actions.add(visualGlowButton(hologram, page, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualGlowColorButton(hologram, page, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualBillboardButton(hologram, page, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualOffsetButton(hologram, page, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualDisplayScaleButton(page, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualBrightnessButton(hologram, page, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualFloatButton("View Range", page.getViewRange(), 0.0d, 1000.0d, (audience, value) -> {
+            page.setViewRange(value.floatValue());
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualFloatButton("Shadow Radius", page.getShadowRadius(), 0.0d, 1000.0d, (audience, value) -> {
+            page.setShadowRadius(value.floatValue());
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualFloatButton("Shadow Strength", page.getShadowStrength(), 0.0d, 10.0d, (audience, value) -> {
+            page.setShadowStrength(value.floatValue());
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualFloatButton("Display Width", page.getDisplayWidth(), 0.0d, 4096.0d, (audience, value) -> {
+            page.setDisplayWidth(value.floatValue());
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualFloatButton("Display Height", page.getDisplayHeight(), 0.0d, 4096.0d, (audience, value) -> {
+            page.setDisplayHeight(value.floatValue());
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualIntButton("Interpolation Delay", page.getInterpolationDelay(), 0, 6000, (audience, value) -> {
+            page.setInterpolationDelay(value);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualIntButton("Interpolation Duration", page.getInterpolationDuration(), 0, 6000, (audience, value) -> {
+            page.setInterpolationDuration(value);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualIntButton("Teleport Duration", page.getTeleportDuration(), 0, 59, (audience, value) -> {
+            page.setTeleportDuration(value);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualBackgroundColorButton("Background Color", page.getBackgroundColor().orElse(null), true, (audience, color) -> {
+            page.setBackgroundColor(color);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualLineWidthButton(page.getLineWidth(), (audience, value) -> {
+            page.setLineWidth(value);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(visualIntButton("Text Opacity", page.getTextOpacity(), 0, 100, (audience, value) -> {
+            page.setTextOpacity(value);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }, audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        actions.add(toggleButton("Shadowed", page.isShadowed(), (audience, value) -> {
+            page.setShadowed(value);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }));
+        actions.add(toggleButton("See Through", page.isSeeThrough(), (audience, value) -> {
+            page.setSeeThrough(value);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }));
+        actions.add(toggleButton("Default Background", page.isDefaultBackground(), (audience, value) -> {
+            page.setDefaultBackground(value);
+            show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
+        }));
+        actions.add(enumButton("Alignment", page.getAlignment(), TextAlignment.class, page::setAlignment,
+                audience -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
+        return visualOptionsDialog("Visual Options", Component.text("Page " + (pageIndex + 1)), null, actions, back);
+    }
+
+    private static DialogLike editItemLineVisuals(
+            final Hologram hologram,
+            final int lineIndex,
+            final ItemHologramLine line,
+            @Nullable final Component note,
+            final Audience viewer
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editItemLine(hologram, lineIndex, line, note, viewer));
+                })))
+                .build();
+
+        final var actions = new ArrayList<ActionButton>();
+        final var held = heldItemButton(viewer, "Set to Held Item", (audience, item) -> {
+            line.setItemStack(item);
+            show(audience, current -> editItemLineVisuals(hologram, lineIndex, line, note, current));
+        });
+        if (held != null) actions.add(held);
+        actions.add(toggleButton("Player Head", line.isPlayerHead(), (audience, value) -> {
+            line.setPlayerHead(value);
+            show(audience, current -> editItemLineVisuals(hologram, lineIndex, line, note, current));
+        }));
+        actions.add(enumButton("Item Display", line.getItemDisplayTransform(), ItemDisplayTransform.class, line::setItemDisplayTransform,
+                audience -> editItemLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualGlowButton(hologram, line, audience -> editItemLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualGlowColorButton(hologram, line, audience -> editItemLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualBillboardButton(hologram, line, audience -> editItemLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualOffsetButton(hologram, line, audience -> editItemLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualDisplayScaleButton(line, audience -> editItemLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualBrightnessButton(hologram, line, audience -> editItemLineVisuals(hologram, lineIndex, line, note, audience)));
+        return visualOptionsDialog("Visual Options", lineLabel(lineIndex, line), note, actions, back);
+    }
+
+    private static DialogLike editItemPageVisuals(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine pagedLine,
+            final int pageIndex,
+            final ItemHologramLine page,
+            @Nullable final Component note,
+            final Audience viewer
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editItemPage(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+                })))
+                .build();
+
+        final var actions = new ArrayList<ActionButton>();
+        final var held = heldItemButton(viewer, "Set to Held Item", (audience, item) -> {
+            page.setItemStack(item);
+            show(audience, current -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+        });
+        if (held != null) actions.add(held);
+        actions.add(toggleButton("Player Head", page.isPlayerHead(), (audience, value) -> {
+            page.setPlayerHead(value);
+            show(audience, current -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+        }));
+        actions.add(enumButton("Item Display", page.getItemDisplayTransform(), ItemDisplayTransform.class, page::setItemDisplayTransform,
+                audience -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualGlowButton(hologram, page, audience -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualGlowColorButton(hologram, page, audience -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualBillboardButton(hologram, page, audience -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualOffsetButton(hologram, page, audience -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualDisplayScaleButton(page, audience -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualBrightnessButton(hologram, page, audience -> editItemPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        return visualOptionsDialog("Visual Options", Component.text("Page " + (pageIndex + 1)), note, actions, back);
+    }
+
+    private static DialogLike editBlockLineVisuals(
+            final Hologram hologram,
+            final int lineIndex,
+            final BlockHologramLine line,
+            @Nullable final Component note,
+            final Audience viewer
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editBlockLine(hologram, lineIndex, line, note));
+                })))
+                .build();
+
+        final var actions = new ArrayList<ActionButton>();
+        final var held = useHeldBlockButton((audience, block) -> {
+            line.setBlock(block);
+            show(audience, current -> editBlockLineVisuals(hologram, lineIndex, line, note, current));
+        });
+        if (held != null) actions.add(held);
+        actions.add(visualGlowButton(hologram, line, audience -> editBlockLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualGlowColorButton(hologram, line, audience -> editBlockLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualBillboardButton(hologram, line, audience -> editBlockLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualOffsetButton(hologram, line, audience -> editBlockLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualDisplayScaleButton(line, audience -> editBlockLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualBrightnessButton(hologram, line, audience -> editBlockLineVisuals(hologram, lineIndex, line, note, audience)));
+        return visualOptionsDialog("Visual Options", lineLabel(lineIndex, line), note, actions, back);
+    }
+
+    private static DialogLike editBlockPageVisuals(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine pagedLine,
+            final int pageIndex,
+            final BlockHologramLine page,
+            @Nullable final Component note,
+            final Audience viewer
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editBlockPage(hologram, lineIndex, pagedLine, pageIndex, page, note));
+                })))
+                .build();
+
+        final var actions = new ArrayList<ActionButton>();
+        final var held = useHeldBlockButton((audience, block) -> {
+            page.setBlock(block);
+            show(audience, current -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+        });
+        if (held != null) actions.add(held);
+        actions.add(visualGlowButton(hologram, page, audience -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualGlowColorButton(hologram, page, audience -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualBillboardButton(hologram, page, audience -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualOffsetButton(hologram, page, audience -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualDisplayScaleButton(page, audience -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualBrightnessButton(hologram, page, audience -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        return visualOptionsDialog("Visual Options", Component.text("Page " + (pageIndex + 1)), note, actions, back);
+    }
+
+    private static DialogLike editEntityLineVisuals(
+            final Hologram hologram,
+            final int lineIndex,
+            final EntityHologramLine line,
+            @Nullable final Component note,
+            final Audience viewer
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editEntityLine(hologram, lineIndex, line, note));
+                })))
+                .build();
+
+        final var actions = new ArrayList<ActionButton>();
+        actions.add(visualGlowButton(hologram, line, audience -> editEntityLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualGlowColorButton(hologram, line, audience -> editEntityLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualBillboardButton(hologram, line, audience -> editEntityLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualOffsetButton(hologram, line, audience -> editEntityLineVisuals(hologram, lineIndex, line, note, audience)));
+        actions.add(visualScaleButton(line.getScale(), 0.1d, 100.0d, (audience, value) -> {
+            line.setScale(value);
+            show(audience, current -> editEntityLineVisuals(hologram, lineIndex, line, note, current));
+        }, audience -> editEntityLineVisuals(hologram, lineIndex, line, note, audience)));
+        return visualOptionsDialog("Visual Options", lineLabel(lineIndex, line), note, actions, back);
+    }
+
+    private static DialogLike editEntityPageVisuals(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine pagedLine,
+            final int pageIndex,
+            final EntityHologramLine page,
+            @Nullable final Component note,
+            final Audience viewer
+    ) {
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editEntityPage(hologram, lineIndex, pagedLine, pageIndex, page, note));
+                })))
+                .build();
+
+        final var actions = new ArrayList<ActionButton>();
+        actions.add(visualGlowButton(hologram, page, audience -> editEntityPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualGlowColorButton(hologram, page, audience -> editEntityPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualBillboardButton(hologram, page, audience -> editEntityPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualOffsetButton(hologram, page, audience -> editEntityPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(visualScaleButton(page.getScale(), 0.1d, 100.0d, (audience, value) -> {
+            page.setScale(value);
+            show(audience, current -> editEntityPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+        }, audience -> editEntityPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        return visualOptionsDialog("Visual Options", Component.text("Page " + (pageIndex + 1)), note, actions, back);
     }
 
     private static DialogLike deleteLine(final Hologram hologram, final int lineIndex, final Audience viewer) {
@@ -868,9 +1241,13 @@ public final class HologramDialog {
             show(audience, current -> editHologram(hologram, current));
         });
         final var remove = deleteLineButton(hologram, lineIndex, false);
+        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editBlockLineVisuals(hologram, lineIndex, line, note, current));
+                }))).build();
         final var back = editHologramBackButton(hologram);
         return blockSearchDialog(lineLabel(lineIndex, line), line.getBlock().getMaterial().key().asString(), note,
-                List.of(held, remove), back, (audience, block) -> {
+                List.of(held, visual, remove), back, (audience, block) -> {
                     line.setBlock(block);
                     show(audience, current -> editHologram(hologram, current));
                 });
@@ -883,12 +1260,16 @@ public final class HologramDialog {
             @Nullable final Component note
     ) {
         final var remove = deleteLineButton(hologram, lineIndex, false);
+        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editEntityLineVisuals(hologram, lineIndex, line, note, current));
+                }))).build();
         final var back = editHologramBackButton(hologram);
         return entitySearchDialog(lineLabel(lineIndex, line), line.getEntityType().key().asString(), note, back,
                 (audience, entityType) -> {
                     line.setEntityType(entityType);
                     show(audience, current -> editHologram(hologram, current));
-                }, remove);
+                }, visual, remove);
     }
 
     private static DialogLike editItemLine(
@@ -904,6 +1285,10 @@ public final class HologramDialog {
             show(audience, current -> editHologram(hologram, current));
         });
         if (setHeld != null) actions.add(setHeld);
+        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editItemLineVisuals(hologram, lineIndex, line, note, current));
+                }))).build();
         final var playerHead = ActionButton.builder(Component.text(
                         "Player head: " + (line.isPlayerHead() ? "On" : "Off"),
                         line.isPlayerHead() ? NamedTextColor.GREEN : NamedTextColor.RED))
@@ -912,6 +1297,7 @@ public final class HologramDialog {
                     show(audience, current -> editItemLine(hologram, lineIndex, line, note, current));
                 }))).build();
         final var remove = deleteLineButton(hologram, lineIndex, false);
+        actions.add(visual);
         actions.add(playerHead);
         actions.add(remove);
         final var back = editHologramBackButton(hologram);
@@ -1529,6 +1915,735 @@ public final class HologramDialog {
                                         .build()
                         )).build())
                 .type(DialogType.multiAction(List.of(add)).exitAction(back).build()));
+    }
+
+    private static ActionButton toggleButton(
+            final String label,
+            final boolean current,
+            final BiConsumer<Audience, Boolean> setter
+    ) {
+        return ActionButton.builder(Component.text(label + ": " + (current ? "On" : "Off"), current ? NamedTextColor.GREEN : NamedTextColor.RED))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> setter.accept(audience, !current))))
+                .build();
+    }
+
+    private static ActionButton visualGlowButton(
+            final Hologram hologram,
+            final StaticHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return toggleButton("Glowing", line.isGlowing(), (audience, value) -> {
+            line.setGlowing(value);
+            show(audience, reopen);
+        });
+    }
+
+    private static ActionButton visualGlowColorButton(
+            final Hologram hologram,
+            final StaticHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = line.getGlowColor().orElse(null);
+        final var label = Component.text("Glow Color: ")
+                .append(Component.text(describeTextColor(current), current != null ? current : NamedTextColor.WHITE));
+        return ActionButton.builder(label)
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editGlowColorDialog(current, null, null, (target, color) -> {
+                        line.setGlowColor(color);
+                        show(target, reopen);
+                    }, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualBillboardButton(
+            final Hologram hologram,
+            final StaticHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text("Billboard: " + line.getBillboard().name(), NamedTextColor.YELLOW))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editBillboardDialog(line, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualBrightnessButton(
+            final Hologram hologram,
+            final DisplayHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text("Brightness"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editBrightnessDialog(line, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualOffsetButton(
+            final Hologram hologram,
+            final StaticHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var offset = line.getOffset();
+        return ActionButton.builder(Component.text("Offset: " + formatDecimal(offset.x()) + ", " + formatDecimal(offset.y()) + ", " + formatDecimal(offset.z())))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editOffsetDialog(line, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualIntButton(
+            final String label,
+            final int current,
+            final int min,
+            final int max,
+            final BiConsumer<Audience, Integer> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text(label + ": " + current))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, currentDialog -> editIntValueDialog(label, current, min, max, null, setter, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualLineWidthButton(
+            final int current,
+            final BiConsumer<Audience, Integer> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var text = current == Integer.MAX_VALUE ? "default" : Integer.toString(current);
+        return ActionButton.builder(Component.text("Line Width: " + text))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editLineWidthDialog(current, setter, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualFloatButton(
+            final String label,
+            final double current,
+            final double min,
+            final double max,
+            final BiConsumer<Audience, Double> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text(label + ": " + formatDecimal(current)))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, currentDialog -> editFloatValueDialog(label, current, min, max, null, setter, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualScaleButton(
+            final double current,
+            final double min,
+            final double max,
+            final BiConsumer<Audience, Double> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text("Scale: " + formatDecimal(current)))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, currentDialog -> editScaleDialog(current, min, max, null, setter, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualDisplayScaleButton(
+            final DisplayHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var scale = line.getTransformation().getScale();
+        return ActionButton.builder(Component.text("Scale: " + formatDecimal(scale.x()) + ", " + formatDecimal(scale.y()) + ", " + formatDecimal(scale.z())))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editDisplayScaleDialog(line, null, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton visualTextColorButton(
+            final String label,
+            @Nullable final TextColor current,
+            final boolean allowReset,
+            final BiConsumer<Audience, @Nullable TextColor> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var text = current != null ? "#" + Integer.toHexString(current.value()) : "none";
+        return ActionButton.builder(Component.text(label + ": " + text))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, currentDialog -> editTextColorDialog(label, current, allowReset ? Component.text("Blank resets the color") : null, setter, reopen));
+                })))
+                .build();
+    }
+
+    private static String describeTextColor(@Nullable final TextColor color) {
+        if (color == null) return "None";
+        if (color == NamedTextColor.BLACK) return "Black";
+        if (color == NamedTextColor.DARK_BLUE) return "Dark Blue";
+        if (color == NamedTextColor.DARK_GREEN) return "Dark Green";
+        if (color == NamedTextColor.DARK_AQUA) return "Dark Aqua";
+        if (color == NamedTextColor.DARK_RED) return "Dark Red";
+        if (color == NamedTextColor.DARK_PURPLE) return "Dark Purple";
+        if (color == NamedTextColor.GOLD) return "Gold";
+        if (color == NamedTextColor.GRAY) return "Gray";
+        if (color == NamedTextColor.DARK_GRAY) return "Dark Gray";
+        if (color == NamedTextColor.BLUE) return "Blue";
+        if (color == NamedTextColor.GREEN) return "Green";
+        if (color == NamedTextColor.AQUA) return "Aqua";
+        if (color == NamedTextColor.RED) return "Red";
+        if (color == NamedTextColor.LIGHT_PURPLE) return "Light Purple";
+        if (color == NamedTextColor.YELLOW) return "Yellow";
+        if (color == NamedTextColor.WHITE) return "White";
+        return "#" + Integer.toHexString(color.value());
+    }
+
+    private static List<NamedTextColor> namedTextColors() {
+        return List.of(
+                NamedTextColor.BLACK,
+                NamedTextColor.DARK_BLUE,
+                NamedTextColor.DARK_GREEN,
+                NamedTextColor.DARK_AQUA,
+                NamedTextColor.DARK_RED,
+                NamedTextColor.DARK_PURPLE,
+                NamedTextColor.GOLD,
+                NamedTextColor.GRAY,
+                NamedTextColor.DARK_GRAY,
+                NamedTextColor.BLUE,
+                NamedTextColor.GREEN,
+                NamedTextColor.AQUA,
+                NamedTextColor.RED,
+                NamedTextColor.LIGHT_PURPLE,
+                NamedTextColor.YELLOW,
+                NamedTextColor.WHITE
+        );
+    }
+
+    private static DialogLike editGlowColorDialog(
+            @Nullable final TextColor current,
+            @Nullable final Component note,
+            @Nullable final String currentInput,
+            final BiConsumer<Audience, @Nullable TextColor> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var actions = new ArrayList<ActionButton>();
+        for (final var color : namedTextColors()) {
+            actions.add(ActionButton.builder(Component.text(describeTextColor(color), color))
+                    .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                        setter.accept(audience, color);
+                    })))
+                    .build());
+        }
+
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = response.getText("hex");
+                    if (input == null || input.isBlank()) {
+                        show(audience, ignored -> editGlowColorDialog(current, Component.text("Hex value cannot be empty", NamedTextColor.RED), input, setter, reopen));
+                        return;
+                    }
+                    final var parsed = parseTextColor(input);
+                    if (parsed.error() != null || parsed.value() == null) {
+                        show(audience, ignored -> editGlowColorDialog(current, Component.text("Invalid color", NamedTextColor.RED), input, setter, reopen));
+                        return;
+                    }
+                    setter.accept(audience, parsed.value());
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var reset = ActionButton.builder(Component.text("Reset", NamedTextColor.RED))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    setter.accept(audience, null);
+                })))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Pick a named color or enter a hex value")));
+        body.add(DialogBody.plainMessage(Component.text("Use Reset to clear the glow color")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        actions.add(save);
+        actions.add(reset);
+        actions.add(back);
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Glow Color"))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("hex", Component.text("Hex value"))
+                                .initial(currentInput != null ? currentInput : current != null ? "#" + Integer.toHexString(current.value()) : "")
+                                .build()))
+                        .build())
+                .type(DialogType.multiAction(actions).build()));
+    }
+
+    private static <E extends Enum<E>> ActionButton enumButton(
+            final String label,
+            final E current,
+            final Class<E> type,
+            final Consumer<E> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text(label + ": " + friendlyName(current.name())))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editEnumDialog(label, current, type, setter, reopen));
+                })))
+                .build();
+    }
+
+    private static DialogLike visualOptionsDialog(
+            final String title,
+            final Component header,
+            @Nullable final Component note,
+            final List<ActionButton> actions,
+            final ActionButton back
+    ) {
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(header));
+        body.add(DialogBody.plainMessage(Component.text("Edit how this line looks")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(title))
+                        .body(body)
+                        .build())
+                .type(DialogType.multiAction(addBack(actions, back)).build()));
+    }
+
+    private static List<ActionButton> addBack(final List<ActionButton> actions, final ActionButton back) {
+        final var buttons = new ArrayList<>(actions);
+        buttons.add(back);
+        return buttons;
+    }
+
+    private static <E extends Enum<E>> DialogLike editEnumDialog(
+            final String title,
+            final E current,
+            final Class<E> type,
+            final Consumer<E> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var actions = new ArrayList<ActionButton>();
+        for (final var value : type.getEnumConstants()) {
+            actions.add(ActionButton.builder(Component.text(friendlyName(value.name()),
+                            value == current ? NamedTextColor.GREEN : NamedTextColor.WHITE))
+                    .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                        setter.accept(value);
+                        show(audience, reopen);
+                    })))
+                    .build());
+        }
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(title))
+                        .body(List.of(DialogBody.plainMessage(Component.text("Choose a value"))))
+                        .build())
+                .type(DialogType.multiAction(actions).exitAction(back).build()));
+    }
+
+    private static ActionButton visualBackgroundColorButton(
+            final String label,
+            @Nullable final Color current,
+            final boolean allowReset,
+            final BiConsumer<Audience, @Nullable Color> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var text = current != null ? "#" + Integer.toHexString(current.asARGB()) : "none";
+        return ActionButton.builder(Component.text(label + ": " + text))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editBackgroundColorDialog(label, current, allowReset ? Component.text("Blank resets the color") : null, null, setter, reopen));
+                })))
+                .build();
+    }
+
+    private static DialogLike editBackgroundColorDialog(
+            final String label,
+            @Nullable final Color current,
+            @Nullable final Component note,
+            @Nullable final String currentInput,
+            final BiConsumer<Audience, @Nullable Color> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var actions = new ArrayList<ActionButton>();
+        for (final var color : namedTextColors()) {
+            actions.add(ActionButton.builder(Component.text(describeTextColor(color), color))
+                    .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                        setter.accept(audience, Color.fromRGB(color.value()));
+                    })))
+                    .build());
+        }
+
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = response.getText("value");
+                    final var parsed = parseBackgroundColor(input);
+                    if (parsed.error() != null) {
+                        show(audience, ignored -> editBackgroundColorDialog(label, current, Component.text(parsed.error(), NamedTextColor.RED), input, setter, reopen));
+                        return;
+                    }
+                    setter.accept(audience, parsed.value());
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        final var reset = ActionButton.builder(Component.text("Reset", NamedTextColor.RED))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    setter.accept(audience, null);
+                    show(audience, reopen);
+                })))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Pick a named color or enter a hex value")));
+        body.add(DialogBody.plainMessage(Component.text("Use Reset to clear the background color")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        actions.add(save);
+        actions.add(reset);
+        actions.add(back);
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(label))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text(label))
+                                .initial(currentInput != null ? currentInput : current != null ? "#" + Integer.toHexString(current.asARGB()) : "")
+                                .build()))
+                        .build())
+                .type(DialogType.multiAction(actions).build()));
+    }
+
+    private static ParseResult<@Nullable Color> parseBackgroundColor(@Nullable final String input) {
+        try {
+            if (input == null || input.isBlank()) return new ParseResult<>(null, null);
+            final var trimmed = input.trim();
+            final var named = NamedTextColor.NAMES.value(trimmed.toLowerCase(Locale.ROOT));
+            if (named != null) return new ParseResult<>(Color.fromRGB(named.value()), null);
+            final var hex = trimmed.startsWith("#") ? trimmed.substring(1) : trimmed;
+            if (hex.length() != 6 && hex.length() != 8) return new ParseResult<>(null, "Invalid color");
+            final var value = Integer.parseUnsignedInt(hex, 16);
+            return new ParseResult<>(Color.fromARGB(hex.length() == 6 ? 0xFF000000 | value : value), null);
+        } catch (final IllegalArgumentException ignored) {
+            return new ParseResult<>(null, "Invalid color");
+        }
+    }
+
+    private static DialogLike editIntValueDialog(
+            final String label,
+            final int current,
+            final int min,
+            final int max,
+            @Nullable final Component note,
+            final BiConsumer<Audience, Integer> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var parsed = parseDouble(label, response.getText("value"), min, max);
+                    if (parsed.error() != null) {
+                        show(audience, ignored -> editIntValueDialog(label, current, min, max, Component.text(parsed.error(), NamedTextColor.RED), setter, reopen));
+                        return;
+                    }
+                    setter.accept(audience, parsed.value().intValue());
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, reopen);
+                })))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter the new " + label.toLowerCase(Locale.ROOT))));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(label))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text(label)).initial(Integer.toString(current)).build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editFloatValueDialog(
+            final String label,
+            final double current,
+            final double min,
+            final double max,
+            @Nullable final Component note,
+            final BiConsumer<Audience, Double> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var parsed = parseDouble(label, response.getText("value"), min, max);
+                    if (parsed.error() != null) {
+                        show(audience, ignored -> editFloatValueDialog(label, current, min, max, Component.text(parsed.error(), NamedTextColor.RED), setter, reopen));
+                        return;
+                    }
+                    setter.accept(audience, parsed.value());
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter the new " + label.toLowerCase(Locale.ROOT))));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(label))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text(label)).initial(Double.toString(current)).build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editLineWidthDialog(
+            final int current,
+            final BiConsumer<Audience, Integer> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var parsed = parseDouble("Line Width", response.getText("value"), 1, Integer.MAX_VALUE);
+                    if (parsed.error() != null) {
+                        show(audience, ignored -> editLineWidthDialog(current, setter, reopen));
+                        return;
+                    }
+                    setter.accept(audience, parsed.value().intValue());
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var reset = ActionButton.builder(Component.text("Reset", NamedTextColor.RED))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    setter.accept(audience, Integer.MAX_VALUE);
+                    show(audience, reopen);
+                })))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter the line width or use Reset to restore the default")));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Line Width"))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text("Line Width"))
+                                .initial(current == Integer.MAX_VALUE ? "" : Integer.toString(current))
+                                .build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save, reset)).exitAction(back).build()));
+    }
+
+    private static DialogLike editScaleDialog(
+            final double current,
+            final double min,
+            final double max,
+            @Nullable final Component note,
+            final BiConsumer<Audience, Double> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var parsed = parseDouble("Scale", response.getText("value"), min, max);
+                    if (parsed.error() != null) {
+                        show(audience, ignored -> editScaleDialog(current, min, max, Component.text(parsed.error(), NamedTextColor.RED), setter, reopen));
+                        return;
+                    }
+                    if (!Double.isFinite(parsed.value())) {
+                        show(audience, ignored -> editScaleDialog(current, min, max, Component.text("Scale must be a finite number", NamedTextColor.RED), setter, reopen));
+                        return;
+                    }
+                    setter.accept(audience, parsed.value());
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter a scale value between 0.1 and 100")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Scale"))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text("Scale")).initial(Double.toString(current)).build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editDisplayScaleDialog(
+            final DisplayHologramLine line,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var transformation = line.getTransformation();
+        final var scale = transformation.getScale();
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var x = parseDouble("X", response.getText("x"), 0.1d, 100.0d);
+                    final var y = parseDouble("Y", response.getText("y"), 0.1d, 100.0d);
+                    final var z = parseDouble("Z", response.getText("z"), 0.1d, 100.0d);
+                    if (x.error() != null || y.error() != null || z.error() != null) {
+                        final var error = x.error() != null ? x.error() : y.error() != null ? y.error() : z.error();
+                        show(audience, ignored -> editDisplayScaleDialog(line, Component.text(error, NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    final var updated = new Transformation(
+                            transformation.getTranslation(),
+                            transformation.getLeftRotation(),
+                            new Vector3f(x.value().floatValue(), y.value().floatValue(), z.value().floatValue()),
+                            transformation.getRightRotation()
+                    );
+                    line.setTransformation(updated);
+                    show(audience, reopen);
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter X, Y, and Z scale values")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Scale"))
+                        .body(body)
+                        .inputs(List.of(
+                                DialogInput.text("x", Component.text("X")).initial(Double.toString(scale.x())).build(),
+                                DialogInput.text("y", Component.text("Y")).initial(Double.toString(scale.y())).build(),
+                                DialogInput.text("z", Component.text("Z")).initial(Double.toString(scale.z())).build()
+                        ))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editTextColorDialog(
+            final String label,
+            @Nullable final TextColor current,
+            @Nullable final Component note,
+            final BiConsumer<Audience, @Nullable TextColor> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = response.getText("value");
+                    final var parsed = parseTextColor(input);
+                    if (parsed.error() != null) {
+                        show(audience, ignored -> editTextColorDialog(label, current, Component.text(parsed.error(), NamedTextColor.RED), setter, reopen));
+                        return;
+                    }
+                    setter.accept(audience, parsed.value());
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter a named color or hex value; blank resets it")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(label))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text(label)).initial(current != null ? "#" + Integer.toHexString(current.value()) : "").build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editBrightnessDialog(
+            final DisplayHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = line.getBrightness().orElse(null);
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var blockLight = parseDouble("Block light", response.getText("block"), 0, 15);
+                    final var skyLight = parseDouble("Sky light", response.getText("sky"), 0, 15);
+                    if (blockLight.error() != null || skyLight.error() != null) {
+                        final var message = blockLight.error() != null ? blockLight.error() : skyLight.error();
+                        show(audience, ignored -> editBrightnessDialog(line, reopen));
+                        return;
+                    }
+                    line.setBrightness(new Display.Brightness(blockLight.value().intValue(), skyLight.value().intValue()));
+                    show(audience, reopen);
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var clear = ActionButton.builder(Component.text("Reset"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    line.setBrightness(null);
+                    show(audience, reopen);
+                })))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Brightness"))
+                        .body(List.of(DialogBody.plainMessage(Component.text("Set block light and sky light, or reset to none"))))
+                        .inputs(List.of(
+                                DialogInput.text("block", Component.text("Block light")).initial(current != null ? Integer.toString(current.getBlockLight()) : "0").build(),
+                                DialogInput.text("sky", Component.text("Sky light")).initial(current != null ? Integer.toString(current.getSkyLight()) : "0").build()
+                        )).build())
+                .type(DialogType.multiAction(List.of(save, clear)).exitAction(back).build()));
+    }
+
+    private static DialogLike editOffsetDialog(
+            final StaticHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = line.getOffset();
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var x = parseDouble("X", response.getText("x"), -1000, 1000);
+                    final var y = parseDouble("Y", response.getText("y"), -1000, 1000);
+                    final var z = parseDouble("Z", response.getText("z"), -1000, 1000);
+                    if (x.error() != null || y.error() != null || z.error() != null) {
+                        show(audience, ignored -> editOffsetDialog(line, reopen));
+                        return;
+                    }
+                    line.setOffset(new Vector3f(x.value().floatValue(), y.value().floatValue(), z.value().floatValue()));
+                    show(audience, reopen);
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Offset"))
+                        .body(List.of(DialogBody.plainMessage(Component.text("Set the entity offset"))))
+                        .inputs(List.of(
+                                DialogInput.text("x", Component.text("X")).initial(Float.toString(current.x())).build(),
+                                DialogInput.text("y", Component.text("Y")).initial(Float.toString(current.y())).build(),
+                                DialogInput.text("z", Component.text("Z")).initial(Float.toString(current.z())).build()
+                        )).build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editBillboardDialog(
+            final StaticHologramLine line,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var actions = new ArrayList<ActionButton>();
+        for (final var billboard : Display.Billboard.values()) {
+            actions.add(ActionButton.builder(Component.text(friendlyName(billboard.name())))
+                    .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                        line.setBillboard(billboard);
+                        show(audience, reopen);
+                    }))).build());
+        }
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Billboard"))
+                        .body(List.of(DialogBody.plainMessage(Component.text("Choose the billboard mode"))))
+                        .build())
+                .type(DialogType.multiAction(actions).exitAction(back).build()));
+    }
+
+    private static ParseResult<@Nullable TextColor> parseTextColor(@Nullable final String input) {
+        try {
+            if (input == null || input.isBlank()) return new ParseResult<>(null, null);
+            final var trimmed = input.trim();
+            final var named = NamedTextColor.NAMES.value(trimmed.toLowerCase(Locale.ROOT));
+            if (named != null) return new ParseResult<>(named, null);
+            final var hex = trimmed.startsWith("#") ? trimmed : "#" + trimmed;
+            final var color = TextColor.fromHexString(hex);
+            return color != null ? new ParseResult<>(color, null) : new ParseResult<>(null, "Invalid color");
+        } catch (final IllegalArgumentException ignored) {
+            return new ParseResult<>(null, "Invalid color");
+        }
     }
 
     private static DialogLike addBlockPage(

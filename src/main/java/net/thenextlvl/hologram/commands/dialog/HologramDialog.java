@@ -26,8 +26,10 @@ import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -35,15 +37,19 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @NullMarked
 public final class HologramDialog {
+    private static final int SEARCH_PAGE_SIZE = 20;
     private static final Map<UUID, Function<Audience, DialogLike>> LAST_DIALOGS = new ConcurrentHashMap<>();
 
     public static void showLast(final Audience audience) {
@@ -431,47 +437,26 @@ public final class HologramDialog {
         final var back = ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addLineType(hologram));
-                }))).width(150).build();
-        final var add = ActionButton.builder(Component.text("Add"))
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("block");
-                    try {
-                        hologram.addBlockLine().setBlock(Bukkit.createBlockData(input != null ? input.trim() : ""));
-                        show(audience, current -> editHologram(hologram, current));
-                    } catch (final IllegalArgumentException e) {
-                        show(audience, ignored -> addBlockLine(hologram, input != null ? input : initial,
-                                Component.text("Invalid block data", NamedTextColor.RED)));
-                    }
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text("Enter block data, for example minecraft:stone")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Add Block Line"))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("block", Component.text("Block data")).initial(initial).build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(add)).exitAction(back).build()));
+                }))).build();
+        final var target = useTargetBlockButton((audience, block) -> {
+            hologram.addBlockLine().setBlock(block);
+            show(audience, current -> editHologram(hologram, current));
+        });
+        final var held = useHeldBlockButton((audience, block) -> {
+            hologram.addBlockLine().setBlock(block);
+            show(audience, current -> editHologram(hologram, current));
+        });
+        return blockSearchDialog("Add Block Line", initial, note, List.of(target, held), back, (audience, block) -> {
+            hologram.addBlockLine().setBlock(block);
+            show(audience, current -> editHologram(hologram, current));
+        });
     }
 
     private static DialogLike addItemLine(final Hologram hologram, final String initial, @Nullable final Component note) {
         final var back = ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addLineType(hologram));
-                }))).width(150).build();
-        final var add = ActionButton.builder(Component.text("Add"))
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("item");
-                    final var item = parseItemStack(input);
-                    if (item.error() != null) {
-                        show(audience, ignored -> addItemLine(hologram, input != null ? input : initial,
-                                Component.text(item.error(), NamedTextColor.RED)));
-                        return;
-                    }
-
-                    hologram.addItemLine().setItemStack(item.value());
-                    show(audience, current -> editHologram(hologram, current));
-                }, ClickCallback.Options.builder().uses(1).build())).build();
+                }))).build();
         final var held = ActionButton.builder(Component.text("Use Held Item", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     if (audience instanceof final Player player) {
@@ -479,49 +464,21 @@ public final class HologramDialog {
                     }
                     show(audience, current -> editHologram(hologram, current));
                 }))).build();
-        final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text("Enter an item material, for example minecraft:diamond")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Add Item Line"))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("item", Component.text("Item material")).initial(initial).build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(add, held)).exitAction(back).build()));
+        return itemSearchDialog("Add Item Line", initial, note, List.of(held), back, (audience, item) -> {
+            hologram.addItemLine().setItemStack(item);
+            show(audience, current -> editHologram(hologram, current));
+        });
     }
 
     private static DialogLike addEntityLine(final Hologram hologram, final String initial, @Nullable final Component note) {
         final var back = ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addLineType(hologram));
-                }))).width(150).build();
-        final var add = ActionButton.builder(Component.text("Add"))
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("entity");
-                    final var entityType = parseEntityType(input);
-                    if (entityType.error() != null) {
-                        show(audience, ignored -> addEntityLine(hologram, input != null ? input : initial,
-                                Component.text(entityType.error(), NamedTextColor.RED)));
-                        return;
-                    }
-
-                    try {
-                        hologram.addEntityLine(entityType.value());
-                        show(audience, current -> editHologram(hologram, current));
-                    } catch (final IllegalArgumentException e) {
-                        show(audience, ignored -> addEntityLine(hologram, input != null ? input : initial,
-                                Component.text("Entity type is not spawnable", NamedTextColor.RED)));
-                    }
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text("Enter an entity type, for example pig")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Add Entity Line"))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("entity", Component.text("Entity type")).initial(initial).build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(add)).exitAction(back).build()));
+                }))).build();
+        return entitySearchDialog("Add Entity Line", initial, note, back, (audience, entityType) -> {
+            hologram.addEntityLine(entityType);
+            show(audience, current -> editHologram(hologram, current));
+        });
     }
 
     private static DialogLike editLine(final Hologram hologram, final int lineIndex, final Audience viewer) {
@@ -637,7 +594,7 @@ public final class HologramDialog {
                         .build())
                 .type(DialogType.multiAction(List.of(save, deletePageButton(hologram, lineIndex, pagedLine, pageIndex)))
                         .columns(1)
-                        .exitAction(editPagedBackButton(hologram, lineIndex, pagedLine))
+                        .exitAction(editPageBackButton(hologram, lineIndex, pagedLine))
                         .build()));
     }
 
@@ -649,30 +606,20 @@ public final class HologramDialog {
             final BlockHologramLine page,
             @Nullable final Component note
     ) {
-        final var save = ActionButton.builder(Component.text("Save")).width(300)
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("block");
-                    try {
-                        page.setBlock(Bukkit.createBlockData(input != null ? input.trim() : ""));
-                        show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
-                    } catch (final IllegalArgumentException e) {
-                        show(audience, ignored -> editBlockPage(hologram, lineIndex, pagedLine, pageIndex, page,
-                                Component.text("Invalid block data", NamedTextColor.RED)));
-                    }
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var body = new ArrayList<DialogBody>();
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Page " + (pageIndex + 1)))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("block", Component.text("Block data"))
-                                .initial(page.getBlock().getAsString())
-                                .build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(save, deletePageButton(hologram, lineIndex, pagedLine, pageIndex)))
-                        .columns(1)
-                        .exitAction(editPagedBackButton(hologram, lineIndex, pagedLine))
-                        .build()));
+        final var target = useTargetBlockButton((audience, block) -> {
+            page.setBlock(block);
+            show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
+        });
+        final var held = useHeldBlockButton((audience, block) -> {
+            page.setBlock(block);
+            show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
+        });
+        final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
+        return blockSearchDialog("Page " + (pageIndex + 1), page.getBlock().getMaterial().key().asString(), note,
+                List.of(target, held, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, block) -> {
+                    page.setBlock(block);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
+                });
     }
 
     private static DialogLike editEntityPage(
@@ -683,36 +630,11 @@ public final class HologramDialog {
             final EntityHologramLine page,
             @Nullable final Component note
     ) {
-        final var save = ActionButton.builder(Component.text("Save")).width(300)
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("entity");
-                    final var entityType = parseEntityType(input);
-                    if (entityType.error() != null) {
-                        show(audience, ignored -> editEntityPage(hologram, lineIndex, pagedLine, pageIndex, page,
-                                Component.text(entityType.error(), NamedTextColor.RED)));
-                        return;
-                    }
-                    try {
-                        page.setEntityType(entityType.value());
-                        show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
-                    } catch (final IllegalArgumentException e) {
-                        show(audience, ignored -> editEntityPage(hologram, lineIndex, pagedLine, pageIndex, page,
-                                Component.text("Entity type is not spawnable", NamedTextColor.RED)));
-                    }
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var body = new ArrayList<DialogBody>();
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Page " + (pageIndex + 1)))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("entity", Component.text("Entity type"))
-                                .initial(page.getEntityType().key().asString())
-                                .build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(save, deletePageButton(hologram, lineIndex, pagedLine, pageIndex)))
-                        .columns(1)
-                        .exitAction(editPagedBackButton(hologram, lineIndex, pagedLine))
-                        .build()));
+        return entitySearchDialog("Page " + (pageIndex + 1), page.getEntityType().key().asString(), note,
+                editPageBackButton(hologram, lineIndex, pagedLine), (audience, entityType) -> {
+                    page.setEntityType(entityType);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
+                }, deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false));
     }
 
     private static DialogLike editItemPage(
@@ -723,39 +645,19 @@ public final class HologramDialog {
             final ItemHologramLine page,
             @Nullable final Component note
     ) {
-        final var save = ActionButton.builder(Component.text("Save")).width(300)
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("item");
-                    final var item = parseItemStack(input);
-                    if (item.error() != null) {
-                        show(audience, ignored -> editItemPage(hologram, lineIndex, pagedLine, pageIndex, page,
-                                Component.text(item.error(), NamedTextColor.RED)));
-                        return;
-                    }
-
-                    page.setItemStack(item.value());
-                    show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var setHeld = ActionButton.builder(Component.text("Set to Held Item", NamedTextColor.GREEN)).width(300)
+        final var setHeld = ActionButton.builder(Component.text("Set to Held Item", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     if (audience instanceof final Player player) {
                         page.setItemStack(player.getInventory().getItemInMainHand());
                     }
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
                 }))).build();
-        final var body = new ArrayList<DialogBody>();
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Page " + (pageIndex + 1)))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("item", Component.text("Item material"))
-                                .initial(page.getItemStack().getType().key().asString())
-                                .build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(save, setHeld, deletePageButton(hologram, lineIndex, pagedLine, pageIndex)))
-                        .columns(1)
-                        .exitAction(editPagedBackButton(hologram, lineIndex, pagedLine))
-                        .build()));
+        final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
+        return itemSearchDialog("Page " + (pageIndex + 1), page.getItemStack().getType().key().asString(), note,
+                List.of(setHeld, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, item) -> {
+                    page.setItemStack(item);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
+                });
     }
 
     private static DialogLike deleteLine(final Hologram hologram, final int lineIndex, final Audience viewer) {
@@ -783,30 +685,21 @@ public final class HologramDialog {
             final BlockHologramLine line,
             @Nullable final Component note
     ) {
-        final var save = ActionButton.builder(Component.text("Save")).width(300)
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("block");
-                    try {
-                        line.setBlock(Bukkit.createBlockData(input != null ? input.trim() : ""));
-                        show(audience, current -> editHologram(hologram, current));
-                    } catch (final IllegalArgumentException e) {
-                        show(audience, ignored -> editBlockLine(hologram, lineIndex, line,
-                                Component.text("Invalid block data", NamedTextColor.RED)));
-                    }
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var remove = deleteLineButton(hologram, lineIndex);
+        final var target = useTargetBlockButton((audience, block) -> {
+            line.setBlock(block);
+            show(audience, current -> editHologram(hologram, current));
+        });
+        final var held = useHeldBlockButton((audience, block) -> {
+            line.setBlock(block);
+            show(audience, current -> editHologram(hologram, current));
+        });
+        final var remove = deleteLineButton(hologram, lineIndex, false);
         final var back = editHologramBackButton(hologram);
-        final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text("Edit the block data for this line")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(lineLabel(lineIndex, line))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("block", Component.text("Block data"))
-                                .initial(line.getBlock().getAsString())
-                                .build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(save, remove)).columns(1).exitAction(back).build()));
+        return blockSearchDialog(lineLabel(lineIndex, line), line.getBlock().getMaterial().key().asString(), note,
+                List.of(target, held, remove), back, (audience, block) -> {
+                    line.setBlock(block);
+                    show(audience, current -> editHologram(hologram, current));
+                });
     }
 
     private static DialogLike editEntityLine(
@@ -815,37 +708,13 @@ public final class HologramDialog {
             final EntityHologramLine line,
             @Nullable final Component note
     ) {
-        final var save = ActionButton.builder(Component.text("Save")).width(300)
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("entity");
-                    final var entityType = parseEntityType(input);
-                    if (entityType.error() != null) {
-                        show(audience, ignored -> editEntityLine(hologram, lineIndex, line,
-                                Component.text(entityType.error(), NamedTextColor.RED)));
-                        return;
-                    }
-
-                    try {
-                        line.setEntityType(entityType.value());
-                        show(audience, current -> editHologram(hologram, current));
-                    } catch (final IllegalArgumentException e) {
-                        show(audience, ignored -> editEntityLine(hologram, lineIndex, line,
-                                Component.text("Entity type is not spawnable", NamedTextColor.RED)));
-                    }
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var remove = deleteLineButton(hologram, lineIndex);
+        final var remove = deleteLineButton(hologram, lineIndex, false);
         final var back = editHologramBackButton(hologram);
-        final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text("Edit the entity type for this line")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(lineLabel(lineIndex, line))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("entity", Component.text("Entity type"))
-                                .initial(line.getEntityType().key().asString())
-                                .build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(save, remove)).columns(1).exitAction(back).build()));
+        return entitySearchDialog(lineLabel(lineIndex, line), line.getEntityType().key().asString(), note, back,
+                (audience, entityType) -> {
+                    line.setEntityType(entityType);
+                    show(audience, current -> editHologram(hologram, current));
+                }, remove);
     }
 
     private static DialogLike editItemLine(
@@ -854,50 +723,37 @@ public final class HologramDialog {
             final ItemHologramLine line,
             @Nullable final Component note
     ) {
-        final var save = ActionButton.builder(Component.text("Save")).width(300)
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("item");
-                    final var item = parseItemStack(input);
-                    if (item.error() != null) {
-                        show(audience, ignored -> editItemLine(hologram, lineIndex, line,
-                                Component.text(item.error(), NamedTextColor.RED)));
-                        return;
-                    }
-
-                    line.setItemStack(item.value());
-                    show(audience, current -> editHologram(hologram, current));
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var setHeld = ActionButton.builder(Component.text("Set to Held Item", NamedTextColor.GREEN)).width(300)
+        final var setHeld = ActionButton.builder(Component.text("Set to Held Item", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     if (audience instanceof final Player player) {
                         line.setItemStack(player.getInventory().getItemInMainHand());
                     }
                     show(audience, current -> editHologram(hologram, current));
                 }))).build();
-        final var playerHead = ActionButton.builder(Component.text("Toggle Player Head", NamedTextColor.YELLOW)).width(300)
+        final var playerHead = ActionButton.builder(Component.text("Toggle Player Head", NamedTextColor.YELLOW))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     line.setPlayerHead(!line.isPlayerHead());
                     show(audience, current -> editLine(hologram, lineIndex, current));
                 }))).build();
-        final var remove = deleteLineButton(hologram, lineIndex);
+        final var remove = deleteLineButton(hologram, lineIndex, false);
         final var back = editHologramBackButton(hologram);
-        final var body = new ArrayList<DialogBody>();
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(lineLabel(lineIndex, line))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("item", Component.text("Item material"))
-                                .initial(line.getItemStack().getType().key().asString())
-                                .build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(save, setHeld, playerHead, remove)).columns(1).exitAction(back).build()));
+        return itemSearchDialog(lineLabel(lineIndex, line), line.getItemStack().getType().key().asString(), note,
+                List.of(setHeld, playerHead, remove), back, (audience, item) -> {
+                    line.setItemStack(item);
+                    show(audience, current -> editHologram(hologram, current));
+                });
     }
 
     private static ActionButton deleteLineButton(final Hologram hologram, final int lineIndex) {
-        return ActionButton.builder(Component.text("Delete this line", NamedTextColor.RED))
+        return deleteLineButton(hologram, lineIndex, true);
+    }
+
+    private static ActionButton deleteLineButton(final Hologram hologram, final int lineIndex, final boolean customWidth) {
+        final var builder = ActionButton.builder(Component.text("Delete this line", NamedTextColor.RED))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     audience.showDialog(deleteLine(hologram, lineIndex, audience));
-                }))).width(300).build();
+                })));
+        return customWidth ? builder.width(300).build() : builder.build();
     }
 
     private static ActionButton editHologramBackButton(final Hologram hologram) {
@@ -988,17 +844,35 @@ public final class HologramDialog {
     }
 
     private static ActionButton deletePageButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line, final int pageIndex) {
-        return ActionButton.builder(Component.text("Delete this page", NamedTextColor.RED))
+        return deletePageButton(hologram, lineIndex, line, pageIndex, true);
+    }
+
+    private static ActionButton deletePageButton(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            final int pageIndex,
+            final boolean customWidth
+    ) {
+        final var builder = ActionButton.builder(Component.text("Delete this page", NamedTextColor.RED))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     line.removePage(pageIndex);
                     show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
-                }))).width(300).build();
+                })));
+        return customWidth ? builder.width(300).build() : builder.build();
     }
 
     private static ActionButton editPagedBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
         return ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addPageType(hologram, lineIndex, line));
+                }))).width(300).build();
+    }
+
+    private static ActionButton editPageBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
+        return ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
                 }))).width(300).build();
     }
 
@@ -1041,19 +915,6 @@ public final class HologramDialog {
             final String initial,
             @Nullable final Component note
     ) {
-        final var add = ActionButton.builder(Component.text("Add"))
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("item");
-                    final var item = parseItemStack(input);
-                    if (item.error() != null) {
-                        show(audience, ignored -> addItemPage(hologram, lineIndex, line, input != null ? input : initial,
-                                Component.text(item.error(), NamedTextColor.RED)));
-                        return;
-                    }
-
-                    line.addItemPage().setItemStack(item.value());
-                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
-                }, ClickCallback.Options.builder().uses(1).build())).build();
         final var held = ActionButton.builder(Component.text("Use Held Item", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     if (audience instanceof final Player player) {
@@ -1061,15 +922,11 @@ public final class HologramDialog {
                     }
                     show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
                 }))).build();
-        final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text("Enter an item material, for example minecraft:diamond")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Add Item Page"))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("item", Component.text("Item material")).initial(initial).build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(add, held)).exitAction(editPagedBackButton(hologram, lineIndex, line)).build()));
+        return itemSearchDialog("Add Item Page", initial, note, List.of(held), editPagedBackButton(hologram, lineIndex, line),
+                (audience, item) -> {
+                    line.addItemPage().setItemStack(item);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                });
     }
 
     private static DialogLike addBlockPage(
@@ -1079,25 +936,19 @@ public final class HologramDialog {
             final String initial,
             @Nullable final Component note
     ) {
-        final var add = ActionButton.builder(Component.text("Add"))
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("block");
-                    try {
-                        line.addBlockPage().setBlock(Bukkit.createBlockData(input != null ? input.trim() : ""));
-                        show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
-                    } catch (final IllegalArgumentException e) {
-                        show(audience, ignored -> addBlockPage(hologram, lineIndex, line, input != null ? input : initial,
-                                Component.text("Invalid block data", NamedTextColor.RED)));
-                    }
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var body = new ArrayList<DialogBody>();
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Add Block Page"))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("block", Component.text("Block data")).initial(initial).build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(add)).exitAction(editPagedBackButton(hologram, lineIndex, line)).build()));
+        final var target = useTargetBlockButton((audience, block) -> {
+            line.addBlockPage().setBlock(block);
+            show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+        });
+        final var held = useHeldBlockButton((audience, block) -> {
+            line.addBlockPage().setBlock(block);
+            show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+        });
+        return blockSearchDialog("Add Block Page", initial, note, List.of(target, held), editPagedBackButton(hologram, lineIndex, line),
+                (audience, block) -> {
+                    line.addBlockPage().setBlock(block);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                });
     }
 
     private static DialogLike addEntityPage(
@@ -1107,31 +958,315 @@ public final class HologramDialog {
             final String initial,
             @Nullable final Component note
     ) {
-        final var add = ActionButton.builder(Component.text("Add"))
+        return entitySearchDialog("Add Entity Page", initial, note, editPagedBackButton(hologram, lineIndex, line),
+                (audience, entityType) -> {
+                    line.addEntityPage(entityType);
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                });
+    }
+
+    private static DialogLike itemSearchDialog(
+            final String title,
+            final String initial,
+            @Nullable final Component note,
+            final List<ActionButton> extraActions,
+            final ActionButton back,
+            final BiConsumer<Audience, ItemStack> selection
+    ) {
+        return itemSearchDialog(Component.text(title), initial, note, extraActions, back, selection);
+    }
+
+    private static DialogLike itemSearchDialog(
+            final Component title,
+            final String initial,
+            @Nullable final Component note,
+            final List<ActionButton> extraActions,
+            final ActionButton back,
+            final BiConsumer<Audience, ItemStack> selection
+    ) {
+        return itemSearchDialog(title, initial, note, extraActions, back, selection, 0);
+    }
+
+    private static DialogLike itemSearchDialog(
+            final Component title,
+            final String initial,
+            @Nullable final Component note,
+            final List<ActionButton> extraActions,
+            final ActionButton back,
+            final BiConsumer<Audience, ItemStack> selection,
+            final int page
+    ) {
+        final var query = normalizeSearch(initial);
+        final var matches = searchMaterials(query, Material::isItem);
+        final var pageCount = pageCount(matches);
+        final var currentPage = clampPage(page, pageCount);
+        final var search = ActionButton.builder(Component.text("Search", NamedTextColor.GREEN))
                 .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("entity");
-                    final var entityType = parseEntityType(input);
-                    if (entityType.error() != null) {
-                        show(audience, ignored -> addEntityPage(hologram, lineIndex, line, input != null ? input : initial,
-                                Component.text(entityType.error(), NamedTextColor.RED)));
+                    final var input = input(response, "search");
+                    final var result = searchMaterials(input, Material::isItem);
+                    final var message = result.isEmpty() ? Component.text("No matching items found", NamedTextColor.RED) : null;
+                    show(audience, ignored -> itemSearchDialog(title, input, message, extraActions, back, selection));
+                }, ClickCallback.Options.builder().uses(1).build())).build();
+        final var actions = new ArrayList<ActionButton>();
+        if (currentPage > 0) actions.add(pageButton("Previous Page", audience -> {
+            show(audience, ignored -> itemSearchDialog(title, initial, note, extraActions, back, selection, currentPage - 1));
+        }));
+        if (currentPage + 1 < pageCount) actions.add(pageButton("Next Page", audience -> {
+            show(audience, ignored -> itemSearchDialog(title, initial, note, extraActions, back, selection, currentPage + 1));
+        }));
+        actions.add(search);
+        actions.addAll(extraActions);
+        matches.stream().skip((long) currentPage * SEARCH_PAGE_SIZE).limit(SEARCH_PAGE_SIZE).map(material -> selectionButton(material, audience -> {
+            selection.accept(audience, new ItemStack(material));
+        })).forEach(actions::add);
+
+        final var body = searchBody("Search by friendly name or key", note, matches, currentPage, pageCount);
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(title)
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("search", Component.text("Search")).initial(initial).build()))
+                        .build())
+                .type(DialogType.multiAction(actions).exitAction(back).build()));
+    }
+
+    private static DialogLike blockSearchDialog(
+            final String title,
+            final String initial,
+            @Nullable final Component note,
+            final List<ActionButton> extraActions,
+            final ActionButton back,
+            final BiConsumer<Audience, BlockData> selection
+    ) {
+        return blockSearchDialog(Component.text(title), initial, note, extraActions, back, selection);
+    }
+
+    private static DialogLike blockSearchDialog(
+            final Component title,
+            final String initial,
+            @Nullable final Component note,
+            final List<ActionButton> extraActions,
+            final ActionButton back,
+            final BiConsumer<Audience, BlockData> selection
+    ) {
+        return blockSearchDialog(title, initial, note, extraActions, back, selection, 0);
+    }
+
+    private static DialogLike blockSearchDialog(
+            final Component title,
+            final String initial,
+            @Nullable final Component note,
+            final List<ActionButton> extraActions,
+            final ActionButton back,
+            final BiConsumer<Audience, BlockData> selection,
+            final int page
+    ) {
+        final var query = normalizeSearch(initial);
+        final var matches = searchMaterials(query, Material::isBlock);
+        final var pageCount = pageCount(matches);
+        final var currentPage = clampPage(page, pageCount);
+        final var search = ActionButton.builder(Component.text("Search", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = input(response, "search");
+                    final var result = searchMaterials(input, Material::isBlock);
+                    final var message = result.isEmpty() ? Component.text("No matching blocks found", NamedTextColor.RED) : null;
+                    show(audience, ignored -> blockSearchDialog(title, input, message, extraActions, back, selection));
+                }, ClickCallback.Options.builder().uses(1).build())).build();
+        final var actions = new ArrayList<ActionButton>();
+        if (currentPage > 0) actions.add(pageButton("Previous Page", audience -> {
+            show(audience, ignored -> blockSearchDialog(title, initial, note, extraActions, back, selection, currentPage - 1));
+        }));
+        if (currentPage + 1 < pageCount) actions.add(pageButton("Next Page", audience -> {
+            show(audience, ignored -> blockSearchDialog(title, initial, note, extraActions, back, selection, currentPage + 1));
+        }));
+        actions.add(search);
+        actions.addAll(extraActions);
+        matches.stream().skip((long) currentPage * SEARCH_PAGE_SIZE).limit(SEARCH_PAGE_SIZE).map(material -> selectionButton(material, audience -> {
+            selection.accept(audience, material.createBlockData());
+        })).forEach(actions::add);
+
+        final var body = searchBody("Search by friendly name or key", note, matches, currentPage, pageCount);
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(title)
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("search", Component.text("Search")).initial(initial).build()))
+                        .build())
+                .type(DialogType.multiAction(actions).exitAction(back).build()));
+    }
+
+    private static DialogLike entitySearchDialog(
+            final String title,
+            final String initial,
+            @Nullable final Component note,
+            final ActionButton back,
+            final BiConsumer<Audience, EntityType> selection,
+            final ActionButton... extraActions
+    ) {
+        return entitySearchDialog(Component.text(title), initial, note, back, selection, extraActions);
+    }
+
+    private static DialogLike entitySearchDialog(
+            final Component title,
+            final String initial,
+            @Nullable final Component note,
+            final ActionButton back,
+            final BiConsumer<Audience, EntityType> selection,
+            final ActionButton... extraActions
+    ) {
+        return entitySearchDialog(title, initial, note, back, selection, 0, extraActions);
+    }
+
+    private static DialogLike entitySearchDialog(
+            final Component title,
+            final String initial,
+            @Nullable final Component note,
+            final ActionButton back,
+            final BiConsumer<Audience, EntityType> selection,
+            final int page,
+            final ActionButton... extraActions
+    ) {
+        final var query = normalizeSearch(initial);
+        final var matches = searchEntities(query);
+        final var pageCount = pageCount(matches);
+        final var currentPage = clampPage(page, pageCount);
+        final var search = ActionButton.builder(Component.text("Search", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = input(response, "search");
+                    final var result = searchEntities(input);
+                    final var message = result.isEmpty() ? Component.text("No matching entities found", NamedTextColor.RED) : null;
+                    show(audience, ignored -> entitySearchDialog(title, input, message, back, selection, extraActions));
+                }, ClickCallback.Options.builder().uses(1).build())).build();
+        final var actions = new ArrayList<ActionButton>();
+        if (currentPage > 0) actions.add(pageButton("Previous Page", audience -> {
+            show(audience, ignored -> entitySearchDialog(title, initial, note, back, selection, currentPage - 1, extraActions));
+        }));
+        if (currentPage + 1 < pageCount) actions.add(pageButton("Next Page", audience -> {
+            show(audience, ignored -> entitySearchDialog(title, initial, note, back, selection, currentPage + 1, extraActions));
+        }));
+        actions.add(search);
+        actions.addAll(Arrays.asList(extraActions));
+        matches.stream().skip((long) currentPage * SEARCH_PAGE_SIZE).limit(SEARCH_PAGE_SIZE).map(entity -> selectionButton(entity, audience -> {
+            selection.accept(audience, entity);
+        })).forEach(actions::add);
+
+        final var body = searchBody("Search by friendly name or key", note, matches, currentPage, pageCount);
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(title)
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("search", Component.text("Search")).initial(initial).build()))
+                        .build())
+                .type(DialogType.multiAction(actions).exitAction(back).build()));
+    }
+
+    private static ActionButton selectionButton(final Material material, final java.util.function.Consumer<Audience> selection) {
+        return ActionButton.builder(Component.text(friendlyName(material.key().value())))
+                .tooltip(Component.text(material.key().asString()))
+                .action(DialogAction.staticAction(ClickEvent.callback(selection::accept)))
+                .build();
+    }
+
+    private static ActionButton selectionButton(final EntityType entityType, final java.util.function.Consumer<Audience> selection) {
+        return ActionButton.builder(Component.text(friendlyName(entityType.key().value())))
+                .tooltip(Component.text(entityType.key().asString()))
+                .action(DialogAction.staticAction(ClickEvent.callback(selection::accept)))
+                .build();
+    }
+
+    private static ActionButton pageButton(final String label, final java.util.function.Consumer<Audience> action) {
+        return ActionButton.builder(Component.text(label, NamedTextColor.YELLOW))
+                .action(DialogAction.staticAction(ClickEvent.callback(action::accept)))
+                .build();
+    }
+
+    private static ActionButton useTargetBlockButton(final BiConsumer<Audience, BlockData> selection) {
+        return ActionButton.builder(Component.text("Use Target Block", NamedTextColor.GREEN))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    if (!(audience instanceof final Player player)) {
+                        audience.sendMessage(Component.text("Only players can select a target block", NamedTextColor.RED));
                         return;
                     }
-                    try {
-                        line.addEntityPage(entityType.value());
-                        show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
-                    } catch (final IllegalArgumentException e) {
-                        show(audience, ignored -> addEntityPage(hologram, lineIndex, line, input != null ? input : initial,
-                                Component.text("Entity type is not spawnable", NamedTextColor.RED)));
+                    final var block = player.getTargetBlockExact(8);
+                    if (block == null || block.getType().isAir()) {
+                        audience.sendMessage(Component.text("No block in range", NamedTextColor.RED));
+                        return;
                     }
-                }, ClickCallback.Options.builder().uses(1).build())).build();
+                    selection.accept(audience, block.getBlockData());
+                }))).build();
+    }
+
+    private static ActionButton useHeldBlockButton(final BiConsumer<Audience, BlockData> selection) {
+        return ActionButton.builder(Component.text("Use Held Block", NamedTextColor.GREEN))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    if (!(audience instanceof final Player player)) {
+                        audience.sendMessage(Component.text("Only players can select a held block", NamedTextColor.RED));
+                        return;
+                    }
+                    final var material = player.getInventory().getItemInMainHand().getType();
+                    if (!material.isBlock()) {
+                        audience.sendMessage(Component.text("Held item is not a block", NamedTextColor.RED));
+                        return;
+                    }
+                    selection.accept(audience, material.createBlockData());
+                }))).build();
+    }
+
+    private static List<DialogBody> searchBody(
+            final String prompt,
+            @Nullable final Component note,
+            final List<?> matches,
+            final int currentPage,
+            final int pageCount
+    ) {
         final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text(prompt)));
         if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Add Entity Page"))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("entity", Component.text("Entity type")).initial(initial).build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(add)).exitAction(editPagedBackButton(hologram, lineIndex, line)).build()));
+        if (matches.isEmpty()) body.add(DialogBody.plainMessage(Component.text("No results")));
+        else if (pageCount > 1) body.add(DialogBody.plainMessage(Component.text("Page " + (currentPage + 1) + " of " + pageCount)));
+        return body;
+    }
+
+    private static int pageCount(final List<?> matches) {
+        return Math.max(1, (matches.size() + SEARCH_PAGE_SIZE - 1) / SEARCH_PAGE_SIZE);
+    }
+
+    private static int clampPage(final int page, final int pageCount) {
+        return Math.max(0, Math.min(page, pageCount - 1));
+    }
+
+    private static List<Material> searchMaterials(final String query, final Predicate<Material> filter) {
+        return Arrays.stream(Material.values())
+                .filter(material -> !material.isLegacy())
+                .filter(filter)
+                .filter(material -> matches(query, material.key().asString(), material.key().value()))
+                .sorted(Comparator.comparing(material -> friendlyName(material.key().value()), String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    private static List<EntityType> searchEntities(final String query) {
+        return Arrays.stream(EntityType.values())
+                .filter(EntityType::isSpawnable)
+                .filter(entityType -> matches(query, entityType.key().asString(), entityType.key().value()))
+                .sorted(Comparator.comparing(entityType -> friendlyName(entityType.key().value()), String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    private static boolean matches(final String query, final String key, final String value) {
+        if (query.isBlank()) return true;
+        return normalizeSearch(key).contains(query) || normalizeSearch(value).contains(query);
+    }
+
+    private static String normalizeSearch(final String input) {
+        return input.trim().toLowerCase(java.util.Locale.ROOT).replace(' ', '_');
+    }
+
+    private static String friendlyName(final String key) {
+        final var words = key.replace('_', ' ').split(" ");
+        final var builder = new StringBuilder();
+        for (final var word : words) {
+            if (word.isBlank()) continue;
+            if (!builder.isEmpty()) builder.append(' ');
+            builder.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        return builder.toString();
     }
 
     private static DialogLike editTextLine(

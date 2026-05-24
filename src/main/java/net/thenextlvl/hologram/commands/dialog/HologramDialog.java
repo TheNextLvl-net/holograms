@@ -36,10 +36,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -408,20 +410,21 @@ public final class HologramDialog {
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Item", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    show(audience, ignored -> addItemLine(hologram, "minecraft:stone", null));
+                    show(audience, ignored -> addItemLine(hologram, "", null));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Block", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    show(audience, ignored -> addBlockLine(hologram, "minecraft:stone", null));
+                    show(audience, ignored -> addBlockLine(hologram, "", null));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Entity", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    show(audience, ignored -> addEntityLine(hologram, "pig", null));
+                    show(audience, ignored -> addEntityLine(hologram, "", null));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Paged", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    hologram.addPagedLine();
-                    show(audience, current -> editHologram(hologram, current));
+                    final var lineIndex = hologram.getLines().toList().size();
+                    final var line = hologram.addPagedLine();
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
@@ -438,15 +441,11 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addLineType(hologram));
                 }))).build();
-        final var target = useTargetBlockButton((audience, block) -> {
-            hologram.addBlockLine().setBlock(block);
-            show(audience, current -> editHologram(hologram, current));
-        });
         final var held = useHeldBlockButton((audience, block) -> {
             hologram.addBlockLine().setBlock(block);
             show(audience, current -> editHologram(hologram, current));
         });
-        return blockSearchDialog("Add Block Line", initial, note, List.of(target, held), back, (audience, block) -> {
+        return blockSearchDialog("Add Block Line", initial, note, List.of(held), back, (audience, block) -> {
             hologram.addBlockLine().setBlock(block);
             show(audience, current -> editHologram(hologram, current));
         });
@@ -606,17 +605,13 @@ public final class HologramDialog {
             final BlockHologramLine page,
             @Nullable final Component note
     ) {
-        final var target = useTargetBlockButton((audience, block) -> {
-            page.setBlock(block);
-            show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
-        });
         final var held = useHeldBlockButton((audience, block) -> {
             page.setBlock(block);
             show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
         });
         final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
         return blockSearchDialog("Page " + (pageIndex + 1), page.getBlock().getMaterial().key().asString(), note,
-                List.of(target, held, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, block) -> {
+                List.of(held, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, block) -> {
                     page.setBlock(block);
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
                 });
@@ -685,10 +680,6 @@ public final class HologramDialog {
             final BlockHologramLine line,
             @Nullable final Component note
     ) {
-        final var target = useTargetBlockButton((audience, block) -> {
-            line.setBlock(block);
-            show(audience, current -> editHologram(hologram, current));
-        });
         final var held = useHeldBlockButton((audience, block) -> {
             line.setBlock(block);
             show(audience, current -> editHologram(hologram, current));
@@ -696,7 +687,7 @@ public final class HologramDialog {
         final var remove = deleteLineButton(hologram, lineIndex, false);
         final var back = editHologramBackButton(hologram);
         return blockSearchDialog(lineLabel(lineIndex, line), line.getBlock().getMaterial().key().asString(), note,
-                List.of(target, held, remove), back, (audience, block) -> {
+                List.of(held, remove), back, (audience, block) -> {
                     line.setBlock(block);
                     show(audience, current -> editHologram(hologram, current));
                 });
@@ -784,6 +775,10 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> addPageType(hologram, lineIndex, line));
                 }))).width(300).build());
+        actions.add(ActionButton.builder(Component.text("Page Settings", NamedTextColor.YELLOW))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editPageSettings(hologram, lineIndex, line, null, null));
+                }))).width(300).build());
         actions.add(deleteLineButton(hologram, lineIndex));
         actions.add(editHologramBackButton(hologram));
 
@@ -794,6 +789,65 @@ public final class HologramDialog {
                 .type(DialogType.multiAction(actions).columns(1).build()));
     }
 
+    private static DialogLike editPageSettings(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
+        return editPageSettings(hologram, lineIndex, line, null, null);
+    }
+
+    private static DialogLike editPageSettings(
+            final Hologram hologram,
+            final int lineIndex,
+            final PagedHologramLine line,
+            @Nullable final Component note,
+            @Nullable final String intervalInput
+    ) {
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = response.getText("interval");
+                    final var interval = parseDuration(input);
+                    if (interval.error() != null) {
+                        show(audience, ignored -> editPageSettings(hologram, lineIndex, line,
+                                Component.text(interval.error(), NamedTextColor.RED), input));
+                        return;
+                    }
+
+                    line.setInterval(interval.value());
+                    final var random = response.getBoolean("random");
+                    if (random != null) line.setRandomOrder(random);
+                    final var paused = response.getBoolean("paused");
+                    if (paused != null) line.setPaused(paused);
+                    show(audience, ignored -> editPageSettings(hologram, lineIndex, line, null, null));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
+                }))).build();
+
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Current interval: " + formatIntervalInput(line.getInterval()))));
+        body.add(DialogBody.plainMessage(Component.text("Allowed units are millis (ms), seconds (s), minutes (m), and hours (h)")));
+        body.add(DialogBody.plainMessage(Component.text("Numbers without a unit are seconds")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Page Settings"))
+                        .body(body)
+                        .inputs(List.of(
+                                DialogInput.text("interval", Component.text("Time between cycles"))
+                                        .initial(intervalInput != null ? intervalInput : formatIntervalInput(line.getInterval()))
+                                        .build(),
+                                DialogInput.bool("random", Component.text("Random Order"))
+                                        .initial(line.isRandomOrder())
+                                        .build(),
+                                DialogInput.bool("paused", Component.text("Paused"))
+                                        .initial(line.isPaused())
+                                        .build()
+                        ))
+                        .build())
+                .type(DialogType.confirmation(save, back)));
+    }
+
     private static DialogLike addPageType(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
         final var actions = new ArrayList<ActionButton>();
         actions.add(ActionButton.builder(Component.text("Text", NamedTextColor.GREEN))
@@ -802,15 +856,15 @@ public final class HologramDialog {
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Item", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    show(audience, ignored -> addItemPage(hologram, lineIndex, line, "minecraft:stone", null));
+                    show(audience, ignored -> addItemPage(hologram, lineIndex, line, "", null));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Block", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    show(audience, ignored -> addBlockPage(hologram, lineIndex, line, "minecraft:stone", null));
+                    show(audience, ignored -> addBlockPage(hologram, lineIndex, line, "", null));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Entity", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    show(audience, ignored -> addEntityPage(hologram, lineIndex, line, "pig", null));
+                    show(audience, ignored -> addEntityPage(hologram, lineIndex, line, "", null));
                 }))).width(300).build());
         actions.add(ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
@@ -936,15 +990,11 @@ public final class HologramDialog {
             final String initial,
             @Nullable final Component note
     ) {
-        final var target = useTargetBlockButton((audience, block) -> {
-            line.addBlockPage().setBlock(block);
-            show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
-        });
         final var held = useHeldBlockButton((audience, block) -> {
             line.addBlockPage().setBlock(block);
             show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
         });
-        return blockSearchDialog("Add Block Page", initial, note, List.of(target, held), editPagedBackButton(hologram, lineIndex, line),
+        return blockSearchDialog("Add Block Page", initial, note, List.of(held), editPagedBackButton(hologram, lineIndex, line),
                 (audience, block) -> {
                     line.addBlockPage().setBlock(block);
                     show(audience, current -> editPagedLine(hologram, lineIndex, line, current));
@@ -1017,7 +1067,7 @@ public final class HologramDialog {
         actions.add(search);
         actions.addAll(extraActions);
         matches.stream().skip((long) currentPage * SEARCH_PAGE_SIZE).limit(SEARCH_PAGE_SIZE).map(material -> selectionButton(material, audience -> {
-            selection.accept(audience, new ItemStack(material));
+            selection.accept(audience, ItemStack.of(material));
         })).forEach(actions::add);
 
         final var body = searchBody("Search by friendly name or key", note, matches, currentPage, pageCount);
@@ -1177,22 +1227,6 @@ public final class HologramDialog {
                 .build();
     }
 
-    private static ActionButton useTargetBlockButton(final BiConsumer<Audience, BlockData> selection) {
-        return ActionButton.builder(Component.text("Use Target Block", NamedTextColor.GREEN))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    if (!(audience instanceof final Player player)) {
-                        audience.sendMessage(Component.text("Only players can select a target block", NamedTextColor.RED));
-                        return;
-                    }
-                    final var block = player.getTargetBlockExact(8);
-                    if (block == null || block.getType().isAir()) {
-                        audience.sendMessage(Component.text("No block in range", NamedTextColor.RED));
-                        return;
-                    }
-                    selection.accept(audience, block.getBlockData());
-                }))).build();
-    }
-
     private static ActionButton useHeldBlockButton(final BiConsumer<Audience, BlockData> selection) {
         return ActionButton.builder(Component.text("Use Held Block", NamedTextColor.GREEN))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
@@ -1220,7 +1254,8 @@ public final class HologramDialog {
         body.add(DialogBody.plainMessage(Component.text(prompt)));
         if (note != null) body.add(DialogBody.plainMessage(note));
         if (matches.isEmpty()) body.add(DialogBody.plainMessage(Component.text("No results")));
-        else if (pageCount > 1) body.add(DialogBody.plainMessage(Component.text("Page " + (currentPage + 1) + " of " + pageCount)));
+        else if (pageCount > 1)
+            body.add(DialogBody.plainMessage(Component.text("Page " + (currentPage + 1) + " of " + pageCount)));
         return body;
     }
 
@@ -1229,7 +1264,7 @@ public final class HologramDialog {
     }
 
     private static int clampPage(final int page, final int pageCount) {
-        return Math.max(0, Math.min(page, pageCount - 1));
+        return Math.clamp(page, 0, pageCount - 1);
     }
 
     private static List<Material> searchMaterials(final String query, final Predicate<Material> filter) {
@@ -1255,7 +1290,7 @@ public final class HologramDialog {
     }
 
     private static String normalizeSearch(final String input) {
-        return input.trim().toLowerCase(java.util.Locale.ROOT).replace(' ', '_');
+        return input.trim().toLowerCase(Locale.ROOT).replace(' ', '_');
     }
 
     private static String friendlyName(final String key) {
@@ -1307,6 +1342,57 @@ public final class HologramDialog {
 
     private static String saveLineBreaks(final String text) {
         return text.replace("\r\n", "\n").replace('\r', '\n').replace("\n", "<newline>");
+    }
+
+    private static String formatSeconds(final Duration duration) {
+        final var seconds = duration.toMillis() / 1000d;
+        return formatDecimal(seconds);
+    }
+
+    private static String formatIntervalInput(final Duration duration) {
+        final var millis = duration.toMillis();
+        if (millis < 1000) return millis + "ms";
+
+        final var seconds = millis / 1000d;
+        if (seconds >= 3600) return formatDecimal(seconds / 3600d) + "h";
+        if (seconds >= 60) return formatDecimal(seconds / 60d) + "m";
+        return formatDecimal(seconds) + "s";
+    }
+
+    private static String formatDecimal(final double value) {
+        if (value == Math.rint(value)) return Long.toString((long) value);
+        return Double.toString(value);
+    }
+
+    private static String getUnit(final String trimmed) {
+        var index = trimmed.length();
+        while (index > 0 && Character.isLetter(trimmed.charAt(index - 1))) index--;
+        return trimmed.substring(index);
+    }
+
+    private static ParseResult<Duration> parseDuration(final @Nullable String input) {
+        try {
+            final var trimmed = input != null ? input.trim().toLowerCase(Locale.ROOT) : null;
+            final var unit = trimmed != null ? getUnit(trimmed) : null;
+            final var number = unit != null ? trimmed.substring(0, trimmed.length() - unit.length()) : null;
+
+            if (number == null) return new ParseResult<>(null, "Interval cannot be empty");
+
+            final var value = Double.parseDouble(number);
+            final var duration = switch (unit) {
+                case "ms" -> Duration.ofMillis(Math.round(value));
+                case "", "s" -> Duration.ofMillis(Math.round(Duration.ofSeconds(1).toMillis() * value));
+                case "m" -> Duration.ofMillis(Math.round(Duration.ofMinutes(1).toMillis() * value));
+                case "h" -> Duration.ofMillis(Math.round(Duration.ofHours(1).toMillis() * value));
+                default -> null;
+            };
+            if (duration == null) return new ParseResult<>(null, "Invalid interval; use a number optionally followed by ms, s, m, or h");
+
+            if (duration.toMillis() < 50) return new ParseResult<>(null, "Interval must be at least 50ms");
+            return new ParseResult<>(Duration.ofMillis(Math.round(duration.toMillis() / 50d) * 50), null);
+        } catch (final NumberFormatException ignored) {
+            return new ParseResult<>(null, "Invalid interval; use a number optionally followed by ms, s, m, or h");
+        }
     }
 
     @SuppressWarnings("PatternValidation")

@@ -157,15 +157,18 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
         final var existing = entities.get(player.getUniqueId());
         final var location = mutateSpawnLocation(getHologram().getLocation().add(0, offset, 0));
 
-        if (existing != null) return existing.teleportAsync(location).thenApply(ignored -> {
+        if (entityClass.isInstance(existing)) return existing.teleportAsync(location).thenApply(ignored -> {
             this.preSpawn(existing, player);
             return existing;
         });
+        final var remove = existing != null && existing.isValid()
+                ? getHologram().getPlugin().supply(existing, existing::remove)
+                : CompletableFuture.completedFuture(null);
         return getHologram().getPlugin().supply(location, () -> {
             final var spawn = location.getWorld().spawn(location, entityClass, false, e -> this.preSpawn(e, player));
             entities.put(player.getUniqueId(), spawn);
             return spawn;
-        });
+        }).thenCombine(remove, (spawn, ignored) -> spawn);
     }
 
     public CompletableFuture<@Nullable Interaction> spawnInteraction(final Player player, final E entity) {

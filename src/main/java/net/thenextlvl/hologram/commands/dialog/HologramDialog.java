@@ -17,6 +17,16 @@ import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.title.Title;
+import net.kyori.adventure.util.Ticks;
+import net.thenextlvl.hologram.action.ActionType;
+import net.thenextlvl.hologram.action.ActionTypes;
+import net.thenextlvl.hologram.action.ClickAction;
+import net.thenextlvl.hologram.action.ClickType;
+import net.thenextlvl.hologram.action.PageChange;
+import net.thenextlvl.hologram.action.UnparsedTitle;
+import net.thenextlvl.hologram.models.ClickTypes;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.HologramProvider;
 import net.thenextlvl.hologram.line.BlockHologramLine;
@@ -48,10 +58,12 @@ import org.joml.Vector3f;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -67,6 +79,7 @@ import java.nio.file.Path;
 @NullMarked
 public final class HologramDialog {
     private static final int SEARCH_PAGE_SIZE = 20;
+    private static final ActionTypes ACTION_TYPES = ActionTypes.types();
     private static final Map<UUID, Function<Audience, DialogLike>> LAST_DIALOGS = new ConcurrentHashMap<>();
 
     public static void showLast(final Audience audience) {
@@ -571,6 +584,8 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, current -> editTextLineVisuals(hologram, lineIndex, line, current));
                 }))).width(300).build();
+        final var actionsButton = clickActionsButton(hologram, line, lineLabel(lineIndex, line), note,
+                audience -> editTextLine(hologram, lineIndex, line, note));
 
         final var back = ActionButton.builder(Component.text("Back"))
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
@@ -592,7 +607,7 @@ public final class HologramDialog {
                                 .multiline(TextDialogInput.MultilineOptions.create(null, 120))
                                 .build()))
                         .build())
-                .type(DialogType.multiAction(List.of(save, visual, remove)).columns(1).exitAction(back).build()));
+                .type(DialogType.multiAction(List.of(save, visual, actionsButton, remove)).columns(1).exitAction(back).build()));
     }
 
     private static DialogLike editTextPage(
@@ -619,6 +634,8 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, current -> editTextPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, current));
                 }))).width(300).build();
+        final var actionsButton = clickActionsButton(hologram, page, Component.text("Page " + (pageIndex + 1)), note,
+                audience -> editTextPage(hologram, lineIndex, pagedLine, pageIndex, page, note));
         final var body = new ArrayList<DialogBody>();
         if (note != null) body.add(DialogBody.plainMessage(note));
         return Dialog.create(builder -> builder.empty()
@@ -630,7 +647,7 @@ public final class HologramDialog {
                                 .multiline(TextDialogInput.MultilineOptions.create(null, 120))
                                 .build()))
                         .build())
-                .type(DialogType.multiAction(List.of(save, visual, deletePageButton(hologram, lineIndex, pagedLine, pageIndex)))
+                .type(DialogType.multiAction(List.of(save, visual, actionsButton, deletePageButton(hologram, lineIndex, pagedLine, pageIndex)))
                         .columns(1)
                         .exitAction(editPageBackButton(hologram, lineIndex, pagedLine))
                         .build()));
@@ -652,9 +669,11 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, current -> editBlockPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
                 }))).build();
+        final var actionsButton = clickActionsButton(hologram, page, Component.text("Page " + (pageIndex + 1)), note,
+                audience -> editBlockPage(hologram, lineIndex, pagedLine, pageIndex, page, note));
         final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
         return blockSearchDialog("Page " + (pageIndex + 1), page.getBlock().getMaterial().key().asString(), note,
-                List.of(held, visual, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, block) -> {
+                List.of(held, visual, actionsButton, delete), editPageBackButton(hologram, lineIndex, pagedLine), (audience, block) -> {
                     page.setBlock(block);
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
                 });
@@ -672,11 +691,13 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, current -> editEntityPageVisuals(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
                 }))).build();
+        final var actionsButton = clickActionsButton(hologram, page, Component.text("Page " + (pageIndex + 1)), note,
+                audience -> editEntityPage(hologram, lineIndex, pagedLine, pageIndex, page, note));
         return entitySearchDialog("Page " + (pageIndex + 1), page.getEntityType().key().asString(), note,
                 editPageBackButton(hologram, lineIndex, pagedLine), (audience, entityType) -> {
                     page.setEntityType(entityType);
                     show(audience, current -> editPagedLine(hologram, lineIndex, pagedLine, current));
-                }, visual, deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false));
+                }, visual, actionsButton, deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false));
     }
 
     private static DialogLike editItemPage(
@@ -705,8 +726,11 @@ public final class HologramDialog {
                     page.setPlayerHead(!page.isPlayerHead());
                     show(audience, current -> editItemPage(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
                 }))).build();
+        final var actionsButton = clickActionsButton(hologram, page, Component.text("Page " + (pageIndex + 1)), note,
+                audience -> editItemPage(hologram, lineIndex, pagedLine, pageIndex, page, note, viewer));
         actions.add(visual);
         actions.add(playerHead);
+        actions.add(actionsButton);
         final var delete = deletePageButton(hologram, lineIndex, pagedLine, pageIndex, false);
         actions.add(delete);
         return itemSearchDialog("Page " + (pageIndex + 1), page.getItemStack().getType().key().asString(), note,
@@ -1245,9 +1269,11 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, current -> editBlockLineVisuals(hologram, lineIndex, line, note, current));
                 }))).build();
+        final var actionsButton = clickActionsButton(hologram, line, lineLabel(lineIndex, line), note,
+                audience -> editBlockLine(hologram, lineIndex, line, note));
         final var back = editHologramBackButton(hologram);
         return blockSearchDialog(lineLabel(lineIndex, line), line.getBlock().getMaterial().key().asString(), note,
-                List.of(held, visual, remove), back, (audience, block) -> {
+                List.of(held, visual, actionsButton, remove), back, (audience, block) -> {
                     line.setBlock(block);
                     show(audience, current -> editHologram(hologram, current));
                 });
@@ -1264,12 +1290,14 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, current -> editEntityLineVisuals(hologram, lineIndex, line, note, current));
                 }))).build();
+        final var actionsButton = clickActionsButton(hologram, line, lineLabel(lineIndex, line), note,
+                audience -> editEntityLine(hologram, lineIndex, line, note));
         final var back = editHologramBackButton(hologram);
         return entitySearchDialog(lineLabel(lineIndex, line), line.getEntityType().key().asString(), note, back,
                 (audience, entityType) -> {
                     line.setEntityType(entityType);
                     show(audience, current -> editHologram(hologram, current));
-                }, visual, remove);
+                }, visual, actionsButton, remove);
     }
 
     private static DialogLike editItemLine(
@@ -1296,9 +1324,12 @@ public final class HologramDialog {
                     line.setPlayerHead(!line.isPlayerHead());
                     show(audience, current -> editItemLine(hologram, lineIndex, line, note, current));
                 }))).build();
+        final var actionsButton = clickActionsButton(hologram, line, lineLabel(lineIndex, line), note,
+                audience -> editItemLine(hologram, lineIndex, line, note, viewer));
         final var remove = deleteLineButton(hologram, lineIndex, false);
         actions.add(visual);
         actions.add(playerHead);
+        actions.add(actionsButton);
         actions.add(remove);
         final var back = editHologramBackButton(hologram);
         return itemSearchDialog(lineLabel(lineIndex, line), line.getItemStack().getType().key().asString(), note,
@@ -1357,6 +1388,8 @@ public final class HologramDialog {
                 .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
                     show(audience, ignored -> editPageSettings(hologram, lineIndex, line, null, null));
                 }))).width(300).build());
+        actions.add(clickActionsButton(hologram, line, lineLabel(lineIndex, line), null,
+                audience -> editPagedLine(hologram, lineIndex, line, viewer)));
         actions.add(deleteLineButton(hologram, lineIndex));
         actions.add(editHologramBackButton(hologram));
 
@@ -1927,6 +1960,776 @@ public final class HologramDialog {
                 .build();
     }
 
+    private static ActionButton clickActionsButton(
+            final Hologram hologram,
+            final HologramLine line,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text("Click Actions", NamedTextColor.LIGHT_PURPLE))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> clickActionsDialog(hologram, line, header, note, reopen));
+                })))
+                .width(300)
+                .build();
+    }
+
+    private static DialogLike clickActionsDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var actions = new ArrayList<ActionButton>();
+        actions.add(ActionButton.builder(Component.text("Add Action", NamedTextColor.GREEN))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> selectActionTypeDialog(hologram, line, header, note, reopen));
+                })))
+                .build());
+        line.getActions().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
+                .forEach(entry -> actions.add(actionButton(hologram, line, header, entry.getKey(), entry.getValue(), note, reopen)));
+
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(header));
+        body.add(DialogBody.plainMessage(Component.text("Choose an action to edit or add a new one")));
+        if (line.getActions().isEmpty()) body.add(DialogBody.plainMessage(Component.text("No click actions have been added yet")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Click Actions"))
+                        .body(body)
+                        .build())
+                .type(DialogType.multiAction(addBack(actions, back)).build()));
+    }
+
+    private static ActionButton actionButton(
+            final Hologram hologram,
+            final HologramLine line,
+            final Component header,
+            final String name,
+            final ClickAction<?> action,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var label = Component.text(name + ": " + friendlyName(action.getActionType().name()));
+        return ActionButton.builder(label)
+                .tooltip(Component.text(actionSummary(action)))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editActionDialog(hologram, line, name, action, header, note, reopen));
+                })))
+                .build();
+    }
+
+    private static DialogLike selectActionTypeDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var actions = new ArrayList<ActionButton>();
+        actions.add(actionTypeButton("Send Actionbar", ACTION_TYPES.sendActionbar(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Send Message", ACTION_TYPES.sendMessage(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Transfer", ACTION_TYPES.transfer(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Teleport", ACTION_TYPES.teleport(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Play Sound", ACTION_TYPES.playSound(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Run Console Command", ACTION_TYPES.runConsoleCommand(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Run Command", ACTION_TYPES.runCommand(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Send Title", ACTION_TYPES.sendTitle(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Connect", ACTION_TYPES.connect(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Cycle Page", ACTION_TYPES.cyclePage(), hologram, line, header, note, reopen));
+        actions.add(actionTypeButton("Set Page", ACTION_TYPES.setPage(), hologram, line, header, note, reopen));
+
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(header));
+        body.add(DialogBody.plainMessage(Component.text("Choose the action type to add")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> clickActionsDialog(hologram, line, header, note, reopen)))))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Add Action"))
+                        .body(body)
+                        .build())
+                .type(DialogType.multiAction(addBack(actions, back)).build()));
+    }
+
+    private static <T> ActionButton actionTypeButton(
+            final String label,
+            final ActionType<T> type,
+            final Hologram hologram,
+            final HologramLine line,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text(label, NamedTextColor.GREEN))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> addActionDialog(hologram, line, type, defaultInput(line, type), header, note, "", reopen));
+                })))
+                .build();
+    }
+
+    private static <T> DialogLike addActionDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final ActionType<T> type,
+            final T input,
+            final Component header,
+            @Nullable final Component note,
+            final String nameInitial,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var save = ActionButton.builder(Component.text("Create", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var actionName = response.getText("name");
+                    final var name = actionName != null ? actionName.trim() : null;
+                    if (name == null || name.isBlank()) {
+                        show(audience, ignored -> addActionDialog(hologram, line, type, input, header, Component.text("Action name cannot be empty", NamedTextColor.RED), nameInitial, reopen));
+                        return;
+                    }
+
+                    final var action = ClickAction.factory().create(type, EnumSet.copyOf(ClickTypes.ANY_CLICK.getClickTypes()), input);
+                    if (!line.addAction(name, action)) {
+                        show(audience, ignored -> addActionDialog(hologram, line, type, input, header, Component.text("An action with this name already exists", NamedTextColor.RED), name, reopen));
+                        return;
+                    }
+
+                    show(audience, ignored -> editActionDialog(hologram, line, name, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> selectActionTypeDialog(hologram, line, header, note, reopen)))))
+                .build();
+
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Create a " + friendlyName(type.name()) + " action")));
+        body.add(DialogBody.plainMessage(Component.text("You can edit its modifiers after creating it")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Add Action"))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("name", Component.text("Action name")).initial(nameInitial).build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editActionDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var actions = new ArrayList<ActionButton>();
+        actions.add(actionInputButton(hologram, line, actionName, action, header, note, reopen));
+        actions.add(clickTypesButton(hologram, line, actionName, action, header, note, reopen));
+        actions.add(ActionButton.builder(Component.text("Chance: " + action.getChance() + "%"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editActionChanceDialog(hologram, line, actionName, action, header, note, reopen));
+                })))
+                .build());
+        actions.add(ActionButton.builder(Component.text("Cooldown: " + formatIntervalInput(action.getCooldown())))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editActionCooldownDialog(hologram, line, actionName, action, header, note, reopen));
+                })))
+                .build());
+        actions.add(ActionButton.builder(Component.text("Permission: " + action.getPermission().orElse("none")))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editActionPermissionDialog(hologram, line, actionName, action, header, note, reopen));
+                })))
+                .build());
+        actions.add(ActionButton.builder(Component.text("Cost: " + action.getCost() + (action.getCurrency().map(currency -> " " + currency).orElse(""))))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editActionCostDialog(hologram, line, actionName, action, header, note, reopen));
+                })))
+                .build());
+        actions.add(ActionButton.builder(Component.text("Delete", NamedTextColor.RED))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> deleteActionDialog(hologram, line, actionName, header, note, reopen));
+                })))
+                .build());
+
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(header));
+        body.add(DialogBody.plainMessage(Component.text("Type: " + friendlyName(action.getActionType().name()))));
+        body.add(DialogBody.plainMessage(Component.text("Input: " + actionInputSummary(action))));
+        body.add(DialogBody.plainMessage(Component.text("Click types: " + clickTypesSummary(action.getClickTypes()))));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> clickActionsDialog(hologram, line, header, note, reopen)))))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(actionName))
+                        .body(body)
+                        .build())
+                .type(DialogType.multiAction(addBack(actions, back)).build()));
+    }
+
+    private static ActionButton actionInputButton(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text("Input: " + actionInputSummary(action)))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> editActionInputDialog(hologram, line, actionName, action, header, note, reopen));
+                })))
+                .build();
+    }
+
+    private static ActionButton clickTypesButton(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return ActionButton.builder(Component.text("Click Types: " + clickTypesSummary(action.getClickTypes())))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    show(audience, ignored -> selectClickTypesDialog(hologram, line, actionName, action, header, note, reopen));
+                })))
+                .build();
+    }
+
+    private static DialogLike selectClickTypesDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var actions = new ArrayList<ActionButton>();
+        for (final var preset : ClickTypes.values()) {
+            final var current = action.getClickTypes().equals(preset.getClickTypes());
+            actions.add(ActionButton.builder(Component.text(friendlyName(preset.name()), current ? NamedTextColor.GREEN : NamedTextColor.WHITE))
+                    .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                        action.setClickTypes(EnumSet.copyOf(preset.getClickTypes()));
+                        show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                    })))
+                    .build());
+        }
+
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(header));
+        body.add(DialogBody.plainMessage(Component.text("Choose when this action should trigger")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Click Types"))
+                        .body(body)
+                        .build())
+                .type(DialogType.multiAction(addBack(actions, back)).build()));
+    }
+
+    private static DialogLike editActionChanceDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return editIntValueDialog("Chance", action.getChance(), 0, 100, note, (audience, value) -> {
+            action.setChance(value);
+            show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+        }, audience -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+    }
+
+    private static DialogLike editActionCooldownDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        return editDurationDialog("Cooldown", action.getCooldown(), note, (audience, duration) -> {
+            action.setCooldown(duration);
+            show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+        }, audience -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+    }
+
+    private static DialogLike editActionPermissionDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = action.getPermission().orElse("");
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var permission = response.getText("permission");
+                    action.setPermission(permission != null && permission.isBlank() ? null : permission);
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Set a permission or leave it blank to clear it")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Permission"))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("permission", Component.text("Permission")).initial(current).build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editActionCostDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var currentCost = Double.toString(action.getCost());
+        final var currentCurrency = action.getCurrency().orElse("");
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var cost = parseDouble("Cost", response.getText("cost"), 0, Double.MAX_VALUE);
+                    if (cost.error() != null) {
+                        show(audience, ignored -> editActionCostDialog(hologram, line, actionName, action, header, Component.text(cost.error(), NamedTextColor.RED), reopen));
+                        return;
+                    }
+
+                    final var currency = response.getText("currency");
+                    action.setCost(cost.value());
+                    action.setCurrency(currency != null && currency.isBlank() ? null : currency);
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Set the action cost and optional currency")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Cost"))
+                        .body(body)
+                        .inputs(List.of(
+                                DialogInput.text("cost", Component.text("Cost")).initial(currentCost).build(),
+                                DialogInput.text("currency", Component.text("Currency")).initial(currentCurrency).build()
+                        ))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike deleteActionDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var confirm = ActionButton.builder(Component.text("Delete", NamedTextColor.RED))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    line.removeAction(actionName);
+                    show(audience, ignored -> clickActionsDialog(hologram, line, header, note, reopen));
+                })))
+                .build();
+        final var cancel = ActionButton.builder(Component.text("Cancel"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
+                    final var current = line.getAction(actionName).orElse(null);
+                    if (current == null) {
+                        show(audience, ignored -> clickActionsDialog(hologram, line, header, note, reopen));
+                        return;
+                    }
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, current, header, note, reopen));
+                })))
+                .build();
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Delete action " + actionName + "?"))
+                        .body(List.of(DialogBody.plainMessage(Component.text("This cannot be undone"))))
+                        .build())
+                .type(DialogType.confirmation(confirm, cancel)));
+    }
+
+    private static DialogLike editActionInputDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<?> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var type = action.getActionType();
+        if (type == ACTION_TYPES.sendActionbar() || type == ACTION_TYPES.sendMessage() || type == ACTION_TYPES.runConsoleCommand()
+                || type == ACTION_TYPES.runCommand() || type == ACTION_TYPES.connect()) {
+            @SuppressWarnings("unchecked") final var stringAction = (ClickAction<String>) action;
+            final var label = type == ACTION_TYPES.connect() ? "Server"
+                    : type == ACTION_TYPES.runCommand() || type == ACTION_TYPES.runConsoleCommand() ? "Command"
+                    : type == ACTION_TYPES.sendActionbar() ? "Actionbar Text"
+                    : "Message";
+            return editStringActionInputDialog(hologram, line, actionName, stringAction, label, header, note, reopen);
+        }
+        if (type == ACTION_TYPES.transfer()) {
+            @SuppressWarnings("unchecked") final var transferAction = (ClickAction<InetSocketAddress>) action;
+            return editTransferActionInputDialog(hologram, line, actionName, transferAction, header, note, reopen);
+        }
+        if (type == ACTION_TYPES.teleport()) {
+            @SuppressWarnings("unchecked") final var teleportAction = (ClickAction<Location>) action;
+            return editTeleportActionInputDialog(hologram, line, actionName, teleportAction, header, note, reopen);
+        }
+        if (type == ACTION_TYPES.playSound()) {
+            @SuppressWarnings("unchecked") final var soundAction = (ClickAction<Sound>) action;
+            return editSoundActionInputDialog(hologram, line, actionName, soundAction, header, note, reopen);
+        }
+        if (type == ACTION_TYPES.sendTitle()) {
+            @SuppressWarnings("unchecked") final var titleAction = (ClickAction<UnparsedTitle>) action;
+            return editTitleActionInputDialog(hologram, line, actionName, titleAction, header, note, reopen);
+        }
+        if (type == ACTION_TYPES.cyclePage() || type == ACTION_TYPES.setPage()) {
+            @SuppressWarnings("unchecked") final var pageAction = (ClickAction<PageChange>) action;
+            return editPageChangeActionInputDialog(hologram, line, actionName, pageAction, header, note, reopen);
+        }
+        return editActionDialog(hologram, line, actionName, action, header, note, reopen);
+    }
+
+    private static DialogLike editStringActionInputDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<String> action,
+            final String label,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = action.getInput();
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = response.getText("value");
+                    action.setInput(input != null ? input : "");
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Edit the " + label.toLowerCase(Locale.ROOT) + " input")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(label))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text(label)).initial(current).build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editTransferActionInputDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<InetSocketAddress> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = action.getInput();
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var host = response.getText("host");
+                    final var portInput = response.getText("port");
+                    if (host == null || host.isBlank()) {
+                        show(audience, ignored -> editTransferActionInputDialog(hologram, line, actionName, action, header, Component.text("Host cannot be empty", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    final int port;
+                    try {
+                        port = Integer.parseInt(portInput != null ? portInput.trim() : "");
+                    } catch (final NumberFormatException ignored) {
+                        show(audience, ignored2 -> editTransferActionInputDialog(hologram, line, actionName, action, header, Component.text("Port must be a number", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    if (port < 1 || port > 65535) {
+                        show(audience, ignored -> editTransferActionInputDialog(hologram, line, actionName, action, header, Component.text("Port must be between 1 and 65535", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    action.setInput(new InetSocketAddress(host.trim(), port));
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Edit the host and port")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Transfer"))
+                        .body(body)
+                        .inputs(List.of(
+                                DialogInput.text("host", Component.text("Host")).initial(current.getHostString()).build(),
+                                DialogInput.text("port", Component.text("Port")).initial(Integer.toString(current.getPort())).build()
+                        ))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editTeleportActionInputDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<Location> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = action.getInput();
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var locationInputs = locationInputs(response);
+                    final var parsed = parseLocation(current, locationInputs.world(), locationInputs.x(), locationInputs.y(), locationInputs.z(),
+                            locationInputs.yaw(), locationInputs.pitch());
+                    if (parsed.error() != null) {
+                        show(audience, ignored -> editTeleportActionInputDialog(hologram, line, actionName, action, header, Component.text(parsed.error(), NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    action.setInput(parsed.value());
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Edit the target location")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        final var inputs = locationInputs(current);
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Teleport"))
+                        .body(body)
+                        .inputs(List.of(
+                                locationInput("world", "World", inputs.world()),
+                                locationInput("x", "X", inputs.x()),
+                                locationInput("y", "Y", inputs.y()),
+                                locationInput("z", "Z", inputs.z()),
+                                locationInput("yaw", "Yaw", inputs.yaw()),
+                                locationInput("pitch", "Pitch", inputs.pitch())
+                        ))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editSoundActionInputDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<Sound> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = action.getInput();
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var soundInput = response.getText("sound");
+                    final var sourceInput = response.getText("source");
+                    final var volumeInput = response.getText("volume");
+                    final var pitchInput = response.getText("pitch");
+                    if (soundInput == null || soundInput.isBlank()) {
+                        show(audience, ignored -> editSoundActionInputDialog(hologram, line, actionName, action, header, Component.text("Sound cannot be empty", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    final Key soundKey;
+                    try {
+                        soundKey = Key.key(soundInput.trim());
+                    } catch (final IllegalArgumentException ignored) {
+                        show(audience, ignored2 -> editSoundActionInputDialog(hologram, line, actionName, action, header, Component.text("Invalid sound key", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    if (Registry.SOUND_EVENT.get(soundKey) == null) {
+                        show(audience, ignored -> editSoundActionInputDialog(hologram, line, actionName, action, header, Component.text("Invalid sound", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    final var source = parseSoundSource(sourceInput);
+                    if (source == null) {
+                        show(audience, ignored -> editSoundActionInputDialog(hologram, line, actionName, action, header, Component.text("Invalid sound source", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    final var volume = parseDouble("Volume", volumeInput, 0, Double.MAX_VALUE);
+                    if (volume.error() != null) {
+                        show(audience, ignored -> editSoundActionInputDialog(hologram, line, actionName, action, header, Component.text(volume.error(), NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    final var pitch = parseDouble("Pitch", pitchInput, 0, 2);
+                    if (pitch.error() != null) {
+                        show(audience, ignored -> editSoundActionInputDialog(hologram, line, actionName, action, header, Component.text(pitch.error(), NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    action.setInput(Sound.sound(soundKey, source, volume.value().floatValue(), pitch.value().floatValue()));
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Edit the sound key, source, volume, and pitch")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Play Sound"))
+                        .body(body)
+                        .inputs(List.of(
+                                DialogInput.text("sound", Component.text("Sound")).initial(current.name().asString()).build(),
+                                DialogInput.text("source", Component.text("Source")).initial(current.source().name()).build(),
+                                DialogInput.text("volume", Component.text("Volume")).initial(Double.toString(current.volume())).build(),
+                                DialogInput.text("pitch", Component.text("Pitch")).initial(Double.toString(current.pitch())).build()
+                        ))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editTitleActionInputDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<UnparsedTitle> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = action.getInput();
+        final var times = current.times();
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var title = response.getText("title");
+                    final var subtitle = response.getText("subtitle");
+                    final var fadeIn = response.getText("fade_in");
+                    final var stay = response.getText("stay");
+                    final var fadeOut = response.getText("fade_out");
+                    final var hasTimes = !isBlank(fadeIn) || !isBlank(stay) || !isBlank(fadeOut);
+                    final var allTimes = !isBlank(fadeIn) && !isBlank(stay) && !isBlank(fadeOut);
+                    if (hasTimes && !allTimes) {
+                        show(audience, ignored -> editTitleActionInputDialog(hologram, line, actionName, action, header, Component.text("Either set all title timings or leave them blank", NamedTextColor.RED), reopen));
+                        return;
+                    }
+
+                    final Title.Times parsedTimes;
+                    try {
+                        parsedTimes = hasTimes
+                                ? Title.Times.times(
+                                Ticks.duration(Integer.parseInt(fadeIn.trim())),
+                                Ticks.duration(Integer.parseInt(stay.trim())),
+                                Ticks.duration(Integer.parseInt(fadeOut.trim())))
+                                : null;
+                    } catch (final NumberFormatException ignored) {
+                        show(audience, ignored1 -> editTitleActionInputDialog(hologram, line, actionName, action, header, Component.text("Title timings must be numbers", NamedTextColor.RED), reopen));
+                        return;
+                    }
+
+                    action.setInput(new UnparsedTitle(title != null ? title : "", subtitle != null ? subtitle : "", parsedTimes));
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Edit the title, subtitle, and optional timings in ticks")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text("Send Title"))
+                        .body(body)
+                        .inputs(List.of(
+                                DialogInput.text("title", Component.text("Title")).initial(current.title()).build(),
+                                DialogInput.text("subtitle", Component.text("Subtitle")).initial(current.subtitle()).build(),
+                                DialogInput.text("fade_in", Component.text("Fade In (ticks)")).initial(times != null ? Long.toString(times.fadeIn().toMillis() / 50) : "").build(),
+                                DialogInput.text("stay", Component.text("Stay (ticks)")).initial(times != null ? Long.toString(times.stay().toMillis() / 50) : "").build(),
+                                DialogInput.text("fade_out", Component.text("Fade Out (ticks)")).initial(times != null ? Long.toString(times.fadeOut().toMillis() / 50) : "").build()
+                        ))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editPageChangeActionInputDialog(
+            final Hologram hologram,
+            final HologramLine line,
+            final String actionName,
+            final ClickAction<PageChange> action,
+            final Component header,
+            @Nullable final Component note,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var current = action.getInput();
+        final var label = action.getActionType() == ACTION_TYPES.setPage() ? "Page" : "Amount";
+        final var initial = action.getActionType() == ACTION_TYPES.setPage() ? Integer.toString(current.page() + 1) : Integer.toString(current.page());
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var input = response.getText("value");
+                    if (input == null || input.isBlank()) {
+                        show(audience, ignored -> editPageChangeActionInputDialog(hologram, line, actionName, action, header, Component.text("Value cannot be empty", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    final int value;
+                    try {
+                        value = Integer.parseInt(input.trim());
+                    } catch (final NumberFormatException ignored) {
+                        show(audience, ignored2 -> editPageChangeActionInputDialog(hologram, line, actionName, action, header, Component.text("Value must be a number", NamedTextColor.RED), reopen));
+                        return;
+                    }
+                    if (action.getActionType() == ACTION_TYPES.setPage()) {
+                        if (value < 1) {
+                            show(audience, ignored -> editPageChangeActionInputDialog(hologram, line, actionName, action, header, Component.text("Page must be at least 1", NamedTextColor.RED), reopen));
+                            return;
+                        }
+                        action.setInput(new PageChange(current.hologram(), current.line(), value - 1));
+                    } else {
+                        action.setInput(new PageChange(current.hologram(), current.line(), value));
+                    }
+                    show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen));
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, ignored -> editActionDialog(hologram, line, actionName, action, header, note, reopen)))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Edit the page value")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(friendlyName(action.getActionType().name())))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text(label)).initial(initial).build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
     private static ActionButton visualGlowButton(
             final Hologram hologram,
             final StaticHologramLine line,
@@ -2324,6 +3127,99 @@ public final class HologramDialog {
         }
     }
 
+    private static String actionSummary(final ClickAction<?> action) {
+        return "Type: " + friendlyName(action.getActionType().name())
+                + " | Input: " + actionInputSummary(action)
+                + " | Click types: " + clickTypesSummary(action.getClickTypes())
+                + " | Chance: " + action.getChance() + "%"
+                + " | Cooldown: " + formatIntervalInput(action.getCooldown())
+                + " | Permission: " + action.getPermission().orElse("none");
+    }
+
+    private static String actionInputSummary(final ClickAction<?> action) {
+        final var type = action.getActionType();
+        if (type == ACTION_TYPES.sendActionbar() || type == ACTION_TYPES.sendMessage() || type == ACTION_TYPES.runConsoleCommand()
+                || type == ACTION_TYPES.runCommand() || type == ACTION_TYPES.connect()) {
+            return action.getInput() instanceof final String value && !value.isBlank() ? value : "empty";
+        }
+        if (type == ACTION_TYPES.transfer()) {
+            final var input = (InetSocketAddress) action.getInput();
+            return input.getHostString() + ":" + input.getPort();
+        }
+        if (type == ACTION_TYPES.teleport()) {
+            final var input = (Location) action.getInput();
+            return input.getWorld() != null
+                    ? input.getWorld().key().asString() + " " + formatDecimal(input.getX()) + ", " + formatDecimal(input.getY()) + ", " + formatDecimal(input.getZ())
+                    : formatDecimal(input.getX()) + ", " + formatDecimal(input.getY()) + ", " + formatDecimal(input.getZ());
+        }
+        if (type == ACTION_TYPES.playSound()) {
+            final var input = (Sound) action.getInput();
+            return input.name().asString() + " @ " + input.source() + " " + formatDecimal(input.volume()) + "/" + formatDecimal(input.pitch());
+        }
+        if (type == ACTION_TYPES.sendTitle()) {
+            final var input = (UnparsedTitle) action.getInput();
+            return input.title().isBlank() ? "(blank title)" : input.title();
+        }
+        if (type == ACTION_TYPES.cyclePage() || type == ACTION_TYPES.setPage()) {
+            final var input = (PageChange) action.getInput();
+            return type == ACTION_TYPES.setPage() ? "Page " + (input.page() + 1) : "Amount " + input.page();
+        }
+        return String.valueOf(action.getInput());
+    }
+
+    private static String clickTypesSummary(final EnumSet<ClickType> clickTypes) {
+        for (final var preset : ClickTypes.values()) {
+            if (preset.getClickTypes().equals(clickTypes)) return friendlyName(preset.name());
+        }
+        return clickTypes.stream().map(clickType -> friendlyName(clickType.name())).sorted(String.CASE_INSENSITIVE_ORDER).reduce((left, right) -> left + ", " + right).orElse("None");
+    }
+
+    private static Sound.@Nullable Source parseSoundSource(@Nullable final String input) {
+        if (input == null || input.isBlank()) return null;
+        try {
+            return Sound.Source.valueOf(input.trim().toUpperCase(Locale.ROOT));
+        } catch (final IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
+    private static <T> T defaultInput(final HologramLine line, final ActionType<T> type) {
+        if (type == ACTION_TYPES.sendActionbar() || type == ACTION_TYPES.sendMessage() || type == ACTION_TYPES.runConsoleCommand()
+                || type == ACTION_TYPES.runCommand() || type == ACTION_TYPES.connect()) {
+            @SuppressWarnings("unchecked") final var input = (T) "";
+            return input;
+        }
+        if (type == ACTION_TYPES.transfer()) {
+            @SuppressWarnings("unchecked") final var input = (T) new InetSocketAddress("localhost", 25565);
+            return input;
+        }
+        if (type == ACTION_TYPES.teleport()) {
+            @SuppressWarnings("unchecked") final var input = (T) line.getHologram().getLocation().clone();
+            return input;
+        }
+        if (type == ACTION_TYPES.playSound()) {
+            @SuppressWarnings("unchecked") final var input = (T) Sound.sound(Key.key("minecraft:block.note_block.harp"), Sound.Source.MASTER, 1f, 1f);
+            return input;
+        }
+        if (type == ACTION_TYPES.sendTitle()) {
+            @SuppressWarnings("unchecked") final var input = (T) new UnparsedTitle("", "", null);
+            return input;
+        }
+        if (type == ACTION_TYPES.cyclePage()) {
+            @SuppressWarnings("unchecked") final var input = (T) new PageChange(1);
+            return input;
+        }
+        if (type == ACTION_TYPES.setPage()) {
+            @SuppressWarnings("unchecked") final var input = (T) new PageChange(0);
+            return input;
+        }
+        throw new IllegalArgumentException("Unsupported action type: " + type.name());
+    }
+
+    private static boolean isBlank(@Nullable final String input) {
+        return input == null || input.isBlank();
+    }
+
     private static DialogLike editIntValueDialog(
             final String label,
             final int current,
@@ -2388,6 +3284,37 @@ public final class HologramDialog {
                 .base(DialogBase.builder(Component.text(label))
                         .body(body)
                         .inputs(List.of(DialogInput.text("value", Component.text(label)).initial(Double.toString(current)).build()))
+                        .build())
+                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+    }
+
+    private static DialogLike editDurationDialog(
+            final String label,
+            final Duration current,
+            @Nullable final Component note,
+            final BiConsumer<Audience, Duration> setter,
+            final Function<Audience, DialogLike> reopen
+    ) {
+        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
+                .action(DialogAction.customClick((response, audience) -> {
+                    final var parsed = parseDuration(response.getText("value"), 0);
+                    if (parsed.error() != null) {
+                        show(audience, ignored -> editDurationDialog(label, current, Component.text(parsed.error(), NamedTextColor.RED), setter, reopen));
+                        return;
+                    }
+                    setter.accept(audience, parsed.value());
+                }, ClickCallback.Options.builder().uses(1).build()))
+                .build();
+        final var back = ActionButton.builder(Component.text("Back"))
+                .action(DialogAction.staticAction(ClickEvent.callback(audience -> show(audience, reopen))))
+                .build();
+        final var body = new ArrayList<DialogBody>();
+        body.add(DialogBody.plainMessage(Component.text("Enter a duration using ms, s, m, or h")));
+        if (note != null) body.add(DialogBody.plainMessage(note));
+        return Dialog.create(builder -> builder.empty()
+                .base(DialogBase.builder(Component.text(label))
+                        .body(body)
+                        .inputs(List.of(DialogInput.text("value", Component.text(label)).initial(formatIntervalInput(current)).build()))
                         .build())
                 .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
     }
@@ -3086,6 +4013,10 @@ public final class HologramDialog {
     }
 
     private static ParseResult<Duration> parseDuration(final @Nullable String input) {
+        return parseDuration(input, 50);
+    }
+
+    private static ParseResult<Duration> parseDuration(final @Nullable String input, final long minimumMillis) {
         try {
             final var trimmed = input != null ? input.trim().toLowerCase(Locale.ROOT) : null;
             final var unit = trimmed != null ? getUnit(trimmed) : null;
@@ -3104,7 +4035,7 @@ public final class HologramDialog {
             if (duration == null)
                 return new ParseResult<>(null, "Invalid interval; use a number optionally followed by ms, s, m, or h");
 
-            if (duration.toMillis() < 50) return new ParseResult<>(null, "Interval must be at least 50ms");
+            if (duration.toMillis() < minimumMillis) return new ParseResult<>(null, "Interval must be at least " + minimumMillis + "ms");
             return new ParseResult<>(Duration.ofMillis(Math.round(duration.toMillis() / 50d) * 50), null);
         } catch (final NumberFormatException ignored) {
             return new ParseResult<>(null, "Invalid interval; use a number optionally followed by ms, s, m, or h");

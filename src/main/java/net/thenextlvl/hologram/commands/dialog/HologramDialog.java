@@ -4168,4 +4168,10 @@ public final class HologramDialog {
             return new ParseResult<>(null, "Invalid world key");
         }
     }
+    
+    // todo:
+    //  - add a translations management dialog
+    //    - list all translations
+    //    - add new translations
+    //    - edit existing translations
 }

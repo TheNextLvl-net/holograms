@@ -1,7 +1,7 @@
 package net.thenextlvl.hologram;
 
-import dev.faststats.bukkit.BukkitMetrics;
-import dev.faststats.core.ErrorTracker;
+import dev.faststats.ErrorTracker;
+import dev.faststats.bukkit.BukkitContext;
 import io.papermc.paper.ServerBuildInfo;
 import io.papermc.paper.math.Position;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -112,10 +112,10 @@ public final class HologramPlugin extends JavaPlugin {
     private final SimpleClickActionFactory clickActionFactory = new SimpleClickActionFactory(this);
 
     private final Metrics metrics = new Metrics(this, 25817);
-    private final dev.faststats.core.Metrics fastStats = BukkitMetrics.factory()
-            .token("27b63937a461e94208f25b105af290cf")
-            .errorTracker(ERROR_TRACKER)
-            .create(this);
+    private final BukkitContext fastStats = new BukkitContext.Factory(this, "27b63937a461e94208f25b105af290cf")
+            .metrics(dev.faststats.Metrics.Factory::create)
+            .errorTrackerService(ERROR_TRACKER)
+            .create();
 
     private final PluginVersionChecker versionChecker = new PluginVersionChecker(this);
 

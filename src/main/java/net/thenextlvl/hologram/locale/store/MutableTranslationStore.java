@@ -1,11 +1,8 @@
 package net.thenextlvl.hologram.locale.store;
 
-import net.kyori.adventure.internal.Internals;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.translation.TranslationStore;
 import net.kyori.adventure.util.TriState;
-import net.kyori.examination.Examinable;
-import net.kyori.examination.ExaminableProperty;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NullMarked;
 
@@ -27,7 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @NullMarked
-public abstract class MutableTranslationStore<T> implements Examinable, TranslationStore<T> {
+public abstract class MutableTranslationStore<T> implements TranslationStore<T> {
     private final Key name;
     private final Map<String, Translation> translations = new ConcurrentHashMap<>();
     private volatile Locale defaultLocale = Locale.US;
@@ -134,11 +131,6 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
     }
 
     @Override
-    public final Stream<? extends ExaminableProperty> examinableProperties() {
-        return Stream.of(ExaminableProperty.of("translations", this.translations));
-    }
-
-    @Override
     public final boolean equals(final Object other) {
         if (this == other) return true;
         if (!(other instanceof final MutableTranslationStore<?> that)) return false;
@@ -152,8 +144,12 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
     }
 
     @Override
-    public final String toString() {
-        return Internals.toString(this);
+    public String toString() {
+        return "MutableTranslationStore{" +
+                "name=" + this.name +
+                ", translations=" + this.translations +
+                ", defaultLocale=" + this.defaultLocale +
+                '}';
     }
 
     public Stream<String> getTranslationKeys() {
@@ -174,7 +170,7 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
         return map;
     }
 
-    public final class Translation implements Examinable {
+    public final class Translation {
         private final String key;
         private final Map<Locale, T> translations;
 
@@ -209,14 +205,6 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
         }
 
         @Override
-        public Stream<? extends ExaminableProperty> examinableProperties() {
-            return Stream.of(
-                    ExaminableProperty.of("key", this.key),
-                    ExaminableProperty.of("translations", this.translations)
-            );
-        }
-
-        @Override
         public boolean equals(final Object other) {
             if (this == other) return true;
             if (!(other instanceof final MutableTranslationStore<?>.Translation that)) return false;
@@ -230,7 +218,10 @@ public abstract class MutableTranslationStore<T> implements Examinable, Translat
 
         @Override
         public String toString() {
-            return Internals.toString(this);
+            return "Translation{" +
+                    "key='" + key + '\'' +
+                    ", translations=" + translations +
+                    '}';
         }
     }
 

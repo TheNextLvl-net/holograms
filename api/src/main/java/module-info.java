@@ -12,8 +12,6 @@ module net.thenextlvl.holograms {
     requires java.desktop;
     requires net.kyori.adventure.key;
     requires net.kyori.adventure.text.minimessage;
-    requires net.kyori.adventure;
-    requires net.kyori.examination.api;
     requires net.thenextlvl.binder;
     requires org.bukkit;
     requires org.joml;

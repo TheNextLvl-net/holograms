@@ -35,15 +35,20 @@ public final class PluginListener implements Listener {
         }
 
         if (isPlugin(event.getPlugin(), "ServiceIO")) {
-            plugin.getServer().getServicesManager().register(
-                    HologramController.class,
-                    new ServiceHologramController(plugin),
-                    plugin,
-                    ServicePriority.Highest
-            );
+            final var version = event.getPlugin().getPluginMeta().getVersion();
+            if (version.startsWith("3.")) {
+                plugin.getServer().getServicesManager().register(
+                        HologramController.class,
+                        new ServiceHologramController(plugin),
+                        plugin,
+                        ServicePriority.Highest
+                );
 
-            plugin.economyProvider = new ServiceEconomyProvider(event.getPlugin());
-            plugin.getComponentLogger().info("ServiceIO detected, using for all services");
+                plugin.economyProvider = new ServiceEconomyProvider(event.getPlugin());
+                plugin.getComponentLogger().info("ServiceIO detected, using for all services");
+            } else {
+                plugin.getComponentLogger().warn("ServiceIO version {} is not supported (requires v3)", version);
+            }
         } else if (isPlugin(event.getPlugin(), "Vault")) {
             plugin.economyProvider = new VaultEconomyProvider(event.getPlugin());
             plugin.getComponentLogger().info("Vault detected, using for economy");

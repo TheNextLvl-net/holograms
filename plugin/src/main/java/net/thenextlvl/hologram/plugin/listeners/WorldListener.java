@@ -1,0 +1,42 @@
+package net.thenextlvl.hologram.plugin.listeners;
+
+import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.event.HologramUnloadEvent;
+import net.thenextlvl.hologram.plugin.HologramPlugin;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
+public final class WorldListener implements Listener {
+    private final HologramPlugin plugin;
+
+    public WorldListener(final HologramPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onWorldLoad(final WorldLoadEvent event) {
+        plugin.loadHolograms(event.getWorld());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onWorldSave(final WorldSaveEvent event) {
+        plugin.hologramProvider().getHolograms(event.getWorld()).forEach(Hologram::persist);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWorldUnload(final WorldUnloadEvent event) {
+        plugin.hologramProvider().holograms.removeIf(hologram -> {
+            if (hologram.getWorld().equals(event.getWorld())) {
+                new HologramUnloadEvent(hologram).callEvent();
+                hologram.persist();
+                return true;
+            } else return false;
+        });
+    }
+}

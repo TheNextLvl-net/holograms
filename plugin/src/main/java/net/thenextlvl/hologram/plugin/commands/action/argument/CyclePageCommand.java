@@ -1,0 +1,47 @@
+package net.thenextlvl.hologram.plugin.commands.action.argument;
+
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.action.ActionTypes;
+import net.thenextlvl.hologram.action.PageChange;
+import net.thenextlvl.hologram.plugin.HologramPlugin;
+import net.thenextlvl.hologram.plugin.commands.action.ActionTargetResolver;
+import net.thenextlvl.hologram.plugin.commands.arguments.HologramArgumentType;
+import net.thenextlvl.hologram.plugin.commands.suggestions.LineSuggestionProvider;
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
+public final class CyclePageCommand extends HologramActionCommand<PageChange> {
+    private CyclePageCommand(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+        super(plugin, ActionTypes.types().cyclePage(), "cycle-page", resolver);
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin, final ActionTargetResolver.Builder resolver) {
+        final var command = new CyclePageCommand(plugin, resolver);
+        final var amount = Commands.argument("amount", IntegerArgumentType.integer());
+        final var line = Commands.argument("target-line", IntegerArgumentType.integer())
+                .suggests(new LineSuggestionProvider(true, "target"));
+        final var hologram = Commands.argument("target", new HologramArgumentType(plugin, true));
+        return command.create()
+                .then(amount.executes(command))
+                .then(hologram.then(line
+                        .then(amount.executes(command))
+                        .executes(command)))
+                .executes(command);
+    }
+
+    @Override
+    public int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        return resolverBuilder.build(context, plugin).resolve((hologram, line, lineIndex, pageIndex, placeholders) -> {
+            final var amount = tryGetArgument(context, "amount", int.class).orElse(1);
+            final var targetHologram = tryGetArgument(context, "target", Hologram.class).orElse(null);
+            final var targetLine = tryGetArgument(context, "target-line", int.class).map(i -> i - 1).orElse(null);
+            return addAction(context, hologram, line, new PageChange(targetHologram, targetLine, amount));
+        });
+    }
+}

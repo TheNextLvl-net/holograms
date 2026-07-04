@@ -1,29 +1,10 @@
 plugins {
-    id("java")
     id("maven-publish")
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
     withJavadocJar()
-}
-
-tasks.compileJava {
-    options.release.set(21)
-}
-
-configurations.compileClasspath {
-    attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
-}
-
-group = rootProject.group
-version = rootProject.version
-
-repositories {
-    mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.thenextlvl.net/releases")
 }
 
 dependencies {

@@ -1,0 +1,60 @@
+package net.thenextlvl.hologram.plugin.models.line;
+
+import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.HologramLine;
+import net.thenextlvl.hologram.line.LineType;
+import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.plugin.models.PaperHologram;
+import org.bukkit.block.BlockType;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+@NullMarked
+public final class PaperBlockHologramLine extends PaperDisplayHologramLine<BlockDisplay> implements BlockHologramLine {
+    private volatile BlockData block = BlockType.AIR.createBlockData();
+
+    public PaperBlockHologramLine(final PaperHologram hologram, @Nullable final PagedHologramLine parentLine) {
+        super(hologram, parentLine, EntityType.BLOCK_DISPLAY);
+    }
+
+    @Override
+    public LineType getType() {
+        return LineType.BLOCK;
+    }
+
+    @Override
+    public BlockData getBlock() {
+        return block.clone();
+    }
+
+    @Override
+    public boolean setBlock(final BlockData block) {
+        return set(this.block, block, () -> {
+            this.block = block.clone();
+            forEachEntity(entity -> entity.setBlock(block));
+        }, false);
+    }
+
+    @Override
+    public double getHeight(final Player player) {
+        return transformation.getScale().y();
+    }
+
+    @Override
+    protected void preSpawn(final BlockDisplay entity, final Player player) {
+        entity.setBlock(block);
+        super.preSpawn(entity, player);
+    }
+
+    @Override
+    public HologramLine copyFrom(final HologramLine other) {
+        if (other instanceof final BlockHologramLine line) {
+            block = line.getBlock().clone();
+        }
+        return super.copyFrom(other);
+    }
+}

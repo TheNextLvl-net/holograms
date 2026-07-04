@@ -1,0 +1,91 @@
+package net.thenextlvl.hologram.plugin.commands.page;
+
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.thenextlvl.hologram.Hologram;
+import net.thenextlvl.hologram.line.BlockHologramLine;
+import net.thenextlvl.hologram.line.EntityHologramLine;
+import net.thenextlvl.hologram.line.HologramLine;
+import net.thenextlvl.hologram.line.ItemHologramLine;
+import net.thenextlvl.hologram.line.PagedHologramLine;
+import net.thenextlvl.hologram.line.TextHologramLine;
+import net.thenextlvl.hologram.plugin.HologramPlugin;
+import net.thenextlvl.hologram.plugin.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.plugin.commands.suggestions.LineSuggestionProvider;
+import org.jspecify.annotations.NullMarked;
+
+import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
+import static net.thenextlvl.hologram.plugin.commands.HologramCommand.hologramArgument;
+
+@NullMarked
+public final class HologramPageListCommand extends BrigadierCommand {
+    private HologramPageListCommand(final HologramPlugin plugin) {
+        super(plugin, "list", "holograms.command.page.list");
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramPageListCommand(plugin);
+        final var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                .suggests(LineSuggestionProvider.PAGED_ONLY);
+        return command.create().then(hologramArgument(plugin, true).then(line
+                .executes(command::listPages)));
+    }
+
+    private int listPages(final CommandContext<CommandSourceStack> context) {
+        final var sender = context.getSource().getSender();
+        final var hologram = context.getArgument("hologram", Hologram.class);
+        final var lineIndex = context.getArgument("line", int.class) - 1;
+        final var line = hologram.getLine(lineIndex).orElse(null);
+
+        if (line == null) {
+            plugin.bundle().sendMessage(sender, "hologram.line.invalid");
+            return 0;
+        }
+        if (!(line instanceof final PagedHologramLine pagedLine)) {
+            plugin.bundle().sendMessage(sender, "hologram.type.paged");
+            return 0;
+        }
+
+        plugin.bundle().sendMessage(sender, "hologram.page.list.header",
+                Placeholder.unparsed("hologram", hologram.getName()),
+                Formatter.number("line", lineIndex + 1),
+                Formatter.number("count", pagedLine.getPageCount()));
+
+        for (var index = 0; index < pagedLine.getPageCount(); index++) {
+            final var page = pagedLine.getPage(index).orElse(null);
+            if (page == null) continue;
+            plugin.bundle().sendMessage(sender, "hologram.page.list.entry",
+                    Formatter.number("index", index + 1),
+                    Placeholder.unparsed("type", getPageType(page)),
+                    Placeholder.component("preview", getPagePreview(page)));
+        }
+
+        return SINGLE_SUCCESS;
+    }
+
+    private String getPageType(final HologramLine page) {
+        return switch (page) {
+            case final TextHologramLine ignored -> "text";
+            case final ItemHologramLine ignored -> "item";
+            case final BlockHologramLine ignored -> "block";
+            case final EntityHologramLine ignored -> "entity";
+            default -> "unknown";
+        };
+    }
+
+    private Component getPagePreview(final HologramLine page) {
+        return switch (page) {
+            case final TextHologramLine textLine -> Component.text(textLine.getUnparsedText().orElse("(empty)"));
+            case final ItemHologramLine itemLine -> Component.translatable(itemLine.getItemStack());
+            case final BlockHologramLine blockLine -> Component.text(blockLine.getBlock().getMaterial().name());
+            case final EntityHologramLine entityLine -> Component.text(entityLine.getEntityType().name());
+            default -> Component.text("?");
+        };
+    }
+}

@@ -1,0 +1,37 @@
+package net.thenextlvl.hologram.plugin.commands.page;
+
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import net.thenextlvl.hologram.plugin.HologramPlugin;
+import net.thenextlvl.hologram.plugin.commands.action.ActionTargetResolver;
+import net.thenextlvl.hologram.plugin.commands.action.HologramActionCommand;
+import net.thenextlvl.hologram.plugin.commands.brigadier.BrigadierCommand;
+import net.thenextlvl.hologram.plugin.commands.suggestions.LineSuggestionProvider;
+import net.thenextlvl.hologram.plugin.commands.suggestions.PageSuggestionProvider;
+import org.jspecify.annotations.NullMarked;
+
+import static net.thenextlvl.hologram.plugin.commands.HologramCommand.hologramArgument;
+
+@NullMarked
+public final class HologramPageActionCommand extends BrigadierCommand {
+    private HologramPageActionCommand(final HologramPlugin plugin) {
+        super(plugin, "action", "holograms.command.page.action");
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramPageActionCommand(plugin);
+        final HologramActionCommand.ArgumentChainFactory chainFactory = () -> {
+            final var hologram = hologramArgument(plugin, true);
+            final var line = Commands.argument("line", IntegerArgumentType.integer(1))
+                    .suggests(LineSuggestionProvider.PAGED_ONLY);
+            final var page = Commands.argument("page", IntegerArgumentType.integer(1))
+                    .suggests(PageSuggestionProvider.INSTANCE);
+            return new HologramActionCommand.ArgumentChain(hologram, line, page);
+        };
+        final var literal = command.create();
+        HologramActionCommand.register(plugin, literal, chainFactory, ActionTargetResolver.PAGE);
+        return literal;
+    }
+}

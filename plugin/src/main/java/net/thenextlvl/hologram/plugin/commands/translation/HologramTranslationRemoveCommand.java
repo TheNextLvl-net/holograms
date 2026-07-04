@@ -1,0 +1,50 @@
+package net.thenextlvl.hologram.plugin.commands.translation;
+
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.thenextlvl.hologram.plugin.HologramPlugin;
+import net.thenextlvl.hologram.plugin.commands.arguments.LocaleArgumentType;
+import net.thenextlvl.hologram.plugin.commands.brigadier.SimpleCommand;
+import net.thenextlvl.hologram.plugin.locale.LanguageTags;
+import org.jspecify.annotations.NullMarked;
+
+import java.util.Locale;
+
+import static net.thenextlvl.hologram.plugin.commands.translation.HologramTranslationCommand.translationKeyArgument;
+
+@NullMarked
+public final class HologramTranslationRemoveCommand extends SimpleCommand {
+    private HologramTranslationRemoveCommand(final HologramPlugin plugin) {
+        super(plugin, "remove", "holograms.command.translation.remove");
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> create(final HologramPlugin plugin) {
+        final var command = new HologramTranslationRemoveCommand(plugin);
+        final var locale = Commands.argument("locale", new LocaleArgumentType(plugin, true));
+        return command.create().then(translationKeyArgument(plugin).then(locale.executes(command)));
+    }
+
+    @Override
+    public int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        final var sender = context.getSource().getSender();
+        final var locale = context.getArgument("locale", Locale.class);
+        final var key = context.getArgument("translation key", String.class);
+
+        final var success = plugin.translations().contains(key, locale);
+        if (success) {
+            plugin.translations().unregister(key, locale);
+            plugin.updateHologramTextLines(null);
+            plugin.translations().save(locale);
+        }
+
+        final var message = success ? "hologram.translation.removed" : "nothing.changed";
+        plugin.bundle().sendMessage(sender, message,
+                Placeholder.parsed("locale", LanguageTags.getLanguageName(locale)),
+                Placeholder.parsed("key", key));
+        return success ? SINGLE_SUCCESS : 0;
+    }
+}

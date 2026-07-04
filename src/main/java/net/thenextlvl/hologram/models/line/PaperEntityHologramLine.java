@@ -65,7 +65,7 @@ public final class PaperEntityHologramLine extends PaperStaticHologramLine<Entit
     @SuppressWarnings("unchecked")
     public boolean setEntityType(final EntityType entityType) throws IllegalArgumentException {
         return set(this.entityType, entityType, () -> {
-            Preconditions.checkArgument(entityType.getEntityClass() != null, "Entity type %s is not spawnable", entityType);
+            Preconditions.checkArgument(entityType.getEntityClass() != null && entityType.isSpawnable(), "Entity type %s is not spawnable", entityType);
             this.entityClass = (Class<Entity>) entityType.getEntityClass();
             this.entityType = entityType;
         }, true);

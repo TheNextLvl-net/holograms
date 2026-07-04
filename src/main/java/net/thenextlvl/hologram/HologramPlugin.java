@@ -152,8 +152,13 @@ public final class HologramPlugin extends JavaPlugin {
                     .forEach(PaperHologram::updateVisibility);
         }, 100L, 100L);
         registerCommands();
+        registerChannels();
         registerListeners();
         fastStats.ready();
+    }
+
+    private void registerChannels() {
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
 
     private void registerCommands() {

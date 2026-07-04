@@ -42,7 +42,7 @@ public abstract class PaperStaticHologramLine<E extends Entity> extends PaperHol
     @SuppressWarnings("unchecked")
     public PaperStaticHologramLine(final PaperHologram hologram, @Nullable final PagedHologramLine parentLine, final EntityType entityType) throws IllegalArgumentException {
         super(hologram);
-        Preconditions.checkArgument(entityType.getEntityClass() != null, "Entity type %s is not spawnable", entityType);
+        Preconditions.checkArgument(entityType.getEntityClass() != null && entityType.isSpawnable(), "Entity type %s is not spawnable", entityType);
         this.entityType = entityType;
         this.entityClass = (Class<E>) entityType.getEntityClass();
         this.parentLine = parentLine;

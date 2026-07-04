@@ -37,7 +37,7 @@ dependencies {
 
 paper {
     name = "Holograms"
-    main = "net.thenextlvl.hologram.HologramPlugin"
+    main = "net.thenextlvl.hologram.plugin.HologramPlugin"
     apiVersion = "1.21.8"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     website = "https://thenextlvl.net/docs/holograms"

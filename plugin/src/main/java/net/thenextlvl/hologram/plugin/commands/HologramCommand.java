@@ -8,7 +8,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.thenextlvl.hologram.plugin.HologramPlugin;
 import net.thenextlvl.hologram.plugin.commands.arguments.HologramArgumentType;
 import net.thenextlvl.hologram.plugin.commands.brigadier.BrigadierCommand;
-import net.thenextlvl.hologram.commands.dialog.DialogSupport;
+import net.thenextlvl.hologram.plugin.commands.dialog.DialogSupport;
 import net.thenextlvl.hologram.plugin.commands.line.HologramLineCommand;
 import net.thenextlvl.hologram.plugin.commands.page.HologramPageCommand;
 import net.thenextlvl.hologram.plugin.commands.suggestions.PermissionSuggestionProvider;

@@ -1,15 +1,11 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.body.Body;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.HologramLine;
 import org.jspecify.annotations.NullMarked;
@@ -23,14 +19,14 @@ final class SelectActionTypeDialog {
     private SelectActionTypeDialog() {
     }
 
-    static DialogLike create(
+    static net.thenextlvl.dialogs.Dialog<?> create(
             final Hologram hologram,
             final HologramLine line,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, net.thenextlvl.dialogs.Dialog<?>> reopen
     ) {
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         actions.add(DialogSupport.actionTypeButton("Send Actionbar", DialogSupport.ACTION_TYPES.sendActionbar(), hologram, line, header, note, reopen));
         actions.add(DialogSupport.actionTypeButton("Send Message", DialogSupport.ACTION_TYPES.sendMessage(), hologram, line, header, note, reopen));
         actions.add(DialogSupport.actionTypeButton("Transfer", DialogSupport.ACTION_TYPES.transfer(), hologram, line, header, note, reopen));
@@ -44,17 +40,14 @@ final class SelectActionTypeDialog {
         actions.add(DialogSupport.actionTypeButton("Set Page", DialogSupport.ACTION_TYPES.setPage(), hologram, line, header, note, reopen));
 
         final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(header));
-        body.add(DialogBody.plainMessage(Component.text("Choose the action type to add")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
+        body.add(Body.text(header));
+        body.add(Body.text(Component.text("Choose the action type to add")));
+        if (note != null) body.add(Body.text(note));
 
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> DialogSupport.show(audience, ignored -> ClickActionsDialog.create(hologram, line, header, note, reopen)))))
-                .build();
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Add Action"))
-                        .body(body)
-                        .build())
-                .type(DialogType.multiAction(DialogSupport.addBack(actions, back)).build()));
+        final var back = BackButton.create(ignored -> ClickActionsDialog.create(hologram, line, header, note, reopen));
+        final var dialog = Dialog.multiAction().title(Component.text("Add Action"));
+        body.forEach(dialog::addBody);
+        DialogSupport.addBack(actions, back).forEach(dialog::addButton);
+        return dialog;
     }
 }

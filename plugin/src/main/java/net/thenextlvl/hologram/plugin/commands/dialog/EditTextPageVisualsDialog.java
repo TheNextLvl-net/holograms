@@ -1,11 +1,9 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import net.thenextlvl.hologram.line.TextHologramLine;
@@ -19,7 +17,7 @@ final class EditTextPageVisualsDialog {
     private EditTextPageVisualsDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine pagedLine,
@@ -27,13 +25,9 @@ final class EditTextPageVisualsDialog {
             final TextHologramLine page,
             final Audience viewer
     ) {
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditTextPageDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, null));
-                })))
-                .build();
+        final var back = BackButton.create(ignored -> EditTextPageDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, null));
 
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         actions.add(DialogSupport.visualGlowButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
         actions.add(DialogSupport.visualGlowColorButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
         actions.add(DialogSupport.visualBillboardButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));

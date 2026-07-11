@@ -1,9 +1,9 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
 import net.thenextlvl.hologram.Hologram;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -13,7 +13,7 @@ final class SelectLineSwapTargetDialog {
     private SelectLineSwapTargetDialog() {
     }
 
-    static DialogLike create(final Hologram hologram, final int first, final Audience viewer) {
+    static Dialog<?> create(final Hologram hologram, final int first, final Audience viewer) {
         return SelectLineDialog.create(hologram, viewer, "Select second line",
                 "Select the second line. The two selected lines will swap positions.", first,
                 audience -> SelectLineToSwapDialog.create(hologram, audience),
@@ -28,7 +28,7 @@ final class SelectLineSwapTargetDialog {
                 });
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int first,
             final Audience viewer,

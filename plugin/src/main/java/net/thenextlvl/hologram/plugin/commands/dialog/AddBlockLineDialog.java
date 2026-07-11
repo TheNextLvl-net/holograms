@@ -1,10 +1,7 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
+import net.thenextlvl.dialogs.Dialog;
 import net.thenextlvl.hologram.Hologram;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -16,11 +13,8 @@ final class AddBlockLineDialog {
     private AddBlockLineDialog() {
     }
 
-    static DialogLike create(final Hologram hologram, final String initial, @Nullable final Component note) {
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> AddLineTypeDialog.create(hologram));
-                }))).build();
+    static Dialog<?> create(final Hologram hologram, final String initial, @Nullable final Component note) {
+        final var back = BackButton.create(ignored -> AddLineTypeDialog.create(hologram));
         final var held = DialogSupport.useHeldBlockButton((audience, block) -> {
             hologram.addBlockLine().setBlock(block);
             DialogSupport.show(audience, current -> EditHologramDialog.create(hologram, current));

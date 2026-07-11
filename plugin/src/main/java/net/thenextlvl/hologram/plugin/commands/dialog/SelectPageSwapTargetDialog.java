@@ -1,9 +1,9 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.jspecify.annotations.NullMarked;
@@ -14,7 +14,7 @@ final class SelectPageSwapTargetDialog {
     private SelectPageSwapTargetDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine line,
@@ -35,7 +35,7 @@ final class SelectPageSwapTargetDialog {
                 });
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine line,

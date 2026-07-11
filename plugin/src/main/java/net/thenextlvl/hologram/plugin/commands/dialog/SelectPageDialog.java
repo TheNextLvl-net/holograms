@@ -1,15 +1,11 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.jspecify.annotations.NullMarked;
@@ -24,7 +20,7 @@ final class SelectPageDialog {
     private SelectPageDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine line,
@@ -32,13 +28,13 @@ final class SelectPageDialog {
             final String title,
             final String description,
             final int excludedIndex,
-            final Function<Audience, DialogLike> backDialog,
+            final Function<Audience, Dialog<?>> backDialog,
             final Function<Integer, Consumer<Audience>> selection
     ) {
         return SelectPageDialog.create(hologram, lineIndex, line, viewer, title, description, excludedIndex, backDialog, null, selection);
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine line,
@@ -46,32 +42,26 @@ final class SelectPageDialog {
             final String title,
             final String description,
             final int excludedIndex,
-            final Function<Audience, DialogLike> backDialog,
+            final Function<Audience, Dialog<?>> backDialog,
             @Nullable final Component note,
             final Function<Integer, Consumer<Audience>> selection
     ) {
         final var pages = line.getPages().toList();
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         for (var index = 0; index < pages.size(); index++) {
             final var page = pages.get(index);
             final var pageIndex = index;
-            actions.add(ActionButton.builder(index == excludedIndex
+            actions.add(Button.clickEvent(ClickEvent.callback(selection.apply(pageIndex)::accept), index == excludedIndex
                             ? Component.text("Page " + (pageIndex + 1) + ": " + DialogSupport.lineDescription(page), NamedTextColor.GOLD)
                             : Component.text("Page " + (pageIndex + 1) + ": " + DialogSupport.lineDescription(page)))
                     .tooltip(DialogSupport.linePreview(page, viewer))
-                    .action(DialogAction.staticAction(ClickEvent.callback(selection.apply(pageIndex)::accept)))
-                    .width(300)
-                    .build());
+                    .width(300));
         }
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, backDialog);
-                }))).width(300).build();
+        final var back = BackButton.create(300, backDialog);
 
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text(title))
-                        .body(DialogSupport.bodyLines(description, note))
-                        .build())
-                .type(DialogType.multiAction(actions).columns(1).exitAction(back).build()));
+        final var dialog = Dialog.multiAction().title(Component.text(title)).columns(1).exitAction(back);
+        DialogSupport.bodyLines(description, note).forEach(dialog::addBody);
+        actions.forEach(dialog::addButton);
+        return dialog;
     }
 }

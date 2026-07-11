@@ -1,16 +1,12 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import io.papermc.paper.registry.data.dialog.body.DialogBody;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.body.Body;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.HologramLine;
 import org.jspecify.annotations.NullMarked;
@@ -24,34 +20,28 @@ final class DeleteActionDialog {
     private DeleteActionDialog() {
     }
 
-    static DialogLike create(
+    static net.thenextlvl.dialogs.Dialog<?> create(
             final Hologram hologram,
             final HologramLine line,
             final String actionName,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, net.thenextlvl.dialogs.Dialog<?>> reopen
     ) {
-        final var confirm = ActionButton.builder(Component.text("Delete", NamedTextColor.RED))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    line.removeAction(actionName);
-                    DialogSupport.show(audience, ignored -> ClickActionsDialog.create(hologram, line, header, note, reopen));
-                })))
-                .build();
-        final var cancel = ActionButton.builder(Component.text("Cancel"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    final var current = line.getAction(actionName).orElse(null);
-                    if (current == null) {
-                        DialogSupport.show(audience, ignored -> ClickActionsDialog.create(hologram, line, header, note, reopen));
-                        return;
-                    }
-                    DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, actionName, current, header, note, reopen));
-                })))
-                .build();
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Delete action " + actionName + "?"))
-                        .body(List.of(DialogBody.plainMessage(Component.text("This cannot be undone"))))
-                        .build())
-                .type(DialogType.confirmation(confirm, cancel)));
+        final var confirm = Button.clickEvent(ClickEvent.callback(audience -> {
+            line.removeAction(actionName);
+            DialogSupport.show(audience, ignored -> ClickActionsDialog.create(hologram, line, header, note, reopen));
+        }), Component.text("Delete", NamedTextColor.RED));
+        final var cancel = Button.clickEvent(ClickEvent.callback(audience -> {
+            final var current = line.getAction(actionName).orElse(null);
+            if (current == null) {
+                DialogSupport.show(audience, ignored -> ClickActionsDialog.create(hologram, line, header, note, reopen));
+                return;
+            }
+            DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, actionName, current, header, note, reopen));
+        }), Component.text("Cancel"));
+        final var dialog = Dialog.confirmation(cancel, confirm).title(Component.text("Delete action " + actionName + "?"));
+        List.of(Body.text(Component.text("This cannot be undone"))).forEach(dialog::addBody);
+        return dialog;
     }
 }

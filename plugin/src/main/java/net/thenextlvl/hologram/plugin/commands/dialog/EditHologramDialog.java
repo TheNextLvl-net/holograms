@@ -1,9 +1,12 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.registry.data.dialog.ActionButton;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.body.Body;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import org.jspecify.annotations.NullMarked;
 
@@ -14,39 +17,39 @@ final class EditHologramDialog {
     private EditHologramDialog() {
     }
 
-    static DialogControl create(final Hologram hologram, final Audience viewer) {
-        final var back = DialogControl.backButton(300, ignored -> OverviewDialog.create());
+    static Dialog<?> create(final Hologram hologram, final Audience viewer) {
+        final var back = BackButton.create(300, ignored -> OverviewDialog.create());
 
         final var lines = hologram.getLines().toList();
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         for (var index = 0; index < lines.size(); index++) {
             final var line = lines.get(index);
             final var lineIndex = index;
-            actions.add(ActionButton.builder(DialogSupport.lineLabel(lineIndex, line))
-                    .tooltip(DialogSupport.linePreview(line, viewer))
-                    .action(DialogControl.open(audience -> EditLineDialog.create(hologram, lineIndex, audience))).width(300).build());
+            actions.add(DialogButton.create(DialogSupport.lineLabel(lineIndex, line), audience -> EditLineDialog.create(hologram, lineIndex, audience))
+                    .tooltip(DialogSupport.linePreview(line, viewer)).width(300));
         }
 
-        actions.add(DialogControl.actionButton(Component.text("Add Line", NamedTextColor.GREEN), 300,
+        actions.add(DialogButton.create(Component.text("Add Line", NamedTextColor.GREEN), 300,
                 ignored -> AddLineTypeDialog.create(hologram)));
         if (lines.size() > 1)
-            actions.add(DialogControl.actionButton(Component.text("Change order", NamedTextColor.LIGHT_PURPLE), 300,
+            actions.add(DialogButton.create(Component.text("Change order", NamedTextColor.LIGHT_PURPLE), 300,
                     audience -> ChangeLineOrderDialog.create(hologram, audience)));
-        actions.add(DialogControl.actionButton(Component.text("Teleport Hologram", NamedTextColor.AQUA), 300,
+        actions.add(DialogButton.create(Component.text("Teleport Hologram", NamedTextColor.AQUA), 300,
                 ignored -> TeleportHologramDialog.create(hologram)));
-        actions.add(DialogControl.actionButton(Component.text("Rename Hologram", NamedTextColor.YELLOW), 300,
+        actions.add(DialogButton.create(Component.text("Rename Hologram", NamedTextColor.YELLOW), 300,
                 ignored -> RenameHologramDialog.create(hologram, hologram.getName(), null)));
-        actions.add(ActionButton.builder(Component.text("Delete Hologram", NamedTextColor.RED))
-                .action(DialogControl.openDirect(audience -> DeleteHologramDialog.create(hologram, audience))).width(300).build());
+        actions.add(Button.clickEvent(ClickEvent.callback(audience ->
+                audience.showDialog(DeleteHologramDialog.create(hologram, audience).build())), Component.text("Delete Hologram", NamedTextColor.RED)).width(300));
 
         actions.add(back);
 
-        final var dialog = DialogControl.create(hologram.getName()).actions(actions).columns(1);
-        if (lines.isEmpty()) dialog.body("No lines have been added yet");
+        final var dialog = Dialog.multiAction().title(Component.text(hologram.getName())).columns(1);
+        actions.forEach(dialog::addButton);
+        if (lines.isEmpty()) dialog.addBody(Body.text(Component.text("No lines have been added yet")));
         return dialog;
     }
 
-    static DialogControl create(final Hologram hologram) {
+    static Dialog<?> create(final Hologram hologram) {
         return EditHologramDialog.create(hologram, Audience.empty());
     }
 }

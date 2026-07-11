@@ -11,6 +11,7 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://repo.thenextlvl.net/snapshots")
 }
@@ -26,6 +27,7 @@ dependencies {
     compileOnly("net.thenextlvl:worlds:4.3.0-pre1")
 
     implementation("net.thenextlvl.version-checker:modrinth-paper:1.0.1")
+    implementation("net.thenextlvl:dialogs:0.1.0")
     implementation("net.thenextlvl:i18n:1.2.0")
     implementation("net.thenextlvl:nbt:4.3.6")
 

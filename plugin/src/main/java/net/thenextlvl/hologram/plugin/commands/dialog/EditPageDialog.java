@@ -1,7 +1,7 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
+import net.thenextlvl.dialogs.Dialog;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.EntityHologramLine;
@@ -15,7 +15,7 @@ final class EditPageDialog {
     private EditPageDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine pagedLine,

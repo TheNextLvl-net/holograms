@@ -1,18 +1,13 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
-import io.papermc.paper.registry.data.dialog.input.DialogInput;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickCallback;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.body.Body;
+import net.thenextlvl.dialogs.button.Button;
+import net.thenextlvl.dialogs.input.Input;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -29,7 +24,7 @@ final class EditStringActionInputDialog {
     private EditStringActionInputDialog() {
     }
 
-    static DialogLike create(
+    static net.thenextlvl.dialogs.Dialog<?> create(
             final Hologram hologram,
             final HologramLine line,
             final String actionName,
@@ -37,27 +32,23 @@ final class EditStringActionInputDialog {
             final String label,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, net.thenextlvl.dialogs.Dialog<?>> reopen
     ) {
         final var current = action.getInput();
-        final var save = ActionButton.builder(Component.text("Save", NamedTextColor.GREEN))
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("value");
-                    action.setInput(input != null ? input : "");
-                    DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, actionName, action, header, note, reopen));
-                }, ClickCallback.Options.builder().uses(1).build()))
-                .build();
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, actionName, action, header, note, reopen)))))
-                .build();
+        final var save = Button.callback((response, audience) -> {
+            final var input = response.getText("value");
+            action.setInput(input != null ? input : "");
+            DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, actionName, action, header, note, reopen));
+        }, Component.text("Save", NamedTextColor.GREEN)).uses(1);
+        final var back = BackButton.create(ignored -> EditActionDialog.create(hologram, line, actionName, action, header, note, reopen));
         final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text("Edit the " + label.toLowerCase(Locale.ROOT) + " input")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text(label))
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("value", Component.text(label)).initial(current).build()))
-                        .build())
-                .type(DialogType.multiAction(List.of(save)).exitAction(back).build()));
+        body.add(Body.text(Component.text("Edit the " + label.toLowerCase(Locale.ROOT) + " input")));
+        if (note != null) body.add(Body.text(note));
+        final var dialog = Dialog.multiAction().title(Component.text(label));
+        body.forEach(dialog::addBody);
+        List.of(Input.text("value", Component.text(label)).initial(current).build()).forEach(dialog::addInput);
+        List.of(save).forEach(dialog::addButton);
+        dialog.exitAction(back);
+        return dialog;
     }
 }

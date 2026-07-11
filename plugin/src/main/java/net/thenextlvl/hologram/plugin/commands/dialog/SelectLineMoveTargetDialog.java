@@ -1,9 +1,9 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
 import net.thenextlvl.hologram.Hologram;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -13,7 +13,7 @@ final class SelectLineMoveTargetDialog {
     private SelectLineMoveTargetDialog() {
     }
 
-    static DialogLike create(final Hologram hologram, final int from, final Audience viewer) {
+    static Dialog<?> create(final Hologram hologram, final int from, final Audience viewer) {
         return SelectLineDialog.create(hologram, viewer, "Move above line",
                 "Select the target line. The moved line will be placed directly above it.", from,
                 audience -> SelectLineToMoveDialog.create(hologram, audience),
@@ -28,7 +28,7 @@ final class SelectLineMoveTargetDialog {
                 });
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int from,
             final Audience viewer,

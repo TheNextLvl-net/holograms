@@ -1,11 +1,9 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.EntityHologramLine;
 import org.jspecify.annotations.NullMarked;
@@ -18,20 +16,16 @@ final class EditEntityLineVisualsDialog {
     private EditEntityLineVisualsDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final EntityHologramLine line,
             @Nullable final Component note,
             final Audience viewer
     ) {
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditEntityLineDialog.create(hologram, lineIndex, line, note));
-                })))
-                .build();
+        final var back = BackButton.create(ignored -> EditEntityLineDialog.create(hologram, lineIndex, line, note));
 
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         actions.add(DialogSupport.visualGlowButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualGlowColorButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualBillboardButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));

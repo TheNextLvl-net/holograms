@@ -1,7 +1,7 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
+import net.thenextlvl.dialogs.Dialog;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -13,7 +13,7 @@ public final class HologramDialog {
         DialogSupport.showLast(audience);
     }
 
-    public static DialogLike overview() {
+    public static Dialog<?> overview() {
         return OverviewDialog.create();
     }
 }

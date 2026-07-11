@@ -1,16 +1,11 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import io.papermc.paper.registry.data.dialog.input.DialogInput;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.button.Button;
+import net.thenextlvl.dialogs.input.Input;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
@@ -25,34 +20,34 @@ final class ItemSearchDialog {
     private ItemSearchDialog() {
     }
 
-    static DialogLike create(
+    static net.thenextlvl.dialogs.Dialog<?> create(
             final String title,
             final String initial,
             @Nullable final Component note,
-            final List<ActionButton> extraActions,
-            final ActionButton back,
+            final List<Button<?>> extraActions,
+            final Button<?> back,
             final BiConsumer<Audience, ItemStack> selection
     ) {
         return create(Component.text(title), initial, note, extraActions, back, selection);
     }
 
-    static DialogLike create(
+    static net.thenextlvl.dialogs.Dialog<?> create(
             final Component title,
             final String initial,
             @Nullable final Component note,
-            final List<ActionButton> extraActions,
-            final ActionButton back,
+            final List<Button<?>> extraActions,
+            final Button<?> back,
             final BiConsumer<Audience, ItemStack> selection
     ) {
         return ItemSearchDialog.create(title, initial, note, extraActions, back, selection, 0);
     }
 
-    static DialogLike create(
+    static net.thenextlvl.dialogs.Dialog<?> create(
             final Component title,
             final String initial,
             @Nullable final Component note,
-            final List<ActionButton> extraActions,
-            final ActionButton back,
+            final List<Button<?>> extraActions,
+            final Button<?> back,
             final BiConsumer<Audience, ItemStack> selection,
             final int page
     ) {
@@ -60,19 +55,18 @@ final class ItemSearchDialog {
         final var matches = DialogSupport.searchMaterials(query, Material::isItem);
         final var pageCount = DialogSupport.pageCount(matches);
         final var currentPage = DialogSupport.clampPage(page, pageCount);
-        final var search = ActionButton.builder(Component.text("Search", NamedTextColor.GREEN))
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = DialogSupport.input(response, "search");
-                    final var result = DialogSupport.searchMaterials(input, Material::isItem);
-                    final var message = result.isEmpty() ? Component.text("No matching items found", NamedTextColor.RED) : null;
-                    DialogSupport.show(audience, ignored -> ItemSearchDialog.create(title, input, message, extraActions, back, selection));
-                }, ClickCallback.Options.builder().uses(1).build())).build();
-        final var actions = new ArrayList<ActionButton>();
+        final var search = Button.callback((response, audience) -> {
+            final var input = DialogSupport.input(response, "search");
+            final var result = DialogSupport.searchMaterials(input, Material::isItem);
+            final var message = result.isEmpty() ? Component.text("No matching items found", NamedTextColor.RED) : null;
+            DialogSupport.show(audience, ignored -> ItemSearchDialog.create(title, input, message, extraActions, back, selection));
+        }, Component.text("Search", NamedTextColor.GREEN)).uses(1);
+        final var actions = new ArrayList<Button<?>>();
         if (currentPage > 0) actions.add(DialogSupport.pageButton("Previous Page", audience -> {
-            DialogSupport.show(audience, ignored -> ItemSearchDialog.create(title, initial, note, extraActions, back, selection, currentPage - 1));
+            return ItemSearchDialog.create(title, initial, note, extraActions, back, selection, currentPage - 1);
         }));
         if (currentPage + 1 < pageCount) actions.add(DialogSupport.pageButton("Next Page", audience -> {
-            DialogSupport.show(audience, ignored -> ItemSearchDialog.create(title, initial, note, extraActions, back, selection, currentPage + 1));
+            return ItemSearchDialog.create(title, initial, note, extraActions, back, selection, currentPage + 1);
         }));
         actions.add(search);
         actions.addAll(extraActions);
@@ -81,11 +75,11 @@ final class ItemSearchDialog {
         })).forEach(actions::add);
 
         final var body = DialogSupport.searchBody("Search by friendly name or key", note, matches, currentPage, pageCount);
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(title)
-                        .body(body)
-                        .inputs(List.of(DialogInput.text("search", Component.text("Search")).initial(initial).build()))
-                        .build())
-                .type(DialogType.multiAction(actions).exitAction(back).build()));
+        final var dialog = Dialog.multiAction().title(title);
+        body.forEach(dialog::addBody);
+        List.of(Input.text("search", Component.text("Search")).initial(initial).build()).forEach(dialog::addInput);
+        actions.forEach(dialog::addButton);
+        dialog.exitAction(back);
+        return dialog;
     }
 }

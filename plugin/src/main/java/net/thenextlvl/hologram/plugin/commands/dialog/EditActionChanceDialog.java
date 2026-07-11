@@ -1,8 +1,8 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
+import net.thenextlvl.dialogs.Dialog;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -16,14 +16,14 @@ final class EditActionChanceDialog {
     private EditActionChanceDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final HologramLine line,
             final String actionName,
             final ClickAction<?> action,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         return EditIntValueDialog.create("Chance", action.getChance(), 0, 100, note, (audience, value) -> {
             action.setChance(value);

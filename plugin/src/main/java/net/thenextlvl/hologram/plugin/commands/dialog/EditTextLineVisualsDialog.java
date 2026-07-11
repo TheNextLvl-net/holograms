@@ -1,11 +1,8 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.TextHologramLine;
 import org.bukkit.entity.TextDisplay.TextAlignment;
@@ -18,19 +15,15 @@ final class EditTextLineVisualsDialog {
     private EditTextLineVisualsDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final TextHologramLine line,
             final Audience viewer
     ) {
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditTextLineDialog.create(hologram, lineIndex, line, line.getUnparsedText().orElse(""), null));
-                })))
-                .build();
+        final var back = BackButton.create(ignored -> EditTextLineDialog.create(hologram, lineIndex, line, line.getUnparsedText().orElse(""), null));
 
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         actions.add(DialogSupport.visualGlowButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
         actions.add(DialogSupport.visualGlowColorButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
         actions.add(DialogSupport.visualBillboardButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));

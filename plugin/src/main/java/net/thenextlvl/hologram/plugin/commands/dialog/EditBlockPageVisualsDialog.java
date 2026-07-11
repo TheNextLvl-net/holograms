@@ -1,11 +1,9 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.BlockHologramLine;
 import net.thenextlvl.hologram.line.PagedHologramLine;
@@ -19,7 +17,7 @@ final class EditBlockPageVisualsDialog {
     private EditBlockPageVisualsDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine pagedLine,
@@ -28,13 +26,9 @@ final class EditBlockPageVisualsDialog {
             @Nullable final Component note,
             final Audience viewer
     ) {
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, current -> EditBlockPageDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note));
-                })))
-                .build();
+        final var back = BackButton.create(current -> EditBlockPageDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note));
 
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         final var held = DialogSupport.useHeldBlockButton((audience, block) -> {
             page.setBlock(block);
             DialogSupport.show(audience, current -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, current));

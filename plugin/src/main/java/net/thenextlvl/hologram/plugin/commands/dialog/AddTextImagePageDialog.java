@@ -1,17 +1,12 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
-import io.papermc.paper.registry.data.dialog.input.DialogInput;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickCallback;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.body.Body;
+import net.thenextlvl.dialogs.button.Button;
+import net.thenextlvl.dialogs.input.Input;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.jspecify.annotations.NullMarked;
@@ -25,7 +20,7 @@ final class AddTextImagePageDialog {
     private AddTextImagePageDialog() {
     }
 
-    static DialogLike create(
+    static net.thenextlvl.dialogs.Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine line,
@@ -34,58 +29,52 @@ final class AddTextImagePageDialog {
             final String sizeInitial,
             @Nullable final Component note
     ) {
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> AddTextPageDialog.create(hologram, lineIndex, line, textInitial, note));
-                })))
-                .width(150)
-                .build();
+        final var back = BackButton.create(ignored -> AddTextPageDialog.create(hologram, lineIndex, line, textInitial, note)).width(150);
 
         final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text("Enter the URL or file path for the image")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
+        body.add(Body.text(Component.text("Enter the URL or file path for the image")));
+        if (note != null) body.add(Body.text(note));
 
-        final var add = ActionButton.builder(Component.text("Add"))
-                .action(DialogAction.customClick((response, audience) -> {
-                    final var input = response.getText("source");
-                    final var source = input != null ? input.trim() : null;
-                    if (source == null || source.isBlank()) {
-                        DialogSupport.show(audience, ignored -> AddTextImagePageDialog.create(hologram, lineIndex, line, textInitial, "", sizeInitial, Component.text("Image source cannot be empty", NamedTextColor.RED)));
-                        return;
-                    }
+        final var add = Button.callback((response, audience) -> {
+            final var input = response.getText("source");
+            final var source = input != null ? input.trim() : null;
+            if (source == null || source.isBlank()) {
+                DialogSupport.show(audience, ignored -> AddTextImagePageDialog.create(hologram, lineIndex, line, textInitial, "", sizeInitial, Component.text("Image source cannot be empty", NamedTextColor.RED)));
+                return;
+            }
 
-                    final var size = response.getText("size");
-                    final var height = DialogSupport.parseImageHeight(size);
-                    if (height.error() != null) {
-                        DialogSupport.show(audience, ignored -> AddTextImagePageDialog.create(hologram, lineIndex, line, textInitial, source, size != null ? size : sizeInitial,
-                                Component.text(height.error(), NamedTextColor.RED)));
-                        return;
-                    }
+            final var size = response.getText("size");
+            final var height = DialogSupport.parseImageHeight(size);
+            if (height.error() != null) {
+                DialogSupport.show(audience, ignored -> AddTextImagePageDialog.create(hologram, lineIndex, line, textInitial, source, size != null ? size : sizeInitial,
+                        Component.text(height.error(), NamedTextColor.RED)));
+                return;
+            }
 
-                    final var image = DialogSupport.parseImageSource(source);
-                    if (image.error() != null) {
-                        DialogSupport.show(audience, ignored -> AddTextImagePageDialog.create(hologram, lineIndex, line, textInitial, source, size != null ? size : sizeInitial,
-                                Component.text(image.error(), NamedTextColor.RED)));
-                        return;
-                    }
+            final var image = DialogSupport.parseImageSource(source);
+            if (image.error() != null) {
+                DialogSupport.show(audience, ignored -> AddTextImagePageDialog.create(hologram, lineIndex, line, textInitial, source, size != null ? size : sizeInitial,
+                        Component.text(image.error(), NamedTextColor.RED)));
+                return;
+            }
 
-                    line.addTextPage().setUnparsedText(DialogSupport.imageTag(source, height.value()));
-                    DialogSupport.show(audience, current -> EditPagedLineDialog.create(hologram, lineIndex, line, current));
-                }, ClickCallback.Options.builder().uses(1).build()))
-                .build();
+            line.addTextPage().setUnparsedText(DialogSupport.imageTag(source, height.value()));
+            DialogSupport.show(audience, current -> EditPagedLineDialog.create(hologram, lineIndex, line, current));
+        }, Component.text("Add")).uses(1);
 
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Add Image Page"))
-                        .body(body)
-                        .inputs(List.of(
-                                DialogInput.text("source", Component.text("Image source"))
-                                        .initial(sourceInitial)
-                                        .maxLength(8192)
-                                        .build(),
-                                DialogInput.text("size", Component.text("Image size"))
-                                        .initial(sizeInitial)
-                                        .build()
-                        )).build())
-                .type(DialogType.multiAction(List.of(add)).exitAction(back).build()));
+        final var dialog = Dialog.multiAction().title(Component.text("Add Image Page"));
+        body.forEach(dialog::addBody);
+        List.of(
+                Input.text("source", Component.text("Image source"))
+                        .initial(sourceInitial)
+                        .maxLength(8192)
+                        .build(),
+                Input.text("size", Component.text("Image size"))
+                        .initial(sizeInitial)
+                        .build()
+        ).forEach(dialog::addInput);
+        List.of(add).forEach(dialog::addButton);
+        dialog.exitAction(back);
+        return dialog;
     }
 }

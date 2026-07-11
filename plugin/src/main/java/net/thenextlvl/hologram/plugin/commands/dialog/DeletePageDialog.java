@@ -1,15 +1,11 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import io.papermc.paper.registry.data.dialog.body.DialogBody;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.body.Body;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.PagedHologramLine;
 import org.jspecify.annotations.NullMarked;
@@ -21,27 +17,23 @@ final class DeletePageDialog {
     private DeletePageDialog() {
     }
 
-    static DialogLike create(
+    static net.thenextlvl.dialogs.Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine line,
             final int pageIndex
     ) {
-        final var confirm = ActionButton.builder(Component.text("Delete this page", NamedTextColor.RED))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    line.removePage(pageIndex);
-                    DialogSupport.show(audience, current -> EditPagedLineDialog.create(hologram, lineIndex, line, current));
-                }))).build();
+        final var confirm = Button.clickEvent(ClickEvent.callback(audience -> {
+            line.removePage(pageIndex);
+            DialogSupport.show(audience, current -> EditPagedLineDialog.create(hologram, lineIndex, line, current));
+        }), Component.text("Delete this page", NamedTextColor.RED));
 
-        final var cancel = ActionButton.builder(Component.text("Cancel"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, current -> EditPageDialog.create(hologram, lineIndex, line, pageIndex, current));
-                }))).build();
+        final var cancel = Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, current -> EditPageDialog.create(hologram, lineIndex, line, pageIndex, current));
+        }), Component.text("Cancel"));
 
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Delete page " + (pageIndex + 1) + "?"))
-                        .body(List.of(DialogBody.plainMessage(Component.text("This cannot be undone"))))
-                        .build())
-                .type(DialogType.confirmation(confirm, cancel)));
+        final var dialog = Dialog.confirmation(cancel, confirm).title(Component.text("Delete page " + (pageIndex + 1) + "?"));
+        List.of(Body.text(Component.text("This cannot be undone"))).forEach(dialog::addBody);
+        return dialog;
     }
 }

@@ -1,16 +1,12 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import io.papermc.paper.registry.data.dialog.body.DialogBody;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.body.Body;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.action.ClickAction;
 import net.thenextlvl.hologram.line.HologramLine;
@@ -27,38 +23,31 @@ final class SelectClickTypesDialog {
     private SelectClickTypesDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final HologramLine line,
             final String actionName,
             final ClickAction<?> action,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         for (final var preset : ClickTypes.values()) {
             final var current = action.getClickTypes().equals(preset.getClickTypes());
-            actions.add(ActionButton.builder(Component.text(DialogSupport.friendlyName(preset.name()), current ? NamedTextColor.GREEN : NamedTextColor.WHITE))
-                    .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                        action.setClickTypes(EnumSet.copyOf(preset.getClickTypes()));
-                        DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, actionName, action, header, note, reopen));
-                    })))
-                    .build());
+            actions.add(Button.clickEvent(ClickEvent.callback(audience -> {
+                action.setClickTypes(EnumSet.copyOf(preset.getClickTypes()));
+                DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, actionName, action, header, note, reopen));
+            }), Component.text(DialogSupport.friendlyName(preset.name()), current ? NamedTextColor.GREEN : NamedTextColor.WHITE)));
         }
 
-        final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(header));
-        body.add(DialogBody.plainMessage(Component.text("Choose when this action should trigger")));
-        if (note != null) body.add(DialogBody.plainMessage(note));
+        final var dialog = Dialog.multiAction()
+                .title(Component.text("Click Types"))
+                .addBody(Body.text(header))
+                .addBody(Body.text(Component.text("Choose when this action should trigger")));
+        if (note != null) dialog.addBody(Body.text(note));
 
-        final var back = ActionButton.builder(Component.text("Back"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, actionName, action, header, note, reopen)))))
-                .build();
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Click Types"))
-                        .body(body)
-                        .build())
-                .type(DialogType.multiAction(DialogSupport.addBack(actions, back)).build()));
+        actions.forEach(dialog::addButton);
+        return dialog.exitAction(BackButton.create(ignored -> EditActionDialog.create(hologram, line, actionName, action, header, note, reopen)));
     }
 }

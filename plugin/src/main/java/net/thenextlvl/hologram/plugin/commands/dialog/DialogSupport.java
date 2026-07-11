@@ -1,12 +1,8 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
 import io.papermc.paper.dialog.DialogResponseView;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
-import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -14,6 +10,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.body.Body;
+import net.thenextlvl.dialogs.button.Button;
+import net.thenextlvl.dialogs.button.ClickEventButton;
+import net.thenextlvl.dialogs.input.Input;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.action.ActionType;
 import net.thenextlvl.hologram.action.ActionTypes;
@@ -70,164 +71,141 @@ public final class DialogSupport {
 
     static final ActionTypes ACTION_TYPES = ActionTypes.types();
 
-    static final Map<UUID, Function<Audience, DialogLike>> LAST_DIALOGS = new ConcurrentHashMap<>();
+    static final Map<UUID, Function<Audience, Dialog<?>>> LAST_DIALOGS = new ConcurrentHashMap<>();
 
     public static void showLast(final Audience audience) {
         if (audience instanceof final Player player) {
             DialogSupport.show(audience, LAST_DIALOGS.getOrDefault(player.getUniqueId(), ignored -> OverviewDialog.create()));
             return;
         }
-        audience.showDialog(DialogControl.resolve(OverviewDialog.create()));
+        audience.showDialog(OverviewDialog.create().build());
     }
 
-    static void show(final Audience audience, final Function<Audience, DialogLike> dialog) {
-        DialogControl.show(audience, LAST_DIALOGS, dialog);
+    static void show(final Audience audience, final Function<Audience, Dialog<?>> dialog) {
+        if (audience instanceof final Player player) LAST_DIALOGS.put(player.getUniqueId(), dialog);
+        audience.showDialog(dialog.apply(audience).build());
     }
 
-    static ActionButton deleteLineButton(final Hologram hologram, final int lineIndex) {
-        return DialogSupport.deleteLineButton(hologram, lineIndex, true);
+    static ClickEventButton deleteLineButton(final Hologram hologram, final int lineIndex) {
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            audience.showDialog(DeleteLineDialog.create(hologram, lineIndex, audience).build());
+        }), Component.text("Delete this line", NamedTextColor.RED));
     }
 
-    static ActionButton deleteLineButton(final Hologram hologram, final int lineIndex, final boolean customWidth) {
-        final var builder = ActionButton.builder(Component.text("Delete this line", NamedTextColor.RED))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    audience.showDialog(DeleteLineDialog.create(hologram, lineIndex, audience));
-                })));
-        return customWidth ? builder.width(300).build() : builder.build();
+    static ClickEventButton deleteLineButton(final Hologram hologram, final int lineIndex, final boolean ignored) {
+        return deleteLineButton(hologram, lineIndex);
     }
 
-    static ActionButton editHologramBackButton(final Hologram hologram) {
-        return DialogControl.backButton(300, audience -> EditHologramDialog.create(hologram, audience));
+    static ClickEventButton editHologramBackButton(final Hologram hologram) {
+        return BackButton.create(300, audience -> EditHologramDialog.create(hologram, audience));
     }
 
-    static ActionButton deletePageButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line, final int pageIndex) {
-        return DialogSupport.deletePageButton(hologram, lineIndex, line, pageIndex, true);
+    static ClickEventButton deletePageButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line, final int pageIndex) {
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            audience.showDialog(DeletePageDialog.create(hologram, lineIndex, line, pageIndex).build());
+        }), Component.text("Delete this page", NamedTextColor.RED));
     }
 
-    static ActionButton deletePageButton(
-            final Hologram hologram,
-            final int lineIndex,
-            final PagedHologramLine line,
-            final int pageIndex,
-            final boolean customWidth
-    ) {
-        final var builder = ActionButton.builder(Component.text("Delete this page", NamedTextColor.RED))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    audience.showDialog(DeletePageDialog.create(hologram, lineIndex, line, pageIndex));
-                })));
-        return customWidth ? builder.width(300).build() : builder.build();
+    static ClickEventButton deletePageButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line, final int pageIndex, final boolean ignored) {
+        return deletePageButton(hologram, lineIndex, line, pageIndex);
     }
 
     static List<DialogBody> bodyLines(final String description, @Nullable final Component note) {
         final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text(description)));
-        if (note != null) body.add(DialogBody.plainMessage(note));
+        body.add(Body.text(Component.text(description)));
+        if (note != null) body.add(Body.text(note));
         return body;
     }
 
-    static ActionButton editPagedBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
-        return DialogControl.backButton(300, ignored -> AddPageTypeDialog.create(hologram, lineIndex, line));
+    static ClickEventButton editPagedBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
+        return BackButton.create(300, ignored -> AddPageTypeDialog.create(hologram, lineIndex, line));
     }
 
-    static ActionButton editPageBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
-        return DialogControl.backButton(300, audience -> EditPagedLineDialog.create(hologram, lineIndex, line, audience));
+    static ClickEventButton editPageBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
+        return BackButton.create(300, audience -> EditPagedLineDialog.create(hologram, lineIndex, line, audience));
     }
 
-    static ActionButton toggleButton(
+    static Button<?> toggleButton(
             final String label,
             final boolean current,
             final BiConsumer<Audience, Boolean> setter
     ) {
-        return ActionButton.builder(Component.text(label + ": " + (current ? "On" : "Off"), current ? NamedTextColor.GREEN : NamedTextColor.RED))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> setter.accept(audience, !current))))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> setter.accept(audience, !current)), Component.text(label + ": " + (current ? "On" : "Off"), current ? NamedTextColor.GREEN : NamedTextColor.RED));
     }
 
-    static ActionButton clickActionsButton(
+    static Button<?> clickActionsButton(
             final Hologram hologram,
             final HologramLine line,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text("Click Actions", NamedTextColor.LIGHT_PURPLE))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> ClickActionsDialog.create(hologram, line, header, note, reopen));
-                })))
-                .width(300)
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> ClickActionsDialog.create(hologram, line, header, note, reopen));
+        }), Component.text("Click Actions", NamedTextColor.LIGHT_PURPLE)).width(300);
     }
 
-    static ActionButton actionButton(
+    static Button<?> actionButton(
             final Hologram hologram,
             final HologramLine line,
             final Component header,
             final String name,
             final ClickAction<?> action,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         final var label = Component.text(name + ": " + DialogSupport.friendlyName(action.getActionType().name()));
-        return ActionButton.builder(label)
-                .tooltip(Component.text(DialogSupport.actionSummary(action)))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, name, action, header, note, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> EditActionDialog.create(hologram, line, name, action, header, note, reopen));
+        }), label).tooltip(Component.text(DialogSupport.actionSummary(action)));
     }
 
-    static <T> ActionButton actionTypeButton(
+    static <T> Button<?> actionTypeButton(
             final String label,
             final ActionType<T> type,
             final Hologram hologram,
             final HologramLine line,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text(label, NamedTextColor.GREEN))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> AddActionDialog.create(hologram, line, type, DialogSupport.defaultInput(line, type), header, note, "", reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> AddActionDialog.create(hologram, line, type, DialogSupport.defaultInput(line, type), header, note, "", reopen));
+        }), Component.text(label, NamedTextColor.GREEN));
     }
 
-    static ActionButton actionInputButton(
+    static Button<?> actionInputButton(
             final Hologram hologram,
             final HologramLine line,
             final String actionName,
             final ClickAction<?> action,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text("Input: " + DialogSupport.actionInputSummary(action)))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditActionInputDialog.create(hologram, line, actionName, action, header, note, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> EditActionInputDialog.create(hologram, line, actionName, action, header, note, reopen));
+        }), Component.text("Input: " + DialogSupport.actionInputSummary(action)));
     }
 
-    static ActionButton clickTypesButton(
+    static Button<?> clickTypesButton(
             final Hologram hologram,
             final HologramLine line,
             final String actionName,
             final ClickAction<?> action,
             final Component header,
             @Nullable final Component note,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text("Click Types: " + DialogSupport.clickTypesSummary(action.getClickTypes())))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> SelectClickTypesDialog.create(hologram, line, actionName, action, header, note, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> SelectClickTypesDialog.create(hologram, line, actionName, action, header, note, reopen));
+        }), Component.text("Click Types: " + DialogSupport.clickTypesSummary(action.getClickTypes())));
     }
 
-    static ActionButton visualGlowButton(
+    static Button<?> visualGlowButton(
             final Hologram hologram,
             final StaticHologramLine line,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         return DialogSupport.toggleButton("Glowing", line.isGlowing(), (audience, value) -> {
             line.setGlowing(value);
@@ -235,143 +213,123 @@ public final class DialogSupport {
         });
     }
 
-    static ActionButton visualGlowColorButton(
+    static Button<?> visualGlowColorButton(
             final Hologram hologram,
             final StaticHologramLine line,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         final var current = line.getGlowColor().orElse(null);
         final var label = Component.text("Glow Color: ")
                 .append(Component.text(DialogSupport.describeTextColor(current), current != null ? current : NamedTextColor.WHITE));
-        return ActionButton.builder(label)
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditGlowColorDialog.create(current, null, null, (target, color) -> {
-                        line.setGlowColor(color);
-                        DialogSupport.show(target, reopen);
-                    }, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> EditGlowColorDialog.create(current, null, null, (target, color) -> {
+                line.setGlowColor(color);
+                DialogSupport.show(target, reopen);
+            }, reopen));
+        }), label);
     }
 
-    static ActionButton visualBillboardButton(
+    static Button<?> visualBillboardButton(
             final Hologram hologram,
             final StaticHologramLine line,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text("Billboard: " + line.getBillboard().name(), NamedTextColor.YELLOW))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, current -> EditBillboardDialog.create(line, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, current -> EditBillboardDialog.create(line, reopen));
+        }), Component.text("Billboard: " + line.getBillboard().name(), NamedTextColor.YELLOW));
     }
 
-    static ActionButton visualBrightnessButton(
+    static Button<?> visualBrightnessButton(
             final Hologram hologram,
             final DisplayHologramLine line,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text("Brightness"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, current -> EditBrightnessDialog.create(line, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, current -> EditBrightnessDialog.create(line, reopen));
+        }), Component.text("Brightness"));
     }
 
-    static ActionButton visualOffsetButton(
+    static Button<?> visualOffsetButton(
             final Hologram hologram,
             final StaticHologramLine line,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         final var offset = line.getOffset();
-        return ActionButton.builder(Component.text("Offset: " + DialogSupport.formatDecimal(offset.x()) + ", " + DialogSupport.formatDecimal(offset.y()) + ", " + DialogSupport.formatDecimal(offset.z())))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, current -> EditOffsetDialog.create(line, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, current -> EditOffsetDialog.create(line, reopen));
+        }), Component.text("Offset: " + DialogSupport.formatDecimal(offset.x()) + ", " + DialogSupport.formatDecimal(offset.y()) + ", " + DialogSupport.formatDecimal(offset.z())));
     }
 
-    static ActionButton visualIntButton(
+    static Button<?> visualIntButton(
             final String label,
             final int current,
             final int min,
             final int max,
             final BiConsumer<Audience, Integer> setter,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text(label + ": " + current))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, currentDialog -> EditIntValueDialog.create(label, current, min, max, null, setter, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, currentDialog -> EditIntValueDialog.create(label, current, min, max, null, setter, reopen));
+        }), Component.text(label + ": " + current));
     }
 
-    static ActionButton visualLineWidthButton(
+    static Button<?> visualLineWidthButton(
             final int current,
             final BiConsumer<Audience, Integer> setter,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         final var text = current == Integer.MAX_VALUE ? "default" : Integer.toString(current);
-        return ActionButton.builder(Component.text("Line Width: " + text))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditLineWidthDialog.create(current, setter, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> EditLineWidthDialog.create(current, setter, reopen));
+        }), Component.text("Line Width: " + text));
     }
 
-    static ActionButton visualFloatButton(
+    static Button<?> visualFloatButton(
             final String label,
             final double current,
             final double min,
             final double max,
             final BiConsumer<Audience, Double> setter,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text(label + ": " + DialogSupport.formatDecimal(current)))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, currentDialog -> EditFloatValueDialog.create(label, current, min, max, null, setter, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, currentDialog -> EditFloatValueDialog.create(label, current, min, max, null, setter, reopen));
+        }), Component.text(label + ": " + DialogSupport.formatDecimal(current)));
     }
 
-    static ActionButton visualScaleButton(
+    static Button<?> visualScaleButton(
             final double current,
             final double min,
             final double max,
             final BiConsumer<Audience, Double> setter,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text("Scale: " + DialogSupport.formatDecimal(current)))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, currentDialog -> EditScaleDialog.create(current, min, max, null, setter, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, currentDialog -> EditScaleDialog.create(current, min, max, null, setter, reopen));
+        }), Component.text("Scale: " + DialogSupport.formatDecimal(current)));
     }
 
-    static ActionButton visualDisplayScaleButton(
+    static Button<?> visualDisplayScaleButton(
             final DisplayHologramLine line,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         final var scale = line.getTransformation().getScale();
-        return ActionButton.builder(Component.text("Scale: " + DialogSupport.formatDecimal(scale.x()) + ", " + DialogSupport.formatDecimal(scale.y()) + ", " + DialogSupport.formatDecimal(scale.z())))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditDisplayScaleDialog.create(line, null, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> EditDisplayScaleDialog.create(line, null, reopen));
+        }), Component.text("Scale: " + DialogSupport.formatDecimal(scale.x()) + ", " + DialogSupport.formatDecimal(scale.y()) + ", " + DialogSupport.formatDecimal(scale.z())));
     }
 
-    static ActionButton visualTextColorButton(
+    static Button<?> visualTextColorButton(
             final String label,
             @Nullable final TextColor current,
             final boolean allowReset,
             final BiConsumer<Audience, @Nullable TextColor> setter,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         final var text = current != null ? "#" + Integer.toHexString(current.value()) : "none";
-        return ActionButton.builder(Component.text(label + ": " + text))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, currentDialog -> EditTextColorDialog.create(label, current, allowReset ? Component.text("Blank resets the color") : null, setter, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, currentDialog -> EditTextColorDialog.create(label, current, allowReset ? Component.text("Blank resets the color") : null, setter, reopen));
+        }), Component.text(label + ": " + text));
     }
 
     static String describeTextColor(@Nullable final TextColor color) {
@@ -416,39 +374,35 @@ public final class DialogSupport {
         );
     }
 
-    static <E extends Enum<E>> ActionButton enumButton(
+    static <E extends Enum<E>> Button<?> enumButton(
             final String label,
             final E current,
             final Class<E> type,
             final Consumer<E> setter,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
-        return ActionButton.builder(Component.text(label + ": " + DialogSupport.friendlyName(current.name())))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditEnumDialog.create(label, current, type, setter, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> EditEnumDialog.create(label, current, type, setter, reopen));
+        }), Component.text(label + ": " + DialogSupport.friendlyName(current.name())));
     }
 
-    static List<ActionButton> addBack(final List<ActionButton> actions, final ActionButton back) {
+    static List<Button<?>> addBack(final List<Button<?>> actions, final Button<?> back) {
         final var buttons = new ArrayList<>(actions);
         buttons.add(back);
         return buttons;
     }
 
-    static ActionButton visualBackgroundColorButton(
+    static Button<?> visualBackgroundColorButton(
             final String label,
             @Nullable final Color current,
             final boolean allowReset,
             final BiConsumer<Audience, @Nullable Color> setter,
-            final Function<Audience, DialogLike> reopen
+            final Function<Audience, Dialog<?>> reopen
     ) {
         final var text = current != null ? "#" + Integer.toHexString(current.asARGB()) : "none";
-        return ActionButton.builder(Component.text(label + ": " + text))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, ignored -> EditBackgroundColorDialog.create(label, current, allowReset ? Component.text("Blank resets the color") : null, null, setter, reopen));
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, ignored -> EditBackgroundColorDialog.create(label, current, allowReset ? Component.text("Blank resets the color") : null, null, setter, reopen));
+        }), Component.text(label + ": " + text));
     }
 
     static ParseResult<Color> parseBackgroundColor(@Nullable final String input) {
@@ -573,41 +527,34 @@ public final class DialogSupport {
         }
     }
 
-    static ActionButton selectionButton(final Material material, final Consumer<Audience> selection) {
-        return ActionButton.builder(Component.text(DialogSupport.friendlyName(material.key().value())))
-                .tooltip(Component.text(material.key().asString()))
-                .action(DialogAction.staticAction(ClickEvent.callback(selection::accept)))
-                .build();
+    static Button<?> selectionButton(final Material material, final Consumer<Audience> selection) {
+        return Button.clickEvent(ClickEvent.callback(selection::accept), Component.text(DialogSupport.friendlyName(material.key().value()))).tooltip(Component.text(material.key().asString()));
     }
 
-    static ActionButton selectionButton(final EntityType entityType, final Consumer<Audience> selection) {
-        return ActionButton.builder(Component.text(DialogSupport.friendlyName(entityType.key().value())))
-                .tooltip(Component.text(entityType.key().asString()))
-                .action(DialogAction.staticAction(ClickEvent.callback(selection::accept)))
-                .build();
+    static Button<?> selectionButton(final EntityType entityType, final Consumer<Audience> selection) {
+        return Button.clickEvent(ClickEvent.callback(selection::accept), Component.text(DialogSupport.friendlyName(entityType.key().value()))).tooltip(Component.text(entityType.key().asString()));
     }
 
-    static ActionButton pageButton(final String label, final Consumer<Audience> action) {
-        return DialogControl.page(label, action);
+    static ClickEventButton pageButton(final String label, final Function<Audience, Dialog<?>> dialog) {
+        return DialogButton.create(Component.text(label), dialog);
     }
 
-    static ActionButton useHeldBlockButton(final BiConsumer<Audience, BlockData> selection) {
-        return ActionButton.builder(Component.text("Use Held Block", NamedTextColor.GREEN))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    if (!(audience instanceof final Player player)) {
-                        audience.sendMessage(Component.text("Only players can select a held block", NamedTextColor.RED));
-                        return;
-                    }
-                    final var material = player.getInventory().getItemInMainHand().getType();
-                    if (!material.isBlock()) {
-                        audience.sendMessage(Component.text("Held item is not a block", NamedTextColor.RED));
-                        return;
-                    }
-                    selection.accept(audience, material.createBlockData());
-                }))).build();
+    static ClickEventButton useHeldBlockButton(final BiConsumer<Audience, BlockData> selection) {
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            if (!(audience instanceof final Player player)) {
+                audience.sendMessage(Component.text("Only players can select a held block", NamedTextColor.RED));
+                return;
+            }
+            final var material = player.getInventory().getItemInMainHand().getType();
+            if (!material.isBlock()) {
+                audience.sendMessage(Component.text("Held item is not a block", NamedTextColor.RED));
+                return;
+            }
+            selection.accept(audience, material.createBlockData());
+        }), Component.text("Use Held Block", NamedTextColor.GREEN));
     }
 
-    static @Nullable ActionButton heldItemButton(
+    static @Nullable Button<?> heldItemButton(
             final Audience viewer,
             final String label,
             final BiConsumer<Audience, ItemStack> selection
@@ -615,11 +562,9 @@ public final class DialogSupport {
         if (!(viewer instanceof final Player player)) return null;
         final var item = player.getInventory().getItemInMainHand();
         if (item.getType().isAir()) return null;
-        return ActionButton.builder(Component.text(label, NamedTextColor.GREEN))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    selection.accept(audience, item);
-                })))
-                .build();
+        return Button.clickEvent(ClickEvent.callback(audience -> {
+            selection.accept(audience, item);
+        }), Component.text(label, NamedTextColor.GREEN));
     }
 
     static List<DialogBody> searchBody(
@@ -630,11 +575,11 @@ public final class DialogSupport {
             final int pageCount
     ) {
         final var body = new ArrayList<DialogBody>();
-        body.add(DialogBody.plainMessage(Component.text(prompt)));
-        if (note != null) body.add(DialogBody.plainMessage(note));
-        if (matches.isEmpty()) body.add(DialogBody.plainMessage(Component.text("No results")));
+        body.add(Body.text(Component.text(prompt)));
+        if (note != null) body.add(Body.text(note));
+        if (matches.isEmpty()) body.add(Body.text(Component.text("No results")));
         else if (pageCount > 1)
-            body.add(DialogBody.plainMessage(Component.text("Page " + (currentPage + 1) + " of " + pageCount)));
+            body.add(Body.text(Component.text("Page " + (currentPage + 1) + " of " + pageCount)));
         return body;
     }
 
@@ -839,8 +784,8 @@ public final class DialogSupport {
     record LocationInputs(String world, String x, String y, String z, String yaw, String pitch) {
     }
 
-    static DialogInput locationInput(final String key, final String label, final String initial) {
-        return DialogInput.text(key, Component.text(label)).initial(initial).build();
+    static Input<?> locationInput(final String key, final String label, final String initial) {
+        return Input.text(key, Component.text(label)).initial(initial);
     }
 
     static LocationInputs locationInputs(final Location location) {

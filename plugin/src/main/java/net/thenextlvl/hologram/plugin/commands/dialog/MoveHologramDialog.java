@@ -1,14 +1,10 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
@@ -18,26 +14,22 @@ final class MoveHologramDialog {
     private MoveHologramDialog() {
     }
 
-    static DialogLike create(final Hologram hologram, final Audience viewer) {
-        final var confirm = ActionButton.builder(Component.text("Yes"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    if (!(audience instanceof final Player player)) {
-                        DialogSupport.show(audience, current -> EditHologramDialog.create(hologram, current));
-                        return;
-                    }
+    static net.thenextlvl.dialogs.Dialog<?> create(final Hologram hologram, final Audience viewer) {
+        final var confirm = Button.clickEvent(ClickEvent.callback(audience -> {
+            if (!(audience instanceof final Player player)) {
+                DialogSupport.show(audience, current -> EditHologramDialog.create(hologram, current));
+                return;
+            }
 
-                    hologram.teleportAsync(player.getLocation());
-                    DialogSupport.show(audience, current -> EditHologramDialog.create(hologram, current));
-                }))).build();
+            hologram.teleportAsync(player.getLocation());
+            DialogSupport.show(audience, current -> EditHologramDialog.create(hologram, current));
+        }), Component.text("Yes"));
 
-        final var cancel = ActionButton.builder(Component.text("No"))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, current -> EditHologramDialog.create(hologram, current));
-                }))).build();
+        final var cancel = Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, current -> EditHologramDialog.create(hologram, current));
+        }), Component.text("No"));
 
-        return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Move " + hologram.getName() + " here?"))
-                        .build())
-                .type(DialogType.confirmation(confirm, cancel)));
+        final var dialog = Dialog.confirmation(cancel, confirm).title(Component.text("Move " + hologram.getName() + " here?"));
+        return dialog;
     }
 }

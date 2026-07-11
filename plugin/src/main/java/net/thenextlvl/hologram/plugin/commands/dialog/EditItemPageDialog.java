@@ -1,12 +1,11 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.line.ItemHologramLine;
 import net.thenextlvl.hologram.line.PagedHologramLine;
@@ -20,7 +19,7 @@ final class EditItemPageDialog {
     private EditItemPageDialog() {
     }
 
-    static DialogLike create(
+    static Dialog<?> create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine pagedLine,
@@ -29,23 +28,21 @@ final class EditItemPageDialog {
             @Nullable final Component note,
             final Audience viewer
     ) {
-        final var actions = new ArrayList<ActionButton>();
+        final var actions = new ArrayList<Button<?>>();
         final var setHeld = DialogSupport.heldItemButton(viewer, "Set to Held Item", (audience, item) -> {
             page.setItemStack(item);
             DialogSupport.show(audience, current -> EditPagedLineDialog.create(hologram, lineIndex, pagedLine, current));
         });
         if (setHeld != null) actions.add(setHeld);
-        final var visual = ActionButton.builder(Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    DialogSupport.show(audience, current -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
-                }))).build();
-        final var playerHead = ActionButton.builder(Component.text(
-                        "Player head: " + (page.isPlayerHead() ? "On" : "Off"),
-                        page.isPlayerHead() ? NamedTextColor.GREEN : NamedTextColor.RED))
-                .action(DialogAction.staticAction(ClickEvent.callback(audience -> {
-                    page.setPlayerHead(!page.isPlayerHead());
-                    DialogSupport.show(audience, current -> EditItemPageDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
-                }))).build();
+        final var visual = Button.clickEvent(ClickEvent.callback(audience -> {
+            DialogSupport.show(audience, current -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+        }), Component.text("Visual Options", NamedTextColor.LIGHT_PURPLE));
+        final var playerHead = Button.clickEvent(ClickEvent.callback(audience -> {
+            page.setPlayerHead(!page.isPlayerHead());
+            DialogSupport.show(audience, current -> EditItemPageDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
+        }), Component.text(
+                "Player head: " + (page.isPlayerHead() ? "On" : "Off"),
+                page.isPlayerHead() ? NamedTextColor.GREEN : NamedTextColor.RED));
         final var actionsButton = DialogSupport.clickActionsButton(hologram, page, Component.text("Page " + (pageIndex + 1)), note,
                 audience -> EditItemPageDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, viewer));
         actions.add(visual);

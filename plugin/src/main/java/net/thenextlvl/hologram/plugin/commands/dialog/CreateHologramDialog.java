@@ -47,7 +47,6 @@ final class CreateHologramDialog {
                         DialogSupport.show(audience, current -> CreateHologramDialog.create(name, text));
                     }
                 }, Component.text("Create")))
-                .exitAction(BackButton.create(150, ignored -> OverviewDialog.create()))
-                ;
+                .exitAction(BackButton.create(ignored -> OverviewDialog.create()).width(150));
     }
 }

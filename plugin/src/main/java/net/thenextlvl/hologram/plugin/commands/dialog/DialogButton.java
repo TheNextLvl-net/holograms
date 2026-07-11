@@ -15,11 +15,7 @@ final class DialogButton {
     private DialogButton() {
     }
 
-    static ClickEventButton create(final Component label, final Function<Audience, Dialog<?>> dialog) {
+    static ClickEventButton create(final Function<Audience, Dialog<?>> dialog, final Component label) {
         return Button.clickEvent(ClickEvent.callback(audience -> DialogSupport.show(audience, dialog)), label);
-    }
-
-    static ClickEventButton create(final Component label, final int width, final Function<Audience, Dialog<?>> dialog) {
-        return create(label, dialog).width(width);
     }
 }

@@ -97,7 +97,7 @@ public final class DialogSupport {
     }
 
     static ClickEventButton editHologramBackButton(final Hologram hologram) {
-        return BackButton.create(300, audience -> EditHologramDialog.create(hologram, audience));
+        return BackButton.create(audience -> EditHologramDialog.create(hologram, audience)).width(300);
     }
 
     static ClickEventButton deletePageButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line, final int pageIndex) {
@@ -118,11 +118,11 @@ public final class DialogSupport {
     }
 
     static ClickEventButton editPagedBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
-        return BackButton.create(300, ignored -> AddPageTypeDialog.create(hologram, lineIndex, line));
+        return BackButton.create(ignored -> AddPageTypeDialog.create(hologram, lineIndex, line)).width(300);
     }
 
     static ClickEventButton editPageBackButton(final Hologram hologram, final int lineIndex, final PagedHologramLine line) {
-        return BackButton.create(300, audience -> EditPagedLineDialog.create(hologram, lineIndex, line, audience));
+        return BackButton.create(audience -> EditPagedLineDialog.create(hologram, lineIndex, line, audience)).width(300);
     }
 
     static Button<?> toggleButton(
@@ -536,7 +536,7 @@ public final class DialogSupport {
     }
 
     static ClickEventButton pageButton(final String label, final Function<Audience, Dialog<?>> dialog) {
-        return DialogButton.create(Component.text(label), dialog);
+        return DialogButton.create(dialog, Component.text(label));
     }
 
     static ClickEventButton useHeldBlockButton(final BiConsumer<Audience, BlockData> selection) {

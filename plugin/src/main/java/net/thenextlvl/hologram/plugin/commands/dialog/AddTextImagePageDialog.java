@@ -4,6 +4,7 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.thenextlvl.dialogs.Dialog;
+import net.thenextlvl.dialogs.MultiActionDialog;
 import net.thenextlvl.dialogs.body.Body;
 import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.dialogs.input.Input;
@@ -20,7 +21,7 @@ final class AddTextImagePageDialog {
     private AddTextImagePageDialog() {
     }
 
-    static net.thenextlvl.dialogs.Dialog<?> create(
+    static MultiActionDialog create(
             final Hologram hologram,
             final int lineIndex,
             final PagedHologramLine line,
@@ -67,7 +68,6 @@ final class AddTextImagePageDialog {
         List.of(
                 Input.text("source", Component.text("Image source"))
                         .initial(sourceInitial)
-                        .maxLength(8192)
                         .build(),
                 Input.text("size", Component.text("Image size"))
                         .initial(sizeInitial)

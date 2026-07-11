@@ -28,8 +28,9 @@ final class ClickActionsDialog {
             final Function<Audience, Dialog<?>> reopen
     ) {
         final var actions = new ArrayList<Button<?>>();
-        actions.add(DialogButton.create(Component.text("Add Action", NamedTextColor.GREEN),
-                ignored -> SelectActionTypeDialog.create(hologram, line, header, note, reopen)));
+        actions.add(DialogButton.create(ignored -> {
+            return SelectActionTypeDialog.create(hologram, line, header, note, reopen);
+        }, Component.text("Add Action", NamedTextColor.GREEN)));
         line.getActions().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
                 .forEach(entry -> actions.add(DialogSupport.actionButton(hologram, line, header, entry.getKey(), entry.getValue(), note, reopen)));

@@ -18,26 +18,34 @@ final class EditHologramDialog {
     }
 
     static Dialog<?> create(final Hologram hologram, final Audience viewer) {
-        final var back = BackButton.create(300, ignored -> OverviewDialog.create());
+        final var back = BackButton.create(ignored -> OverviewDialog.create()).width(300);
 
         final var lines = hologram.getLines().toList();
         final var actions = new ArrayList<Button<?>>();
         for (var index = 0; index < lines.size(); index++) {
             final var line = lines.get(index);
             final var lineIndex = index;
-            actions.add(DialogButton.create(DialogSupport.lineLabel(lineIndex, line), audience -> EditLineDialog.create(hologram, lineIndex, audience))
-                    .tooltip(DialogSupport.linePreview(line, viewer)).width(300));
+
+            final var label = DialogSupport.lineLabel(lineIndex, line);
+            final var tooltip = DialogSupport.linePreview(line, viewer);
+            actions.add(DialogButton.create(audience -> {
+                return EditLineDialog.create(hologram, lineIndex, audience);
+            }, label).tooltip(tooltip).width(300));
         }
 
-        actions.add(DialogButton.create(Component.text("Add Line", NamedTextColor.GREEN), 300,
-                ignored -> AddLineTypeDialog.create(hologram)));
+        actions.add(DialogButton.create(ignored -> {
+            return AddLineTypeDialog.create(hologram);
+        }, Component.text("Add Line", NamedTextColor.GREEN)).width(300));
         if (lines.size() > 1)
-            actions.add(DialogButton.create(Component.text("Change order", NamedTextColor.LIGHT_PURPLE), 300,
-                    audience -> ChangeLineOrderDialog.create(hologram, audience)));
-        actions.add(DialogButton.create(Component.text("Teleport Hologram", NamedTextColor.AQUA), 300,
-                ignored -> TeleportHologramDialog.create(hologram)));
-        actions.add(DialogButton.create(Component.text("Rename Hologram", NamedTextColor.YELLOW), 300,
-                ignored -> RenameHologramDialog.create(hologram, hologram.getName(), null)));
+            actions.add(DialogButton.create(audience -> {
+                return ChangeLineOrderDialog.create(hologram, audience);
+            }, Component.text("Change order", NamedTextColor.LIGHT_PURPLE)).width(300));
+        actions.add(DialogButton.create(ignored -> {
+            return TeleportHologramDialog.create(hologram);
+        }, Component.text("Teleport Hologram", NamedTextColor.AQUA)).width(300));
+        actions.add(DialogButton.create(ignored -> {
+            return RenameHologramDialog.create(hologram, hologram.getName(), null);
+        }, Component.text("Rename Hologram", NamedTextColor.YELLOW)).width(300));
         actions.add(Button.clickEvent(ClickEvent.callback(audience ->
                 audience.showDialog(DeleteHologramDialog.create(hologram, audience).build())), Component.text("Delete Hologram", NamedTextColor.RED)).width(300));
 

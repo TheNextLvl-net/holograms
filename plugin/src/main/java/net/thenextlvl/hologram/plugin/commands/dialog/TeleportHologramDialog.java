@@ -82,7 +82,7 @@ final class TeleportHologramDialog {
                 .addButton(teleportPlayer)
                 .addButton(moveHere)
                 .addButton(move)
-                .addButton(BackButton.create(300, current -> EditHologramDialog.create(hologram, current)))
+                .addButton(BackButton.create(current -> EditHologramDialog.create(hologram, current)).width(300))
                 .columns(1);
         if (note != null) dialog.addBody(Body.text(note));
         return dialog;

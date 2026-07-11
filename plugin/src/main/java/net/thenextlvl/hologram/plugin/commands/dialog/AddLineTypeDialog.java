@@ -34,7 +34,7 @@ final class AddLineTypeDialog {
             final var line = hologram.addPagedLine();
             DialogSupport.show(audience, current -> EditPagedLineDialog.create(hologram, lineIndex, line, current));
         }), Component.text("Paged", NamedTextColor.GREEN)).width(300));
-        actions.add(BackButton.create(300, current -> EditHologramDialog.create(hologram, current)));
+        actions.add(BackButton.create(current -> EditHologramDialog.create(hologram, current)).width(300));
 
         final var dialog = Dialog.multiAction().title(Component.text("Add Line")).columns(1);
         actions.forEach(dialog::addButton);

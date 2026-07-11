@@ -14,10 +14,6 @@ final class BackButton {
     }
 
     static ClickEventButton create(final Function<Audience, Dialog<?>> dialog) {
-        return DialogButton.create(Component.text("Back"), dialog);
-    }
-
-    static ClickEventButton create(final int width, final Function<Audience, Dialog<?>> dialog) {
-        return create(dialog).width(width);
+        return DialogButton.create(dialog, Component.text("Back"));
     }
 }

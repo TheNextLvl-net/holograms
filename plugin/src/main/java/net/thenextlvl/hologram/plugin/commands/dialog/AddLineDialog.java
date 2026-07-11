@@ -1,6 +1,5 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
-import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -43,10 +42,9 @@ final class AddLineDialog {
         return dialog
                 .addButton(add)
                 .addButton(image)
-                .addInput(Input.text("text", Component.text("Line text"))
+                .addInput(Input.multiLineText("text", Component.text("Line text"))
                         .initial(DialogSupport.loadLineBreaks(initial))
-                        .maxLength(8192)
-                        .multiline(TextDialogInput.MultilineOptions.create(null, 120)))
+                        .inputHeight(10))
                 .exitAction(back);
     }
 }

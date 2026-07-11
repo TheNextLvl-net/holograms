@@ -55,9 +55,9 @@ final class AddTextImageLineDialog {
                 .title(Component.text("Add Image Line"))
                 .addBody(Body.text(Component.text("Enter the URL or file path for the image")));
         if (note != null) dialog.addBody(Body.text(note));
-        return dialog.addInput(Input.text("source", Component.text("Image source"))
+        return dialog.addInput(Input.multiLineText("source", Component.text("Image source"))
                         .initial(sourceInitial)
-                        .maxLength(8192))
+                        .inputHeight(10))
                 .addInput(Input.text("size", Component.text("Image size"))
                         .initial(sizeInitial))
                 .addButton(add)

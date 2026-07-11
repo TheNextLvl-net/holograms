@@ -57,7 +57,7 @@ final class SelectPageDialog {
                     .tooltip(DialogSupport.linePreview(page, viewer))
                     .width(300));
         }
-        final var back = BackButton.create(300, backDialog);
+        final var back = BackButton.create(backDialog).width(300);
 
         final var dialog = Dialog.multiAction().title(Component.text(title)).columns(1).exitAction(back);
         DialogSupport.bodyLines(description, note).forEach(dialog::addBody);

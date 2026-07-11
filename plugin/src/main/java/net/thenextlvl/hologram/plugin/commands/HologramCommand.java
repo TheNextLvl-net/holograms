@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.plugin.commands;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -39,7 +40,7 @@ public final class HologramCommand extends BrigadierCommand {
                 .then(Commands.literal("dialog").executes(context -> {
                     final var sender = context.getSource().getSender();
                     DialogSupport.showLast(sender);
-                    return 1;
+                    return Command.SINGLE_SUCCESS;
                 }))
                 .build();
     }

@@ -57,7 +57,8 @@ final class AddTextImageLineDialog {
         if (note != null) dialog.addBody(Body.text(note));
         return dialog.addInput(Input.multiLineText("source", Component.text("Image source"))
                         .initial(sourceInitial)
-                        .inputHeight(10))
+                        .width(300)
+                        .inputHeight(150))
                 .addInput(Input.text("size", Component.text("Image size"))
                         .initial(sizeInitial))
                 .addButton(add)

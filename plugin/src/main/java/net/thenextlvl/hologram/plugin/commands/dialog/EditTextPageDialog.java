@@ -32,7 +32,8 @@ final class EditTextPageDialog {
         return dialog
                 .addInput(Input.multiLineText("text", Component.text("Page text"))
                         .initial(DialogSupport.loadLineBreaks(page.getUnparsedText().orElse("")))
-                        .inputHeight(10))
+                        .width(300)
+                        .inputHeight(150))
                 .addButton(Button.callback((response, audience) -> {
                     final var input = response.getText("text");
                     final var text = input != null ? input.trim() : null;

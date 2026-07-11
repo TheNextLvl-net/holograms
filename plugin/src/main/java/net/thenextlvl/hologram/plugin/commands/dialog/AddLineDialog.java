@@ -44,7 +44,8 @@ final class AddLineDialog {
                 .addButton(image)
                 .addInput(Input.multiLineText("text", Component.text("Line text"))
                         .initial(DialogSupport.loadLineBreaks(initial))
-                        .inputHeight(10))
+                        .width(300)
+                        .inputHeight(150))
                 .exitAction(back);
     }
 }

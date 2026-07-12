@@ -1,4 +1,12 @@
-## Holograms – The Ultimate Hologram Plugin
+[![Banner](https://raw.githubusercontent.com/TheNextLvl-net/holograms/refs/heads/main/assets/banner.png)](https://thenextlvl.net/docs/holograms)
+
+<p align="center" style="text-align: center;">
+  <a href="https://thenextlvl.net/discord"><img src="https://tr7zw.github.io/uikit/social_buttons_icon/Discord-Button-64.png"></img></a>
+  <a href="https://modrinth.com/project/yWs5IQBz"><img src="https://tr7zw.github.io/uikit/social_buttons_icon/Modrinth-Button-64.png"></img></a>
+  <a href="https://github.com/TheNextLvl-net/holograms"><img src="https://tr7zw.github.io/uikit/social_buttons_icon/Github-Button-64.png"></img></a>
+</p>
+
+## The Most Advanced Hologram Plugin
 
 A feature-rich hologram plugin for Paper servers with first-class Folia support.  
 Create, customize, and manage holograms entirely in-game.
@@ -24,9 +32,5 @@ With **Holograms**, adding eye-catching displays to your server has never been e
 Whether you're a server owner or a developer, this plugin has you covered!
 
 ---
-
-[Download now](https://modrinth.com/project/yWs5IQBz)  
-[Check out the Wiki](https://thenextlvl.net/docs/holograms)  
-[Our Maven Repository](https://repo.thenextlvl.net/#/releases/net/thenextlvl/holograms)
 
 [![Usage](https://faststats.dev/embed/default:3a8954d0-6dd4-4e82-b0eb-e64fc2ecc68d:servers-and-players?w=1012)](https://faststats.dev/project/holograms)

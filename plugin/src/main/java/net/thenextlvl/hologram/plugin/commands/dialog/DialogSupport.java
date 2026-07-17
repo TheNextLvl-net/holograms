@@ -14,7 +14,10 @@ import net.thenextlvl.dialogs.Dialog;
 import net.thenextlvl.dialogs.body.Body;
 import net.thenextlvl.dialogs.button.Button;
 import net.thenextlvl.dialogs.button.ClickEventButton;
+import net.thenextlvl.dialogs.input.BooleanInput;
 import net.thenextlvl.dialogs.input.Input;
+import net.thenextlvl.dialogs.input.OptionInput;
+import net.thenextlvl.dialogs.input.SliderInput;
 import net.thenextlvl.hologram.Hologram;
 import net.thenextlvl.hologram.action.ActionType;
 import net.thenextlvl.hologram.action.ActionTypes;
@@ -38,6 +41,7 @@ import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -202,15 +206,17 @@ public final class DialogSupport {
         }), Component.text("Click Types: " + DialogSupport.clickTypesSummary(action.getClickTypes())));
     }
 
-    static Button<?> visualGlowButton(
+    static BooleanInput visualGlowButton(
             final Hologram hologram,
             final StaticHologramLine line,
             final Function<Audience, Dialog<?>> reopen
     ) {
-        return DialogSupport.toggleButton("Glowing", line.isGlowing(), (audience, value) -> {
-            line.setGlowing(value);
-            DialogSupport.show(audience, reopen);
-        });
+        return Input.bool("glowing", Component.text("Glowing"))
+                .initial(line.isGlowing());
+        // return DialogSupport.toggleButton("Glowing", line.isGlowing(), (audience, value) -> {
+        //     line.setGlowing(value);
+        //     DialogSupport.show(audience, reopen);
+        // });
     }
 
     static Button<?> visualGlowColorButton(
@@ -229,14 +235,19 @@ public final class DialogSupport {
         }), label);
     }
 
-    static Button<?> visualBillboardButton(
+    static OptionInput visualBillboardButton(
             final Hologram hologram,
             final StaticHologramLine line,
             final Function<Audience, Dialog<?>> reopen
     ) {
-        return Button.clickEvent(ClickEvent.callback(audience -> {
-            DialogSupport.show(audience, current -> EditBillboardDialog.create(line, reopen));
-        }), Component.text("Billboard: " + line.getBillboard().name(), NamedTextColor.YELLOW));
+        final var option = Input.option("billboard", Component.text("Billboard"));
+        for (final var value : Display.Billboard.values()) {
+            option.addOption(value.name().toLowerCase(Locale.ROOT), null, value.equals(line.getBillboard()));
+        }
+        return option;
+        // return Button.clickEvent(ClickEvent.callback(audience -> {
+        //     DialogSupport.show(audience, current -> EditBillboardDialog.create(line, reopen));
+        // }), Component.text("Billboard: " + line.getBillboard().name(), NamedTextColor.YELLOW));
     }
 
     static Button<?> visualBrightnessButton(
@@ -257,7 +268,7 @@ public final class DialogSupport {
         final var offset = line.getOffset();
         return Button.clickEvent(ClickEvent.callback(audience -> {
             DialogSupport.show(audience, current -> EditOffsetDialog.create(line, reopen));
-        }), Component.text("Offset: " + DialogSupport.formatDecimal(offset.x()) + ", " + DialogSupport.formatDecimal(offset.y()) + ", " + DialogSupport.formatDecimal(offset.z())));
+        }), Component.text("Offset: " + offset.x() + ", " + offset.y() + ", " + offset.z()));
     }
 
     static Button<?> visualIntButton(
@@ -297,16 +308,19 @@ public final class DialogSupport {
         }), Component.text(label + ": " + DialogSupport.formatDecimal(current)));
     }
 
-    static Button<?> visualScaleButton(
-            final double current,
-            final double min,
-            final double max,
+    static SliderInput visualScaleButton(
+            final float current,
+            final float min,
+            final float max,
             final BiConsumer<Audience, Double> setter,
             final Function<Audience, Dialog<?>> reopen
     ) {
-        return Button.clickEvent(ClickEvent.callback(audience -> {
-            DialogSupport.show(audience, currentDialog -> EditScaleDialog.create(current, min, max, null, setter, reopen));
-        }), Component.text("Scale: " + DialogSupport.formatDecimal(current)));
+        return Input.slider("scale", Component.text("Scale"), min, max)
+                .initial(current)
+                .step(0.5f);
+        // return Button.clickEvent(ClickEvent.callback(audience -> {
+        //     DialogSupport.show(audience, currentDialog -> EditScaleDialog.create(current, min, max, null, setter, reopen));
+        // }), Component.text("Scale: " + DialogSupport.formatDecimal(current)));
     }
 
     static Button<?> visualDisplayScaleButton(

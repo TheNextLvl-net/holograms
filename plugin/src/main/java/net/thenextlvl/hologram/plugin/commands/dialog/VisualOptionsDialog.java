@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
+import io.papermc.paper.registry.data.dialog.DialogBase;
 import net.kyori.adventure.text.Component;
 import net.thenextlvl.dialogs.Dialog;
 import net.thenextlvl.dialogs.body.Body;
@@ -15,14 +16,15 @@ final class VisualOptionsDialog {
     }
 
     static Dialog<?> create(
-            final String title,
             final Component header,
             @Nullable final Component note,
             final List<Button<?>> actions,
             final Button<?> back
     ) {
         final var dialog = Dialog.multiAction()
-                .title(Component.text(title))
+                .closeAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)
+                .title(Component.text("Visual Options"))
+                .columns(1)
                 .addBody(Body.text(header))
                 .addBody(Body.text(Component.text("Edit how this line looks")));
         if (note != null) dialog.addBody(Body.text(note));

@@ -24,9 +24,7 @@ final class EditTextLineVisualsDialog {
         final var back = BackButton.create(ignored -> EditTextLineDialog.create(hologram, lineIndex, line, line.getUnparsedText().orElse(""), null));
 
         final var actions = new ArrayList<Button<?>>();
-        actions.add(DialogSupport.visualGlowButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
         actions.add(DialogSupport.visualGlowColorButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
-        actions.add(DialogSupport.visualBillboardButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
         actions.add(DialogSupport.visualOffsetButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
         actions.add(DialogSupport.visualDisplayScaleButton(line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
         actions.add(DialogSupport.visualBrightnessButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
@@ -88,6 +86,8 @@ final class EditTextLineVisualsDialog {
         }));
         actions.add(DialogSupport.enumButton("Alignment", line.getAlignment(), TextAlignment.class, line::setAlignment,
                 audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
-        return VisualOptionsDialog.create("Visual Options", DialogSupport.lineLabel(lineIndex, line), null, actions, back);
+        return VisualOptionsDialog.create(DialogSupport.lineLabel(lineIndex, line), null, actions, back)
+                .addInput(DialogSupport.visualGlowButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)))
+                .addInput(DialogSupport.visualBillboardButton(hologram, line, audience -> EditTextLineVisualsDialog.create(hologram, lineIndex, line, audience)));
     }
 }

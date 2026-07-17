@@ -41,12 +41,12 @@ final class EditItemPageVisualsDialog {
         }));
         actions.add(DialogSupport.enumButton("Item Display", page.getItemDisplayTransform(), ItemDisplayTransform.class, page::setItemDisplayTransform,
                 audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
-        actions.add(DialogSupport.visualGlowButton(hologram, page, audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
         actions.add(DialogSupport.visualGlowColorButton(hologram, page, audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
-        actions.add(DialogSupport.visualBillboardButton(hologram, page, audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
         actions.add(DialogSupport.visualOffsetButton(hologram, page, audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
         actions.add(DialogSupport.visualDisplayScaleButton(page, audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
         actions.add(DialogSupport.visualBrightnessButton(hologram, page, audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
-        return VisualOptionsDialog.create("Visual Options", Component.text("Page " + (pageIndex + 1)), note, actions, back);
+        return VisualOptionsDialog.create(Component.text("Page " + (pageIndex + 1)), note, actions, back)
+                .addInput(DialogSupport.visualGlowButton(hologram, page, audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)))
+                .addInput(DialogSupport.visualBillboardButton(hologram, page, audience -> EditItemPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
     }
 }

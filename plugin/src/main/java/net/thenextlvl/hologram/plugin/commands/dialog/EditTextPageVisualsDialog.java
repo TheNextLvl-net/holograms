@@ -28,9 +28,7 @@ final class EditTextPageVisualsDialog {
         final var back = BackButton.create(ignored -> EditTextPageDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, null));
 
         final var actions = new ArrayList<Button<?>>();
-        actions.add(DialogSupport.visualGlowButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
         actions.add(DialogSupport.visualGlowColorButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
-        actions.add(DialogSupport.visualBillboardButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
         actions.add(DialogSupport.visualOffsetButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
         actions.add(DialogSupport.visualDisplayScaleButton(page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
         actions.add(DialogSupport.visualBrightnessButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
@@ -92,6 +90,8 @@ final class EditTextPageVisualsDialog {
         }));
         actions.add(DialogSupport.enumButton("Alignment", page.getAlignment(), TextAlignment.class, page::setAlignment,
                 audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
-        return VisualOptionsDialog.create("Visual Options", Component.text("Page " + (pageIndex + 1)), null, actions, back);
+        return VisualOptionsDialog.create(Component.text("Page " + (pageIndex + 1)), null, actions, back)
+                .addInput(DialogSupport.visualGlowButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)))
+                .addInput(DialogSupport.visualBillboardButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
     }
 }

@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
+import io.papermc.paper.registry.data.dialog.DialogBase;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -20,6 +21,7 @@ final class AddLineDialog {
         final var back = BackButton.create(ignored -> AddLineTypeDialog.create(hologram));
 
         final var dialog = Dialog.multiAction()
+                .closeAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)
                 .title(Component.text("Add Line"))
                 .addBody(Body.text(Component.text("Enter the text for the new line")));
         if (note != null) dialog.addBody(Body.text(note));

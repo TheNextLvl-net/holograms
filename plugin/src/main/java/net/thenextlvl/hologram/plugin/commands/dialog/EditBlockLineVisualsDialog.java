@@ -26,17 +26,16 @@ final class EditBlockLineVisualsDialog {
         final var back = BackButton.create(ignored -> EditBlockLineDialog.create(hologram, lineIndex, line, note));
 
         final var actions = new ArrayList<Button<?>>();
-        final var held = DialogSupport.useHeldBlockButton((audience, block) -> {
+        actions.add(DialogSupport.useHeldBlockButton((audience, block) -> {
             line.setBlock(block);
             DialogSupport.show(audience, current -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, current));
-        });
-        if (held != null) actions.add(held);
-        actions.add(DialogSupport.visualGlowButton(hologram, line, audience -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
+        }));
         actions.add(DialogSupport.visualGlowColorButton(hologram, line, audience -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
-        actions.add(DialogSupport.visualBillboardButton(hologram, line, audience -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualOffsetButton(hologram, line, audience -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualDisplayScaleButton(line, audience -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualBrightnessButton(hologram, line, audience -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
-        return VisualOptionsDialog.create("Visual Options", DialogSupport.lineLabel(lineIndex, line), note, actions, back);
+        return VisualOptionsDialog.create(DialogSupport.lineLabel(lineIndex, line), note, actions, back)
+                .addInput(DialogSupport.visualGlowButton(hologram, line, audience -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, audience)))
+                .addInput(DialogSupport.visualBillboardButton(hologram, line, audience -> EditBlockLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
     }
 }

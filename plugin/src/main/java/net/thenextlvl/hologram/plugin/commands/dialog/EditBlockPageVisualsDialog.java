@@ -33,13 +33,13 @@ final class EditBlockPageVisualsDialog {
             page.setBlock(block);
             DialogSupport.show(audience, current -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, current));
         });
-        if (held != null) actions.add(held);
-        actions.add(DialogSupport.visualGlowButton(hologram, page, audience -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
+        actions.add(held);
         actions.add(DialogSupport.visualGlowColorButton(hologram, page, audience -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
-        actions.add(DialogSupport.visualBillboardButton(hologram, page, audience -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
         actions.add(DialogSupport.visualOffsetButton(hologram, page, audience -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
         actions.add(DialogSupport.visualDisplayScaleButton(page, audience -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
         actions.add(DialogSupport.visualBrightnessButton(hologram, page, audience -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
-        return VisualOptionsDialog.create("Visual Options", Component.text("Page " + (pageIndex + 1)), note, actions, back);
+        return VisualOptionsDialog.create(Component.text("Page " + (pageIndex + 1)), note, actions, back)
+                .addInput(DialogSupport.visualGlowButton(hologram, page, audience -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)))
+                .addInput(DialogSupport.visualBillboardButton(hologram, page, audience -> EditBlockPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, note, audience)));
     }
 }

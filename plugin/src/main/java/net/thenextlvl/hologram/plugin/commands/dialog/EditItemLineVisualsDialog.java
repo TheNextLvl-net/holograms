@@ -38,12 +38,12 @@ final class EditItemLineVisualsDialog {
         }));
         actions.add(DialogSupport.enumButton("Item Display", line.getItemDisplayTransform(), ItemDisplayTransform.class, line::setItemDisplayTransform,
                 audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
-        actions.add(DialogSupport.visualGlowButton(hologram, line, audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualGlowColorButton(hologram, line, audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
-        actions.add(DialogSupport.visualBillboardButton(hologram, line, audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualOffsetButton(hologram, line, audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualDisplayScaleButton(line, audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualBrightnessButton(hologram, line, audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
-        return VisualOptionsDialog.create("Visual Options", DialogSupport.lineLabel(lineIndex, line), note, actions, back);
+        return VisualOptionsDialog.create(DialogSupport.lineLabel(lineIndex, line), note, actions, back)
+                .addInput(DialogSupport.visualGlowButton(hologram, line, audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)))
+                .addInput(DialogSupport.visualBillboardButton(hologram, line, audience -> EditItemLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
     }
 }

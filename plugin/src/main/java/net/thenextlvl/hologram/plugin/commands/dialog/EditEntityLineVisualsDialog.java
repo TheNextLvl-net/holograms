@@ -26,14 +26,14 @@ final class EditEntityLineVisualsDialog {
         final var back = BackButton.create(ignored -> EditEntityLineDialog.create(hologram, lineIndex, line, note));
 
         final var actions = new ArrayList<Button<?>>();
-        actions.add(DialogSupport.visualGlowButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualGlowColorButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
-        actions.add(DialogSupport.visualBillboardButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
         actions.add(DialogSupport.visualOffsetButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
-        actions.add(DialogSupport.visualScaleButton(line.getScale(), 0.1d, 100.0d, (audience, value) -> {
-            line.setScale(value);
-            DialogSupport.show(audience, current -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, current));
-        }, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
-        return VisualOptionsDialog.create("Visual Options", DialogSupport.lineLabel(lineIndex, line), note, actions, back);
+        return VisualOptionsDialog.create(DialogSupport.lineLabel(lineIndex, line), note, actions, back)
+                .addInput(DialogSupport.visualGlowButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)))
+                .addInput(DialogSupport.visualScaleButton((float) line.getScale(), .1F, 100F, (audience, value) -> {
+                    line.setScale(value);
+                    DialogSupport.show(audience, current -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, current));
+                }, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)))
+                .addInput(DialogSupport.visualBillboardButton(hologram, line, audience -> EditEntityLineVisualsDialog.create(hologram, lineIndex, line, note, audience)));
     }
 }

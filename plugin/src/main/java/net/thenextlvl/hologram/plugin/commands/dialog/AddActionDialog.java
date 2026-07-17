@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
+import io.papermc.paper.registry.data.dialog.DialogBase;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -55,6 +56,7 @@ final class AddActionDialog {
         });
 
         final var dialog = Dialog.multiAction()
+                .closeAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)
                 .title(Component.text("Add Action"))
                 .addBody(Body.text(Component.text("Create a " + DialogSupport.friendlyName(type.name()) + " action")))
                 .addBody(Body.text(Component.text("You can edit its modifiers after creating it")));

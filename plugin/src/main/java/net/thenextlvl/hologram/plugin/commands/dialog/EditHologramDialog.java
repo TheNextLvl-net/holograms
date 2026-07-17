@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
+import io.papermc.paper.registry.data.dialog.DialogBase;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -51,7 +52,10 @@ final class EditHologramDialog {
 
         actions.add(back);
 
-        final var dialog = Dialog.multiAction().title(Component.text(hologram.getName())).columns(1);
+        final var dialog = Dialog.multiAction()
+                .closeAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)
+                .title(Component.text(hologram.getName()))
+                .columns(1);
         actions.forEach(dialog::addButton);
         if (lines.isEmpty()) dialog.addBody(Body.text(Component.text("No lines have been added yet")));
         return dialog;

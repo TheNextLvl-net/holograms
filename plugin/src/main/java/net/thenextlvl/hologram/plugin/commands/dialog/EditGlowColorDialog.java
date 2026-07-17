@@ -1,5 +1,6 @@
 package net.thenextlvl.hologram.plugin.commands.dialog;
 
+import io.papermc.paper.registry.data.dialog.DialogBase;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -54,6 +55,7 @@ final class EditGlowColorDialog {
         actions.add(save);
         actions.add(reset);
         final var dialog = Dialog.multiAction()
+                .closeAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)
                 .title(Component.text("Glow Color"))
                 .addBody(Body.text(Component.text("Pick a named color or enter a hex value")))
                 .addBody(Body.text(Component.text("Use Reset to clear the glow color")))

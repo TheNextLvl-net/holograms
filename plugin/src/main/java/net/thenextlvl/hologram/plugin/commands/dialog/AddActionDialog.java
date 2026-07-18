@@ -54,7 +54,6 @@ final class AddActionDialog {
         final var back = BackButton.create(ignored -> {
             return SelectActionTypeDialog.create(hologram, line, header, note, reopen);
         });
-
         final var dialog = Dialog.multiAction()
                 .closeAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)
                 .title(Component.text("Add Action"))

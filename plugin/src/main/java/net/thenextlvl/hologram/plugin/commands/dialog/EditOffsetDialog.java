@@ -21,16 +21,12 @@ final class EditOffsetDialog {
     private EditOffsetDialog() {
     }
 
-    static Dialog<?> create(
-            final StaticHologramLine line,
-            final Function<Audience, Dialog<?>> reopen
-    ) {
+    static Dialog<?> create(final StaticHologramLine line, final Function<Audience, Dialog<?>> reopen) {
         final var current = line.getOffset();
         return Dialog.confirmation(saveButton(line, reopen), BackButton.create(reopen))
                 .closeAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)
                 .title(Component.text("Offset"))
                 .addBody(Body.text(Component.text("Set the entity offset")))
-                .closeWithEscape(true)
                 .addInput(Input.slider("x", Component.text("X"), -16, 16).initial(current.x()).step(.1F))
                 .addInput(Input.slider("y", Component.text("Y"), -16, 16).initial(current.y()).step(.1F))
                 .addInput(Input.slider("z", Component.text("Z"), -16, 16).initial(current.z()).step(.1F));

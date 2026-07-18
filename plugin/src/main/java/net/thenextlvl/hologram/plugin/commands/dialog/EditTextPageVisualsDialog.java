@@ -91,7 +91,6 @@ final class EditTextPageVisualsDialog {
         actions.add(DialogSupport.enumButton("Alignment", page.getAlignment(), TextAlignment.class, page::setAlignment,
                 audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
         return VisualOptionsDialog.create(Component.text("Page " + (pageIndex + 1)), null, actions, back)
-                .addInput(DialogSupport.visualGlowButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)))
                 .addInput(DialogSupport.visualBillboardButton(hologram, page, audience -> EditTextPageVisualsDialog.create(hologram, lineIndex, pagedLine, pageIndex, page, audience)));
     }
 }

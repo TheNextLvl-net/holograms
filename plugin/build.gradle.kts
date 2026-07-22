@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("26.2.build.+")
+    paperweight.paperDevBundle("26.2.build.65-beta")
 
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.2.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.12.3")
